@@ -1,71 +1,51 @@
 package com.uniquid.uniquid_core.message;
 
-import com.google.gson.JsonObject;
+public class MessageResponse {
+	
+	private Message message;
+	
+	public MessageResponse() {
+		this.message = new Message();
+	}
+	
+	public MessageResponse(Message message) {
+		this.message = message;
+	}
+	
+	public String getSender() {
+		return message.getSender();
+	}
 
-public class MessageResponse extends Message {
-    String result;
-    int error;
+	public void setSender(String sender) {
+		message.setSender(sender);
+	}
+	
+	public String getResult() {
+		return (String) message.getBody().get("result");
+	}
 
-    String receiver;
+	public void setResult(String result) {
+		message.getBody().put("result", result);
+	}
 
-    /*{
-        "sender":"base58",
-        "body":{
-            "result":"",
-            "error"; ,
-            "id":
-        }
+	public Object getError() {
+		return message.getBody().get("error");
+	}
 
-    }*/
+	public void setError(String error) {
+		message.getBody().put("error", error);
+	}
 
-    public MessageResponse(){
+	public int getId() {
+		return (int) message.getBody().get("id");
+	}
 
-    }
-
-    public MessageResponse(String sender, String result, int error, long id){
-        super(sender, id);
-        this.result = result;
-        this.error = error;
-    }
-
-    public String createRegistryMsgResponse(){
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("sender", super.getSender());
-        JsonObject body = new JsonObject();
-        body.addProperty("result", result);
-        body.addProperty("error", error);
-        body.addProperty("id", super.getMsg_id());
-        jsonObject.add("body", body);
-
-        return jsonObject.toString();
-    }
-
-    public void setResult(String result) {
-        this.result = result;
-    }
-
-    public String getResult() {
-        return result;
-    }
-
-    public void setError(int error){
-        this.error = error;
-    }
-
-    public String getSender() {
-        return super.getSender();
-    }
-
-    public long getId() {
-        return super.getMsg_id();
-    }
-
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
-    }
-
-    public String getReceiver() {
-        return receiver;
-    }
+	public void setId(int id) {
+		message.getBody().put("id", id);
+	}
+	
+	public String toJSONString() {
+		return message.toJSON();
+	}
 
 }

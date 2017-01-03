@@ -70,9 +70,9 @@ public class MQTTMessageService extends MessageService {
 
 			byte[] payload = message.getPayload();
 
-			MessageRequest messageRequest = new MessageRequest();
+			MessageRequest messageRequest = MessageRequest.fromJSONString(new String(payload));
 			
-			parseReqMessage(payload, messageRequest);
+//			parseReqMessage(payload, messageRequest);
 			
 			// process the message then
 			message.ack();
@@ -121,7 +121,7 @@ public class MQTTMessageService extends MessageService {
 			byte[] qoses = connection.subscribe(topics);
 
 			// consume
-			connection.publish(topic, messageResponse.createRegistryMsgResponse().getBytes(), QoS.AT_LEAST_ONCE, false);
+			connection.publish(topic, messageResponse.toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
 			
 		} catch (Exception ex) {
 			

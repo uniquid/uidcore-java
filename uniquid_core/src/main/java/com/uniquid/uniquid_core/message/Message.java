@@ -1,35 +1,96 @@
 package com.uniquid.uniquid_core.message;
 
-/**
- * Created by beatriz on 11/17/2016 for Uniquid Inc..
- */
+import java.util.Iterator;
+import java.util.Map;
 
-public class Message {
-    String sender;
-    long msg_id;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-    public Message(){
-        // empty constructor
-    }
+//Request:
+// {
+//  "sender":"id",
+//  "body": {
+//     "method":22,
+//     "params":"{}",
+//     "id":12344
+//  }
+// }
+// Response
+//{
+// "sender":"id",
+// "body": {
+//     "result":"",
+//     "error":0,
+//     "id":1234
+// }
+//}
+//
+//
+class Message {
 
-    public Message(String sender, long msg_id) {
-        this.sender = sender;
-        this.msg_id = msg_id;
-    }
+	private String sender;
+	private Map<String, Object> body;
 
-    public String getSender() {
-        return sender;
-    }
+	Message() {
+		// empty constructor
+	}
 
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
+	public String getSender() {
+		return sender;
+	}
 
-    public long getMsg_id() {
-        return msg_id;
-    }
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
 
-    public void setMsg_id(long msg_id) {
-        this.msg_id = msg_id;
-    }
+	public Map<String, Object> getBody() {
+		return body;
+	}
+
+	public void setBody(Map<String, Object> body) {
+		this.body = body;
+	}
+
+	public String toJSON() {
+
+		// Create empty json object
+		JSONObject jsonObject = new JSONObject();
+
+		// populate sender
+		jsonObject.put("sender", sender);
+
+		// Create empty json child
+		JSONObject jsonbody = new JSONObject();
+
+		// Put all keys inside body
+		for (Iterator<String> iterator = body.keySet().iterator(); iterator.hasNext() ; ) {
+
+			String key = (String) iterator.next();
+
+			jsonbody.put(key, body.get(key));
+
+		}
+
+		// Add body
+		jsonObject.put("body", jsonbody);
+
+		return jsonObject.toString();
+	}
+	
+	public static Message fromJsonString(String string) throws JSONException {
+
+		Message message = new Message();
+
+		JSONObject jsonMessage = new JSONObject(string);
+
+		message.setSender(jsonMessage.getString("sender"));
+
+		JSONObject jsonBody = jsonMessage.getJSONObject("body");
+
+		message.setBody(jsonBody.toMap());
+
+		return message;
+
+	}
+
 }

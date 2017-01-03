@@ -1,7 +1,5 @@
 package com.uniquid.uniquid_core.message;
 
-import java.nio.charset.StandardCharsets;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -11,11 +9,12 @@ public abstract class MessageService {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(MessageService.class.getName());
 	
-	protected int parseReqMessage(String payload, MessageRequest messageRequest) {
-		
-		return parseReqMessage(payload.getBytes(), messageRequest);
-		
-	}
+//	protected int parseReqMessage(String payload, MessageRequest messageRequest) {
+//		
+////		return parseReqMessage(payload.getBytes(), messageRequest);
+//		return 0;
+//		
+//	}
 
 	/**
 	 * Parse a message into a MessageRequest
@@ -25,39 +24,39 @@ public abstract class MessageService {
 	 * @param messageRequest
 	 *            message parsed
 	 */
-	protected int parseReqMessage(byte[] message, MessageRequest messageRequest) {
-
-		String m = new String(message, StandardCharsets.UTF_8);
-
-		try {
-
-			JSONObject jMessage = new JSONObject(m);
-			String address = jMessage.getString("sender");
-			messageRequest.setSender(address);
-			JSONObject body = jMessage.getJSONObject("body");
-
-			if (isRpcReq(body)) {
-
-				messageRequest.setMethod(body.getInt("method"));
-				String params = body.getString("params");
-				messageRequest.setParams(params);
-				messageRequest.setMsg_id(body.getLong("id"));
-
-			} else {
-
-				return -1;
-
-			}
-
-		} catch (JSONException ex) {
-
-			LOGGER.error("Exception during JSON manipulation", ex);
-			return -1;
-
-		}
-
-		return 0;
-	}
+//	protected int parseReqMessage(byte[] message, MessageRequest messageRequest) {
+//
+//		String m = new String(message, StandardCharsets.UTF_8);
+//
+//		try {
+//
+//			JSONObject jMessage = new JSONObject(m);
+//			String address = jMessage.getString("sender");
+//			messageRequest.setSender(address);
+//			JSONObject body = jMessage.getJSONObject("body");
+//
+//			if (isRpcReq(body)) {
+//
+//				messageRequest.setMethod(body.getInt("method"));
+//				String params = body.getString("params");
+//				messageRequest.setParams(params);
+//				messageRequest.setMsg_id(body.getLong("id"));
+//
+//			} else {
+//
+//				return -1;
+//
+//			}
+//
+//		} catch (JSONException ex) {
+//
+//			LOGGER.error("Exception during JSON manipulation", ex);
+//			return -1;
+//
+//		}
+//
+//		return 0;
+//	}
 	
 	/**
 	 * Check if {@param json} is a JSON-RPC request

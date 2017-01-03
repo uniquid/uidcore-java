@@ -83,7 +83,7 @@ public final class Core {
 
 						LOGGER.info("UNODE " + request.getParams());
 						Register registerNode = registerFactory.createRegister();
-						List<Node> nodes = (List<Node>) registerNode.getRegistry(Node.class, request.getParams());
+						List<Node> nodes = (List<Node>) registerNode.getRegistry(Node.class, (String) request.getParams());
 						JsonArray res = gson.toJsonTree(nodes).getAsJsonArray();
 						LOGGER.info("UNODES", res.toString());
 						response.append(res.toString());
@@ -132,7 +132,7 @@ public final class Core {
 						LOGGER.info("UCONTRACT", request.getParams());
 						Register registerContract = registerFactory.createRegister();
 						List<Contract> contracts = (List<Contract>) registerContract.getRegistry(Contract.class,
-								request.getParams());
+								(String) request.getParams());
 						JsonArray respo = gson.toJsonTree(contracts).getAsJsonArray();
 						response.append(respo.toString());
 					}
@@ -173,7 +173,7 @@ public final class Core {
 						
 						Register registerContract = registerFactory.createRegister();
 						List<Contract> contracts = (List<Contract>) registerContract.getRegistry(Contract.class,
-								request.getParams());
+								(String) request.getParams());
 						JsonArray respo = gson.toJsonTree(contracts).getAsJsonArray();
 						response.append(respo.toString());
 					}
@@ -289,7 +289,11 @@ public final class Core {
 				// call filter if exists
 				FunctionFilter functionFilter = getFilter(request.getMethod());
 				
-				functionFilter.doFilter(request);
+				if (functionFilter != null) {
+				
+					functionFilter.doFilter(request);
+				
+				}
 
 				function.performFunction(request, response);
 				return RESULT_OK;
@@ -320,31 +324,31 @@ public final class Core {
 	 *            the message parsed
 	 * @return 0 if no errors, an errore code otherwise
 	 */
-	public int parseRespMessage(byte[] message, MessageResponse messageResponse) {
-		String m = new String(message, StandardCharsets.UTF_8);
-		try {
-			JSONObject jMessage = new JSONObject(m);
-			String address = jMessage.getString("sender");
-			messageResponse.setSender(address);
-			LOGGER.info("MESSAGE_UTILS", address);
-			String body = jMessage.getString("body");
-			if (isRpcResp(body)) {
-				LOGGER.info("MESSAGE", "is a jsonRpc");
-				JSONObject jsonObject = new JSONObject(body);
-				messageResponse.setResult(jsonObject.getString("result"));
-				messageResponse.setError(jsonObject.getInt("error"));
-				messageResponse.setMsg_id(jsonObject.getLong("id"));
-			} else {
-				return -1;
-			}
-		} catch (JSONException ex) {
-
-			LOGGER.error("Exception catched during JSON manipulation", ex);
-			return -1;
-
-		}
-		return 0;
-	}
+//	public int parseRespMessage(byte[] message, MessageResponse messageResponse) {
+//		String m = new String(message, StandardCharsets.UTF_8);
+//		try {
+//			JSONObject jMessage = new JSONObject(m);
+//			String address = jMessage.getString("sender");
+//			messageResponse.setSender(address);
+//			LOGGER.info("MESSAGE_UTILS", address);
+//			String body = jMessage.getString("body");
+//			if (isRpcResp(body)) {
+//				LOGGER.info("MESSAGE", "is a jsonRpc");
+//				JSONObject jsonObject = new JSONObject(body);
+//				messageResponse.setResult(jsonObject.getString("result"));
+//				messageResponse.setError(jsonObject.getInt("error"));
+//				messageResponse.setMsg_id(jsonObject.getLong("id"));
+//			} else {
+//				return -1;
+//			}
+//		} catch (JSONException ex) {
+//
+//			LOGGER.error("Exception catched during JSON manipulation", ex);
+//			return -1;
+//
+//		}
+//		return 0;
+//	}
 
 	/**
 	 * Check if exist a contract between this node and the requester
@@ -387,7 +391,7 @@ public final class Core {
 		messageRequest.setSender(channel.getClientAddress());
 		messageRequest.setMethod(method);
 		messageRequest.setParams(params);
-		messageRequest.setMsg_id(100);
+		messageRequest.setId(100);
 		return 0;
 	}
 
@@ -403,10 +407,10 @@ public final class Core {
 	 * @param messageResponse
 	 *            object to fill with datas
 	 */
-	public int formatRespMessage(StringBuilder response, int error, long msg_id, MessageResponse messageResponse) {
+	public int formatRespMessage(StringBuilder response, int error, int msg_id, MessageResponse messageResponse) {
 		messageResponse.setResult(response.toString());
-		messageResponse.setError(error);
-		messageResponse.setMsg_id(msg_id);
+		messageResponse.setError(String.valueOf(error));
+		messageResponse.setId(msg_id);
 		return 0;
 	}
 
@@ -455,7 +459,7 @@ public final class Core {
 	
 		                    MessageResponse messageResponse = new MessageResponse();
 		                    
-		                    formatRespMessage(result, error, messageRequest.getMsg_id(), messageResponse);
+		                    formatRespMessage(result, error, messageRequest.getId(), messageResponse);
 		                    
 		                    messageResponse.setSender(spvNode.getWallet().currentReceiveAddress().toBase58());
 		                    
