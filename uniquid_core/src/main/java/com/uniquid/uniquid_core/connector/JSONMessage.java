@@ -1,4 +1,4 @@
-package com.uniquid.uniquid_core.message;
+package com.uniquid.uniquid_core.connector;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -26,12 +26,12 @@ import org.json.JSONObject;
 //}
 //
 //
-class Message {
+class JSONMessage {
 
 	private String sender;
 	private Map<String, Object> body;
 
-	Message() {
+	JSONMessage() {
 		// empty constructor
 	}
 
@@ -77,9 +77,9 @@ class Message {
 		return jsonObject.toString();
 	}
 	
-	public static Message fromJsonString(String string) throws JSONException {
+	public static JSONMessage fromJsonString(String string) throws JSONException {
 
-		Message message = new Message();
+		JSONMessage message = new JSONMessage();
 
 		JSONObject jsonMessage = new JSONObject(string);
 

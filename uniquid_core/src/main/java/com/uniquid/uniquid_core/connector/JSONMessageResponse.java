@@ -1,14 +1,14 @@
-package com.uniquid.uniquid_core.message;
+package com.uniquid.uniquid_core.connector;
 
-public class MessageResponse {
+public class JSONMessageResponse {
 	
-	private Message message;
+	private JSONMessage message;
 	
-	public MessageResponse() {
-		this.message = new Message();
+	public JSONMessageResponse() {
+		this.message = new JSONMessage();
 	}
 	
-	public MessageResponse(Message message) {
+	public JSONMessageResponse(JSONMessage message) {
 		this.message = message;
 	}
 	

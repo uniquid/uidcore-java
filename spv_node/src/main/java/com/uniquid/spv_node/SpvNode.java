@@ -14,7 +14,6 @@ import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
-import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
 import org.bitcoinj.wallet.WalletFiles;
@@ -22,9 +21,9 @@ import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.register.Channel;
-import com.uniquid.register.Register;
 import com.uniquid.register.RegisterFactory;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.provider.ProviderRegister;
 
 public class SpvNode {
 
@@ -82,24 +81,24 @@ public class SpvNode {
 					// ArrayList<>();
 					// transactions.addAll(wallet.getTransactions(false));
 					ArrayList<Address> addresses = (ArrayList<Address>) wallet.getIssuedReceiveAddresses();
-					Register register = registerFactory.createRegister();
+					ProviderRegister register = registerFactory.createProviderRegister();
 	
-					Channel channel = new Channel();
+					ProviderChannel channel = new ProviderChannel();
 					String sender = tx.getInput(0).getFromAddress().toBase58();
-					channel.setName(sender); // TODO HACK
+					//channel.setProviderName(sender); // TODO HACK
 					channel.setProviderAddress(sender);
 					List<TransactionOutput> transactionOutputs = tx.getOutputs();
 					for (TransactionOutput to : transactionOutputs) {
 						Address a = to.getAddressFromP2PKHScript(params);
 						if (a != null && addresses.contains(a)) {
-							channel.setClientAddress(a.toBase58());
+							channel.setUserAddress(a.toBase58());
 						}
 					}
 	
 					// Insert channel if it was not already present
-					if (register.getChannel(channel.getName()) == null) {
-						register.insertChannel(channel);
-					}
+//					if (register.getChannel(channel.getProviderAddress()) == null) {
+//						register.insertChannel(channel);
+//					}
 	
 				} catch (Exception ex) {
 					LOGGER.error("Exception while populating Register", ex);

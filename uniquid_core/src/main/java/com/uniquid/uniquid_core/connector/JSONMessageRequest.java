@@ -1,10 +1,10 @@
-package com.uniquid.uniquid_core.message;
+package com.uniquid.uniquid_core.connector;
 
-public class MessageRequest {
+public class JSONMessageRequest {
 	
-	private Message message;
+	private JSONMessage message;
 	
-	public MessageRequest(Message message) {
+	public JSONMessageRequest(JSONMessage message) {
 		this.message = message;
 	}
 	
@@ -44,10 +44,10 @@ public class MessageRequest {
 		return message.toJSON();
 	}
 	
-	public static MessageRequest fromJSONString(String jsonString) {
-		Message message = Message.fromJsonString(jsonString);
+	public static JSONMessageRequest fromJSONString(String jsonString) {
+		JSONMessage message = JSONMessage.fromJsonString(jsonString);
 		
-		return new MessageRequest(message);
+		return new JSONMessageRequest(message);
 	}
 
 }

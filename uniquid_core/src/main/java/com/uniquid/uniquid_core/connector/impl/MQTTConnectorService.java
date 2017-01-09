@@ -1,4 +1,4 @@
-package com.uniquid.uniquid_core.message.impl;
+package com.uniquid.uniquid_core.connector.impl;
 
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
@@ -8,18 +8,19 @@ import org.fusesource.mqtt.client.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.uniquid_core.message.MessageRequest;
-import com.uniquid.uniquid_core.message.MessageResponse;
-import com.uniquid.uniquid_core.message.MessageService;
+import com.uniquid.uniquid_core.connector.JSONMessageRequest;
+import com.uniquid.uniquid_core.connector.JSONMessageResponse;
+import com.uniquid.uniquid_core.function.FunctionResponse;
+import com.uniquid.uniquid_core.connector.ConnectorService;
 
-public class MQTTMessageService extends MessageService {
+public class MQTTConnectorService extends ConnectorService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MQTTMessageService.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(MQTTConnectorService.class.getName());
 
 	private String topic;
 	private String broker;
 
-	private MQTTMessageService(String topic, String broker) {
+	private MQTTConnectorService(String topic, String broker) {
 
 		this.topic = topic;
 		this.broker = broker;
@@ -39,15 +40,15 @@ public class MQTTMessageService extends MessageService {
 			return this;
 		}
 		
-		public MQTTMessageService build() {
+		public MQTTConnectorService build() {
 			
-			return new MQTTMessageService(_topic, _broker);
+			return new MQTTConnectorService(_topic, _broker);
 		}
 		
 	}
 
 	@Override
-	public MessageRequest receiveRequest() {
+	public MQTTFunctionRequest receiveRequest() {
 
 		BlockingConnection connection = null;
 		
@@ -70,14 +71,14 @@ public class MQTTMessageService extends MessageService {
 
 			byte[] payload = message.getPayload();
 
-			MessageRequest messageRequest = MessageRequest.fromJSONString(new String(payload));
+			JSONMessageRequest messageRequest = JSONMessageRequest.fromJSONString(new String(payload));
 			
 //			parseReqMessage(payload, messageRequest);
 			
 			// process the message then
 			message.ack();
 			
-			return messageRequest;
+			return new MQTTFunctionRequest();
 			
 		} catch (Exception ex) {
 			
@@ -103,7 +104,7 @@ public class MQTTMessageService extends MessageService {
 	}
 
 	@Override
-	public void sendResponse(MessageResponse messageResponse) {
+	public void sendResponse(FunctionResponse messageResponse) {
 		
 		BlockingConnection connection = null;
 
@@ -121,7 +122,7 @@ public class MQTTMessageService extends MessageService {
 			byte[] qoses = connection.subscribe(topics);
 
 			// consume
-			connection.publish(topic, messageResponse.toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
+			//connection.publish(topic, messageResponse.toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
 			
 		} catch (Exception ex) {
 			

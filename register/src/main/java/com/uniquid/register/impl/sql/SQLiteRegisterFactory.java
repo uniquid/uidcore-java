@@ -4,8 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Map;
 
-import com.uniquid.register.Register;
 import com.uniquid.register.RegisterFactory;
+import com.uniquid.register.provider.ProviderRegister;
 
 public class SQLiteRegisterFactory extends RegisterFactory {
 
@@ -19,8 +19,7 @@ public class SQLiteRegisterFactory extends RegisterFactory {
 		super(configuration);
 	}
 
-	@Override
-	public synchronized Register createRegister() throws Exception {
+	private synchronized SQLiteRegister createRegister() throws Exception {
 		
 		if (INSTANCE == null) {
 			
@@ -40,6 +39,11 @@ public class SQLiteRegisterFactory extends RegisterFactory {
 		
 		return INSTANCE;
 
+	}
+
+	@Override
+	public ProviderRegister createProviderRegister() throws Exception {
+		return createRegister();
 	}
 
 }
