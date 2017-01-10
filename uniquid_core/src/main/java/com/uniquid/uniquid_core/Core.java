@@ -11,8 +11,8 @@ import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.spv_node.SpvNode;
-import com.uniquid.uniquid_core.connector.ConnectorService;
-import com.uniquid.uniquid_core.connector.ConnectorServiceFactory;
+import com.uniquid.uniquid_core.connector.Connector;
+import com.uniquid.uniquid_core.connector.ConnectorFactory;
 import com.uniquid.uniquid_core.function.Function;
 import com.uniquid.uniquid_core.function.FunctionRequest;
 import com.uniquid.uniquid_core.function.FunctionResponse;
@@ -32,14 +32,14 @@ public final class Core {
 	public static final int RESULT_NO_FUNCTION = 3;
 
 	private RegisterFactory registerFactory;
-	private ConnectorServiceFactory connectorServiceFactory;
+	private ConnectorFactory connectorServiceFactory;
 	private SpvNode spvNode;
 	
 	private Thread thread;
 
 	private final Map<Integer, Function> functionsMap = new HashMap<>();
 
-	public Core(RegisterFactory registerFactory, ConnectorServiceFactory connectorServiceFactory, SpvNode spvNode) {
+	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, SpvNode spvNode) {
 
 		// Register core functions
 		functionsMap.put(0, new ContractFunction());
@@ -53,7 +53,7 @@ public final class Core {
 
 	public Function getFunction(FunctionRequest functionRequest) {
 
-		return functionsMap.get(functionRequest.getAttribute(FunctionRequest.FUNCTION_NUMBER));
+		return functionsMap.get(functionRequest.getParameter(FunctionRequest.METHOD));
 
 	}
 	
@@ -122,13 +122,13 @@ public final class Core {
 				
 					try {
 
-						ConnectorService connectorService = connectorServiceFactory.createConnectorService();
+						Connector connectorService = connectorServiceFactory.createConnector();
 						
 						// this will block until a message is received
 						FunctionRequest functionRequest = connectorService.receiveRequest();
 						
 						// Retrieve sender
-						String sender = (String) functionRequest.getAttribute(FunctionRequest.SENDER);
+						String sender = functionRequest.getParameter(FunctionRequest.SENDER);
 						
 						ProviderRegister providerRegister = registerFactory.createProviderRegister();
 						

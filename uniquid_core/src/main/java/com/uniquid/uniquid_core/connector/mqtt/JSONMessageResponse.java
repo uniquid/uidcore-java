@@ -1,4 +1,4 @@
-package com.uniquid.uniquid_core.connector;
+package com.uniquid.uniquid_core.connector.mqtt;
 
 public class JSONMessageResponse {
 	

@@ -6,12 +6,15 @@ package com.uniquid.uniquid_core.function;
 public interface FunctionRequest {
 	
 	public static final String SENDER = "SENDER";
-	public static final String FUNCTION_NUMBER = "FUNCTION_NUMBER";
+	public static final String METHOD = "METHOD";
+	public static final String PARAMS = "PARAMS";
+	public static final String ID = "ID";
 
 	/**
-	 * Returns the value of the named attribute as an Object, or null if no attribute of the given name exists.
+	 ** Returns the value of a request parameter as a <code>String</code>, or
+	 * <code>null</code> if the parameter does not exist.
 	 */
-	public Object getAttribute(String name);
+	public String getParameter(String name);
 	
 	/**
 	 * Retrieves the body of the request as binary data using a ServletInputStream.

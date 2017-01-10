@@ -1,4 +1,4 @@
-package com.uniquid.uniquid_core.connector;
+package com.uniquid.uniquid_core.connector.mqtt;
 
 import java.util.Iterator;
 import java.util.Map;

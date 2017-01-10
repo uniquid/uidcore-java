@@ -16,7 +16,7 @@ public class EchoFunction extends GenericFunction {
 	public void service(FunctionRequest functionRequest, FunctionResponse functionResponse)
 			throws FunctionException, IOException {
 		
-		String params = (String) functionRequest.getAttribute("param");
+		String params = functionRequest.getParameter("param");
 		
 		OutputStream outputStream = functionResponse.getOutputStream();
 		
