@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.uniquid.uniquid_core.connector.Connector;
 import com.uniquid.uniquid_core.connector.ConnectorException;
+import com.uniquid.uniquid_core.connector.EndPoint;
 import com.uniquid.uniquid_core.function.FunctionResponse;
 
 public class MQTTConnector implements Connector {
@@ -48,7 +49,7 @@ public class MQTTConnector implements Connector {
 	}
 
 	@Override
-	public MQTTMessageRequest receiveRequest() throws ConnectorException {
+	public EndPoint accept() throws ConnectorException {
 
 		BlockingConnection connection = null;
 
@@ -69,16 +70,21 @@ public class MQTTConnector implements Connector {
 			Message message = connection.receive();
 
 			byte[] payload = message.getPayload();
-			
+
 			// process the message then
 			message.ack();
 
-			return MQTTMessageRequest.fromJSONString(new String(payload));
+			MQTTMessageRequest mqttMessageRequest = MQTTMessageRequest.fromJSONString(new String(payload));
+
+			EndPoint endPoint = new MQTTEndPoint(this, mqttMessageRequest,
+					new MQTTMessageResponse(mqttMessageRequest.getJSONMessage()));
+
+			return endPoint;
 
 		} catch (Exception ex) {
 
 			LOGGER.error("Catched Exception", ex);
-			
+
 			throw new ConnectorException("Catched exception", ex);
 
 		} finally {
@@ -91,7 +97,7 @@ public class MQTTConnector implements Connector {
 			} catch (Exception ex) {
 
 				LOGGER.error("Catched Exception", ex);
-				
+
 				throw new ConnectorException("Catched exception", ex);
 
 			}
@@ -100,8 +106,7 @@ public class MQTTConnector implements Connector {
 
 	}
 
-	@Override
-	public void sendResponse(FunctionResponse messageResponse) {
+	public void sendResponse(JSONMessageResponse messageResponse) {
 
 		BlockingConnection connection = null;
 
@@ -119,9 +124,7 @@ public class MQTTConnector implements Connector {
 			byte[] qoses = connection.subscribe(topics);
 
 			// consume
-			// connection.publish(topic,
-			// messageResponse.toJSONString().getBytes(), QoS.AT_LEAST_ONCE,
-			// false);
+			connection.publish(topic, messageResponse.toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
 
 		} catch (Exception ex) {
 

@@ -32,7 +32,7 @@ public class JSONMessageResponse {
 		return message.getBody().get("error");
 	}
 
-	public void setError(String error) {
+	public void setError(int error) {
 		message.getBody().put("error", error);
 	}
 

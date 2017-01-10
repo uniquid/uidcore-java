@@ -12,7 +12,7 @@ public class ContractFunction extends GenericFunction {
 	@Override
 	public void service(FunctionRequest functionRequest, FunctionResponse functionResponse)
 			throws FunctionException, IOException {
-		// TODO
+		throw new UnsupportedOperationException("Method not yet implemented");
 	}
 	
 	@Override

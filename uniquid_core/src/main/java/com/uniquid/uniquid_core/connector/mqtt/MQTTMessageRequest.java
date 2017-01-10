@@ -32,10 +32,23 @@ public class MQTTMessageRequest implements FunctionRequest {
 		throw new UnsupportedOperationException("Method not yet implemented");
 	}
 	
-	public static MQTTMessageRequest fromJSONString(String jsonString) {
+	public JSONMessage getJSONMessage() {
+		return jsonMessage;
+	}
+	
+	public static MQTTMessageRequest fromJSONString(String jsonString) throws Exception {
 		JSONMessage message = JSONMessage.fromJsonString(jsonString);
 		
-		return new MQTTMessageRequest(message);
+		// check for valid request message
+		if (message.getSender() != null &&
+				message.getBody().get("method") != null &&
+				message.getBody().get("id") != null &&
+				message.getBody().get("params") != null) {
+			return new MQTTMessageRequest(message);
+		}
+
+		throw new Exception("Received invalid message: " + jsonString);
+		
 	}
 
 }

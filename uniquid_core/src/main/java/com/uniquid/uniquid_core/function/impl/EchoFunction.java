@@ -1,9 +1,7 @@
 package com.uniquid.uniquid_core.function.impl;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.PrintWriter;
 
 import com.uniquid.uniquid_core.function.FunctionException;
 import com.uniquid.uniquid_core.function.FunctionRequest;
@@ -16,15 +14,9 @@ public class EchoFunction extends GenericFunction {
 	public void service(FunctionRequest functionRequest, FunctionResponse functionResponse)
 			throws FunctionException, IOException {
 		
-		String params = functionRequest.getParameter("param");
+		PrintWriter printWriter = functionResponse.getWriter();
 		
-		OutputStream outputStream = functionResponse.getOutputStream();
-		
-		Writer writer = new OutputStreamWriter(outputStream);
-		
-		writer.write("UID_echo: " + params);
-		
-		writer.close();
+		printWriter.print("UID_echo: " + functionRequest.getParameter(FunctionRequest.PARAMS));
 		
 	}
 	

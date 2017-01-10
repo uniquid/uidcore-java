@@ -1,5 +1,6 @@
 package com.uniquid.uniquid_core.connector.mqtt;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -32,7 +33,8 @@ class JSONMessage {
 	private Map<String, Object> body;
 
 	JSONMessage() {
-		// empty constructor
+		sender = "";
+		body = new HashMap<String, Object>();
 	}
 
 	public String getSender() {

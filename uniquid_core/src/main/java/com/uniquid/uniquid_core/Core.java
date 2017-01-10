@@ -1,6 +1,7 @@
 package com.uniquid.uniquid_core;
 
-import java.util.BitSet;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,11 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.uniquid.register.RegisterFactory;
-import com.uniquid.register.provider.ProviderChannel;
-import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.spv_node.SpvNode;
 import com.uniquid.uniquid_core.connector.Connector;
 import com.uniquid.uniquid_core.connector.ConnectorFactory;
+import com.uniquid.uniquid_core.connector.EndPoint;
 import com.uniquid.uniquid_core.function.Function;
 import com.uniquid.uniquid_core.function.FunctionRequest;
 import com.uniquid.uniquid_core.function.FunctionResponse;
@@ -30,11 +30,12 @@ public final class Core {
 	public static final int RESULT_OK = 0;
 	public static final int RESULT_NO_PERMISSION = 2;
 	public static final int RESULT_NO_FUNCTION = 3;
+	public static final int RESULT_ERROR = 4;
 
 	private RegisterFactory registerFactory;
 	private ConnectorFactory connectorServiceFactory;
 	private SpvNode spvNode;
-	
+
 	private Thread thread;
 
 	private final Map<Integer, Function> functionsMap = new HashMap<>();
@@ -52,11 +53,13 @@ public final class Core {
 	}
 
 	public Function getFunction(FunctionRequest functionRequest) {
+		
+		String method = functionRequest.getParameter(FunctionRequest.METHOD);
 
-		return functionsMap.get(functionRequest.getParameter(FunctionRequest.METHOD));
+		return functionsMap.get(Integer.valueOf(method).intValue());
 
 	}
-	
+
 	public void addFunction(Function function, int value) {
 
 		if (value >= 32) {
@@ -66,7 +69,7 @@ public final class Core {
 		}
 
 	}
-	
+
 	/**
 	 * Execute a command in range 0-31
 	 * 
@@ -76,30 +79,38 @@ public final class Core {
 	 *            object to fill with the execution result
 	 * @throws ClassNotFoundException
 	 */
-	private int performRequest(FunctionRequest functionRequest, FunctionResponse functionResponse) {
+	private void performRequest(FunctionRequest functionRequest, FunctionResponse functionResponse) {
 
 		Function function = getFunction(functionRequest);
 
 		if (function != null) {
 
 			try {
-				
-				function.service(functionRequest, functionResponse);
-				return RESULT_OK;
 
+				function.service(functionRequest, functionResponse);
+				functionResponse.setStatus(RESULT_OK);
+				
 			} catch (Exception ex) {
 
 				LOGGER.error("Exception", ex);
+				functionResponse.setStatus(RESULT_ERROR);
+				
+				PrintWriter printWriter;
+				try {
+					printWriter = functionResponse.getWriter();
+					printWriter.print("Error while executing function: " + ex.getMessage());
+				} catch (IOException ex2) {
+					
+					LOGGER.error("Exception", ex2);
+				}
 
 			}
 
 		} else {
 
-			return RESULT_NO_FUNCTION;
+			functionResponse.setStatus(RESULT_NO_FUNCTION);
 
 		}
-
-		return RESULT_OK;
 
 	}
 
@@ -107,66 +118,71 @@ public final class Core {
 	 * Initialize the library and start processing
 	 */
 	public void start() {
-		
+
 		// Init node
 		spvNode.startNode();
-		
+
 		// Create a thread to wait for messages
 		thread = new Thread() {
-			
+
 			@Override
 			public void run() {
-				
+
 				// until not interrupted
 				while (!Thread.currentThread().isInterrupted()) {
-				
+
 					try {
 
 						Connector connectorService = connectorServiceFactory.createConnector();
-						
+
 						// this will block until a message is received
-						FunctionRequest functionRequest = connectorService.receiveRequest();
-						
+						EndPoint endPoint = connectorService.accept();
+
+						FunctionRequest functionRequest = endPoint.getFunctionRequest();
+
+						FunctionResponse functionResponse = endPoint.getFunctionResponse();
+
+//						ProviderRegister providerRegister = registerFactory.createProviderRegister();
+
 						// Retrieve sender
 						String sender = functionRequest.getParameter(FunctionRequest.SENDER);
-						
-						ProviderRegister providerRegister = registerFactory.createProviderRegister();
-						
-						ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
-						
+
+						// ProviderChannel providerChannel =
+						// providerRegister.getChannelByUserAddress(sender);
+
 						// Check if there is a channel available
-						if (providerChannel != null) {
-							
-							// check bitmask
-							BitSet bitset = providerChannel.getBitmask();
-							
-		                    int error = performRequest(functionRequest, null);
-	
-		                    connectorService.sendResponse(null);
-		                    
-		            		}
-						
+						// if (providerChannel != null) {
+
+						// check bitmask
+						// BitSet bitset = providerChannel.getBitmask();
+
+						performRequest(functionRequest, functionResponse);
+
+						endPoint.close();
+
+						// }
+
 					} catch (Exception ex) {
-						
+
 						LOGGER.error("Exception catched", ex);
 
 					}
-				
+
 				}
-				
+
 			}
-			
+
 		};
-		
+
 		// Start thread
 		thread.start();
-		
+
 	}
-	
+
 	public void shutdown() {
-		
+
 		thread.interrupt();
-		
+
 		spvNode.stopNode();
 	}
 

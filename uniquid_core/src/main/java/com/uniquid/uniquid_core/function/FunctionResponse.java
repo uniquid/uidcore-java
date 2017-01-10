@@ -13,4 +13,8 @@ public interface FunctionResponse {
 	public FunctionOutputStream getOutputStream() throws IOException;
 	
 	public PrintWriter getWriter() throws IOException;
+	
+	public void setStatus(int status);
+	
+	public int getStatus();
 }
