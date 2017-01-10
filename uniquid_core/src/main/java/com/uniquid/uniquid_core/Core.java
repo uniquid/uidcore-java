@@ -157,6 +157,8 @@ public final class Core {
 							// check bitmask
 							// BitSet bitset = providerChannel.getBitmask();
 
+							functionResponse.setSender(spvNode.getWallet().currentReceiveAddress().toBase58());
+
 							performRequest(functionRequest, functionResponse);
 
 							endPoint.close();

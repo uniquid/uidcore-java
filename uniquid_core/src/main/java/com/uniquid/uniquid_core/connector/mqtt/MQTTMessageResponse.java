@@ -13,6 +13,7 @@ public class MQTTMessageResponse implements FunctionResponse {
 	private StringWriter stringWriter;
 	private JSONMessage jsonRequest;
 	private int status;
+	private String sender;
 
 	public MQTTMessageResponse(JSONMessage jsonRequest) {
 		
@@ -52,6 +53,16 @@ public class MQTTMessageResponse implements FunctionResponse {
 	@Override
 	public int getStatus() {
 		return status;
+	}
+
+	@Override
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
+
+	@Override
+	public String getSender() {
+		return sender;
 	}
 
 }

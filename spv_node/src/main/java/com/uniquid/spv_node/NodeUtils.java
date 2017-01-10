@@ -2,6 +2,7 @@ package com.uniquid.spv_node;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -173,10 +174,54 @@ public class NodeUtils {
 		} else {
 
 			DeterministicSeed dSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
-			wallet = Wallet.fromSeed(params, dSeed);
+			//wallet = Wallet.fromSeed(params, dSeed);
 
-			LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
+			//LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
+			
+			byte[] seed = dSeed.getSeedBytes();
 
+	        List<Wallet> wallets = new ArrayList<>();
+
+	        DeterministicKey hdPriv = HDKeyDerivation.createMasterPrivateKey(seed);
+	        LOGGER.info("START_NODE tpriv: " + hdPriv.serializePrivB58(params));
+
+//	        Find child M/44'/0'
+	        List<ChildNumber> imprintingChild = ImmutableList.of(
+	                new ChildNumber(44, true),
+	                new ChildNumber(0, true)
+	        );
+
+	        DeterministicHierarchy detH = new DeterministicHierarchy(hdPriv);
+	        DeterministicKey imprinting = detH.get(imprintingChild, true, true);
+	        LOGGER.info("Imprinting key tpub: " + imprinting.serializePubB58(params));
+
+	        DeterministicKey contract_orch = detH.deriveChild(
+	                imprintingChild,
+	                true,
+	                true,
+	                new ChildNumber(0, false)
+	        );
+	        DeterministicKey machines_key = DeterministicKey.deserializeB58(
+	                null,
+	                contract_orch.dropParent().serializePrivB58(params),
+	                params);
+	        DeterministicHierarchy machines_hierarchy = new DeterministicHierarchy(machines_key);
+
+	        DeterministicKey provider_key = machines_hierarchy.get(
+	                ImmutableList.of(new ChildNumber(0, false)),
+	                true,
+	                true);
+	        wallet = Wallet.fromWatchingKeyB58(
+	                params,
+	                provider_key.serializePubB58(params),
+	                123456789L,
+	                ImmutableList.of(new ChildNumber(0, false))
+	        );
+	        
+	        LOGGER.info("Provider key tpub: " + provider_key.serializePubB58(params));
+	        
+	        wallets.add(wallet);
+			
 		}
 
 		return wallet;

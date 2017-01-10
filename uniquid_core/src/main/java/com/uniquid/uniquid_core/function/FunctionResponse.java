@@ -17,4 +17,8 @@ public interface FunctionResponse {
 	public void setStatus(int status);
 	
 	public int getStatus();
+	
+	public void setSender(String sender);
+	
+	public String getSender();
 }
