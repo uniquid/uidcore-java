@@ -3,6 +3,7 @@ package com.uniquid.spv_node;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -14,13 +15,17 @@ import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.store.BlockStoreException;
+import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
 import org.bitcoinj.wallet.WalletFiles;
 import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
@@ -115,6 +120,11 @@ public class SpvNode {
 		return wallet;
 
 	}
+	
+	public NetworkParameters getNetworkParameters() {
+		
+		return params;
+	}
 
 	public void startNode() {
 
@@ -157,6 +167,21 @@ public class SpvNode {
 		// NativeSecp256k1.schnorrSign();
 		return (wallet.getTransaction(Sha256Hash.of(txid.getBytes())) != null);
 	}
+	
+	public String signTransaction(String s_tx) throws BlockStoreException, InterruptedException, ExecutionException {
+        byte[] transaction = Hex.decode(s_tx);
+                
+        Transaction tx = params.getDefaultSerializer().makeTransaction(transaction);
+        
+        SendRequest request = SendRequest.forTx(tx);
+        
+        wallet.signTransaction(request);
+        
+        LOGGER.info("" + request.tx);
+        
+        return NodeUtils.sendTransaction(params, wallet, chainFile, request);
+        
+    }
 
 	public static class Builder {
 

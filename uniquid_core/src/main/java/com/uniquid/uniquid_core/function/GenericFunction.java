@@ -3,15 +3,19 @@ package com.uniquid.uniquid_core.function;
 import java.io.IOException;
 import java.util.Enumeration;
 
+import com.uniquid.spv_node.SpvNode;
+
 /*
  * Defines a generic, protocol-independent function.
  */
 public abstract class GenericFunction implements Function, FunctionConfig {
 	
 	private transient FunctionConfig config;
+	protected SpvNode spvNode;
 	
-	public GenericFunction() {
+	public GenericFunction(SpvNode spvNode) {
 		// NOTHING TO DO
+		this.spvNode = spvNode;
 	}
 
 	@Override

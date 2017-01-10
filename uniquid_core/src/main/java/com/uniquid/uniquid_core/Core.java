@@ -45,8 +45,8 @@ public final class Core {
 	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, SpvNode spvNode) {
 
 		// Register core functions
-		functionsMap.put(0, new ContractFunction());
-		functionsMap.put(31, new EchoFunction());
+		functionsMap.put(30, new ContractFunction(spvNode));
+		functionsMap.put(31, new EchoFunction(spvNode));
 
 		this.registerFactory = registerFactory;
 		this.connectorServiceFactory = connectorServiceFactory;
