@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.uniquid.register.RegisterFactory;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.spv_node.SpvNode;
 import com.uniquid.uniquid_core.connector.Connector;
 import com.uniquid.uniquid_core.connector.ConnectorFactory;
@@ -53,7 +55,7 @@ public final class Core {
 	}
 
 	public Function getFunction(FunctionRequest functionRequest) {
-		
+
 		String method = functionRequest.getParameter(FunctionRequest.METHOD);
 
 		return functionsMap.get(Integer.valueOf(method).intValue());
@@ -89,18 +91,18 @@ public final class Core {
 
 				function.service(functionRequest, functionResponse);
 				functionResponse.setStatus(RESULT_OK);
-				
+
 			} catch (Exception ex) {
 
 				LOGGER.error("Exception", ex);
 				functionResponse.setStatus(RESULT_ERROR);
-				
+
 				PrintWriter printWriter;
 				try {
 					printWriter = functionResponse.getWriter();
 					printWriter.print("Error while executing function: " + ex.getMessage());
 				} catch (IOException ex2) {
-					
+
 					LOGGER.error("Exception", ex2);
 				}
 
@@ -142,25 +144,28 @@ public final class Core {
 
 						FunctionResponse functionResponse = endPoint.getFunctionResponse();
 
-//						ProviderRegister providerRegister = registerFactory.createProviderRegister();
+						ProviderRegister providerRegister = registerFactory.createProviderRegister();
 
 						// Retrieve sender
 						String sender = functionRequest.getParameter(FunctionRequest.SENDER);
 
-						// ProviderChannel providerChannel =
-						// providerRegister.getChannelByUserAddress(sender);
+						ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
 
 						// Check if there is a channel available
-						// if (providerChannel != null) {
+						if (providerChannel != null) {
 
-						// check bitmask
-						// BitSet bitset = providerChannel.getBitmask();
+							// check bitmask
+							// BitSet bitset = providerChannel.getBitmask();
 
-						performRequest(functionRequest, functionResponse);
+							performRequest(functionRequest, functionResponse);
 
-						endPoint.close();
+							endPoint.close();
 
-						// }
+						} else {
+							
+							LOGGER.warn("No channel found associated with address: " + sender);
+							
+						}
 
 					} catch (Exception ex) {
 
