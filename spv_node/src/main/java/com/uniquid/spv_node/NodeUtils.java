@@ -214,7 +214,7 @@ public class NodeUtils {
 	        wallet = Wallet.fromWatchingKeyB58(
 	                params,
 	                provider_key.serializePubB58(params),
-	                123456789L,
+	                creationTime,
 	                ImmutableList.of(new ChildNumber(0, false))
 	        );
 	        

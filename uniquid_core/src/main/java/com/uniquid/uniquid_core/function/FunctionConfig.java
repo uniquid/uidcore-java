@@ -7,11 +7,6 @@ import java.util.Enumeration;
  */
 public interface FunctionConfig {
 	
-	/**
-	 *  Returns the name of this function instance.
-	 */
-	 public String getFunctionName();
-	 
 	 /**
 	  *  Returns a reference to the FunctionContext in which the caller is executing.
 	  */

@@ -13,10 +13,6 @@ import com.uniquid.uniquid_core.function.GenericFunction;
 
 public class ContractFunction extends GenericFunction {
 
-	public ContractFunction(SpvNode spvNode) {
-		super(spvNode);
-	}
-
 	@Override
 	public void service(FunctionRequest functionRequest, FunctionResponse functionResponse)
 			throws FunctionException, IOException {
@@ -28,6 +24,8 @@ public class ContractFunction extends GenericFunction {
 		String tx = jsonMessage.getString("tx");
 		
 		try {
+			
+			SpvNode spvNode = (SpvNode) getFunctionContext().getAttribute("spvNode");
 		
 			String txid = spvNode.signTransaction(tx);
 			
@@ -43,11 +41,6 @@ public class ContractFunction extends GenericFunction {
 			
 		}
 		
-	}
-	
-	@Override
-	public String getFunctionName() {
-		return "CONTRACT";
 	}
 	
 }

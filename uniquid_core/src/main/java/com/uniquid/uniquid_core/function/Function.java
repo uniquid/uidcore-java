@@ -7,7 +7,12 @@ import java.io.IOException;
  *
  */
 public interface Function {
-	
+
+	/**
+	 * Called by the function container to indicate to a function that the function is being placed into service.
+	 */
+	public void init(FunctionConfig config) throws FunctionException;
+
 	/**
 	 * Called by the function container to indicate to a function that the function is being taken out of service.
 	 */
@@ -22,11 +27,6 @@ public interface Function {
 	 * Returns information about the function, such as author, version, and copyright.
 	 */
 	public String getFunctionInfo();
-	
-	/**
-	 * Called by the function container to indicate to a function that the function is being placed into service.
-	 */
-	public void init(FunctionConfig config) throws FunctionException;
 	
 	/**
 	 * Request to execute the function

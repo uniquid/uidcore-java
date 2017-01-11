@@ -15,7 +15,11 @@ import com.uniquid.spv_node.SpvNode;
 import com.uniquid.uniquid_core.connector.Connector;
 import com.uniquid.uniquid_core.connector.ConnectorFactory;
 import com.uniquid.uniquid_core.connector.EndPoint;
+import com.uniquid.uniquid_core.function.ApplicationContext;
 import com.uniquid.uniquid_core.function.Function;
+import com.uniquid.uniquid_core.function.FunctionConfigImpl;
+import com.uniquid.uniquid_core.function.FunctionContext;
+import com.uniquid.uniquid_core.function.FunctionException;
 import com.uniquid.uniquid_core.function.FunctionRequest;
 import com.uniquid.uniquid_core.function.FunctionResponse;
 import com.uniquid.uniquid_core.function.impl.ContractFunction;
@@ -36,6 +40,7 @@ public final class Core {
 
 	private RegisterFactory registerFactory;
 	private ConnectorFactory connectorServiceFactory;
+	private ApplicationContext applicationContext;
 	private SpvNode spvNode;
 
 	private Thread thread;
@@ -44,14 +49,27 @@ public final class Core {
 
 	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, SpvNode spvNode) {
 
-		// Register core functions
-		functionsMap.put(30, new ContractFunction(spvNode));
-		functionsMap.put(31, new EchoFunction(spvNode));
-
 		this.registerFactory = registerFactory;
 		this.connectorServiceFactory = connectorServiceFactory;
 		this.spvNode = spvNode;
+		
+		applicationContext = new ApplicationContext();
+		applicationContext.setAttribute("com.uniquid.spv_node.SpvNode", spvNode);
+		applicationContext.setAttributeReadOnly("com.uniquid.spv_node.SpvNode");
+		applicationContext.setAttribute("com.uniquid.register.RegisterFactory", registerFactory);
+		applicationContext.setAttributeReadOnly("com.uniquid.register.RegisterFactory");
+		applicationContext.setAttribute("com.uniquid.uniquid_core.connector.ConnectorFactory", connectorServiceFactory);
+		applicationContext.setAttributeReadOnly("com.uniquid.uniquid_core.connector.ConnectorFactory");
+		
+		// Register core functions
+		try {
 
+			addFunction(new ContractFunction(), 30);
+			addFunction(new EchoFunction(), 31);
+
+		} catch (FunctionException ex) {
+			// This will never happens!
+		}
 	}
 
 	public Function getFunction(FunctionRequest functionRequest) {
@@ -62,9 +80,13 @@ public final class Core {
 
 	}
 
-	public void addFunction(Function function, int value) {
+	public void addFunction(Function function, int value) throws FunctionException {
 
 		if (value >= 32) {
+			
+			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(applicationContext);
+			
+			function.init(functionConfigImpl);
 
 			functionsMap.put(value, function);
 
@@ -144,18 +166,11 @@ public final class Core {
 
 						FunctionResponse functionResponse = endPoint.getFunctionResponse();
 
-						ProviderRegister providerRegister = registerFactory.createProviderRegister();
-
 						// Retrieve sender
 						String sender = functionRequest.getParameter(FunctionRequest.SENDER);
 
-						ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
-
-						// Check if there is a channel available
-						if (providerChannel != null) {
-
-							// check bitmask
-							// BitSet bitset = providerChannel.getBitmask();
+						// Check if sender is authorized
+						if (checkSender(sender)) {
 
 							functionResponse.setSender(spvNode.getWallet().currentReceiveAddress().toBase58());
 
@@ -184,6 +199,29 @@ public final class Core {
 		// Start thread
 		thread.start();
 
+	}
+	
+	/**
+	 * Check if sender is authorized
+	 * @param sender
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean checkSender(String sender) throws Exception {
+		
+		ProviderRegister providerRegister = registerFactory.createProviderRegister();
+		
+		ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
+		
+		// Check if there is a channel available
+		if (providerChannel != null) {
+			// check bitmask
+			// BitSet bitset = providerChannel.getBitmask();
+			
+			return true;
+		}
+		
+		return false;
 	}
 
 	public void shutdown() {
