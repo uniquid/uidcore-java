@@ -57,12 +57,9 @@ public class MQTTMessageResponse implements OutputMessage<JSONMessage> {
 			jsonResponse.setSender((String) value);
 		} else if (OutputMessage.ERROR.equals(name)) {
 			jsonResponse.getBody().put("error", value);
+		} else if (OutputMessage.ID.equals(name)) {
+			jsonResponse.getBody().put("id", value);
 		}
-//		} else if (OutputMessage.PARAMS.equals(name)) {
-//			return (String) jsonMessage.getBody().get("params");
-//		} else if (OutputMessage.ID.equals(name)) {
-//			return String.valueOf(jsonMessage.getBody().get("id"));
-//		}
 	}
 
 	@Override

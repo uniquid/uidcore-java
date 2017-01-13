@@ -38,6 +38,6 @@ public interface ProviderFunction {
 	 * @param response
 	 * @throws Exception
 	 */
-	public void service(InputMessage functionRequest, OutputMessage functionResponse) throws FunctionException, IOException;
+	public void service(InputMessage inputMessage, OutputMessage outputMessage) throws FunctionException, IOException;
 	
 }

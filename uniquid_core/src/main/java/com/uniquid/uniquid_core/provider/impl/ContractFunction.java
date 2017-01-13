@@ -14,10 +14,10 @@ import com.uniquid.uniquid_core.provider.GenericFunction;
 public class ContractFunction extends GenericFunction {
 
 	@Override
-	public void service(InputMessage functionRequest, OutputMessage functionResponse)
+	public void service(InputMessage inputMessage, OutputMessage outputMessage)
 			throws FunctionException, IOException {
 		
-		String params = functionRequest.getParameter(InputMessage.PARAMS);
+		String params = inputMessage.getParameter(InputMessage.PARAMS);
 		
 		JSONObject jsonMessage = new JSONObject(params);
 		
@@ -29,13 +29,13 @@ public class ContractFunction extends GenericFunction {
 		
 			String txid = spvNode.signTransaction(tx);
 			
-			PrintWriter printWriter = functionResponse.getWriter();
+			PrintWriter printWriter = outputMessage.getWriter();
 			
 			printWriter.print("0 - " + txid);
 		
 		} catch (Exception ex) {
 			
-			PrintWriter printWriter = functionResponse.getWriter();
+			PrintWriter printWriter = outputMessage.getWriter();
 			
 			printWriter.print("-1 - " + ex.getMessage());
 			

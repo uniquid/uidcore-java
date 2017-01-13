@@ -34,8 +34,6 @@ public class MQTTEndPoint implements EndPoint {
 		
 		JSONMessage jsonResponse = mqttMessageResponse.getJSONResponse();
 		
-		Integer id = (Integer) mqttMessageRequest.getJSONMessage().getBody().get("id");
-		jsonResponse.getBody().put("id", id);
 		jsonResponse.getBody().put("result", mqttMessageResponse.getOutputString());
 		
 		mqttConnector.sendResponse(mqttMessageResponse);

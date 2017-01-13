@@ -11,12 +11,12 @@ import com.uniquid.uniquid_core.provider.GenericFunction;
 public class EchoFunction extends GenericFunction {
 
 	@Override
-	public void service(InputMessage functionRequest, OutputMessage functionResponse)
+	public void service(InputMessage inputMessage, OutputMessage outputMessage)
 			throws FunctionException, IOException {
 		
-		PrintWriter printWriter = functionResponse.getWriter();
+		PrintWriter printWriter = outputMessage.getWriter();
 		
-		printWriter.print("UID_echo: " + functionRequest.getParameter(InputMessage.PARAMS));
+		printWriter.print("UID_echo: " + inputMessage.getParameter(InputMessage.PARAMS));
 		
 	}
 	

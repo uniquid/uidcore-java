@@ -43,7 +43,7 @@ public abstract class GenericFunction implements ProviderFunction, FunctionConfi
     }
 
 	@Override
-	public abstract void service(InputMessage functionRequest, OutputMessage functionResponse)
+	public abstract void service(InputMessage inputMessage, OutputMessage outputMessage)
 			throws FunctionException, IOException;
 
 	@Override

@@ -71,9 +71,9 @@ public final class Core {
 		}
 	}
 
-	private ProviderFunction getFunction(InputMessage functionRequest) {
+	private ProviderFunction getFunction(InputMessage inputMessage) {
 
-		String method = functionRequest.getParameter(InputMessage.METHOD);
+		String method = inputMessage.getParameter(InputMessage.METHOD);
 
 		return functionsMap.get(Integer.valueOf(method).intValue());
 
@@ -96,42 +96,51 @@ public final class Core {
 	/**
 	 * Execute a command in range 0-31
 	 * 
-	 * @param functionRequest
+	 * @param inputMessage
 	 *            message parsed in {@link #parseReqMessage}
-	 * @param functionResponse
+	 * @param outputMessage
 	 *            object to fill with the execution result
 	 * @throws ClassNotFoundException
 	 */
-	private void performRequest(InputMessage functionRequest, OutputMessage functionResponse) {
+	private void performRequest(InputMessage inputMessage, OutputMessage outputMessage) {
 
-		ProviderFunction function = getFunction(functionRequest);
+		ProviderFunction function = getFunction(inputMessage);
 
 		if (function != null) {
 
 			try {
 
-				function.service(functionRequest, functionResponse);
-				functionResponse.setParameter(OutputMessage.ERROR, RESULT_OK);
+				function.service(inputMessage, outputMessage);
+				outputMessage.setParameter(OutputMessage.ERROR, RESULT_OK);
 
 			} catch (Exception ex) {
 
 				LOGGER.error("Exception", ex);
-				functionResponse.setParameter(OutputMessage.ERROR, RESULT_ERROR);
+				outputMessage.setParameter(OutputMessage.ERROR, RESULT_ERROR);
 
 				PrintWriter printWriter;
 				try {
-					printWriter = functionResponse.getWriter();
+					printWriter = outputMessage.getWriter();
 					printWriter.print("Error while executing function: " + ex.getMessage());
 				} catch (IOException ex2) {
 
 					LOGGER.error("Exception", ex2);
 				}
 
+			} finally {
+				
+				// Populate all missing parameters...
+				outputMessage.setParameter(OutputMessage.SENDER, spvNode.getWallet().currentReceiveAddress().toBase58());
+				
+				outputMessage.setParameter(OutputMessage.ID, Integer.valueOf(inputMessage.getParameter(InputMessage.ID)));
+				
+				//TODO fix with value read from register
+				outputMessage.setDestination("test");
 			}
 
 		} else {
 
-			functionResponse.setParameter(OutputMessage.ERROR, RESULT_NO_FUNCTION);
+			outputMessage.setParameter(OutputMessage.ERROR, RESULT_NO_FUNCTION);
 
 		}
 
@@ -166,21 +175,17 @@ public final class Core {
 						// this will block until a message is received
 						EndPoint endPoint = connectorService.accept();
 
-						InputMessage functionRequest = endPoint.getInputMessage();
+						InputMessage inputMessage = endPoint.getInputMessage();
 
-						OutputMessage functionResponse = endPoint.getOutputMessage();
+						OutputMessage outputMessage = endPoint.getOutputMessage();
 
 						// Retrieve sender
-						String sender = functionRequest.getParameter(InputMessage.SENDER);
+						String sender = inputMessage.getParameter(InputMessage.SENDER);
 
 						// Check if sender is authorized
 						if (checkSender(sender)) {
 							
-							functionResponse.setParameter(OutputMessage.SENDER, spvNode.getWallet().currentReceiveAddress().toBase58());
-
-							performRequest(functionRequest, functionResponse);
-							
-							functionResponse.setDestination("test");
+							performRequest(inputMessage, outputMessage);
 
 							endPoint.close();
 
