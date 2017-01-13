@@ -23,6 +23,12 @@ import com.uniquid.uniquid_core.connector.mqtt.provider.MQTTMessageResponse;
 import com.uniquid.uniquid_core.connector.mqtt.user.MQTTMessageListener;
 import com.uniquid.uniquid_core.connector.mqtt.user.MQTTMessageListenerImpl;
 
+/**
+ * This class implements a Connector that uses the MQTT protocol
+ * 
+ * @author giuseppe
+ *
+ */
 public class MQTTConnector implements Connector {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MQTTConnector.class.getName());

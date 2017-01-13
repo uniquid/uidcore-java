@@ -163,9 +163,9 @@ public final class Core {
 						// this will block until a message is received
 						EndPoint endPoint = connectorService.accept();
 
-						ProviderRequest functionRequest = endPoint.getFunctionRequest();
+						ProviderRequest functionRequest = endPoint.getProviderRequest();
 
-						ProviderResponse functionResponse = endPoint.getFunctionResponse();
+						ProviderResponse functionResponse = endPoint.getProviderResponse();
 
 						// Retrieve sender
 						String sender = functionRequest.getParameter(ProviderRequest.SENDER);

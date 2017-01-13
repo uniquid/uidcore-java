@@ -20,12 +20,12 @@ public class MQTTEndPoint implements EndPoint {
 	}
 
 	@Override
-	public ProviderRequest getFunctionRequest() {
+	public ProviderRequest getProviderRequest() {
 		return mqttMessageRequest;
 	}
 
 	@Override
-	public ProviderResponse getFunctionResponse() {
+	public ProviderResponse getProviderResponse() {
 		return mqttMessageResponse;
 	}
 
