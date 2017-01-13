@@ -1,4 +1,4 @@
-package com.uniquid.uniquid_core.function;
+package com.uniquid.uniquid_core.provider;
 
 import java.io.IOException;
 
@@ -6,7 +6,7 @@ import java.io.IOException;
  * Defines methods that all functions must implement.
  *
  */
-public interface Function {
+public interface ProviderFunction {
 
 	/**
 	 * Called by the function container to indicate to a function that the function is being placed into service.
@@ -35,6 +35,6 @@ public interface Function {
 	 * @param response
 	 * @throws Exception
 	 */
-	public void service(FunctionRequest functionRequest, FunctionResponse functionResponse) throws FunctionException, IOException;
+	public void service(ProviderRequest functionRequest, ProviderResponse functionResponse) throws FunctionException, IOException;
 	
 }

@@ -1,13 +1,13 @@
 package com.uniquid.uniquid_core.connector;
 
-import com.uniquid.uniquid_core.function.FunctionRequest;
-import com.uniquid.uniquid_core.function.FunctionResponse;
+import com.uniquid.uniquid_core.provider.ProviderRequest;
+import com.uniquid.uniquid_core.provider.ProviderResponse;
 
 public interface EndPoint {
 	
-	public FunctionRequest getFunctionRequest();
+	public ProviderRequest getFunctionRequest();
 
-	public FunctionResponse getFunctionResponse();
+	public ProviderResponse getFunctionResponse();
 	
 	public void close();
 

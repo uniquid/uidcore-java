@@ -1,8 +1,10 @@
 package com.uniquid.uniquid_core.connector.mqtt;
 
 import com.uniquid.uniquid_core.connector.EndPoint;
-import com.uniquid.uniquid_core.function.FunctionRequest;
-import com.uniquid.uniquid_core.function.FunctionResponse;
+import com.uniquid.uniquid_core.connector.mqtt.provider.MQTTMessageRequest;
+import com.uniquid.uniquid_core.connector.mqtt.provider.MQTTMessageResponse;
+import com.uniquid.uniquid_core.provider.ProviderRequest;
+import com.uniquid.uniquid_core.provider.ProviderResponse;
 
 public class MQTTEndPoint implements EndPoint {
 	
@@ -18,28 +20,19 @@ public class MQTTEndPoint implements EndPoint {
 	}
 
 	@Override
-	public FunctionRequest getFunctionRequest() {
+	public ProviderRequest getFunctionRequest() {
 		return mqttMessageRequest;
 	}
 
 	@Override
-	public FunctionResponse getFunctionResponse() {
+	public ProviderResponse getFunctionResponse() {
 		return mqttMessageResponse;
 	}
 
 	@Override
 	public void close() {
 		
-		JSONMessageResponse jsonMessageResponse = new JSONMessageResponse();
-		
-		Integer id = (Integer) mqttMessageRequest.getJSONMessage().getBody().get("id");
-		
-		jsonMessageResponse.setSender(mqttMessageResponse.getSender());
-		jsonMessageResponse.setResult(mqttMessageResponse.getOutputString());
-		jsonMessageResponse.setError(mqttMessageResponse.getStatus());
-		jsonMessageResponse.setId(id);
-		
-		mqttConnector.sendResponse(jsonMessageResponse);
+		mqttConnector.sendResponse(mqttMessageResponse);
 	}
 
 }

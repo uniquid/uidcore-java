@@ -27,12 +27,12 @@ import org.json.JSONObject;
 //}
 //
 //
-class JSONMessage {
+public class JSONMessage {
 
 	private String sender;
 	private Map<String, Object> body;
 
-	JSONMessage() {
+	public JSONMessage() {
 		sender = "";
 		body = new HashMap<String, Object>();
 	}

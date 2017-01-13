@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,15 +16,14 @@ import com.uniquid.spv_node.SpvNode;
 import com.uniquid.uniquid_core.connector.Connector;
 import com.uniquid.uniquid_core.connector.ConnectorFactory;
 import com.uniquid.uniquid_core.connector.EndPoint;
-import com.uniquid.uniquid_core.function.ApplicationContext;
-import com.uniquid.uniquid_core.function.Function;
-import com.uniquid.uniquid_core.function.FunctionConfigImpl;
-import com.uniquid.uniquid_core.function.FunctionContext;
-import com.uniquid.uniquid_core.function.FunctionException;
-import com.uniquid.uniquid_core.function.FunctionRequest;
-import com.uniquid.uniquid_core.function.FunctionResponse;
-import com.uniquid.uniquid_core.function.impl.ContractFunction;
-import com.uniquid.uniquid_core.function.impl.EchoFunction;
+import com.uniquid.uniquid_core.provider.ApplicationContext;
+import com.uniquid.uniquid_core.provider.FunctionConfigImpl;
+import com.uniquid.uniquid_core.provider.FunctionException;
+import com.uniquid.uniquid_core.provider.ProviderRequest;
+import com.uniquid.uniquid_core.provider.ProviderResponse;
+import com.uniquid.uniquid_core.provider.ProviderFunction;
+import com.uniquid.uniquid_core.provider.impl.ContractFunction;
+import com.uniquid.uniquid_core.provider.impl.EchoFunction;
 
 /**
  * This is the core of Uniquid library. It contains all the functionalities
@@ -39,18 +39,18 @@ public final class Core {
 	public static final int RESULT_ERROR = 4;
 
 	private RegisterFactory registerFactory;
-	private ConnectorFactory connectorServiceFactory;
+	private Connector connectorService;
 	private ApplicationContext applicationContext;
 	private SpvNode spvNode;
 
 	private Thread thread;
 
-	private final Map<Integer, Function> functionsMap = new HashMap<>();
+	private final Map<Integer, ProviderFunction> functionsMap = new HashMap<>();
 
-	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, SpvNode spvNode) {
+	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, SpvNode spvNode) throws Exception {
 
 		this.registerFactory = registerFactory;
-		this.connectorServiceFactory = connectorServiceFactory;
+		this.connectorService = connectorServiceFactory.createConnector();
 		this.spvNode = spvNode;
 		
 		applicationContext = new ApplicationContext();
@@ -58,8 +58,8 @@ public final class Core {
 		applicationContext.setAttributeReadOnly("com.uniquid.spv_node.SpvNode");
 		applicationContext.setAttribute("com.uniquid.register.RegisterFactory", registerFactory);
 		applicationContext.setAttributeReadOnly("com.uniquid.register.RegisterFactory");
-		applicationContext.setAttribute("com.uniquid.uniquid_core.connector.ConnectorFactory", connectorServiceFactory);
-		applicationContext.setAttributeReadOnly("com.uniquid.uniquid_core.connector.ConnectorFactory");
+		applicationContext.setAttribute("com.uniquid.uniquid_core.connector.Connector", connectorService);
+		applicationContext.setAttributeReadOnly("com.uniquid.uniquid_core.connector.Connector");
 		
 		// Register core functions
 		try {
@@ -72,17 +72,17 @@ public final class Core {
 		}
 	}
 
-	public Function getFunction(FunctionRequest functionRequest) {
+	private ProviderFunction getFunction(ProviderRequest functionRequest) {
 
-		String method = functionRequest.getParameter(FunctionRequest.METHOD);
+		String method = functionRequest.getParameter(ProviderRequest.METHOD);
 
 		return functionsMap.get(Integer.valueOf(method).intValue());
 
 	}
 
-	public void addFunction(Function function, int value) throws FunctionException {
+	public void addFunction(ProviderFunction function, int value) throws FunctionException {
 
-		if (value >= 32) {
+//		if (value >= 32) {
 			
 			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(applicationContext);
 			
@@ -90,7 +90,7 @@ public final class Core {
 
 			functionsMap.put(value, function);
 
-		}
+//		}
 
 	}
 
@@ -103,9 +103,9 @@ public final class Core {
 	 *            object to fill with the execution result
 	 * @throws ClassNotFoundException
 	 */
-	private void performRequest(FunctionRequest functionRequest, FunctionResponse functionResponse) {
+	private void performRequest(ProviderRequest functionRequest, ProviderResponse functionResponse) {
 
-		Function function = getFunction(functionRequest);
+		ProviderFunction function = getFunction(functionRequest);
 
 		if (function != null) {
 
@@ -145,6 +145,9 @@ public final class Core {
 
 		// Init node
 		spvNode.startNode();
+		
+		// start connector
+		connectorService.start();
 
 		// Create a thread to wait for messages
 		thread = new Thread() {
@@ -157,17 +160,15 @@ public final class Core {
 
 					try {
 
-						Connector connectorService = connectorServiceFactory.createConnector();
-
 						// this will block until a message is received
 						EndPoint endPoint = connectorService.accept();
 
-						FunctionRequest functionRequest = endPoint.getFunctionRequest();
+						ProviderRequest functionRequest = endPoint.getFunctionRequest();
 
-						FunctionResponse functionResponse = endPoint.getFunctionResponse();
+						ProviderResponse functionResponse = endPoint.getFunctionResponse();
 
 						// Retrieve sender
-						String sender = functionRequest.getParameter(FunctionRequest.SENDER);
+						String sender = functionRequest.getParameter(ProviderRequest.SENDER);
 
 						// Check if sender is authorized
 						if (checkSender(sender)) {
@@ -175,6 +176,8 @@ public final class Core {
 							functionResponse.setSender(spvNode.getWallet().currentReceiveAddress().toBase58());
 
 							performRequest(functionRequest, functionResponse);
+							
+							functionResponse.setDestination("test");
 
 							endPoint.close();
 
@@ -207,7 +210,7 @@ public final class Core {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean checkSender(String sender) throws Exception {
+	private boolean checkSender(String sender) throws Exception {
 		
 		ProviderRegister providerRegister = registerFactory.createProviderRegister();
 		
@@ -229,6 +232,25 @@ public final class Core {
 		thread.interrupt();
 
 		spvNode.stopNode();
+		
+		connectorService.stop();
+	}
+	
+	/**
+	 * Execute a call to the Provider
+	 * @param functionRequest
+	 * @return
+	 * @throws Exception 
+	 */
+	public InputMessage execute(OutputMessage outputMessage, long timeout) throws Exception, TimeoutException {
+		
+		return connectorService.sendOutputMessage(outputMessage, timeout);
+	}
+	
+	public OutputMessage createOutputMessage() throws Exception {
+		
+		return connectorService.createOutputMessage();
+		
 	}
 
 }

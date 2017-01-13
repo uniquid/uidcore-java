@@ -1,4 +1,4 @@
-package com.uniquid.uniquid_core.function;
+package com.uniquid.uniquid_core.provider;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -6,7 +6,7 @@ import java.util.Enumeration;
 /*
  * Defines a generic, protocol-independent function.
  */
-public abstract class GenericFunction implements Function, FunctionConfig {
+public abstract class GenericFunction implements ProviderFunction, FunctionConfig {
 	
 	private transient FunctionConfig config;
 	
@@ -40,7 +40,7 @@ public abstract class GenericFunction implements Function, FunctionConfig {
     }
 
 	@Override
-	public abstract void service(FunctionRequest functionRequest, FunctionResponse functionResponse)
+	public abstract void service(ProviderRequest functionRequest, ProviderResponse functionResponse)
 			throws FunctionException, IOException;
 
 	@Override

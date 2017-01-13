@@ -1,8 +1,8 @@
-package com.uniquid.uniquid_core.connector;
+package com.uniquid.uniquid_core.connector.mqtt;
 
 import java.io.IOException;
 
-import com.uniquid.uniquid_core.function.FunctionOutputStream;
+import com.uniquid.uniquid_core.provider.FunctionOutputStream;
 
 /**
  * An implementation of an OutputStream that writes the data directly out to a

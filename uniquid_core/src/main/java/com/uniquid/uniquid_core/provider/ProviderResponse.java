@@ -1,15 +1,17 @@
-package com.uniquid.uniquid_core.function;
+package com.uniquid.uniquid_core.provider;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public interface FunctionResponse {
+import com.uniquid.uniquid_core.OutputMessage;
+
+public interface ProviderResponse extends OutputMessage<Object> {
 	
 	public static final String SENDER = "SENDER";
-	public static final String RESULT = "RESULT";
-	public static final String ERROR = "ERROR";
+	public static final String METHOD = "METHOD";
+	public static final String PARAMS = "PARAMS";
 	public static final String ID = "ID";
-
+	
 	public FunctionOutputStream getOutputStream() throws IOException;
 	
 	public PrintWriter getWriter() throws IOException;

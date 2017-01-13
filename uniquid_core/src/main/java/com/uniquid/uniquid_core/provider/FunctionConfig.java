@@ -1,4 +1,4 @@
-package com.uniquid.uniquid_core.function;
+package com.uniquid.uniquid_core.provider;
 
 import java.util.Enumeration;
 

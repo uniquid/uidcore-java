@@ -1,4 +1,4 @@
-package com.uniquid.uniquid_core.function;
+package com.uniquid.uniquid_core.provider;
 
 import java.util.Collections;
 import java.util.Enumeration;
@@ -53,6 +53,8 @@ public class ApplicationContext implements FunctionContext {
 	    if (readOnlyAttributes.containsKey(name))
 	        return;
         
+	    // save attribute
+	    attributes.put(name, value);
 	}
 
 	@Override
