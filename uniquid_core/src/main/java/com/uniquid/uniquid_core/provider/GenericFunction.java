@@ -3,6 +3,9 @@ package com.uniquid.uniquid_core.provider;
 import java.io.IOException;
 import java.util.Enumeration;
 
+import com.uniquid.uniquid_core.InputMessage;
+import com.uniquid.uniquid_core.OutputMessage;
+
 /*
  * Defines a generic, protocol-independent function.
  */
@@ -40,7 +43,7 @@ public abstract class GenericFunction implements ProviderFunction, FunctionConfi
     }
 
 	@Override
-	public abstract void service(ProviderRequest functionRequest, ProviderResponse functionResponse)
+	public abstract void service(InputMessage functionRequest, OutputMessage functionResponse)
 			throws FunctionException, IOException;
 
 	@Override

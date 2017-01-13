@@ -6,18 +6,18 @@ import java.io.PrintWriter;
 import org.json.JSONObject;
 
 import com.uniquid.spv_node.SpvNode;
+import com.uniquid.uniquid_core.InputMessage;
+import com.uniquid.uniquid_core.OutputMessage;
 import com.uniquid.uniquid_core.provider.FunctionException;
 import com.uniquid.uniquid_core.provider.GenericFunction;
-import com.uniquid.uniquid_core.provider.ProviderRequest;
-import com.uniquid.uniquid_core.provider.ProviderResponse;
 
 public class ContractFunction extends GenericFunction {
 
 	@Override
-	public void service(ProviderRequest functionRequest, ProviderResponse functionResponse)
+	public void service(InputMessage functionRequest, OutputMessage functionResponse)
 			throws FunctionException, IOException {
 		
-		String params = functionRequest.getParameter(ProviderRequest.PARAMS);
+		String params = functionRequest.getParameter(InputMessage.PARAMS);
 		
 		JSONObject jsonMessage = new JSONObject(params);
 		

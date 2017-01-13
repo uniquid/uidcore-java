@@ -1,10 +1,10 @@
 package com.uniquid.uniquid_core.connector.mqtt.provider;
 
+import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.connector.mqtt.JSONMessage;
 import com.uniquid.uniquid_core.provider.FunctionInputStream;
-import com.uniquid.uniquid_core.provider.ProviderRequest;
 
-public class MQTTMessageRequest implements ProviderRequest {
+public class MQTTMessageRequest implements InputMessage {
 	
 	private JSONMessage jsonMessage;
 	
@@ -15,13 +15,13 @@ public class MQTTMessageRequest implements ProviderRequest {
 	@Override
 	public String getParameter(String name) {
 		
-		if (ProviderRequest.SENDER.equals(name)) {
+		if (InputMessage.SENDER.equals(name)) {
 			return jsonMessage.getSender();
-		} else if (ProviderRequest.METHOD.equals(name)) {
+		} else if (InputMessage.METHOD.equals(name)) {
 			return String.valueOf(jsonMessage.getBody().get("method"));
-		} else if (ProviderRequest.PARAMS.equals(name)) {
+		} else if (InputMessage.PARAMS.equals(name)) {
 			return (String) jsonMessage.getBody().get("params");
-		} else if (ProviderRequest.ID.equals(name)) {
+		} else if (InputMessage.ID.equals(name)) {
 			return String.valueOf(jsonMessage.getBody().get("id"));
 		}
 		
@@ -66,15 +66,9 @@ public class MQTTMessageRequest implements ProviderRequest {
 		
 	}
 	
-	public static MQTTMessageRequest createEmptyMQTTMessageRequest() throws Exception {
-		
-		return fromJSONString("{\"sender\":\"\",\"body\": {\"method\":0, \"params\":\"{}\",\"id\":0}}");
-	}
-
 	@Override
 	public Object getContent() {
 		return getJSONMessage();
 	}
-
 
 }

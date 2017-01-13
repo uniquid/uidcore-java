@@ -4,23 +4,21 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import com.uniquid.uniquid_core.OutputMessage;
 import com.uniquid.uniquid_core.connector.mqtt.JSONMessage;
 import com.uniquid.uniquid_core.connector.mqtt.StringBufferOutputStream;
 import com.uniquid.uniquid_core.provider.FunctionOutputStream;
-import com.uniquid.uniquid_core.provider.ProviderResponse;
 
-public class MQTTMessageResponse implements ProviderResponse {
+public class MQTTMessageResponse implements OutputMessage<JSONMessage> {
 	
 	private StringWriter stringWriter;
-	private JSONMessage jsonRequest;
-	private int status;
-	private String sender;
+	private JSONMessage jsonResponse;
 	private String destination;
 
-	public MQTTMessageResponse(JSONMessage jsonRequest) {
+	public MQTTMessageResponse() {
 		
 		stringWriter =  new StringWriter();
-		this.jsonRequest = jsonRequest;
+		this.jsonResponse = new JSONMessage();
 		
 	}
 	
@@ -31,8 +29,8 @@ public class MQTTMessageResponse implements ProviderResponse {
 
 	}
 	
-	public JSONMessage getJSONRequest() {
-		return jsonRequest;
+	public JSONMessage getJSONResponse() {
+		return jsonResponse;
 	}
 
 	@Override
@@ -48,33 +46,23 @@ public class MQTTMessageResponse implements ProviderResponse {
 	}
 
 	@Override
-	public void setStatus(int status) {
-		this.status = status;
-	}
-
-	@Override
-	public int getStatus() {
-		return status;
-	}
-
-	@Override
-	public void setSender(String sender) {
-		this.sender = sender;
-	}
-
-	@Override
-	public String getSender() {
-		return sender;
-	}
-
-	@Override
 	public JSONMessage getContent() {
-		return getJSONRequest();
+		return getJSONResponse();
 	}
 
 	@Override
 	public void setParameter(String name, Object value) {
-		// DO NOTHING
+		
+		if (OutputMessage.SENDER.equals(name)) {
+			jsonResponse.setSender((String) value);
+		} else if (OutputMessage.ERROR.equals(name)) {
+			jsonResponse.getBody().put("error", value);
+		}
+//		} else if (OutputMessage.PARAMS.equals(name)) {
+//			return (String) jsonMessage.getBody().get("params");
+//		} else if (OutputMessage.ID.equals(name)) {
+//			return String.valueOf(jsonMessage.getBody().get("id"));
+//		}
 	}
 
 	@Override

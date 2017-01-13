@@ -14,13 +14,12 @@ import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.spv_node.SpvNode;
 import com.uniquid.uniquid_core.connector.Connector;
+import com.uniquid.uniquid_core.connector.ConnectorException;
 import com.uniquid.uniquid_core.connector.ConnectorFactory;
 import com.uniquid.uniquid_core.connector.EndPoint;
 import com.uniquid.uniquid_core.provider.ApplicationContext;
 import com.uniquid.uniquid_core.provider.FunctionConfigImpl;
 import com.uniquid.uniquid_core.provider.FunctionException;
-import com.uniquid.uniquid_core.provider.ProviderRequest;
-import com.uniquid.uniquid_core.provider.ProviderResponse;
 import com.uniquid.uniquid_core.provider.ProviderFunction;
 import com.uniquid.uniquid_core.provider.impl.ContractFunction;
 import com.uniquid.uniquid_core.provider.impl.EchoFunction;
@@ -72,9 +71,9 @@ public final class Core {
 		}
 	}
 
-	private ProviderFunction getFunction(ProviderRequest functionRequest) {
+	private ProviderFunction getFunction(InputMessage functionRequest) {
 
-		String method = functionRequest.getParameter(ProviderRequest.METHOD);
+		String method = functionRequest.getParameter(InputMessage.METHOD);
 
 		return functionsMap.get(Integer.valueOf(method).intValue());
 
@@ -103,7 +102,7 @@ public final class Core {
 	 *            object to fill with the execution result
 	 * @throws ClassNotFoundException
 	 */
-	private void performRequest(ProviderRequest functionRequest, ProviderResponse functionResponse) {
+	private void performRequest(InputMessage functionRequest, OutputMessage functionResponse) {
 
 		ProviderFunction function = getFunction(functionRequest);
 
@@ -112,12 +111,12 @@ public final class Core {
 			try {
 
 				function.service(functionRequest, functionResponse);
-				functionResponse.setStatus(RESULT_OK);
+				functionResponse.setParameter(OutputMessage.ERROR, RESULT_OK);
 
 			} catch (Exception ex) {
 
 				LOGGER.error("Exception", ex);
-				functionResponse.setStatus(RESULT_ERROR);
+				functionResponse.setParameter(OutputMessage.ERROR, RESULT_ERROR);
 
 				PrintWriter printWriter;
 				try {
@@ -132,7 +131,7 @@ public final class Core {
 
 		} else {
 
-			functionResponse.setStatus(RESULT_NO_FUNCTION);
+			functionResponse.setParameter(OutputMessage.ERROR, RESULT_NO_FUNCTION);
 
 		}
 
@@ -147,7 +146,11 @@ public final class Core {
 		spvNode.startNode();
 		
 		// start connector
-		connectorService.start();
+		try {
+			connectorService.start();
+		} catch (ConnectorException e) {
+			LOGGER.error("Exception", e);
+		}
 
 		// Create a thread to wait for messages
 		thread = new Thread() {
@@ -163,17 +166,17 @@ public final class Core {
 						// this will block until a message is received
 						EndPoint endPoint = connectorService.accept();
 
-						ProviderRequest functionRequest = endPoint.getProviderRequest();
+						InputMessage functionRequest = endPoint.getInputMessage();
 
-						ProviderResponse functionResponse = endPoint.getProviderResponse();
+						OutputMessage functionResponse = endPoint.getOutputMessage();
 
 						// Retrieve sender
-						String sender = functionRequest.getParameter(ProviderRequest.SENDER);
+						String sender = functionRequest.getParameter(InputMessage.SENDER);
 
 						// Check if sender is authorized
 						if (checkSender(sender)) {
-
-							functionResponse.setSender(spvNode.getWallet().currentReceiveAddress().toBase58());
+							
+							functionResponse.setParameter(OutputMessage.SENDER, spvNode.getWallet().currentReceiveAddress().toBase58());
 
 							performRequest(functionRequest, functionResponse);
 							
@@ -233,7 +236,11 @@ public final class Core {
 
 		spvNode.stopNode();
 		
-		connectorService.stop();
+		try {
+			connectorService.stop();
+		} catch (ConnectorException e) {
+			LOGGER.error("Error", e);
+		}
 	}
 	
 	/**

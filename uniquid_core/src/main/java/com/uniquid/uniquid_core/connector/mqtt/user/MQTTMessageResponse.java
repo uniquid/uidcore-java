@@ -2,10 +2,10 @@ package com.uniquid.uniquid_core.connector.mqtt.user;
 
 import java.io.InputStream;
 
+import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.connector.mqtt.JSONMessage;
-import com.uniquid.uniquid_core.user.UserResponse;
 
-public class MQTTMessageResponse implements UserResponse {
+public class MQTTMessageResponse implements InputMessage<JSONMessage> {
 
 	private JSONMessage jsonMessage;
 	
@@ -26,9 +26,8 @@ public class MQTTMessageResponse implements UserResponse {
 	}
 
 	@Override
-	public Object getContent() {
-		// TODO Auto-generated method stub
-		return null;
+	public JSONMessage getContent() {
+		return jsonMessage;
 	}
 
 }

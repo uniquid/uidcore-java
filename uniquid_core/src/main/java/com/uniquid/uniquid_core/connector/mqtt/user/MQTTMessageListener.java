@@ -1,7 +1,7 @@
 package com.uniquid.uniquid_core.connector.mqtt.user;
 
+import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.connector.mqtt.JSONMessage;
-import com.uniquid.uniquid_core.user.UserResponse;
 
 public interface MQTTMessageListener {
 	
@@ -9,6 +9,6 @@ public interface MQTTMessageListener {
 	
 	public int getId();
 
-	public UserResponse waitForResponse(long timeout);
+	public InputMessage waitForResponse(long timeout);
 
 }

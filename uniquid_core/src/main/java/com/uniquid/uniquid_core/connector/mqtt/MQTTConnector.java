@@ -112,7 +112,7 @@ public class MQTTConnector implements Connector {
 
 				MQTTMessageRequest mqttMessageRequest = MQTTMessageRequest.fromJSONMessage(jsonMessage);
 				
-				MQTTMessageResponse mqttMessageResponse = new MQTTMessageResponse(mqttMessageRequest.getJSONMessage());
+				MQTTMessageResponse mqttMessageResponse = new MQTTMessageResponse();
 
 				EndPoint endPoint = new MQTTEndPoint(this, mqttMessageRequest, mqttMessageResponse);
 
@@ -293,10 +293,8 @@ public class MQTTConnector implements Connector {
 	@Override
 	public InputMessage sendOutputMessage(OutputMessage<?> outputMessage, long timeout) {
 
-		Object obj = outputMessage.getContent();
-		
 		// add output message to queue
-		JSONMessage jsonMessage = ((MQTTMessageRequest) outputMessage).getJSONMessage();
+		JSONMessage jsonMessage = (JSONMessage) outputMessage.getContent();
 
 		// retrieve id
 		int id = (Integer) jsonMessage.getBody().get("id");
