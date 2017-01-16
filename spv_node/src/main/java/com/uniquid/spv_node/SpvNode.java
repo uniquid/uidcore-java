@@ -153,7 +153,7 @@ public class SpvNode {
 
 				NodeUtils.syncBC(params, wallet, chainFile, walletFile);
 
-				//
+				// Populate provider register
 				Set<Transaction> transactions = wallet.getTransactions(false);
 				LOGGER.info("GETCHANNELS t.size: " + transactions.size());
 				List<Address> addresses = wallet.getIssuedReceiveAddresses();
@@ -207,12 +207,9 @@ public class SpvNode {
 						
 					} catch (Exception e) {
 
-						LOGGER.error("Exception", e);
+						LOGGER.error("Exception while inserting providerregister", e);
 
 					}
-					// Retrieve bitmask from opreturn
-					// uint8_t version;
-				    //uint8_t bit_mask[18]; [4byte system func][14byte user func]
 
 					LOGGER.info("GETCHANNELS txid: " + t.getHashAsString());
 					LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
@@ -221,11 +218,6 @@ public class SpvNode {
 					LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(params));
 					LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
 
-					
-//					channels.add(userChannel);
-
-//					LOGGER.info("GETCHANNELS", "prov_addr: " + userChannel.getProviderAddress());
-//					LOGGER.info("GETCHANNELS", "user_addr: " + userChannel.getUserAddress() + "\n");
 				}
 
 			}
