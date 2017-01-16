@@ -24,6 +24,8 @@ public class SQLiteRegister implements ProviderRegister {
 	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask from provider_channel where user_address = ?";
 	
 	private static final String PROVIDER_INSERT = "insert into provider_channel (provider_address, user_address, bitmask) values (?, ?, ?);";
+	
+	private static final String PROVIDER_DELETE = "delete from provider_channel where provider_address = ? and user_address = ?;";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SQLiteRegister.class.getName());
 
@@ -99,52 +101,27 @@ public class SQLiteRegister implements ProviderRegister {
 	}
 
 	public void deleteChannel(ProviderChannel providerChannel) throws RegisterException {
-		// db = dbHelper.getWritableDatabase();
-		// int d = db.delete(SQLiteHelperProvider.TABLE_PROVIDER,
-		// SQLiteHelperProvider.PROVIDER_CLM_PROVIDER_ADDRESS + " = ?",
-		// new String[]{providerChannel.getProviderAddress()});
-		// if(d == 0)
-		 throw new RegisterException("deleteChannel() not implemented!");
-	}
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(PROVIDER_DELETE);
 
-	// private List<Contract> getContracts(String filter) throws SQLException {
-	//
-	// PreparedStatement statement =
-	// connection.prepareStatement(CONTRACT_SEARCH);
-	//
-	// try {
-	//
-	// statement.setString(1, filter);
-	//
-	// ResultSet rs = statement.executeQuery();
-	//
-	// List<Contract> contracts = new ArrayList<Contract>();
-	//
-	// while (rs.next()) {
-	//
-	// Contract contract = new Contract();
-	//
-	// contract.setContext_name(rs.getString("name"));
-	// contract.setUser_name(rs.getString("user_name"));
-	// contract.setMachine_name(rs.getString("machine_name"));
-	// contract.setTimestamp_born(rs.getLong("timestamp_born"));
-	// contract.setTimestamp_expiration(rs.getLong("timestamp_expiration"));
-	// contract.setRecipe(rs.getString("recipe"));
-	// contract.setTxid(rs.getString("txid"));
-	//
-	// contracts.add(contract);
-	//
-	// }
-	//
-	// return contracts;
-	//
-	// } finally {
-	//
-	// statement.close();
-	//
-	// }
-	//
-	// }
+			try {
+
+				statement.setString(1, providerChannel.getProviderAddress());
+				statement.setString(2, providerChannel.getUserAddress());
+
+				int rs = statement.executeUpdate();
+
+			} finally {
+
+				statement.close();
+
+			}
+			
+		} catch (SQLException ex) {
+			throw new RegisterException("Exception while deleteChannel()", ex);
+		}
+	}
 
 	protected void finalize() throws Throwable {
 
