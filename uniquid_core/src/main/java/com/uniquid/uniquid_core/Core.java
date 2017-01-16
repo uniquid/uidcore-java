@@ -38,7 +38,7 @@ public final class Core {
 	public static final int RESULT_ERROR = 4;
 
 	private RegisterFactory registerFactory;
-	private Connector connectorService;
+	private Connector<?> connectorService;
 	private ApplicationContext applicationContext;
 	private SpvNode spvNode;
 
@@ -63,15 +63,15 @@ public final class Core {
 		// Register core functions
 		try {
 
-			addFunction(new ContractFunction(), 30);
-			addFunction(new EchoFunction(), 31);
+			addUniquidFunction(new ContractFunction(), 30);
+			addUniquidFunction(new EchoFunction(), 31);
 
 		} catch (FunctionException ex) {
 			// This will never happens!
 		}
 	}
 
-	private ProviderFunction getFunction(InputMessage inputMessage) {
+	private ProviderFunction getFunction(InputMessage<?> inputMessage) {
 
 		String method = inputMessage.getParameter(InputMessage.METHOD);
 
@@ -81,7 +81,7 @@ public final class Core {
 
 	public void addFunction(ProviderFunction function, int value) throws FunctionException {
 
-//		if (value >= 32) {
+		if (value >= 32) {
 			
 			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(applicationContext);
 			
@@ -89,8 +89,30 @@ public final class Core {
 
 			functionsMap.put(value, function);
 
-//		}
+		} else {
+			
+			throw new FunctionException("Invalid function number!");
+			
+		}
 
+	}
+	
+	private void addUniquidFunction(ProviderFunction function, int value) throws FunctionException {
+		
+		if (value >= 0 && value <= 31) {
+			
+			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(applicationContext);
+			
+			function.init(functionConfigImpl);
+
+			functionsMap.put(value, function);
+			
+		} else {
+			
+			throw new FunctionException("Invalid function number!");
+			
+		}
+		
 	}
 
 	/**
@@ -102,7 +124,7 @@ public final class Core {
 	 *            object to fill with the execution result
 	 * @throws ClassNotFoundException
 	 */
-	private void performRequest(InputMessage inputMessage, OutputMessage outputMessage) {
+	private void performProviderRequest(InputMessage<?> inputMessage, OutputMessage<?> outputMessage) {
 
 		ProviderFunction function = getFunction(inputMessage);
 
@@ -173,11 +195,11 @@ public final class Core {
 					try {
 
 						// this will block until a message is received
-						EndPoint endPoint = connectorService.accept();
+						EndPoint<?> endPoint = connectorService.accept();
 
-						InputMessage inputMessage = endPoint.getInputMessage();
+						InputMessage<?> inputMessage = endPoint.getInputMessage();
 
-						OutputMessage outputMessage = endPoint.getOutputMessage();
+						OutputMessage<?> outputMessage = endPoint.getOutputMessage();
 
 						// Retrieve sender
 						String sender = inputMessage.getParameter(InputMessage.SENDER);
@@ -185,7 +207,7 @@ public final class Core {
 						// Check if sender is authorized
 						if (checkSender(sender)) {
 							
-							performRequest(inputMessage, outputMessage);
+							performProviderRequest(inputMessage, outputMessage);
 
 							endPoint.close();
 
@@ -254,12 +276,12 @@ public final class Core {
 	 * @return
 	 * @throws Exception 
 	 */
-	public InputMessage execute(OutputMessage outputMessage, long timeout) throws Exception, TimeoutException {
+	public InputMessage<?> performUserRequest(OutputMessage outputMessage, long timeout) throws Exception, TimeoutException {
 		
 		return connectorService.sendOutputMessage(outputMessage, timeout);
 	}
 	
-	public OutputMessage createOutputMessage() throws Exception {
+	public OutputMessage<?> createOutputMessage() throws Exception {
 		
 		return connectorService.createOutputMessage();
 		

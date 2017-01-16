@@ -9,19 +9,19 @@ import com.uniquid.uniquid_core.OutputMessage;
  * @author giuseppe
  *
  */
-public interface EndPoint {
+public interface EndPoint<T> {
 	
 	/**
 	 * Returns the request performed by the User
 	 * @return
 	 */
-	public InputMessage getInputMessage();
+	public InputMessage<T> getInputMessage();
 
 	/**
 	 * Returns the response to be returned to the User
 	 * @return
 	 */
-	public OutputMessage getOutputMessage();
+	public OutputMessage<T> getOutputMessage();
 	
 	/**
 	 * Close this EndPoint sending all the communication to the User.

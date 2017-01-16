@@ -5,7 +5,7 @@ import java.util.concurrent.TimeoutException;
 import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.connector.mqtt.JSONMessage;
 
-public class MQTTMessageListenerImpl implements MQTTMessageListener {
+public class MQTTMessageListenerImpl implements MQTTMessageListener<JSONMessage> {
 
 	private int id;
 	private JSONMessage received;
@@ -35,7 +35,7 @@ public class MQTTMessageListenerImpl implements MQTTMessageListener {
 	}
 
 	@Override
-	public InputMessage waitForResponse(long timeout) {
+	public InputMessage<JSONMessage> waitForResponse(long timeout) {
 		
 		try {
 

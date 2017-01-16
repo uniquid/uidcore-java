@@ -29,24 +29,24 @@ import com.uniquid.uniquid_core.connector.mqtt.user.MQTTMessageListenerImpl;
  * @author giuseppe
  *
  */
-public class MQTTConnector implements Connector {
+public class MQTTConnector implements Connector<JSONMessage> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MQTTConnector.class.getName());
 
 	private String topic;
 	private String broker;
-	private Map<Integer, MQTTMessageListener> userListners;
+	private Map<Integer, MQTTMessageListener<JSONMessage>> userListners;
 	private Queue<JSONMessage> providerQueue;
-	private Queue<OutputMessage> outputQueue;
+	private Queue<OutputMessage<JSONMessage>> outputQueue;
 	private Thread sendThread, receiveThread;
 
 	private MQTTConnector(String topic, String broker) {
 
 		this.topic = topic;
 		this.broker = broker;
-		this.userListners = new HashMap<Integer, MQTTMessageListener>();
+		this.userListners = new HashMap<Integer, MQTTMessageListener<JSONMessage>>();
 		this.providerQueue = new LinkedList<JSONMessage>();
-		this.outputQueue = new LinkedList<OutputMessage>();
+		this.outputQueue = new LinkedList<OutputMessage<JSONMessage>>();
 		
 		
 		this.sendThread = new Thread(new Runnable() {
@@ -146,7 +146,7 @@ public class MQTTConnector implements Connector {
 
 				// subscribe
 				Topic[] topics = { new Topic(topic, QoS.AT_LEAST_ONCE) };
-				byte[] qoses = connection.subscribe(topics);
+				/*byte[] qoses = */connection.subscribe(topics);
 
 				// blocks!!!
 				Message message = connection.receive();
@@ -165,7 +165,7 @@ public class MQTTConnector implements Connector {
 					// then fetch the id from the jsonMessage
 					Integer id = (Integer) jsonMessage.getBody().get("id");
 
-					MQTTMessageListener userListner = userListners.get(id);
+					MQTTMessageListener<JSONMessage> userListner = userListners.get(id);
 
 					if (userListner != null) {
 
@@ -226,8 +226,8 @@ public class MQTTConnector implements Connector {
 
 				}
 				
-				OutputMessage outputMessage = outputQueue.poll();
-				Object content = outputMessage.getContent();
+				OutputMessage<JSONMessage> outputMessage = outputQueue.poll();
+				JSONMessage content = outputMessage.getContent();
 
 				BlockingConnection connection = null;
 
@@ -242,14 +242,20 @@ public class MQTTConnector implements Connector {
 
 					// to subscribe
 					Topic[] topics = { new Topic(outputMessage.getDestination(), QoS.AT_LEAST_ONCE) };
-					byte[] qoses = connection.subscribe(topics);
+					/*byte[] qoses = */connection.subscribe(topics);
 
 					// consume
-					connection.publish(outputMessage.getDestination(), ((JSONMessage) content).toJSON().getBytes(), QoS.AT_LEAST_ONCE, false);
+					connection.publish(outputMessage.getDestination(), content.toJSON().getBytes(), QoS.AT_LEAST_ONCE, false);
 
 				} catch (Exception ex) {
 
 					LOGGER.error("Catched Exception", ex);
+					
+					// We should not loose this message!!! We put it again in the queue
+					
+					outputQueue.add(outputMessage);
+					
+					outputQueue.notifyAll();
 
 				} finally {
 
@@ -270,7 +276,7 @@ public class MQTTConnector implements Connector {
 		}
 	}
 
-	public void sendResponse(OutputMessage messageResponse) {
+	public void sendResponse(OutputMessage<JSONMessage> messageResponse) {
 
 		synchronized (outputQueue) {
 
@@ -282,7 +288,7 @@ public class MQTTConnector implements Connector {
 	}
 
 	@Override
-	public OutputMessage<?> createOutputMessage() throws ConnectorException {
+	public OutputMessage<JSONMessage> createOutputMessage() throws ConnectorException {
 		return new com.uniquid.uniquid_core.connector.mqtt.user.MQTTMessageRequest();
 	}
 
@@ -291,7 +297,7 @@ public class MQTTConnector implements Connector {
 	 * response.
 	 */
 	@Override
-	public InputMessage sendOutputMessage(OutputMessage<?> outputMessage, long timeout) {
+	public InputMessage<JSONMessage> sendOutputMessage(OutputMessage<JSONMessage> outputMessage, long timeout) {
 
 		// add output message to queue
 		JSONMessage jsonMessage = (JSONMessage) outputMessage.getContent();
@@ -300,7 +306,7 @@ public class MQTTConnector implements Connector {
 		int id = (Integer) jsonMessage.getBody().get("id");
 
 		// register listner fo receiving response
-		MQTTMessageListener mqttMessageListener = new MQTTMessageListenerImpl(id);
+		MQTTMessageListener<JSONMessage> mqttMessageListener = new MQTTMessageListenerImpl(id);
 		
 		synchronized (outputQueue) {
 

@@ -1,14 +1,13 @@
 package com.uniquid.uniquid_core.connector.mqtt.user;
 
 import com.uniquid.uniquid_core.InputMessage;
-import com.uniquid.uniquid_core.connector.mqtt.JSONMessage;
 
-public interface MQTTMessageListener {
+public interface MQTTMessageListener<T> {
 	
-	public void receive(JSONMessage message);
+	public void receive(T message);
 	
 	public int getId();
 
-	public InputMessage waitForResponse(long timeout);
+	public InputMessage<T> waitForResponse(long timeout);
 
 }

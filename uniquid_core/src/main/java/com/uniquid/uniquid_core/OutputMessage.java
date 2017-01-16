@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+/**
+ * This interface represents an output RPC message
+ *
+ * @param <T>
+ */
 public interface OutputMessage<T> {
 	
 	public static final String SENDER = "SENDER";
