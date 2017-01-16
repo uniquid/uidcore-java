@@ -19,7 +19,7 @@ public class SQLiteRegister implements ProviderRegister {
 	public static final String PROVIDER_CLM_USER_ADDRESS = "user_address";
 	public static final String PROVIDER_CLM_BITMASK = "bitmask";
 	
-	private static final String PROVIDER_CREATE_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null);";
+	private static final String PROVIDER_CREATE_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, primary key (provider_address, user_address));";
 
 	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask from provider_channel where user_address = ?";
 	
@@ -66,7 +66,7 @@ public class SQLiteRegister implements ProviderRegister {
 
 			}
 		} catch (SQLException ex) {
-			throw new RegisterException("Error");
+			throw new RegisterException("Exception while getChannelByUserAddress()", ex);
 		}
 		
 		return null;
@@ -81,8 +81,8 @@ public class SQLiteRegister implements ProviderRegister {
 			try {
 
 				statement.setString(1, providerChannel.getProviderAddress());
-				statement.setString(1, providerChannel.getUserAddress());
-				statement.setString(1, "123");
+				statement.setString(2, providerChannel.getUserAddress());
+				statement.setString(3, "123");
 
 				int rs = statement.executeUpdate();
 
@@ -93,7 +93,7 @@ public class SQLiteRegister implements ProviderRegister {
 			}
 			
 		} catch (SQLException ex) {
-			throw new RegisterException("Error");
+			throw new RegisterException("Exception while insertChannel()", ex);
 		}
 		
 	}
@@ -104,7 +104,7 @@ public class SQLiteRegister implements ProviderRegister {
 		// SQLiteHelperProvider.PROVIDER_CLM_PROVIDER_ADDRESS + " = ?",
 		// new String[]{providerChannel.getProviderAddress()});
 		// if(d == 0)
-		// throw new RegisterException("Channel not present");
+		 throw new RegisterException("deleteChannel() not implemented!");
 	}
 
 	// private List<Contract> getContracts(String filter) throws SQLException {

@@ -29,8 +29,8 @@ public class SQLiteRegisterFactory extends RegisterFactory {
 			Connection connection = DriverManager.getConnection((String) factoryConfiguration.get(JDBC_CONNECTION));
 			
 			// Disable auto commit
-			if (connection.getAutoCommit()) {
-				connection.setAutoCommit(false);
+			if (!connection.getAutoCommit()) {
+				connection.setAutoCommit(true);
 			}
 
 			INSTANCE = new SQLiteRegister(connection);

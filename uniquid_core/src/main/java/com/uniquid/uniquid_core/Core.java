@@ -213,7 +213,7 @@ public final class Core {
 
 						} else {
 							
-							LOGGER.warn("No channel found associated with address: " + sender);
+							LOGGER.warn("Skipping Request! No channel found associated with address: " + sender);
 							
 						}
 
