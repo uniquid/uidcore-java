@@ -1,8 +1,10 @@
 package com.uniquid.spv_node;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -15,13 +17,11 @@ import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.TransactionBroadcast;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
-import org.bitcoinj.crypto.MnemonicCode;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.script.ScriptBuilder;
 import org.bitcoinj.store.BlockStoreException;
@@ -34,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -174,55 +173,42 @@ public class NodeUtils {
 		} else {
 
 			DeterministicSeed dSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
-			//wallet = Wallet.fromSeed(params, dSeed);
+			// wallet = Wallet.fromSeed(params, dSeed);
 
-			//LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
-			
 			byte[] seed = dSeed.getSeedBytes();
 
-	        List<Wallet> wallets = new ArrayList<>();
+			DeterministicKey hdPriv = HDKeyDerivation.createMasterPrivateKey(seed);
+			LOGGER.info("START_NODE tpriv: " + hdPriv.serializePrivB58(params));
 
-	        DeterministicKey hdPriv = HDKeyDerivation.createMasterPrivateKey(seed);
-	        LOGGER.info("START_NODE tpriv: " + hdPriv.serializePrivB58(params));
+			// Find child M/44'/0'
+			List<ChildNumber> imprintingChild = ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true));
 
-//	        Find child M/44'/0'
-	        List<ChildNumber> imprintingChild = ImmutableList.of(
-	                new ChildNumber(44, true),
-	                new ChildNumber(0, true)
-	        );
+			DeterministicHierarchy detH = new DeterministicHierarchy(hdPriv);
+			DeterministicKey imprinting = detH.get(imprintingChild, true, true);
+			LOGGER.info("Imprinting key tpub: " + imprinting.serializePubB58(params));
 
-	        DeterministicHierarchy detH = new DeterministicHierarchy(hdPriv);
-	        DeterministicKey imprinting = detH.get(imprintingChild, true, true);
-	        LOGGER.info("Imprinting key tpub: " + imprinting.serializePubB58(params));
+			DeterministicKey contract_orch = detH.deriveChild(imprintingChild, true, true, new ChildNumber(0, false));
+			DeterministicKey machines_key = DeterministicKey.deserializeB58(null,
+					contract_orch.dropParent().serializePrivB58(params), params);
+			DeterministicHierarchy machines_hierarchy = new DeterministicHierarchy(machines_key);
 
-	        DeterministicKey contract_orch = detH.deriveChild(
-	                imprintingChild,
-	                true,
-	                true,
-	                new ChildNumber(0, false)
-	        );
-	        DeterministicKey machines_key = DeterministicKey.deserializeB58(
-	                null,
-	                contract_orch.dropParent().serializePrivB58(params),
-	                params);
-	        DeterministicHierarchy machines_hierarchy = new DeterministicHierarchy(machines_key);
+			DeterministicKey provider_key = machines_hierarchy.get(ImmutableList.of(new ChildNumber(0, false)), true,
+					true);
+			wallet = Wallet.fromWatchingKeyB58(params, provider_key.serializePubB58(params), creationTime,
+					ImmutableList.of(new ChildNumber(0, false)));
 
-	        DeterministicKey provider_key = machines_hierarchy.get(
-	                ImmutableList.of(new ChildNumber(0, false)),
-	                true,
-	                true);
-	        wallet = Wallet.fromWatchingKeyB58(
-	                params,
-	                provider_key.serializePubB58(params),
-	                creationTime,
-	                ImmutableList.of(new ChildNumber(0, false))
-	        );
-	        
-	        LOGGER.info("Provider key tpub: " + provider_key.serializePubB58(params));
-	        
-	        wallets.add(wallet);
-			
+			LOGGER.info("Provider key tpub: " + provider_key.serializePubB58(params));
+
+			// wallet = Wallet.fromWatchingKeyB58(params,
+			// "tpubDETW28WecmdcvfKznvFzMgMZ5zLRseWL3SJCyXv72DYpGzxvKUC4N4u5PfnPNpsDYGc7AV1izfuf8Ur7PLFPtHa5azVUdV1jshAmBRvHcPZ",
+			// 123456789L,
+			// ImmutableList.of(new ChildNumber(1, false)));
+
 		}
+
+		LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
+		LOGGER.info("WALLET curent change addr: " + wallet.currentChangeAddress().toBase58());
+		LOGGER.info("WALLET: " + wallet.toString());
 
 		return wallet;
 	}
@@ -240,27 +226,7 @@ public class NodeUtils {
 			chain.addWallet(wallet);
 			peerGroup.addWallet(wallet);
 
-			DownloadProgressTracker listener = new DownloadProgressTracker() {
-
-				// @Override
-				// protected void progress(double pct, int blocksSoFar, Date
-				// date) {
-				// LOG.info(String.format(Locale.US, "Chain download %d%% done
-				// with %d blocks to go, block date %s", (int) pct, blocksSoFar,
-				// Utils.dateTimeFormat(date)));
-				// }
-				//
-				// @Override
-				// protected void startDownload(final int blocks) {
-				// LOG.info("Downloading block chain of size " + blocks + ". " +
-				// (blocks > 1000 ? "This may take a while." : ""));
-				// }
-				//
-				// @Override
-				// public void doneDownload() {
-				// LOG.info("BLOCKCHAIN Blockchain downloaded");
-				// }
-			};
+			DownloadProgressTracker listener = new DownloadProgressTracker();
 
 			LOGGER.info("BLOCKCHAIN Preparing to download blockchain...");
 
@@ -289,9 +255,9 @@ public class NodeUtils {
 
 		SPVBlockStore chainStore = new SPVBlockStore(params, chainFile);
 		PeerGroup peerGroup = null;
-		
+
 		try {
-			
+
 			BlockChain chain = new BlockChain(params, chainStore);
 			peerGroup = new PeerGroup(params, chain);
 			peerGroup.setUserAgent("UNQD", "0.1");
@@ -302,33 +268,32 @@ public class NodeUtils {
 			LOGGER.info("BLOCKCHAIN Preparing to download blockchain...");
 
 			peerGroup.start();
-			
+
 			peerGroup.broadcastTransaction(sendRequest.tx).future().get();
-			
+
 			LOGGER.info("Send complete, waiting for confirmation");
 			sendRequest.tx.getConfidence().getDepthFuture(1).get();
-			
+
 			return sendRequest.tx.getHashAsString();
-			
-//			int heightNow = kit.chain().getBestChainHeight();
-//	        System.out.println("Height after confirmation is " + heightNow);
-//	        System.out.println("Result: took " + (heightNow - heightAtStart) + " blocks to confirm at this fee level");
-			
-			
-//			Futures.addCallback(lf, new FutureCallback<Transaction>() {
-//
-//				@Override
-//				public void onFailure(Throwable arg0) {
-//					// printLog("tx failure");
-//				}
-//
-//				@Override
-//				public void onSuccess(Transaction tx) {
-//					// printLog("broadcasted" + tx.toString());
-//					String txId = tx.getHashAsString();
-//				}
-//			});
-			
+
+			// int heightNow = kit.chain().getBestChainHeight();
+			// System.out.println("Height after confirmation is " + heightNow);
+			// System.out.println("Result: took " + (heightNow - heightAtStart)
+			// + " blocks to confirm at this fee level");
+
+			// Futures.addCallback(lf, new FutureCallback<Transaction>() {
+			//
+			// @Override
+			// public void onFailure(Throwable arg0) {
+			// // printLog("tx failure");
+			// }
+			//
+			// @Override
+			// public void onSuccess(Transaction tx) {
+			// // printLog("broadcasted" + tx.toString());
+			// String txId = tx.getHashAsString();
+			// }
+			// });
 
 		} finally {
 
@@ -399,6 +364,19 @@ public class NodeUtils {
 		LOGGER.info("sha256256 = " + Hex.toHexString(asha256));
 
 		return asha256;
+	}
+
+	public static DeterministicKey DeterministicKeyFromBrainWallet(String string)
+			throws NoSuchAlgorithmException, UnsupportedEncodingException {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+		md.update(string.getBytes("UTF-8"));
+		byte[] hash = md.digest();
+
+		// Hex.toHexString(hash);
+
+		return HDKeyDerivation.createMasterPrivateKey(hash);
+
 	}
 
 }
