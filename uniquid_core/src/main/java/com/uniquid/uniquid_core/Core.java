@@ -2,12 +2,14 @@ package com.uniquid.uniquid_core;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
@@ -201,11 +203,8 @@ public final class Core {
 
 						OutputMessage<?> outputMessage = endPoint.getOutputMessage();
 
-						// Retrieve sender
-						String sender = inputMessage.getParameter(InputMessage.SENDER);
-
 						// Check if sender is authorized
-						if (checkSender(sender)) {
+						if (checkSender(inputMessage)) {
 							
 							performProviderRequest(inputMessage, outputMessage);
 
@@ -213,7 +212,7 @@ public final class Core {
 
 						} else {
 							
-							LOGGER.warn("Skipping Request! No channel found associated with address: " + sender);
+							LOGGER.warn("Skipping Request! No channel found associated with address: " + inputMessage.getParameter(InputMessage.SENDER));
 							
 						}
 
@@ -240,7 +239,10 @@ public final class Core {
 	 * @return
 	 * @throws Exception
 	 */
-	private boolean checkSender(String sender) throws Exception {
+	private boolean checkSender(InputMessage inputMessage) throws Exception {
+		
+		// Retrieve sender
+		String sender = inputMessage.getParameter(InputMessage.SENDER);
 		
 		ProviderRegister providerRegister = registerFactory.createProviderRegister();
 		
@@ -248,10 +250,26 @@ public final class Core {
 		
 		// Check if there is a channel available
 		if (providerChannel != null) {
-			// check bitmask
-			// BitSet bitset = providerChannel.getBitmask();
 			
-			return true;
+			String bitmask = providerChannel.getBitmask();
+			
+			// decode
+			byte[] b = Hex.decode(bitmask);
+			
+			BitSet bitset = BitSet.valueOf(b);
+			
+			String method = inputMessage.getParameter(InputMessage.METHOD);
+			
+			if (bitset.get(Integer.valueOf(method))) {
+				
+				return true;
+
+			} else {
+			
+				return false;
+			
+			}
+			
 		}
 		
 		return false;

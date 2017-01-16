@@ -84,7 +84,7 @@ public class SQLiteRegister implements ProviderRegister {
 
 				statement.setString(1, providerChannel.getProviderAddress());
 				statement.setString(2, providerChannel.getUserAddress());
-				statement.setString(3, "123");
+				statement.setString(3, providerChannel.getBitmask());
 
 				int rs = statement.executeUpdate();
 
