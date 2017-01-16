@@ -48,12 +48,13 @@ public final class Core {
 
 	private final Map<Integer, ProviderFunction> functionsMap = new HashMap<>();
 
-	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, SpvNode spvNode) throws Exception {
+	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, SpvNode spvNode)
+			throws Exception {
 
 		this.registerFactory = registerFactory;
 		this.connectorService = connectorServiceFactory.createConnector();
 		this.spvNode = spvNode;
-		
+
 		applicationContext = new ApplicationContext();
 		applicationContext.setAttribute("com.uniquid.spv_node.SpvNode", spvNode);
 		applicationContext.setAttributeReadOnly("com.uniquid.spv_node.SpvNode");
@@ -61,7 +62,7 @@ public final class Core {
 		applicationContext.setAttributeReadOnly("com.uniquid.register.RegisterFactory");
 		applicationContext.setAttribute("com.uniquid.uniquid_core.connector.Connector", connectorService);
 		applicationContext.setAttributeReadOnly("com.uniquid.uniquid_core.connector.Connector");
-		
+
 		// Register core functions
 		try {
 
@@ -84,37 +85,37 @@ public final class Core {
 	public void addFunction(ProviderFunction function, int value) throws FunctionException {
 
 		if (value >= 32) {
-			
+
 			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(applicationContext);
-			
+
 			function.init(functionConfigImpl);
 
 			functionsMap.put(value, function);
 
 		} else {
-			
+
 			throw new FunctionException("Invalid function number!");
-			
+
 		}
 
 	}
-	
+
 	private void addUniquidFunction(ProviderFunction function, int value) throws FunctionException {
-		
+
 		if (value >= 0 && value <= 31) {
-			
+
 			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(applicationContext);
-			
+
 			function.init(functionConfigImpl);
 
 			functionsMap.put(value, function);
-			
+
 		} else {
-			
+
 			throw new FunctionException("Invalid function number!");
-			
+
 		}
-		
+
 	}
 
 	/**
@@ -130,41 +131,54 @@ public final class Core {
 
 		ProviderFunction function = getFunction(inputMessage);
 
-		if (function != null) {
+		try {
+			if (function != null) {
 
-			try {
+				try {
 
-				function.service(inputMessage, outputMessage);
-				outputMessage.setParameter(OutputMessage.ERROR, RESULT_OK);
+					function.service(inputMessage, outputMessage);
+					outputMessage.setParameter(OutputMessage.ERROR, RESULT_OK);
 
-			} catch (Exception ex) {
+				} catch (Exception ex) {
 
-				LOGGER.error("Exception", ex);
-				outputMessage.setParameter(OutputMessage.ERROR, RESULT_ERROR);
+					LOGGER.error("Exception", ex);
+					outputMessage.setParameter(OutputMessage.ERROR, RESULT_ERROR);
 
+					PrintWriter printWriter;
+					try {
+						printWriter = outputMessage.getWriter();
+						printWriter.print("Error while executing function: " + ex.getMessage());
+					} catch (IOException ex2) {
+
+						LOGGER.error("Exception", ex2);
+					}
+
+				}
+
+			} else {
+
+				outputMessage.setParameter(OutputMessage.ERROR, RESULT_NO_FUNCTION);
+				
 				PrintWriter printWriter;
 				try {
 					printWriter = outputMessage.getWriter();
-					printWriter.print("Error while executing function: " + ex.getMessage());
+					printWriter.print("Function not yet implemented");
 				} catch (IOException ex2) {
 
 					LOGGER.error("Exception", ex2);
 				}
 
-			} finally {
-				
-				// Populate all missing parameters...
-				outputMessage.setParameter(OutputMessage.SENDER, spvNode.getWallet().currentReceiveAddress().toBase58());
-				
-				outputMessage.setParameter(OutputMessage.ID, Long.valueOf(inputMessage.getParameter(InputMessage.ID)));
-				
-				String sender = inputMessage.getParameter(InputMessage.SENDER);
-				outputMessage.setDestination(sender);
 			}
 
-		} else {
+		} finally {
 
-			outputMessage.setParameter(OutputMessage.ERROR, RESULT_NO_FUNCTION);
+			// Populate all missing parameters...
+			outputMessage.setParameter(OutputMessage.SENDER, spvNode.getWallet().currentReceiveAddress().toBase58());
+
+			outputMessage.setParameter(OutputMessage.ID, Long.valueOf(inputMessage.getParameter(InputMessage.ID)));
+
+			String sender = inputMessage.getParameter(InputMessage.SENDER);
+			outputMessage.setDestination(sender);
 
 		}
 
@@ -177,7 +191,7 @@ public final class Core {
 
 		// Init node
 		spvNode.startNode();
-		
+
 		// start connector
 		try {
 			connectorService.start();
@@ -198,20 +212,19 @@ public final class Core {
 
 						// this will block until a message is received
 						EndPoint<?> endPoint = connectorService.accept();
-						
+
 						InputMessage<?> inputMessage = endPoint.getInputMessage();
 
 						OutputMessage<?> outputMessage = endPoint.getOutputMessage();
-						
-						LOGGER.info("Received input message from : " + 
-								inputMessage.getParameter(InputMessage.SENDER) + 
-								" asking method " + inputMessage.getParameter(InputMessage.METHOD));
-						
+
+						LOGGER.info("Received input message from : " + inputMessage.getParameter(InputMessage.SENDER)
+								+ " asking method " + inputMessage.getParameter(InputMessage.METHOD));
+
 						LOGGER.info("Checking sender...");
 
 						// Check if sender is authorized or throw exception
 						checkSender(inputMessage);
-						
+
 						LOGGER.info("Performing function...");
 						performProviderRequest(inputMessage, outputMessage);
 
@@ -233,50 +246,51 @@ public final class Core {
 		thread.start();
 
 	}
-	
+
 	/**
 	 * Check if sender is authorized
+	 * 
 	 * @param sender
 	 * @return
 	 * @throws Exception
 	 */
 	private void checkSender(InputMessage inputMessage) throws Exception {
-		
+
 		// Retrieve sender
 		String sender = inputMessage.getParameter(InputMessage.SENDER);
-		
+
 		ProviderRegister providerRegister = registerFactory.createProviderRegister();
-		
+
 		ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
-		
+
 		// Check if there is a channel available
 		if (providerChannel != null) {
-			
+
 			String bitmask = providerChannel.getBitmask();
-			
+
 			// decode
 			byte[] b = Hex.decode(bitmask);
-			
+
 			BitSet bitset = BitSet.valueOf(b);
-			
+
 			String method = inputMessage.getParameter(InputMessage.METHOD);
-			
+
 			if (bitset.get(Integer.valueOf(method))) {
-				
+
 				return;
 
 			} else {
-			
+
 				throw new Exception("Sender not authorized!");
-			
+
 			}
-			
+
 		} else {
-			
+
 			throw new Exception("Sender not found in Provider register!");
-			
+
 		}
-		
+
 	}
 
 	public void shutdown() {
@@ -284,29 +298,31 @@ public final class Core {
 		thread.interrupt();
 
 		spvNode.stopNode();
-		
+
 		try {
 			connectorService.stop();
 		} catch (ConnectorException e) {
 			LOGGER.error("Error", e);
 		}
 	}
-	
+
 	/**
 	 * Execute a call to the Provider
+	 * 
 	 * @param functionRequest
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public InputMessage<?> performUserRequest(OutputMessage outputMessage, long timeout) throws Exception, TimeoutException {
-		
+	public InputMessage<?> performUserRequest(OutputMessage outputMessage, long timeout)
+			throws Exception, TimeoutException {
+
 		return connectorService.sendOutputMessage(outputMessage, timeout);
 	}
-	
+
 	public OutputMessage<?> createOutputMessage() throws Exception {
-		
+
 		return connectorService.createOutputMessage();
-		
+
 	}
 
 }
