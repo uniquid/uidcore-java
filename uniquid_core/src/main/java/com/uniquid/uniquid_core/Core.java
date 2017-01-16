@@ -156,10 +156,10 @@ public final class Core {
 				// Populate all missing parameters...
 				outputMessage.setParameter(OutputMessage.SENDER, spvNode.getWallet().currentReceiveAddress().toBase58());
 				
-				outputMessage.setParameter(OutputMessage.ID, Integer.valueOf(inputMessage.getParameter(InputMessage.ID)));
+				outputMessage.setParameter(OutputMessage.ID, Long.valueOf(inputMessage.getParameter(InputMessage.ID)));
 				
-				//TODO fix with value read from register
-				outputMessage.setDestination("test");
+				String sender = inputMessage.getParameter(InputMessage.SENDER);
+				outputMessage.setDestination(sender);
 			}
 
 		} else {
@@ -212,7 +212,9 @@ public final class Core {
 
 						} else {
 							
-							LOGGER.warn("Skipping Request! No channel found associated with address: " + inputMessage.getParameter(InputMessage.SENDER));
+							LOGGER.warn("Skipping Request! Sender " +
+							inputMessage.getParameter(InputMessage.SENDER) + " not authorized for method " +
+							inputMessage.getParameter(InputMessage.METHOD));
 							
 						}
 
