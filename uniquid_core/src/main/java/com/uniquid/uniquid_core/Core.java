@@ -198,29 +198,28 @@ public final class Core {
 
 						// this will block until a message is received
 						EndPoint<?> endPoint = connectorService.accept();
-
+						
 						InputMessage<?> inputMessage = endPoint.getInputMessage();
 
 						OutputMessage<?> outputMessage = endPoint.getOutputMessage();
+						
+						LOGGER.info("Received input message from : " + 
+								inputMessage.getParameter(InputMessage.SENDER) + 
+								" asking method " + inputMessage.getParameter(InputMessage.METHOD));
+						
+						LOGGER.info("Checking sender...");
 
-						// Check if sender is authorized
-						if (checkSender(inputMessage)) {
-							
-							performProviderRequest(inputMessage, outputMessage);
+						// Check if sender is authorized or throw exception
+						checkSender(inputMessage);
+						
+						LOGGER.info("Performing function...");
+						performProviderRequest(inputMessage, outputMessage);
 
-							endPoint.close();
+						endPoint.close();
 
-						} else {
-							
-							LOGGER.warn("Skipping Request! Sender " +
-							inputMessage.getParameter(InputMessage.SENDER) + " not authorized for method " +
-							inputMessage.getParameter(InputMessage.METHOD));
-							
-						}
+					} catch (Throwable t) {
 
-					} catch (Exception ex) {
-
-						LOGGER.error("Exception catched", ex);
+						LOGGER.error("Throwable catched", t);
 
 					}
 
@@ -241,7 +240,7 @@ public final class Core {
 	 * @return
 	 * @throws Exception
 	 */
-	private boolean checkSender(InputMessage inputMessage) throws Exception {
+	private void checkSender(InputMessage inputMessage) throws Exception {
 		
 		// Retrieve sender
 		String sender = inputMessage.getParameter(InputMessage.SENDER);
@@ -264,17 +263,20 @@ public final class Core {
 			
 			if (bitset.get(Integer.valueOf(method))) {
 				
-				return true;
+				return;
 
 			} else {
 			
-				return false;
+				throw new Exception("Sender not authorized!");
 			
 			}
 			
+		} else {
+			
+			throw new Exception("Sender not found in Provider register!");
+			
 		}
 		
-		return false;
 	}
 
 	public void shutdown() {
