@@ -1,10 +1,13 @@
 package com.uniquid.spv_node;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -12,11 +15,15 @@ import java.util.concurrent.ExecutionException;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.BlockChain;
+import org.bitcoinj.core.CheckpointManager;
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Sha256Hash;
+import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.Utils;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
@@ -24,6 +31,7 @@ import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.script.ScriptBuilder;
+import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
 import org.bitcoinj.wallet.DeterministicSeed;
@@ -172,38 +180,58 @@ public class NodeUtils {
 
 		} else {
 
-			DeterministicSeed dSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
-			// wallet = Wallet.fromSeed(params, dSeed);
+//			DeterministicSeed dSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
+////			 wallet = Wallet.fromSeed(params, dSeed);
+////
+//			byte[] seed = dSeed.getSeedBytes();
+////
+//			DeterministicKey hdPriv = HDKeyDerivation.createMasterPrivateKey(seed);
+//			LOGGER.info("START_NODE tpriv: " + hdPriv.serializePrivB58(params));
+////
+////			// Find child M/44'/0'
+//			List<ChildNumber> imprintingChild = ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true));
+////
+//			DeterministicHierarchy detH = new DeterministicHierarchy(hdPriv);
+//			DeterministicKey imprinting = detH.get(imprintingChild, true, true);
+//			LOGGER.info("Imprinting key tpub: " + imprinting.serializePubB58(params));
+//
+//			DeterministicKey contract_orch = detH.deriveChild(imprintingChild, true, true, new ChildNumber(0, false));
+//			DeterministicKey machines_key = DeterministicKey.deserializeB58(null,
+//					contract_orch.dropParent().serializePrivB58(params), params);
+//			DeterministicHierarchy machines_hierarchy = new DeterministicHierarchy(machines_key);
+//
+//			DeterministicKey provider_key = machines_hierarchy.get(ImmutableList.of(new ChildNumber(0, false)), true,
+//					true);
+//			wallet = Wallet.fromWatchingKeyB58(params, provider_key.serializePubB58(params), creationTime,
+//					ImmutableList.of(new ChildNumber(0, false)));
+//
+//			LOGGER.info("Provider key tpub: " + provider_key.serializePubB58(params));
 
-			byte[] seed = dSeed.getSeedBytes();
-
-			DeterministicKey hdPriv = HDKeyDerivation.createMasterPrivateKey(seed);
-			LOGGER.info("START_NODE tpriv: " + hdPriv.serializePrivB58(params));
-
-			// Find child M/44'/0'
-			List<ChildNumber> imprintingChild = ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true));
-
-			DeterministicHierarchy detH = new DeterministicHierarchy(hdPriv);
-			DeterministicKey imprinting = detH.get(imprintingChild, true, true);
-			LOGGER.info("Imprinting key tpub: " + imprinting.serializePubB58(params));
-
-			DeterministicKey contract_orch = detH.deriveChild(imprintingChild, true, true, new ChildNumber(0, false));
-			DeterministicKey machines_key = DeterministicKey.deserializeB58(null,
-					contract_orch.dropParent().serializePrivB58(params), params);
-			DeterministicHierarchy machines_hierarchy = new DeterministicHierarchy(machines_key);
-
-			DeterministicKey provider_key = machines_hierarchy.get(ImmutableList.of(new ChildNumber(0, false)), true,
-					true);
-			wallet = Wallet.fromWatchingKeyB58(params, provider_key.serializePubB58(params), creationTime,
-					ImmutableList.of(new ChildNumber(0, false)));
-
-			LOGGER.info("Provider key tpub: " + provider_key.serializePubB58(params));
-
-			// wallet = Wallet.fromWatchingKeyB58(params,
-			// "tpubDETW28WecmdcvfKznvFzMgMZ5zLRseWL3SJCyXv72DYpGzxvKUC4N4u5PfnPNpsDYGc7AV1izfuf8Ur7PLFPtHa5azVUdV1jshAmBRvHcPZ",
-			// 123456789L,
-			// ImmutableList.of(new ChildNumber(1, false)));
-
+			
+//			 wallet = Wallet.fromWatchingKeyB58(params,
+//			 "tpubDETW28WecmdcvfKznvFzMgMZ5zLRseWL3SJCyXv72DYpGzxvKUC4N4u5PfnPNpsDYGc7AV1izfuf8Ur7PLFPtHa5azVUdV1jshAmBRvHcPZ",
+//			 1464739200L,
+//			 ImmutableList.of(new ChildNumber(1, false)));
+			
+//			 wallet = Wallet.fromWatchingKeyB58(params,
+//			 "tpubDCNRCdKwJRELd4hAxKEXXbfvdBJFe8vwHcdVaaiESK2TxdMsD7AqSz2guSUGRAff473godtERjPs9K69ksZBcUkEcQrF1od9u7DkoXTK4FF",
+//			 1464739200L,
+//			 ImmutableList.of(new ChildNumber(0, false)));
+			
+//			Test con Marco
+//			final DeterministicKey detKey = DeterministicKey.deserializeB58(null, "tprv8hS9xiSZmRGRPLTjvm46CViQXZPCSy51oqxzurvxH8FaMDwQzhhARX5NTHWWbYHVBRyPav1MpqNEfYZqgKwnfbqbRBj2gV67RNtPsgtDtWM", params);
+//			detKey.setCreationTimeSeconds(1464739200);
+//			
+//			ECKey eckey = detKey.decompress();
+//			
+//			List<ECKey> list = new ArrayList<>();
+//			list.add(eckey);
+//			
+//			wallet = Wallet.fromKeys(params, list);
+			
+			DeterministicSeed detSeed = createDeterministicSeed("Hulkbuster-Plated Compact Armor");
+			wallet = Wallet.fromSeed(params, detSeed);
+			
 		}
 
 		LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
@@ -212,17 +240,39 @@ public class NodeUtils {
 
 		return wallet;
 	}
-
+	
 	public static void syncBC(NetworkParameters params, final Wallet wallet, final File chainFile,
-			final File walletFile) {
+			final File walletFile, long creationTime) {
 
 		try {
 
-			SPVBlockStore chainStore = new SPVBlockStore(params, chainFile);
-			BlockChain chain = new BlockChain(params, chainStore);
+			BlockStore chainStore = new SPVBlockStore(params, chainFile);
+			
+			// User Checkpoint only during wallet creation
+			if (wallet.getLastBlockSeenHeight() == 0) {
+				try {
+					
+					CheckpointManager.checkpoint(params, CheckpointManager.openStream(params), chainStore,
+							creationTime);
+					
+					StoredBlock head = chainStore.getChainHead();
+					LOGGER.info("Skipped to checkpoint " + head.getHeight() + " at "
+	                         + Utils.dateTimeFormat(head.getHeader().getTimeSeconds() * 1000));
+				
+				} catch (Throwable t) {
+	
+					LOGGER.error("Exception catched ", t.getMessage());
+					LOGGER.error("Cannot use checkpoint");
+	
+				}
+			}
+			
+			BlockChain chain = new BlockChain(params, wallet, chainStore);
+			
 			final PeerGroup peerGroup = new PeerGroup(params, chain);
-			peerGroup.setUserAgent("UNQD", "0.1");
+			peerGroup.setUserAgent("UNIQUID", "0.1");
 			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
+			
 			chain.addWallet(wallet);
 			peerGroup.addWallet(wallet);
 
@@ -238,11 +288,7 @@ public class NodeUtils {
 
 			LOGGER.info("BLOCKCHAIN downloaded.");
 
-		} catch (InterruptedException ex) {
-
-			LOGGER.error("Exception catched ", ex.getMessage());
-
-		} catch (BlockStoreException ex) {
+		} catch (Exception ex) {
 
 			LOGGER.error("Exception catched ", ex.getMessage());
 

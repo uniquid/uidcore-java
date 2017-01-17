@@ -36,7 +36,7 @@ public final class Core {
 
 	public static final int RESULT_OK = 0;
 	public static final int RESULT_NO_PERMISSION = 2;
-	public static final int RESULT_NO_FUNCTION = 3;
+	public static final int RESULT_FUNCTION_NOT_AVAILABLE = 3;
 	public static final int RESULT_ERROR = 4;
 
 	private RegisterFactory registerFactory;
@@ -157,12 +157,12 @@ public final class Core {
 
 			} else {
 
-				outputMessage.setParameter(OutputMessage.ERROR, RESULT_NO_FUNCTION);
+				outputMessage.setParameter(OutputMessage.ERROR, RESULT_FUNCTION_NOT_AVAILABLE);
 				
 				PrintWriter printWriter;
 				try {
 					printWriter = outputMessage.getWriter();
-					printWriter.print("Function not yet implemented");
+					printWriter.print("Function not available");
 				} catch (IOException ex2) {
 
 					LOGGER.error("Exception", ex2);

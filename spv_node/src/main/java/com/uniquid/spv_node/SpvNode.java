@@ -131,7 +131,7 @@ public class SpvNode {
 				LOGGER.info("RECEIVED coins: " + wallet);
 			}
 		});
-
+		
 	}
 
 	public Wallet getWallet() {
@@ -151,7 +151,7 @@ public class SpvNode {
 
 			public void run() {
 
-				NodeUtils.syncBC(params, wallet, chainFile, walletFile);
+				NodeUtils.syncBC(params, wallet, chainFile, walletFile, creationTime);
 
 				// Populate provider register
 				Set<Transaction> transactions = wallet.getTransactions(false);
@@ -333,7 +333,7 @@ public class SpvNode {
 
 		SendRequest request = SendRequest.forTx(tx);
 
-		// LOGGER.info("Unsigned request" + request.tx);
+		LOGGER.info("Unsigned request" + request.tx);
 		Transaction tn = request.tx;
 
 		String transactionToString = Hex.toHexString(tn.bitcoinSerialize());
@@ -342,9 +342,9 @@ public class SpvNode {
 
 		wallet.signTransaction(request);
 
-		// wallet.completeTx(request);
+//		wallet.completeTx(request);
 
-		// LOGGER.info("Signed request" + request.tx);
+		LOGGER.info("Signed request" + request.tx);
 		tn = request.tx;
 
 		transactionToString = Hex.toHexString(tn.bitcoinSerialize());
