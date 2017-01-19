@@ -186,11 +186,11 @@ public class MQTTConnector implements Connector<JSONMessage> {
 
 				// DONE!
 
-			} catch (Exception ex) {
+			} catch (Throwable t) {
 
-				LOGGER.error("Catched Exception", ex);
+				LOGGER.error("Error", t);
 
-				throw new ConnectorException("Catched exception", ex);
+//				throw new ConnectorException("Catched exception", t);
 
 			} finally {
 
@@ -203,7 +203,7 @@ public class MQTTConnector implements Connector<JSONMessage> {
 
 					LOGGER.error("Catched Exception", ex);
 
-					throw new ConnectorException("Catched exception", ex);
+//					throw new ConnectorException("Catched exception", ex);
 
 				}
 
@@ -247,9 +247,9 @@ public class MQTTConnector implements Connector<JSONMessage> {
 					// consume
 					connection.publish(outputMessage.getDestination(), content.toJSON().getBytes(), QoS.AT_LEAST_ONCE, false);
 
-				} catch (Exception ex) {
+				} catch (Throwable t) {
 
-					LOGGER.error("Catched Exception", ex);
+					LOGGER.error("Error", t);
 					
 					// We should not loose this message!!! We put it again in the queue
 					
