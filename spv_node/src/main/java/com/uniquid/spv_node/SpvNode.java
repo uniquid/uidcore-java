@@ -4,15 +4,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.math.BigInteger;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -22,10 +20,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.bitcoinj.core.Address;
-import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.core.Utils;
@@ -35,14 +31,12 @@ import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
 import org.bitcoinj.wallet.WalletFiles;
-import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import com.google.common.collect.ArrayTable;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
@@ -59,28 +53,49 @@ public class SpvNode {
 	private NetworkParameters params;
 
 	private File walletFile;
+	private File providerFile;
 	private File chainFile;
+	private File providerChainFile;
 
-	private Wallet wallet;
+	private Wallet masterWallet;
+	private Wallet providerWallet;
 
 	private RegisterFactory registerFactory;
 
-	private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
-	private SpvNode(Builder builder) throws UnreadableWalletException {
+	private SpvNode(Builder builder) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
 		this.mnemonic = builder._mnemonic;
 		this.creationTime = builder._creationTime;
 		this.params = builder._params;
 		this.walletFile = builder._walletFile;
+		this.providerFile = builder._providerFile;
 		this.chainFile = builder._chainFile;
-		this.wallet = builder._wallet;
+		this.providerChainFile = builder._providerChainFile;
+		this.masterWallet = builder._masterWallet;
+		this.providerWallet = builder._providerWallet;
 		this.registerFactory = builder._registerFactory;
 
 		// Delegate the creating of the wallet
-		wallet = NodeUtils.createOrLoadWallet(mnemonic, creationTime, walletFile, params);
+		masterWallet = NodeUtils.createOrLoadMasterWallet(mnemonic, creationTime, walletFile, params);
+		
+		providerWallet = NodeUtils.createOrLoadWallet(mnemonic, creationTime, providerFile, params);
 
-		wallet.autosaveToFile(walletFile, 1000L, TimeUnit.MILLISECONDS, new WalletFiles.Listener() {
+		masterWallet.autosaveToFile(walletFile, 1000L, TimeUnit.MILLISECONDS, new WalletFiles.Listener() {
+
+			@Override
+			public void onBeforeAutoSave(File arg0) {
+				// LOGGER.info("SYNC", "before");
+			}
+
+			@Override
+			public void onAfterAutoSave(File arg0) {
+				// LOGGER.info("SYNC", "saved");
+			}
+		});
+		
+		providerWallet.autosaveToFile(providerFile, 1000L, TimeUnit.MILLISECONDS, new WalletFiles.Listener() {
 
 			@Override
 			public void onBeforeAutoSave(File arg0) {
@@ -93,50 +108,56 @@ public class SpvNode {
 			}
 		});
 
-		wallet.addCoinsReceivedEventListener(new WalletCoinsReceivedEventListener() {
-
-			@Override
-			public void onCoinsReceived(Wallet w, Transaction tx, Coin prevBalance, Coin newBalance) {
-
-				try {
-					LOGGER.info("Filling register");
-					// ArrayList<Transaction> transactions = new
-					// ArrayList<>();
-					// transactions.addAll(wallet.getTransactions(false));
-					ArrayList<Address> addresses = (ArrayList<Address>) wallet.getIssuedReceiveAddresses();
-					ProviderRegister register = registerFactory.createProviderRegister();
-
-					ProviderChannel channel = new ProviderChannel();
-					String sender = tx.getInput(0).getFromAddress().toBase58();
-					// channel.setProviderName(sender); // TODO HACK
-					channel.setProviderAddress(sender);
-					List<TransactionOutput> transactionOutputs = tx.getOutputs();
-					for (TransactionOutput to : transactionOutputs) {
-						Address a = to.getAddressFromP2PKHScript(params);
-						if (a != null && addresses.contains(a)) {
-							channel.setUserAddress(a.toBase58());
-						}
-					}
-
-					// Insert channel if it was not already present
-					// if (register.getChannel(channel.getProviderAddress()) ==
-					// null) {
-					// register.insertChannel(channel);
-					// }
-
-				} catch (Exception ex) {
-					LOGGER.error("Exception while populating Register", ex);
-				}
-
-				LOGGER.info("RECEIVED coins: " + wallet);
-			}
-		});
+//		masterWallet.addCoinsReceivedEventListener(new WalletCoinsReceivedEventListener() {
+//
+//			@Override
+//			public void onCoinsReceived(Wallet w, Transaction tx, Coin prevBalance, Coin newBalance) {
+//
+//				try {
+//					LOGGER.info("Filling register");
+//					// ArrayList<Transaction> transactions = new
+//					// ArrayList<>();
+//					// transactions.addAll(wallet.getTransactions(false));
+//					ArrayList<Address> addresses = (ArrayList<Address>) masterWallet.getIssuedReceiveAddresses();
+//					ProviderRegister register = registerFactory.createProviderRegister();
+//
+//					ProviderChannel channel = new ProviderChannel();
+//					String sender = tx.getInput(0).getFromAddress().toBase58();
+//					// channel.setProviderName(sender); // TODO HACK
+//					channel.setProviderAddress(sender);
+//					List<TransactionOutput> transactionOutputs = tx.getOutputs();
+//					for (TransactionOutput to : transactionOutputs) {
+//						Address a = to.getAddressFromP2PKHScript(params);
+//						if (a != null && addresses.contains(a)) {
+//							channel.setUserAddress(a.toBase58());
+//						}
+//					}
+//
+//					// Insert channel if it was not already present
+//					// if (register.getChannel(channel.getProviderAddress()) ==
+//					// null) {
+//					// register.insertChannel(channel);
+//					// }
+//
+//				} catch (Exception ex) {
+//					LOGGER.error("Exception while populating Register", ex);
+//				}
+//
+//				LOGGER.info("RECEIVED coins: " + masterWallet);
+//			}
+//		});
 		
 	}
 
 	public Wallet getWallet() {
 
-		return wallet;
+		return masterWallet;
+
+	}
+	
+	public Wallet getProviderWallet() {
+
+		return providerWallet;
 
 	}
 
@@ -151,12 +172,14 @@ public class SpvNode {
 
 			public void run() {
 
-				NodeUtils.syncBC(params, wallet, chainFile, walletFile, creationTime);
+				NodeUtils.syncBC(params, masterWallet, chainFile, walletFile, creationTime);
+
+				NodeUtils.syncBC(params, providerWallet, providerChainFile, providerFile, creationTime);
 
 				// Populate provider register
-				Set<Transaction> transactions = wallet.getTransactions(false);
+				Set<Transaction> transactions = masterWallet.getTransactions(false);
 				LOGGER.info("GETCHANNELS t.size: " + transactions.size());
-				List<Address> addresses = wallet.getIssuedReceiveAddresses();
+				List<Address> addresses = masterWallet.getIssuedReceiveAddresses();
 				for (Transaction t : transactions) {
 					
 					List<TransactionOutput> to = t.getOutputs();
@@ -223,7 +246,7 @@ public class SpvNode {
 			}
 		};
 
-		final ScheduledFuture<?> updater = scheduledExecutorService.scheduleAtFixedRate(walletSyncher, 0, 10,
+		final ScheduledFuture<?> updater = scheduledExecutorService.scheduleAtFixedRate(walletSyncher, 0, 15,
 				TimeUnit.MINUTES);
 
 		// Set<Transaction> ts = wallet.getTransactions(false);
@@ -320,39 +343,27 @@ public class SpvNode {
 
 	}
 
-	public boolean hasTransaction(String txid) {
-		// NativeSecp256k1.schnorrSign();
-		return (wallet.getTransaction(Sha256Hash.of(txid.getBytes())) != null);
-	}
-
 	public String signTransaction(String s_tx)
-			throws BlockStoreException, InterruptedException, ExecutionException, InsufficientMoneyException {
-		byte[] transaction = Hex.decode(s_tx);
+			throws BlockStoreException, InterruptedException, ExecutionException, InsufficientMoneyException, Exception {
+	
+		Transaction originalTransaction = params.getDefaultSerializer().makeTransaction(Hex.decode(s_tx));
 
-		Transaction tx = params.getDefaultSerializer().makeTransaction(transaction);
-
-		SendRequest request = SendRequest.forTx(tx);
-
-		LOGGER.info("Unsigned request" + request.tx);
-		Transaction tn = request.tx;
-
-		String transactionToString = Hex.toHexString(tn.bitcoinSerialize());
-
+		String transactionToString = Hex.toHexString(originalTransaction.bitcoinSerialize());
 		LOGGER.info("Serialized unsigned transaction: " + transactionToString);
-
-		wallet.signTransaction(request);
-
-//		wallet.completeTx(request);
-
-		LOGGER.info("Signed request" + request.tx);
-		tn = request.tx;
-
-		transactionToString = Hex.toHexString(tn.bitcoinSerialize());
-
-		LOGGER.info("Serialized signed transaction: " + transactionToString);
-
-		return NodeUtils.sendTransaction(params, wallet, chainFile, request);
-
+		
+		SendRequest send = SendRequest.forTx(originalTransaction);
+		
+		// fix our tx
+		((Uidwallet) masterWallet).completeTransaction(send);
+		
+		// delegate to walled the signing
+		((Uidwallet) masterWallet).signTransaction(send);
+		
+		String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
+	    
+		LOGGER.info("Serialized SIGNED transaction: " + sr);
+		
+		return NodeUtils.sendTransaction(params, masterWallet, chainFile, send);
 	}
 
 	public static class Builder {
@@ -363,9 +374,12 @@ public class SpvNode {
 		private NetworkParameters _params;
 
 		private File _walletFile;
+		private File _providerFile;
 		private File _chainFile;
+		private File _providerChainFile;
 
-		private Wallet _wallet;
+		private Wallet _masterWallet;
+		private Wallet _providerWallet;
 
 		private RegisterFactory _registerFactory;
 
@@ -388,14 +402,29 @@ public class SpvNode {
 			this._walletFile = _walletFile;
 			return this;
 		}
+		
+		public Builder set_providerFile(File _providerFile) {
+			this._providerFile = _providerFile;
+			return this;
+		}
 
 		public Builder set_chainFile(File _chainFile) {
 			this._chainFile = _chainFile;
 			return this;
 		}
+		
+		public Builder set_providerChainFile(File _providerChainFile) {
+			this._providerChainFile = _providerChainFile;
+			return this;
+		}
 
-		public Builder set_wallet(Wallet _wallet) {
-			this._wallet = _wallet;
+		public Builder set_masterWallet(Wallet _masterWallet) {
+			this._masterWallet = _masterWallet;
+			return this;
+		}
+		
+		public Builder set_providerWallet(Wallet _providerWallet) {
+			this._providerWallet = _providerWallet;
 			return this;
 		}
 
@@ -404,11 +433,11 @@ public class SpvNode {
 			return this;
 		}
 
-		public SpvNode build() throws UnreadableWalletException {
+		public SpvNode build() throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
 			return new SpvNode(this);
 
 		}
 	}
-
+	
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.TransactionOutput;
@@ -88,6 +89,11 @@ public class Uidwallet extends Wallet {
 
 	    	return prevTx.getOutput(0);
 	    
+	}
+	
+	public boolean hasTransaction(String txid) {
+		// NativeSecp256k1.schnorrSign();
+		return getTransaction(Sha256Hash.of(txid.getBytes())) != null;
 	}
 
 }
