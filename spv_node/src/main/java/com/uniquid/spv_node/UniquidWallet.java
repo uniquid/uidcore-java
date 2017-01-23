@@ -1,30 +1,39 @@
 package com.uniquid.spv_node;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 import java.util.List;
 
 import org.bitcoinj.core.Context;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.core.Utils;
+import org.bitcoinj.crypto.ChildNumber;
+import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.crypto.HDKeyDerivation;
+import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.KeyChainGroup;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
 
-public class Uidwallet extends Wallet {
+import com.google.common.collect.ImmutableList;
+
+public class UniquidWallet extends Wallet {
 	
-	public Uidwallet(NetworkParameters params) {
+	public UniquidWallet(NetworkParameters params) {
 		super(params);
 	}
 
-	public Uidwallet(Context context) {
+	public UniquidWallet(Context context) {
 		super(context);
 	}
 
-	public Uidwallet(NetworkParameters params, KeyChainGroup keyChainGroup) {
+	public UniquidWallet(NetworkParameters params, KeyChainGroup keyChainGroup) {
 		super(params, keyChainGroup);
 	}
 
@@ -95,5 +104,23 @@ public class Uidwallet extends Wallet {
 		// NativeSecp256k1.schnorrSign();
 		return getTransaction(Sha256Hash.of(txid.getBytes())) != null;
 	}
+	
+//	@Override
+//	public boolean isDeterministicUpgradeRequired() {
+//        return false;
+//    }
+	
+	public static UniquidWallet fromKeys(NetworkParameters params, List<ECKey> keys) {
+        for (ECKey key : keys)
+            checkArgument(!(key instanceof DeterministicKey));
 
+        KeyChainGroup group = new KeyChainGroup(params);
+        group.importKeys(keys);
+        return new UniquidWallet(params, group);
+    }
+	
+	public static Wallet fromSeed(NetworkParameters params, DeterministicSeed seed, ImmutableList<ChildNumber> accountPath) {
+        return new UniquidWallet(params, new KeyChainGroup(params, seed, accountPath));
+    }
+	
 }

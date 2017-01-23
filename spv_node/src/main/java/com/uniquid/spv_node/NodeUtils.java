@@ -16,6 +16,7 @@ import org.bitcoinj.core.Address;
 import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.CheckpointManager;
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Sha256Hash;
@@ -29,10 +30,13 @@ import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.net.discovery.SeedPeers;
+import org.bitcoinj.params.TestNet2Params;
+import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.script.ScriptBuilder;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
+import org.bitcoinj.wallet.DeterministicKeyChain;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.KeyChainGroup;
 import org.bitcoinj.wallet.SendRequest;
@@ -68,13 +72,13 @@ public class NodeUtils {
 	 * @throws NoSuchAlgorithmException 
 	 * @throws UnsupportedEncodingException 
 	 */
-	public static DeterministicSeed createDeterministicSeed(String seed) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+	public static DeterministicSeed createDeterministicSeed(String seed, long creationTime) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
 
 		md.update(seed.getBytes("UTF-8"));
 		byte[] hash = md.digest();
 		
-		return createDeterministicSeed(hash);
+		return createDeterministicSeed(hash, creationTime);
 	}
 	
 	/**
@@ -83,8 +87,7 @@ public class NodeUtils {
 	 * @param seed
 	 * @return new deterministic seed
 	 */
-	public static DeterministicSeed createDeterministicSeed(byte[] seed) throws UnreadableWalletException {
-		long creationTime = Calendar.getInstance().getTimeInMillis() / 1000;
+	public static DeterministicSeed createDeterministicSeed(byte[] seed, long creationTime) throws UnreadableWalletException {
 		return new DeterministicSeed("", seed, "", creationTime);
 	}
 
@@ -117,14 +120,14 @@ public class NodeUtils {
 
 	}
 
-	public static Wallet createOrLoadMasterWallet(String mnemonic, long creationTime, File walletFile,
+	public static Wallet createOrLoadMasterWallet2(String mnemonic, long creationTime, File walletFile,
 			NetworkParameters params) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-		Wallet masterWallet;
+		UniquidWallet masterWallet;
 
 		if (walletFile.exists() && !walletFile.isDirectory()) {
 
-			masterWallet = Uidwallet.loadFromFile(walletFile);
+			masterWallet = (UniquidWallet) UniquidWallet.loadFromFile(walletFile);
 
 			LOGGER.info("Master Wallet loaded: " + masterWallet.currentReceiveAddress().toBase58());
 
@@ -136,27 +139,65 @@ public class NodeUtils {
 			
 			//DeterministicKey key = DeterministicKey.deserializeB58("tprv8hS9xiSZmRGRPLTjvm46CViQXZPCSy51oqxzurvxH8FaMDwQzhhARX5NTHWWbYHVBRyPav1MpqNEfYZqgKwnfbqbRBj2gV67RNtPsgtDtWM", params);
 
-			byte[] privKey = Hex.decode("c3683143f3ba4cc2566270f80fa94d565b63c0f0dd143b7dfaac7c6db613fc41");
-			byte[] chainCode = Hex.decode("120bac590d40a7e5eb97286bcb44c3306a0ef79899b047d3a22687170473cd69");
+//			byte[] privKey = Hex.decode("c3683143f3ba4cc2566270f80fa94d565b63c0f0dd143b7dfaac7c6db613fc41");
+//			byte[] chainCode = Hex.decode("120bac590d40a7e5eb97286bcb44c3306a0ef79899b047d3a22687170473cd69");
+//			
+//			
+//			BigInteger priv = new BigInteger(1, privKey);
+//			//DeterministicKey key =  new DeterministicKey(ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true),  new ChildNumber(0, false),  new ChildNumber(0, false)), chainCode, priv, null);
+//			
+//			DeterministicKey key =  new DeterministicKey(ImmutableList.of(ChildNumber.ZERO_HARDENED), chainCode, priv, null);
+//			
+////			DeterministicKey key = HDKeyDerivation.createMasterPrivKeyFromBytes(privKey, chainCode);
+//			
+////			masterWallet = Wallet.fromWatchingKey(params, key);
+////			masterWallet = Wallet.fromSeed(params, createDeterministicSeed(key.serializePrivate(params)));
+//			
+//			masterWallet =  new Uidwallet(params, new KeyChainGroup(params, key));
 			
+			// NEW TEST CODE
+			DeterministicSeed dSeed = NodeUtils.createDeterministicSeed("Hulkbuster-Plated Compact Armor", creationTime);
+	        
+			LOGGER.info("seed: " + dSeed.toString());
+			dSeed.setCreationTimeSeconds(creationTime);
+			LOGGER.info("creation time: " + dSeed.getCreationTimeSeconds());
+			LOGGER.info("mnemonicCode: " + Utils.join(dSeed.getMnemonicCode()));
+
+			byte[] seed = dSeed.getSeedBytes();
+
+			DeterministicKey hdPriv = HDKeyDerivation.createMasterPrivateKey(seed);
+			hdPriv.setCreationTimeSeconds(creationTime);
+			LOGGER.info("START_NODE tpriv: " + hdPriv.serializePrivB58(params));
+
+			// Find child M/44'/0'
+			List<ChildNumber> imprintingChild = ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true));
+
+			DeterministicHierarchy detH = new DeterministicHierarchy(hdPriv);
+			DeterministicKey imprinting = detH.get(imprintingChild, true, true);
+			LOGGER.info("Imprinting key tpub: " + imprinting.serializePubB58(params));
+			LOGGER.info("Imprinting key tpriv: " + imprinting.serializePrivB58(params));
+			imprinting = imprinting.dropParent();
 			
-			BigInteger priv = new BigInteger(1, privKey);
-			//DeterministicKey key =  new DeterministicKey(ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true),  new ChildNumber(0, false),  new ChildNumber(0, false)), chainCode, priv, null);
-			
-			DeterministicKey key =  new DeterministicKey(ImmutableList.of(ChildNumber.ZERO_HARDENED), chainCode, priv, null);
-			
-//			DeterministicKey key = HDKeyDerivation.createMasterPrivKeyFromBytes(privKey, chainCode);
-			
-//			masterWallet = Wallet.fromWatchingKey(params, key);
-//			masterWallet = Wallet.fromSeed(params, createDeterministicSeed(key.serializePrivate(params)));
-			
-			masterWallet =  new Uidwallet(params, new KeyChainGroup(params, key));
+			ECKey key = ECKey.fromPrivate(imprinting.getPrivKeyBytes());
+			masterWallet = UniquidWallet.fromKeys(params, Arrays.asList(key));
+			masterWallet.getKeyChainSeed();
+			LOGGER.info("isDeterministicUpgradeRequired: " + masterWallet.isDeterministicUpgradeRequired());
+//			masterWallet.getImportedKeys().size();
+//			masterWallet.getImportedKeys().get(0);
+//			masterWallet.upgradeToDeterministic(null);
+			// END
 
 		}
 
 		LOGGER.info("Master WALLET created: " + masterWallet.currentReceiveAddress().toBase58());
 		LOGGER.info("Master WALLET curent change addr: " + masterWallet.currentChangeAddress().toBase58());
 		LOGGER.info("Master WALLET: " + masterWallet.toString());
+		
+        DeterministicSeed seed = masterWallet.getKeyChainSeed();
+        System.out.println("seed: " + seed.toString());
+
+        System.out.println("creation time: " + seed.getCreationTimeSeconds());
+        System.out.println("mnemonicCode: " + Utils.join(seed.getMnemonicCode()));
 		
 		return masterWallet;
 	}
@@ -177,7 +218,7 @@ public class NodeUtils {
 //			DeterministicSeed dSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
 //			wallet = Wallet.fromSeed(params, dSeed);
 
-			DeterministicSeed dSeed = createDeterministicSeed("Hulkbuster-Plated Compact Armor");
+			DeterministicSeed dSeed = createDeterministicSeed("Hulkbuster-Plated Compact Armor", creationTime);
 
 			byte[] seed = dSeed.getSeedBytes();
 
@@ -232,9 +273,9 @@ public class NodeUtils {
 			
 		}
 
-		LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
-		LOGGER.info("WALLET curent change addr: " + wallet.currentChangeAddress().toBase58());
-		LOGGER.info("WALLET: " + wallet.toString());
+//		LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
+//		LOGGER.info("WALLET curent change addr: " + wallet.currentChangeAddress().toBase58());
+//		LOGGER.info("WALLET: " + wallet.toString());
 
 		return wallet;
 	}
@@ -401,5 +442,82 @@ public class NodeUtils {
 	public static InputStream openStream(NetworkParameters params) {
         return NodeUtils.class.getResourceAsStream("/" + params.getId() + ".checkpoints.txt");
     }
+	
+	public static Wallet createOrLoadMasterWallet(String seed, long creationTime, File walletFile,
+			NetworkParameters params) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+		
+		Wallet wallet;
+
+		if (walletFile.exists() && !walletFile.isDirectory()) {
+
+			wallet = Wallet.loadFromFile(walletFile);
+
+			LOGGER.info("Master Wallet loaded: " + wallet.currentReceiveAddress().toBase58());
+
+		} else {
+			
+			ImmutableList<ChildNumber> BIP44_ACCOUNT =
+					ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true), new ChildNumber(0, false), new ChildNumber(0, false));
+		
+//			byte[] privKey = Hex.decode("c3683143f3ba4cc2566270f80fa94d565b63c0f0dd143b7dfaac7c6db613fc41");
+//			byte[] chainCode = Hex.decode("120bac590d40a7e5eb97286bcb44c3306a0ef79899b047d3a22687170473cd69");
+			
+//			masterWallet = Wallet.fromPrivateKeyAndChainCodeBytes(params, privKey, chainCode, creationTime, ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true), new ChildNumber(0, false), new ChildNumber(0, false)));
+			
+//			masterWallet = Wallet.fromBase58EncodedKey(params, "tprv8ZgxMBicQKsPdPW6CeDyE5561CPim5MTHScZWqrzziHb1MSebm9UDcbhihjaUFyMBByVb6XT5cdnfHHKaiZCJm2LwVhbrTHJQiBWMSEu4qG", creationTime, ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true), new ChildNumber(0, false), new ChildNumber(0, false)));
+			
+//			masterWallet = Wallet.fromSeed(params, createDeterministicSeed("Hulkbuster-Plated Compact Armor", creationTime), 
+//					ImmutableList.of(new ChildNumber(44, true)));
+			
+			wallet = Wallet.fromSeed(params, createDeterministicSeed(seed, creationTime), BIP44_ACCOUNT);
+//			masterWallet.addWatchedAddress(Address.fromBase58(params, "mgVinrbVtdYjBxRNbmwincYdQ27CwprfSf"));
+//			masterWallet.addWatchedAddress(Address.fromBase58(params, "moqaUPafQpAtoV5REq93BXbL24b9seG2jJ"));
+			
+//			masterWallet.addAndActivateHDChain(new DeterministicKeyChain(createDeterministicSeed("Hulkbuster-Plated Compact Armor", creationTime), 
+//					));
+		}
+		
+//		LOGGER.info("WALLET created: " + masterWallet.currentReceiveAddress().toBase58());
+//		LOGGER.info("WALLET curent change addr: " + masterWallet.currentChangeAddress().toBase58());
+//		LOGGER.info("WALLET: " + masterWallet.toString());
+		
+		return wallet;
+		
+	}
+	
+	public static Wallet createOrLoadUserWallet(String seed, long creationTime, File walletFile,
+			NetworkParameters params) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+		
+		Wallet wallet;
+
+		if (walletFile.exists() && !walletFile.isDirectory()) {
+
+			wallet = Wallet.loadFromFile(walletFile);
+
+			LOGGER.info("Wallet loaded: " + wallet.currentReceiveAddress().toBase58());
+
+		} else {
+			
+			ImmutableList<ChildNumber> BIP44_ACCOUNT =
+					ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true), new ChildNumber(0, false), new ChildNumber(1, false));
+		
+			wallet = Wallet.fromSeed(params, createDeterministicSeed(seed, creationTime), BIP44_ACCOUNT);
+		}
+		
+//		LOGGER.info("WALLET created: " + masterWallet.currentReceiveAddress().toBase58());
+//		LOGGER.info("WALLET curent change addr: " + masterWallet.currentChangeAddress().toBase58());
+//		LOGGER.info("WALLET: " + masterWallet.toString());
+		
+		return wallet;
+		
+	}
+	
+	public static void main(String[] args) throws Exception {
+		NetworkParameters params = new  TestNet3Params().get();
+		
+		long creation = 1477958400;
+		
+		Wallet wallet = createOrLoadMasterWallet("", creation, null, params);
+	}
 
 }

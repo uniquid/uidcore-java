@@ -20,11 +20,13 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.bitcoinj.core.Address;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.core.Utils;
+import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.wallet.SendRequest;
@@ -53,12 +55,12 @@ public class SpvNode {
 	private NetworkParameters params;
 
 	private File walletFile;
-	private File providerFile;
+	private File userFile;
 	private File chainFile;
-	private File providerChainFile;
+	private File userChainFile;
 
 	private Wallet masterWallet;
-	private Wallet providerWallet;
+	private Wallet userWallet;
 
 	private RegisterFactory registerFactory;
 
@@ -70,17 +72,17 @@ public class SpvNode {
 		this.creationTime = builder._creationTime;
 		this.params = builder._params;
 		this.walletFile = builder._walletFile;
-		this.providerFile = builder._providerFile;
+		this.userFile = builder._userFile;
 		this.chainFile = builder._chainFile;
-		this.providerChainFile = builder._providerChainFile;
+		this.userChainFile = builder._userChainFile;
 		this.masterWallet = builder._masterWallet;
-		this.providerWallet = builder._providerWallet;
+		this.userWallet = builder._userWallet;
 		this.registerFactory = builder._registerFactory;
 
 		// Delegate the creating of the wallet
 		masterWallet = NodeUtils.createOrLoadMasterWallet(mnemonic, creationTime, walletFile, params);
 		
-		providerWallet = NodeUtils.createOrLoadWallet(mnemonic, creationTime, providerFile, params);
+		userWallet = NodeUtils.createOrLoadUserWallet(mnemonic, creationTime, userFile, params);
 
 		masterWallet.autosaveToFile(walletFile, 1000L, TimeUnit.MILLISECONDS, new WalletFiles.Listener() {
 
@@ -95,7 +97,7 @@ public class SpvNode {
 			}
 		});
 		
-		providerWallet.autosaveToFile(providerFile, 1000L, TimeUnit.MILLISECONDS, new WalletFiles.Listener() {
+		userWallet.autosaveToFile(userFile, 1000L, TimeUnit.MILLISECONDS, new WalletFiles.Listener() {
 
 			@Override
 			public void onBeforeAutoSave(File arg0) {
@@ -155,9 +157,9 @@ public class SpvNode {
 
 	}
 	
-	public Wallet getProviderWallet() {
+	public Wallet getUserWallet() {
 
-		return providerWallet;
+		return userWallet;
 
 	}
 
@@ -174,12 +176,87 @@ public class SpvNode {
 
 				NodeUtils.syncBC(params, masterWallet, chainFile, walletFile, creationTime);
 
-				NodeUtils.syncBC(params, providerWallet, providerChainFile, providerFile, creationTime);
+				NodeUtils.syncBC(params, userWallet, userChainFile, userFile, creationTime);
 
 				// Populate provider register
 				Set<Transaction> transactions = masterWallet.getTransactions(false);
 				LOGGER.info("GETCHANNELS t.size: " + transactions.size());
-				List<Address> addresses = masterWallet.getIssuedReceiveAddresses();
+//				List<Address> addresses = masterWallet.getIssuedReceiveAddresses();
+				
+				List<DeterministicKey> keys = masterWallet.getActiveKeyChain().getLeafKeys();
+				List<String> addresses = new ArrayList<>();
+				for (ECKey key : keys) {
+					addresses.add(key.toAddress(params).toBase58());
+				}
+				
+				for (Transaction t : transactions) {
+					
+					List<TransactionOutput> to = t.getOutputs();
+
+					if (to.size() != 4)
+						continue;
+
+					Script script = t.getInput(0).getScriptSig();
+					Address p_address = new Address(params, Utils.sha256hash160(script.getPubKey()));
+
+					List<TransactionOutput> ts = new ArrayList<>(to);
+
+					Address u_address = ts.get(0).getAddressFromP2PKHScript(params);
+
+					// We are provider!!!
+//					if (u_address == null || !addresses.contains(u_address.toBase58())) {
+//						continue;
+//					}
+
+					if (!isValidOpReturn(t)) {
+						continue;
+					}
+
+					Address revoca = ts.get(2).getAddressFromP2PKHScript(params);
+					if(revoca == null || !isUnspent(t.getHashAsString(), revoca.toBase58())){
+						continue;
+					}
+
+					ProviderChannel providerChannel = new ProviderChannel();
+					providerChannel.setProviderAddress(p_address.toBase58());
+					providerChannel.setUserAddress(u_address.toBase58());
+					
+					String opreturn = getOpReturn(t);
+					
+					byte[] op_to_byte = Hex.decode(opreturn);
+					
+					byte[] bitmask = Arrays.copyOfRange(op_to_byte, 1, 19);
+					
+					// encode to be saved on db
+					String bitmaskToString = new String(Hex.encode(bitmask));
+					
+					providerChannel.setBitmask(bitmaskToString);
+					
+					try {
+
+						ProviderRegister providerRegister = registerFactory.createProviderRegister();
+						
+						providerRegister.insertChannel(providerChannel);
+						
+					} catch (Exception e) {
+
+						LOGGER.error("Exception while inserting providerregister", e);
+
+					}
+
+					LOGGER.info("GETCHANNELS txid: " + t.getHashAsString());
+					LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
+					LOGGER.info("GETCHANNELS user: " + u_address);
+					LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(params));
+					LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(params));
+					LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
+
+				}
+				
+				// Populate user register
+				transactions = userWallet.getTransactions(false);
+				LOGGER.info("GETCHANNELS t.size: " + transactions.size());
+				List<Address> issuedAddresses = userWallet.getIssuedReceiveAddresses();
 				for (Transaction t : transactions) {
 					
 					List<TransactionOutput> to = t.getOutputs();
@@ -222,17 +299,17 @@ public class SpvNode {
 					
 					providerChannel.setBitmask(bitmaskToString);
 					
-					try {
-
-						ProviderRegister providerRegister = registerFactory.createProviderRegister();
-						
-						providerRegister.insertChannel(providerChannel);
-						
-					} catch (Exception e) {
-
-						LOGGER.error("Exception while inserting providerregister", e);
-
-					}
+//					try {
+//
+//						ProviderRegister providerRegister = registerFactory.createProviderRegister();
+//						
+//						providerRegister.insertChannel(providerChannel);
+//						
+//					} catch (Exception e) {
+//
+//						LOGGER.error("Exception while inserting providerregister", e);
+//
+//					}
 
 					LOGGER.info("GETCHANNELS txid: " + t.getHashAsString());
 					LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
@@ -354,10 +431,10 @@ public class SpvNode {
 		SendRequest send = SendRequest.forTx(originalTransaction);
 		
 		// fix our tx
-		((Uidwallet) masterWallet).completeTransaction(send);
+		((UniquidWallet) masterWallet).completeTransaction(send);
 		
 		// delegate to walled the signing
-		((Uidwallet) masterWallet).signTransaction(send);
+		((UniquidWallet) masterWallet).signTransaction(send);
 		
 		String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
 	    
@@ -374,12 +451,12 @@ public class SpvNode {
 		private NetworkParameters _params;
 
 		private File _walletFile;
-		private File _providerFile;
+		private File _userFile;
 		private File _chainFile;
-		private File _providerChainFile;
+		private File _userChainFile;
 
 		private Wallet _masterWallet;
-		private Wallet _providerWallet;
+		private Wallet _userWallet;
 
 		private RegisterFactory _registerFactory;
 
@@ -403,8 +480,8 @@ public class SpvNode {
 			return this;
 		}
 		
-		public Builder set_providerFile(File _providerFile) {
-			this._providerFile = _providerFile;
+		public Builder set_userFile(File _userFile) {
+			this._userFile = _userFile;
 			return this;
 		}
 
@@ -413,8 +490,8 @@ public class SpvNode {
 			return this;
 		}
 		
-		public Builder set_providerChainFile(File _providerChainFile) {
-			this._providerChainFile = _providerChainFile;
+		public Builder set_userChainFile(File _userChainFile) {
+			this._userChainFile = _userChainFile;
 			return this;
 		}
 
@@ -423,8 +500,8 @@ public class SpvNode {
 			return this;
 		}
 		
-		public Builder set_providerWallet(Wallet _providerWallet) {
-			this._providerWallet = _providerWallet;
+		public Builder set_userWallet(Wallet _userWallet) {
+			this._userWallet = _userWallet;
 			return this;
 		}
 
