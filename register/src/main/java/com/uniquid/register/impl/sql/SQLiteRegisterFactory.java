@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.user.UserRegister;
 
 public class SQLiteRegisterFactory extends RegisterFactory {
 
@@ -43,6 +44,11 @@ public class SQLiteRegisterFactory extends RegisterFactory {
 
 	@Override
 	public ProviderRegister createProviderRegister() throws Exception {
+		return createRegister();
+	}
+
+	@Override
+	public UserRegister createUserRegister() throws Exception {
 		return createRegister();
 	}
 

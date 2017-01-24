@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.user.UserRegister;
 
 /**
  * Factory to create RegisterFactory
@@ -49,6 +50,8 @@ public abstract class RegisterFactory {
 	}
 	
 	public abstract ProviderRegister createProviderRegister() throws Exception;
+	
+	public abstract UserRegister createUserRegister() throws Exception;
 	
 	public RegisterFactory(Map<String, Object> configuration) {
 
