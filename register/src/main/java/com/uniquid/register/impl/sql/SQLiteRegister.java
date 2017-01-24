@@ -33,7 +33,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	
 	public static final String TABLE_USER = "user_channel";
 	
-	public static final String USER_CREATE_TABLE = "create table user_chanel (user_name text not null, provider_address text not null, user_address text not null, bitmask text not null);";
+	public static final String USER_CREATE_TABLE = "create table user_channel (provider_name text, provider_address text not null, user_address text not null, bitmask text not null);";
 	
 	public static final String USER_ALL_CHANNEL = "select provider_name, provider_address, user_address, bitmask from user_channel";
 	

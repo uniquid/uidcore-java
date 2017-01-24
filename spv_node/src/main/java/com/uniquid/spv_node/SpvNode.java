@@ -44,6 +44,8 @@ import com.google.common.collect.ImmutableList;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.user.UserChannel;
+import com.uniquid.register.user.UserRegister;
 
 public class SpvNode {
 
@@ -276,7 +278,7 @@ public class SpvNode {
 
 					Address u_address = ts.get(0).getAddressFromP2PKHScript(params);
 
-					if (u_address == null || !addresses.contains(u_address)) {
+					if (u_address == null /*|| !addresses.contains(u_address)*/) {
 						continue;
 					}
 
@@ -289,9 +291,9 @@ public class SpvNode {
 						continue;
 					}
 
-					ProviderChannel providerChannel = new ProviderChannel();
-					providerChannel.setProviderAddress(p_address.toBase58());
-					providerChannel.setUserAddress(u_address.toBase58());
+					UserChannel userChannel = new UserChannel();
+					userChannel.setProviderAddress(p_address.toBase58());
+					userChannel.setUserAddress(u_address.toBase58());
 					
 					String opreturn = getOpReturn(t);
 					
@@ -302,19 +304,19 @@ public class SpvNode {
 					// encode to be saved on db
 					String bitmaskToString = new String(Hex.encode(bitmask));
 					
-					providerChannel.setBitmask(bitmaskToString);
+					userChannel.setBitmask(bitmaskToString);
 					
-//					try {
-//
-//						ProviderRegister providerRegister = registerFactory.createProviderRegister();
-//						
-//						providerRegister.insertChannel(providerChannel);
-//						
-//					} catch (Exception e) {
-//
-//						LOGGER.error("Exception while inserting providerregister", e);
-//
-//					}
+					try {
+
+						UserRegister userRegister = registerFactory.createUserRegister();
+						
+						userRegister.insertChannel(userChannel);
+						
+					} catch (Exception e) {
+
+						LOGGER.error("Exception while inserting userChannel", e);
+
+					}
 
 					LOGGER.info("GETCHANNELS txid: " + t.getHashAsString());
 					LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
