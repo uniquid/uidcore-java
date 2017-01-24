@@ -73,6 +73,10 @@ public final class Core {
 			// This will never happens!
 		}
 	}
+	
+	public SpvNode getSpvNode() {
+		return spvNode;
+	}
 
 	private ProviderFunction getFunction(InputMessage<?> inputMessage) {
 
@@ -173,7 +177,7 @@ public final class Core {
 		} finally {
 
 			// Populate all missing parameters...
-			outputMessage.setParameter(OutputMessage.SENDER, spvNode.getWallet().currentReceiveAddress().toBase58());
+			outputMessage.setParameter(OutputMessage.SENDER, spvNode.getProviderWallet().currentReceiveAddress().toBase58());
 
 			outputMessage.setParameter(OutputMessage.ID, Long.valueOf(inputMessage.getParameter(InputMessage.ID)));
 

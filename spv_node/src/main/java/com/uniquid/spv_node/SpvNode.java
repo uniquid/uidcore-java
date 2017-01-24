@@ -26,6 +26,7 @@ import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.core.Utils;
+import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.store.BlockStoreException;
@@ -39,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import com.google.common.collect.ImmutableList;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
@@ -48,18 +50,23 @@ public class SpvNode {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpvNode.class.getName());
 	private static String URL_REGISTRY = "http://104.130.230.85:8080/registry";
     private static String URL_UTXO = "http://appliance3.uniquid.co:8080/insight-api/addr/%1&s/utxo";
+    
+    private static ImmutableList<ChildNumber> BIP44_ACCOUNT_PROVIDER =
+			ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true), new ChildNumber(0, false), new ChildNumber(0, false));
+    
+    private static ImmutableList<ChildNumber> BIP44_ACCOUNT_USER =
+			ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true), new ChildNumber(0, false), new ChildNumber(1, false));
 
-	private String mnemonic;
+	private String seed;
 	private long creationTime;
 
 	private NetworkParameters params;
 
-	private File walletFile;
+	private File providerFile;
 	private File userFile;
 	private File chainFile;
-	private File userChainFile;
 
-	private Wallet masterWallet;
+	private Wallet providerWallet;
 	private Wallet userWallet;
 
 	private RegisterFactory registerFactory;
@@ -68,23 +75,22 @@ public class SpvNode {
 
 	private SpvNode(Builder builder) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-		this.mnemonic = builder._mnemonic;
+		this.seed = builder._seed;
 		this.creationTime = builder._creationTime;
 		this.params = builder._params;
-		this.walletFile = builder._walletFile;
+		this.providerFile = builder._providerFile;
 		this.userFile = builder._userFile;
 		this.chainFile = builder._chainFile;
-		this.userChainFile = builder._userChainFile;
-		this.masterWallet = builder._masterWallet;
+		this.providerWallet = builder._providerWallet;
 		this.userWallet = builder._userWallet;
 		this.registerFactory = builder._registerFactory;
 
 		// Delegate the creating of the wallet
-		masterWallet = NodeUtils.createOrLoadMasterWallet(mnemonic, creationTime, walletFile, params);
+		providerWallet = NodeUtils.createOrLoadWallet(seed, creationTime, providerFile, params, BIP44_ACCOUNT_PROVIDER);
 		
-		userWallet = NodeUtils.createOrLoadUserWallet(mnemonic, creationTime, userFile, params);
+		userWallet = NodeUtils.createOrLoadWallet(seed, creationTime, userFile, params, BIP44_ACCOUNT_USER);
 
-		masterWallet.autosaveToFile(walletFile, 1000L, TimeUnit.MILLISECONDS, new WalletFiles.Listener() {
+		providerWallet.autosaveToFile(providerFile, 1000L, TimeUnit.MILLISECONDS, new WalletFiles.Listener() {
 
 			@Override
 			public void onBeforeAutoSave(File arg0) {
@@ -151,9 +157,9 @@ public class SpvNode {
 		
 	}
 
-	public Wallet getWallet() {
+	public Wallet getProviderWallet() {
 
-		return masterWallet;
+		return providerWallet;
 
 	}
 	
@@ -174,16 +180,15 @@ public class SpvNode {
 
 			public void run() {
 
-				NodeUtils.syncBC(params, masterWallet, chainFile, walletFile, creationTime);
-
-				NodeUtils.syncBC(params, userWallet, userChainFile, userFile, creationTime);
+				// Synchronize wallets against blockchain
+				NodeUtils.syncBlockChain(params, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile, creationTime);
 
 				// Populate provider register
-				Set<Transaction> transactions = masterWallet.getTransactions(false);
+				Set<Transaction> transactions = providerWallet.getTransactions(false);
 				LOGGER.info("GETCHANNELS t.size: " + transactions.size());
 //				List<Address> addresses = masterWallet.getIssuedReceiveAddresses();
 				
-				List<DeterministicKey> keys = masterWallet.getActiveKeyChain().getLeafKeys();
+				List<DeterministicKey> keys = providerWallet.getActiveKeyChain().getLeafKeys();
 				List<String> addresses = new ArrayList<>();
 				for (ECKey key : keys) {
 					addresses.add(key.toAddress(params).toBase58());
@@ -204,9 +209,9 @@ public class SpvNode {
 					Address u_address = ts.get(0).getAddressFromP2PKHScript(params);
 
 					// We are provider!!!
-//					if (u_address == null || !addresses.contains(u_address.toBase58())) {
-//						continue;
-//					}
+					if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
+						continue;
+					}
 
 					if (!isValidOpReturn(t)) {
 						continue;
@@ -431,37 +436,36 @@ public class SpvNode {
 		SendRequest send = SendRequest.forTx(originalTransaction);
 		
 		// fix our tx
-		((UniquidWallet) masterWallet).completeTransaction(send);
+		((UniquidWallet) providerWallet).completeTransaction(send);
 		
 		// delegate to walled the signing
-		((UniquidWallet) masterWallet).signTransaction(send);
+		((UniquidWallet) providerWallet).signTransaction(send);
 		
 		String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
 	    
 		LOGGER.info("Serialized SIGNED transaction: " + sr);
 		
-		return NodeUtils.sendTransaction(params, masterWallet, chainFile, send);
+		return NodeUtils.sendTransaction(params, providerWallet, chainFile, send);
 	}
 
 	public static class Builder {
 
-		private String _mnemonic;
+		private String _seed;
 		private long _creationTime;
 
 		private NetworkParameters _params;
 
-		private File _walletFile;
+		private File _providerFile;
 		private File _userFile;
 		private File _chainFile;
-		private File _userChainFile;
 
-		private Wallet _masterWallet;
+		private Wallet _providerWallet;
 		private Wallet _userWallet;
 
 		private RegisterFactory _registerFactory;
 
-		public Builder set_mnemonic(String _mnemonic) {
-			this._mnemonic = _mnemonic;
+		public Builder set_seed(String _seed) {
+			this._seed = _seed;
 			return this;
 		}
 
@@ -475,8 +479,8 @@ public class SpvNode {
 			return this;
 		}
 
-		public Builder set_walletFile(File _walletFile) {
-			this._walletFile = _walletFile;
+		public Builder set_providerFile(File _providerFile) {
+			this._providerFile = _providerFile;
 			return this;
 		}
 		
@@ -490,13 +494,8 @@ public class SpvNode {
 			return this;
 		}
 		
-		public Builder set_userChainFile(File _userChainFile) {
-			this._userChainFile = _userChainFile;
-			return this;
-		}
-
-		public Builder set_masterWallet(Wallet _masterWallet) {
-			this._masterWallet = _masterWallet;
+		public Builder set_providerWallet(Wallet _providerWallet) {
+			this._providerWallet = _providerWallet;
 			return this;
 		}
 		
