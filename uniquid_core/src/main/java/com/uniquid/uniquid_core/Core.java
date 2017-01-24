@@ -77,6 +77,10 @@ public final class Core {
 	public SpvNode getSpvNode() {
 		return spvNode;
 	}
+	
+	public RegisterFactory getRegisterFactory() {
+		return registerFactory;
+	}
 
 	private ProviderFunction getFunction(InputMessage<?> inputMessage) {
 
