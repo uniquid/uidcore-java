@@ -188,7 +188,8 @@ public final class Core {
 			outputMessage.setParameter(OutputMessage.ID, Long.valueOf(inputMessage.getParameter(InputMessage.ID)));
 
 			String sender = inputMessage.getParameter(InputMessage.SENDER);
-			outputMessage.setDestination(sender);
+			
+			outputMessage.setParameter(OutputMessage.RECEIVER_ADDRESS, sender);
 
 		}
 
@@ -313,11 +314,11 @@ public final class Core {
 	private void checkSender(OutputMessage outputMessage) throws Exception {
 
 		// Retrieve destination
-		String destination = outputMessage.getDestination();
+		String receiver = (String) outputMessage.getParameter(OutputMessage.RECEIVER);
 
 		UserRegister userRegister = registerFactory.createUserRegister();
 
-		UserChannel userChannel = userRegister.getChannelByName(destination);
+		UserChannel userChannel = userRegister.getChannelByProviderAddress(receiver);
 
 		// Check if there is a channel available
 		if (userChannel != null) {
@@ -332,6 +333,8 @@ public final class Core {
 			Integer method = (Integer) outputMessage.getParameter(OutputMessage.METHOD);
 
 			if (bitset.get(method)) {
+				
+				outputMessage.setParameter(OutputMessage.RECEIVER_ADDRESS, userChannel.getProviderName());
 
 				return;
 

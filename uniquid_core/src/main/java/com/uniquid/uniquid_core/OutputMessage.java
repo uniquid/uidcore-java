@@ -12,6 +12,8 @@ import java.io.PrintWriter;
 public interface OutputMessage<T> {
 	
 	public static final String SENDER = "SENDER";
+	public static final String RECEIVER = "RECEIVER";
+	public static final String RECEIVER_ADDRESS = "RECEIVER_ADDRESS";
 	public static final String METHOD = "METHOD";
 	public static final String PARAMS = "PARAMS";
 	public static final String ID = "ID";
@@ -25,10 +27,6 @@ public interface OutputMessage<T> {
 	public void setParameter(String name, Object value);
 	
 	public Object getParameter(String name);
-	
-	public String getDestination();
-	
-	public void setDestination(String destination);
 	
 	public T getContent();
 	

@@ -33,11 +33,13 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	
 	public static final String TABLE_USER = "user_channel";
 	
-	public static final String USER_CREATE_TABLE = "create table user_channel (provider_name text, provider_address text not null, user_address text not null, bitmask text not null);";
+	public static final String USER_CREATE_TABLE = "create table user_channel (provider_name text not null, provider_address text not null, user_address text not null, bitmask text not null, primary key (provider_name, provider_address, user_address));";
 	
 	public static final String USER_ALL_CHANNEL = "select provider_name, provider_address, user_address, bitmask from user_channel";
 	
 	public static final String USER_CHANNEL_BY_NAME = "select provider_name, provider_address, user_address, bitmask from user_channel where provider_name = ?;";
+	
+	public static final String USER_CHANNEL_BY_ADDRESS = "select provider_name, provider_address, user_address, bitmask from user_channel where provider_address = ?;";
 	
 	public static final String INSERT_USER_CHANNEL = "insert into user_channel (provider_name, provider_address, user_address, bitmask) values (?, ?, ?, ?);";
 	
@@ -193,6 +195,43 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_BY_NAME);
+
+			try {
+				
+				statement.setString(1, name);
+
+				ResultSet rs = statement.executeQuery();
+
+				if (rs.next()) {
+
+					UserChannel userChannel = new UserChannel();
+
+					userChannel.setProviderName(rs.getString("provider_name"));
+					userChannel.setProviderAddress(rs.getString("provider_address"));
+					userChannel.setUserAddress(rs.getString("user_address"));
+					userChannel.setBitmask(rs.getString("bitmask"));
+
+					return userChannel;
+					
+				}
+
+			} finally {
+
+				statement.close();
+
+			}
+		} catch (SQLException ex) {
+			throw new RegisterException("Exception while getChannelByName()", ex);
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public UserChannel getChannelByProviderAddress(String name) throws RegisterException {
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_BY_ADDRESS);
 
 			try {
 				

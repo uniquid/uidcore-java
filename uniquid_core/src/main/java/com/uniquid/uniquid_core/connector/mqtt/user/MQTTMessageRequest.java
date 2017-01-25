@@ -3,6 +3,8 @@ package com.uniquid.uniquid_core.connector.mqtt.user;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.uniquid.uniquid_core.OutputMessage;
 import com.uniquid.uniquid_core.connector.mqtt.JSONMessage;
@@ -10,10 +12,11 @@ import com.uniquid.uniquid_core.connector.mqtt.JSONMessage;
 public class MQTTMessageRequest implements OutputMessage<JSONMessage> {
 	
 	private JSONMessage jsonMessage;
-	private String destination;
+	private Map<String, Object> parameters;
 	
 	public MQTTMessageRequest() {
 		this.jsonMessage = new JSONMessage();
+		this.parameters = new HashMap<String, Object>();
 	}
 
 	@Override
@@ -27,6 +30,8 @@ public class MQTTMessageRequest implements OutputMessage<JSONMessage> {
 			jsonMessage.getBody().put("params", value);
 		} else if (OutputMessage.ID.equals(name)) {
 			jsonMessage.getBody().put("id", value);
+		} else {
+			parameters.put(name, value);
 		}
 		
 	}
@@ -46,18 +51,8 @@ public class MQTTMessageRequest implements OutputMessage<JSONMessage> {
 	}
 
 	@Override
-	public String getDestination() {
-		return destination;
-	}
-
-	@Override
 	public JSONMessage getContent() {
 		return jsonMessage;
-	}
-
-	@Override
-	public void setDestination(String destination) {
-		this.destination = destination;
 	}
 
 	@Override
@@ -70,9 +65,10 @@ public class MQTTMessageRequest implements OutputMessage<JSONMessage> {
 			return jsonMessage.getBody().get("params");
 		} else if (OutputMessage.ID.equals(name)) {
 			return jsonMessage.getBody().get("id");
+		} else {
+			return parameters.get(name);
 		}
 		
-		return null;
 	}
 
 }

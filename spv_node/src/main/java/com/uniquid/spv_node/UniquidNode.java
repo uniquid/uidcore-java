@@ -58,6 +58,7 @@ public class UniquidNode {
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNode.class.getName());
 	private static String URL_REGISTRY = "http://104.130.230.85:8080/registry";
     private static String URL_UTXO = "http://appliance3.uniquid.co:8080/insight-api/addr/%1&s/utxo";
+    private static String URL_PROVIDER = "http://appliance4.uniquid.co:8080/registry";
     
     private static ImmutableList<ChildNumber> BIP44_ACCOUNT_PROVIDER = ImmutableList.of(
     		new ChildNumber(44, true),
@@ -318,10 +319,16 @@ public class UniquidNode {
 					if(revoca == null || !isUnspent(t.getHashAsString(), revoca.toBase58())){
 						continue;
 					}
+					
+					String providerName = retrieveNameFromProvider(p_address.toBase58());
+					if (providerName == null) {
+						continue;
+					}
 
 					UserChannel userChannel = new UserChannel();
 					userChannel.setProviderAddress(p_address.toBase58());
 					userChannel.setUserAddress(u_address.toBase58());
+					userChannel.setProviderName(providerName);
 					
 					String opreturn = getOpReturn(t);
 					
@@ -392,6 +399,28 @@ public class UniquidNode {
         }
 
         return false;
+    }
+    
+    public static String retrieveNameFromProvider(String provider){
+        String result = httpGet(URL_REGISTRY, null);
+
+        if (result == null)
+            return null;
+
+        JSONArray jArray = new JSONArray(result);
+
+        for (int i = 0; i < jArray.length(); i++){
+            JSONObject jsonObject = jArray.getJSONObject(i);
+            
+            String name = jsonObject.getString("provider_name");
+            String address = jsonObject.getString("provider_address");
+            
+            if (provider.equals(address)) {
+            		return name;
+            }
+        }
+
+        return null;
     }
     
     public static String httpGet(String url, String param){
