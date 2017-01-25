@@ -60,4 +60,19 @@ public class MQTTMessageRequest implements OutputMessage<JSONMessage> {
 		this.destination = destination;
 	}
 
+	@Override
+	public Object getParameter(String name) {
+		if (OutputMessage.SENDER.equals(name)) {
+			return jsonMessage.getSender();
+		} else if (OutputMessage.METHOD.equals(name)) {
+			return jsonMessage.getBody().get("method");
+		} else if (OutputMessage.PARAMS.equals(name)) {
+			return jsonMessage.getBody().get("params");
+		} else if (OutputMessage.ID.equals(name)) {
+			return jsonMessage.getBody().get("id");
+		}
+		
+		return null;
+	}
+
 }

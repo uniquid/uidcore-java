@@ -14,6 +14,8 @@ import org.spongycastle.util.encoders.Hex;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.user.UserChannel;
+import com.uniquid.register.user.UserRegister;
 import com.uniquid.spv_node.SpvNode;
 import com.uniquid.uniquid_core.connector.Connector;
 import com.uniquid.uniquid_core.connector.ConnectorException;
@@ -300,6 +302,52 @@ public final class Core {
 		}
 
 	}
+	
+	/**
+	 * Check if sender is authorized
+	 * 
+	 * @param sender
+	 * @return
+	 * @throws Exception
+	 */
+	private void checkSender(OutputMessage outputMessage) throws Exception {
+
+		// Retrieve destination
+		String destination = outputMessage.getDestination();
+
+		UserRegister userRegister = registerFactory.createUserRegister();
+
+		UserChannel userChannel = userRegister.getChannelByName(destination);
+
+		// Check if there is a channel available
+		if (userChannel != null) {
+
+			String bitmask = userChannel.getBitmask();
+
+			// decode
+			byte[] b = Hex.decode(bitmask);
+
+			BitSet bitset = BitSet.valueOf(b);
+
+			Integer method = (Integer) outputMessage.getParameter(OutputMessage.METHOD);
+
+			if (bitset.get(method)) {
+
+				return;
+
+			} else {
+
+				throw new Exception("Sender not authorized!");
+
+			}
+
+		} else {
+
+			throw new Exception("Provider not found in User register!");
+
+		}
+
+	}
 
 	public void shutdown() {
 
@@ -323,7 +371,14 @@ public final class Core {
 	 */
 	public InputMessage<?> performUserRequest(OutputMessage outputMessage, long timeout)
 			throws Exception, TimeoutException {
+		
+		LOGGER.info("Checking sender...");
+		
+		// Check if sender is authorized or throw exception
+		checkSender(outputMessage);
 
+		LOGGER.info("Performing function...");
+		
 		return connectorService.sendOutputMessage(outputMessage, timeout);
 	}
 

@@ -24,6 +24,8 @@ public interface OutputMessage<T> {
 	
 	public void setParameter(String name, Object value);
 	
+	public Object getParameter(String name);
+	
 	public String getDestination();
 	
 	public void setDestination(String destination);
