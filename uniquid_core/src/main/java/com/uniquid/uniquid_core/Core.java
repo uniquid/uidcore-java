@@ -16,7 +16,7 @@ import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
-import com.uniquid.spv_node.SpvNode;
+import com.uniquid.spv_node.UniquidNode;
 import com.uniquid.uniquid_core.connector.Connector;
 import com.uniquid.uniquid_core.connector.ConnectorException;
 import com.uniquid.uniquid_core.connector.ConnectorFactory;
@@ -44,13 +44,13 @@ public final class Core {
 	private RegisterFactory registerFactory;
 	private Connector<?> connectorService;
 	private ApplicationContext applicationContext;
-	private SpvNode spvNode;
+	private UniquidNode spvNode;
 
 	private Thread thread;
 
 	private final Map<Integer, ProviderFunction> functionsMap = new HashMap<>();
 
-	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, SpvNode spvNode)
+	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, UniquidNode spvNode)
 			throws Exception {
 
 		this.registerFactory = registerFactory;
@@ -76,7 +76,7 @@ public final class Core {
 		}
 	}
 	
-	public SpvNode getSpvNode() {
+	public UniquidNode getSpvNode() {
 		return spvNode;
 	}
 	

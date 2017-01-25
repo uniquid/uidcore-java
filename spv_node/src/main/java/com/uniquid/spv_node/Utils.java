@@ -2,7 +2,6 @@ package com.uniquid.spv_node;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
@@ -37,24 +36,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 public class Utils {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class.getName());
-	
-	/**
-	 * Create from brain wallet
-	 * @param string
-	 * @return
-	 * @throws NoSuchAlgorithmException
-	 * @throws UnsupportedEncodingException
-	 */
-	public static DeterministicKey createDeterministicKeyFromBrainWallet(String string)
-			throws NoSuchAlgorithmException, UnsupportedEncodingException {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-
-		md.update(string.getBytes("UTF-8"));
-		byte[] hash = md.digest();
-
-		return HDKeyDerivation.createMasterPrivateKey(hash);
-
-	}
 	
 	/**
 	 * Generate a new Deterministic Hierarchy starting from seed

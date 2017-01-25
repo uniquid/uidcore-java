@@ -47,18 +47,40 @@ import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
-public class SpvNode {
+/**
+ * This class represents an Uniquid Node: an entity that have wallets
+ * 
+ * @author giuseppe
+ *
+ */
+public class UniquidNode {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SpvNode.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNode.class.getName());
 	private static String URL_REGISTRY = "http://104.130.230.85:8080/registry";
     private static String URL_UTXO = "http://appliance3.uniquid.co:8080/insight-api/addr/%1&s/utxo";
     
-    private static ImmutableList<ChildNumber> BIP44_ACCOUNT_PROVIDER =
-			ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true), new ChildNumber(0, false), new ChildNumber(0, false));
+    private static ImmutableList<ChildNumber> BIP44_ACCOUNT_PROVIDER = ImmutableList.of(
+    		new ChildNumber(44, true),
+    		new ChildNumber(0, true),
+    		new ChildNumber(0, false),
+    		new ChildNumber(0, false)
+    	);
     
-    private static ImmutableList<ChildNumber> BIP44_ACCOUNT_USER =
-			ImmutableList.of(new ChildNumber(44, true), new ChildNumber(0, true), new ChildNumber(0, false), new ChildNumber(1, false));
-
+    private static ImmutableList<ChildNumber> BIP44_ACCOUNT_USER = ImmutableList.of(
+    		new ChildNumber(44, true),
+    		new ChildNumber(0, true),
+    		new ChildNumber(0, false),
+    		new ChildNumber(1, false)
+    	);
+    
+    private static ImmutableList<ChildNumber> BIP44_ACCOUNT_ORCHESTRATOR = ImmutableList.of(
+    		new ChildNumber(44, true),
+    		new ChildNumber(0, true),
+    		new ChildNumber(0, false),
+    		new ChildNumber(2, false),
+    		new ChildNumber(0, false)
+    	);
+    
 	private String seed;
 	private long creationTime;
 
@@ -75,7 +97,7 @@ public class SpvNode {
 
 	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
-	private SpvNode(Builder builder) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+	private UniquidNode(Builder builder) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
 		this.seed = builder._seed;
 		this.creationTime = builder._creationTime;
@@ -117,6 +139,12 @@ public class SpvNode {
 				// LOGGER.info("SYNC", "saved");
 			}
 		});
+		
+		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromBrainWallet(seed);
+		
+		DeterministicKey imprintingKey = NodeUtils.createImprintingKey(deterministicKey);
+		
+		LOGGER.info("Imprinting KEY: " + imprintingKey.serializePubB58(params));
 
 //		masterWallet.addCoinsReceivedEventListener(new WalletCoinsReceivedEventListener() {
 //
@@ -511,9 +539,9 @@ public class SpvNode {
 			return this;
 		}
 
-		public SpvNode build() throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+		public UniquidNode build() throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-			return new SpvNode(this);
+			return new UniquidNode(this);
 
 		}
 	}

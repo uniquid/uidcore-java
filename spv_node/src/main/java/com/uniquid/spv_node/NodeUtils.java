@@ -19,6 +19,9 @@ import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.crypto.ChildNumber;
+import org.bitcoinj.crypto.DeterministicHierarchy;
+import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.net.discovery.SeedPeers;
 import org.bitcoinj.store.BlockStore;
@@ -36,6 +39,11 @@ import com.google.common.collect.ImmutableList;
 /**
  */
 public class NodeUtils {
+	
+	private static ImmutableList<ChildNumber> IMPRINTING = ImmutableList.of(
+            new ChildNumber(44, true),
+            new ChildNumber(0, true)
+    );
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeUtils.class.getName());
 	
@@ -80,6 +88,32 @@ public class NodeUtils {
 	 */
 	public static DeterministicSeed createDeterministicSeed(byte[] seed, long creationTime) throws UnreadableWalletException {
 		return new DeterministicSeed("", seed, "", creationTime);
+	}
+	
+	/**
+	 * Create from brain wallet
+	 * @param string
+	 * @return
+	 * @throws NoSuchAlgorithmException
+	 * @throws UnsupportedEncodingException
+	 */
+	public static DeterministicKey createDeterministicKeyFromBrainWallet(String string)
+			throws NoSuchAlgorithmException, UnsupportedEncodingException {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+		md.update(string.getBytes("UTF-8"));
+		byte[] hash = md.digest();
+
+		return HDKeyDerivation.createMasterPrivateKey(hash);
+
+	}
+	
+	public static DeterministicKey createImprintingKey(DeterministicKey deterministicKey) {
+		
+		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
+		
+		return deterministicHierarchy.get(IMPRINTING, true, true);
+
 	}
 
 	/**
