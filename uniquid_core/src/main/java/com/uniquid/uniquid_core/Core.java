@@ -137,7 +137,7 @@ public final class Core {
 	 *            object to fill with the execution result
 	 * @throws ClassNotFoundException
 	 */
-	private void performProviderRequest(InputMessage<?> inputMessage, OutputMessage<?> outputMessage) {
+	private void performProviderRequest(InputMessage<?> inputMessage, OutputMessage<?> outputMessage) throws Exception {
 
 		ProviderFunction function = getFunction(inputMessage);
 
@@ -183,12 +183,16 @@ public final class Core {
 		} finally {
 
 			// Populate all missing parameters...
-			outputMessage.setParameter(OutputMessage.SENDER, spvNode.getProviderWallet().currentReceiveAddress().toBase58());
+			String sender = inputMessage.getParameter(InputMessage.SENDER);
+
+			ProviderRegister providerRegister = registerFactory.createProviderRegister();
+
+			ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
+			
+			outputMessage.setParameter(OutputMessage.SENDER, providerChannel.getProviderAddress());
 
 			outputMessage.setParameter(OutputMessage.ID, Long.valueOf(inputMessage.getParameter(InputMessage.ID)));
 
-			String sender = inputMessage.getParameter(InputMessage.SENDER);
-			
 			outputMessage.setParameter(OutputMessage.RECEIVER_ADDRESS, sender);
 
 		}

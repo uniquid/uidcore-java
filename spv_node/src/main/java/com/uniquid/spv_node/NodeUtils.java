@@ -1,6 +1,7 @@
 package com.uniquid.spv_node;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -22,8 +23,11 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
+import org.bitcoinj.crypto.MnemonicCode;
+import org.bitcoinj.crypto.MnemonicException.MnemonicLengthException;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.net.discovery.SeedPeers;
+import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
@@ -158,10 +162,10 @@ public class NodeUtils {
 			
 			final PeerGroup peerGroup = new PeerGroup(params, chain);
 			peerGroup.setUserAgent("UNIQUID", "0.1");
-//			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
+			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
 			
-			int[] appliance4Addr = new int[] { APPLIANCE4 };
-			peerGroup.addPeerDiscovery(new SeedPeers(appliance4Addr, params));
+//			int[] appliance4Addr = new int[] { APPLIANCE4 };
+//			peerGroup.addPeerDiscovery(new SeedPeers(appliance4Addr, params));
 			
 			for (Wallet wallet : wallets) {
 			
@@ -234,7 +238,7 @@ public class NodeUtils {
 
 			peerGroup.start();
 
-			Transaction t = peerGroup.broadcastTransaction(sendRequest.tx).future().get(1, TimeUnit.MINUTES);
+			Transaction t = peerGroup.broadcastTransaction(sendRequest.tx).future().get(2, TimeUnit.MINUTES);
 			
 			return t.getHashAsString();
 
@@ -269,7 +273,7 @@ public class NodeUtils {
 
 		} else {
 			
-			wallet = Wallet.fromSeed(params, createDeterministicSeed(seed, creationTime), accountPath);
+			wallet = Wallet.fromBase58EncodedKey(params, seed, creationTime, accountPath);
 
 		}
 		
@@ -281,4 +285,28 @@ public class NodeUtils {
 		
 	}
 	
+	public static Wallet createOrLoadWallet(byte[] bytearray, long creationTime, File walletFile,
+			NetworkParameters params, ImmutableList<ChildNumber> accountPath) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+		
+		Wallet wallet;
+
+		if (walletFile.exists() && !walletFile.isDirectory()) {
+
+			wallet = Wallet.loadFromFile(walletFile);
+
+			LOGGER.info("Master Wallet loaded: " + wallet.currentReceiveAddress().toBase58());
+
+		} else {
+			
+			wallet = Wallet.fromSeed(params, createDeterministicSeed(bytearray, creationTime), accountPath);
+
+		}
+		
+		LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
+		LOGGER.info("WALLET curent change addr: " + wallet.currentChangeAddress().toBase58());
+		LOGGER.info("WALLET: " + wallet.toString());
+		
+		return wallet;
+		
+	}
 }

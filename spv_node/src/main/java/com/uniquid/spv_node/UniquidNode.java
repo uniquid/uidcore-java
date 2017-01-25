@@ -111,9 +111,22 @@ public class UniquidNode {
 		this.registerFactory = builder._registerFactory;
 
 		// Delegate the creating of the wallet
-		providerWallet = NodeUtils.createOrLoadWallet(seed, creationTime, providerFile, params, BIP44_ACCOUNT_PROVIDER);
+//		providerWallet = NodeUtils.createOrLoadWallet(seed, creationTime, providerFile, params, BIP44_ACCOUNT_PROVIDER);
+//		userWallet = NodeUtils.createOrLoadWallet(seed, creationTime, userFile, params, BIP44_ACCOUNT_USER);
 		
-		userWallet = NodeUtils.createOrLoadWallet(seed, creationTime, userFile, params, BIP44_ACCOUNT_USER);
+		// BEGIN TEST
+		String tpriv = "tprv8ZgxMBicQKsPf54pQghzJHULC3qYivTP7iZzgs5pWwx737vs8NyAYz7pMpJxpyzthfhFpvYPeckDHfduzyH6qHCx7jGZrC5M3MxR9UtWb2v";
+		
+		// deserialize tpriv
+		DeterministicKey deterministicKey = DeterministicKey.deserializeB58(tpriv, params);
+		
+		
+		
+		
+		providerWallet = NodeUtils.createOrLoadWallet(tpriv, creationTime, providerFile, params, BIP44_ACCOUNT_PROVIDER);
+		userWallet = NodeUtils.createOrLoadWallet(tpriv, creationTime, userFile, params, BIP44_ACCOUNT_USER);
+		
+		// END TEST
 
 		providerWallet.autosaveToFile(providerFile, 1000L, TimeUnit.MILLISECONDS, new WalletFiles.Listener() {
 
@@ -141,7 +154,7 @@ public class UniquidNode {
 			}
 		});
 		
-		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromBrainWallet(seed);
+		//DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromBrainWallet(seed);
 		
 		DeterministicKey imprintingKey = NodeUtils.createImprintingKey(deterministicKey);
 		
@@ -365,7 +378,7 @@ public class UniquidNode {
 			}
 		};
 
-		final ScheduledFuture<?> updater = scheduledExecutorService.scheduleAtFixedRate(walletSyncher, 0, 15,
+		final ScheduledFuture<?> updater = scheduledExecutorService.scheduleAtFixedRate(walletSyncher, 0, 5,
 				TimeUnit.MINUTES);
 
 		// Set<Transaction> ts = wallet.getTransactions(false);
@@ -484,7 +497,7 @@ public class UniquidNode {
 
 	}
 
-	public String signTransaction(String s_tx)
+	public String signTransaction(String s_tx, String path)
 			throws BlockStoreException, InterruptedException, ExecutionException, InsufficientMoneyException, Exception {
 	
 		Transaction originalTransaction = params.getDefaultSerializer().makeTransaction(Hex.decode(s_tx));
@@ -496,15 +509,33 @@ public class UniquidNode {
 		
 		// fix our tx
 		WalletUtils.newCompleteTransaction(send, providerWallet, params);
+
+		String retValue = "";
+		if (path.startsWith("0")) {
+			
+			// delegate to walled the signing
+			providerWallet.signTransaction(send);
+			
+			String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
+		    
+			LOGGER.info("Serialized SIGNED transaction: " + sr);
+			
+			retValue = NodeUtils.sendTransaction(params, providerWallet, chainFile, send);
 		
-		// delegate to walled the signing
-		providerWallet.signTransaction(send);
+		} else if (path.startsWith("1")) {
+			
+			// delegate to walled the signing
+			userWallet.signTransaction(send);
+			
+			String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
+		    
+			LOGGER.info("Serialized SIGNED transaction: " + sr);
+			
+			retValue = NodeUtils.sendTransaction(params, userWallet, chainFile, send);
+			
+		}
 		
-		String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
-	    
-		LOGGER.info("Serialized SIGNED transaction: " + sr);
-		
-		return NodeUtils.sendTransaction(params, providerWallet, chainFile, send);
+		return retValue;
 	}
 
 	public static class Builder {

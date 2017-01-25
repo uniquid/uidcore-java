@@ -3,6 +3,7 @@ package com.uniquid.uniquid_core.provider.impl;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.uniquid.spv_node.UniquidNode;
@@ -22,12 +23,14 @@ public class ContractFunction extends GenericFunction {
 		JSONObject jsonMessage = new JSONObject(params);
 		
 		String tx = jsonMessage.getString("tx");
+
+		JSONArray paths = jsonMessage.getJSONArray("paths");
 		
 		try {
 			
 			UniquidNode spvNode = (UniquidNode) getFunctionContext().getAttribute("com.uniquid.spv_node.SpvNode");
 		
-			String txid = spvNode.signTransaction(tx);
+			String txid = spvNode.signTransaction(tx, paths.getString(0));
 			
 			PrintWriter printWriter = outputMessage.getWriter();
 			
@@ -42,5 +45,5 @@ public class ContractFunction extends GenericFunction {
 		}
 		
 	}
-	
+
 }
