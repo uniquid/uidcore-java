@@ -495,10 +495,10 @@ public class UniquidNode {
 		SendRequest send = SendRequest.forTx(originalTransaction);
 		
 		// fix our tx
-		((UniquidWallet) providerWallet).completeTransaction(send);
+		WalletUtils.newCompleteTransaction(send, providerWallet, params);
 		
 		// delegate to walled the signing
-		((UniquidWallet) providerWallet).signTransaction(send);
+		providerWallet.signTransaction(send);
 		
 		String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
 	    

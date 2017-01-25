@@ -51,11 +51,11 @@ public class Utils {
 	public static Wallet createOrLoadMasterWallet2(String mnemonic, long creationTime, File walletFile,
 			NetworkParameters params) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-		UniquidWallet masterWallet;
+		Wallet masterWallet;
 
 		if (walletFile.exists() && !walletFile.isDirectory()) {
 
-			masterWallet = (UniquidWallet) UniquidWallet.loadFromFile(walletFile);
+			masterWallet = Wallet.loadFromFile(walletFile);
 
 			LOGGER.info("Master Wallet loaded: " + masterWallet.currentReceiveAddress().toBase58());
 
@@ -107,7 +107,7 @@ public class Utils {
 			imprinting = imprinting.dropParent();
 			
 			ECKey key = ECKey.fromPrivate(imprinting.getPrivKeyBytes());
-			masterWallet = UniquidWallet.fromKeys(params, Arrays.asList(key));
+			masterWallet = Wallet.fromKeys(params, Arrays.asList(key));
 			masterWallet.getKeyChainSeed();
 			LOGGER.info("isDeterministicUpgradeRequired: " + masterWallet.isDeterministicUpgradeRequired());
 //			masterWallet.getImportedKeys().size();
