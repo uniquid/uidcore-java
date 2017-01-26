@@ -6,6 +6,7 @@ package com.uniquid.register.provider;
 public class ProviderChannel {
 	private String providerAddress;
 	private String userAddress;
+	private String revokeAddress;
 	private String bitmask;
 
 	public ProviderChannel() {
@@ -42,4 +43,12 @@ public class ProviderChannel {
 		this.bitmask = bitmask;
 	}
 
+	public String getRevokeAddress() {
+		return revokeAddress;
+	}
+
+	public void setRevokeAddress(String revokeAddress) {
+		this.revokeAddress = revokeAddress;
+	}
+	
 }

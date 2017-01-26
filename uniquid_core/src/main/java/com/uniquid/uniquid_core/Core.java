@@ -44,7 +44,7 @@ public final class Core {
 	private RegisterFactory registerFactory;
 	private Connector<?> connectorService;
 	private ApplicationContext applicationContext;
-	private UniquidNode spvNode;
+	private UniquidNode uniquidNode;
 
 	private Thread thread;
 
@@ -55,7 +55,7 @@ public final class Core {
 
 		this.registerFactory = registerFactory;
 		this.connectorService = connectorServiceFactory.createConnector();
-		this.spvNode = spvNode;
+		this.uniquidNode = spvNode;
 
 		applicationContext = new ApplicationContext();
 		applicationContext.setAttribute("com.uniquid.spv_node.SpvNode", spvNode);
@@ -77,7 +77,7 @@ public final class Core {
 	}
 	
 	public UniquidNode getSpvNode() {
-		return spvNode;
+		return uniquidNode;
 	}
 	
 	public RegisterFactory getRegisterFactory() {
@@ -202,10 +202,13 @@ public final class Core {
 	/**
 	 * Initialize the library and start processing
 	 */
-	public void start() {
+	public void start() throws Exception {
 
+		// initialize node
+		uniquidNode.initNode();
+		
 		// Init node
-		spvNode.startNode();
+		uniquidNode.startNode();
 
 		// start connector
 		try {
@@ -356,11 +359,11 @@ public final class Core {
 
 	}
 
-	public void shutdown() {
+	public void shutdown() throws Exception {
 
 		thread.interrupt();
 
-		spvNode.stopNode();
+		uniquidNode.stopNode();
 
 		try {
 			connectorService.stop();

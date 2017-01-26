@@ -112,6 +112,10 @@ public class NodeUtils {
 
 	}
 	
+	public static DeterministicKey createDeterministicKeyFromByteArray(byte[] array) {
+		return HDKeyDerivation.createMasterPrivateKey(array);
+	}
+	
 	public static DeterministicKey createImprintingKey(DeterministicKey deterministicKey) {
 		
 		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);

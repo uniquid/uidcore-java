@@ -23,11 +23,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	public static final String PROVIDER_CLM_USER_ADDRESS = "user_address";
 	public static final String PROVIDER_CLM_BITMASK = "bitmask";
 	
-	private static final String PROVIDER_CREATE_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, primary key (provider_address, user_address));";
+	private static final String PROVIDER_CREATE_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, primary key (provider_address, user_address));";
 
 	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask from provider_channel where user_address = ?";
 	
-	private static final String PROVIDER_INSERT = "insert into provider_channel (provider_address, user_address, bitmask) values (?, ?, ?);";
+	private static final String PROVIDER_INSERT = "insert into provider_channel (provider_address, user_address, bitmask, revoke_address) values (?, ?, ?, ?);";
 	
 	private static final String PROVIDER_DELETE = "delete from provider_channel where provider_address = ? and user_address = ?;";
 	
@@ -103,6 +103,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 				statement.setString(1, providerChannel.getProviderAddress());
 				statement.setString(2, providerChannel.getUserAddress());
 				statement.setString(3, providerChannel.getBitmask());
+				statement.setString(4, providerChannel.getRevokeAddress());
 
 				int rs = statement.executeUpdate();
 
