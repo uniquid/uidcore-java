@@ -1,7 +1,6 @@
 package com.uniquid.spv_node;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -23,11 +22,7 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
-import org.bitcoinj.crypto.MnemonicCode;
-import org.bitcoinj.crypto.MnemonicException.MnemonicLengthException;
 import org.bitcoinj.net.discovery.DnsDiscovery;
-import org.bitcoinj.net.discovery.SeedPeers;
-import org.bitcoinj.params.TestNet3Params;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
@@ -131,8 +126,7 @@ public class NodeUtils {
 	 * @param chainFile
 	 * @param creationTime
 	 */
-	public static void syncBlockChain(NetworkParameters params, final List<Wallet> wallets, final File chainFile,
-			long creationTime) {
+	public static void syncBlockChain(NetworkParameters params, final List<Wallet> wallets, final File chainFile) {
 		
 		try {
 
@@ -144,7 +138,7 @@ public class NodeUtils {
 					try {
 						
 						CheckpointManager.checkpoint(params, openStream(params), chainStore,
-								creationTime);
+								wallet.getKeyChainSeed().getCreationTimeSeconds());
 						
 						StoredBlock head = chainStore.getChainHead();
 						LOGGER.info("Skipped to checkpoint " + head.getHeight() + " at "
@@ -204,10 +198,9 @@ public class NodeUtils {
 	 * @param chainFile
 	 * @param creationTime
 	 */
-	public static void syncBlockChain(NetworkParameters params, final Wallet wallet, final File chainFile,
-			long creationTime) {
+	public static void syncBlockChain(NetworkParameters params, final Wallet wallet, final File chainFile) {
 
-		syncBlockChain(params, Arrays.asList(new Wallet[] { wallet }), chainFile, creationTime);
+		syncBlockChain(params, Arrays.asList(new Wallet[] { wallet }), chainFile);
 
 	}
 	

@@ -67,6 +67,7 @@ public class CreatedState implements NodeState {
 								
 								ProviderChannel providerChannel = new ProviderChannel();
 								providerChannel.setUserAddress(sender);
+								providerChannel.setRevokeAddress(sender);
 								providerChannel.setProviderAddress(imprintingAddress.toBase58());
 								providerChannel.setBitmask("ffffffff0000000000000000000000000000");
 								

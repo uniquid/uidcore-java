@@ -91,6 +91,7 @@ public class ReadyState implements NodeState {
 					ProviderChannel providerChannel = new ProviderChannel();
 					providerChannel.setProviderAddress(p_address.toBase58());
 					providerChannel.setUserAddress(u_address.toBase58());
+					providerChannel.setRevokeAddress(revoca.toBase58());
 					
 					String opreturn = WalletUtils.getOpReturn(t);
 					

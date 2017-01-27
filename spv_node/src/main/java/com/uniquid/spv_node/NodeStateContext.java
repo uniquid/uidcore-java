@@ -9,8 +9,6 @@ import com.uniquid.register.RegisterFactory;
 
 public interface NodeStateContext {
 	
-	public String getSeed();
-	public long getCreationTime();
 	public NetworkParameters getNetworkParameters();
 	public File getProviderFile();
 	public File getUserFile();

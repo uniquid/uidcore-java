@@ -5,7 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,13 +18,10 @@ import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
-import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.store.BlockStoreException;
-import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
-import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -71,22 +67,20 @@ public class UniquidNode implements NodeStateContext {
     /** The current state of this Node */
     private NodeState nodeState;
 
-    /** Initial parameters */
-	private String seed;
-	private long creationTime;
 	private NetworkParameters networkParameters;
 	private File providerFile;
 	private File userFile;
 	private File chainFile;
 	private Wallet providerWallet;
 	private Wallet userWallet;
+	
+	private Address imprintingAddress;
+	private String publicKey;
 
 	private RegisterFactory registerFactory;
 
 	private UniquidNode(Builder builder) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-		this.seed = builder._seed;
-		this.creationTime = builder._creationTime;
 		this.networkParameters = builder._params;
 		this.providerFile = builder._providerFile;
 		this.userFile = builder._userFile;
@@ -97,16 +91,6 @@ public class UniquidNode implements NodeStateContext {
 		
 	}
 	
-	@Override
-	public String getSeed() {
-		return this.seed;
-	}
-
-	@Override
-	public long getCreationTime() {
-		return creationTime;
-	}
-
 	@Override
 	public File getProviderFile() {
 		return providerFile;
@@ -156,54 +140,15 @@ public class UniquidNode implements NodeStateContext {
 		return nodeState;
 	}
 	
-	public void initNode() throws Exception {
-		
-		// BEGIN  TEST
-//		String tpriv = "tprv8ZgxMBicQKsPf54pQghzJHULC3qYivTP7iZzgs5pWwx737vs8NyAYz7pMpJxpyzthfhFpvYPeckDHfduzyH6qHCx7jGZrC5M3MxR9UtWb2v";
-//				
-//		// deserialize tpriv
-//		DeterministicKey deterministicKey = DeterministicKey.deserializeB58(tpriv, networkParameters);
-//		
-//		DeterministicKey imprintingDeterministicKey = NodeUtils.createImprintingKey(deterministicKey);
-//		
-//		Address imprintingAddress = imprintingDeterministicKey.toAddress(networkParameters);
-//		
-//		String imprintingKey = imprintingDeterministicKey.serializePubB58(networkParameters);
-		// END TEST
-		
-		SecureRandom random = new SecureRandom();
-		byte bytes[] = new byte[32];
-		random.nextBytes(bytes);
-		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(bytes);
+	public Address getImprintingAddress() {
+		return imprintingAddress;
+	}
 
-		
-		//DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromBrainWallet(seed);
-		LOGGER.info("START_NODE tpriv: " + deterministicKey.serializePrivB58(networkParameters));
-		LOGGER.info("START_NODE tpub: " + deterministicKey.serializePubB58(networkParameters));
-		
-		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
-		
-		ImmutableList<ChildNumber> IMPRINTING_PATH = ImmutableList.of(
-	    		new ChildNumber(44, true),
-	    		new ChildNumber(0, true)
-	    	);
-		
-		DeterministicKey imprintingKey = deterministicHierarchy.get(IMPRINTING_PATH, true, true);
-		LOGGER.info("Imprinting key tpriv: " + imprintingKey.serializePrivB58(networkParameters));
-		LOGGER.info("Imprinting key tpub: " + imprintingKey.serializePubB58(networkParameters));
-		
-		ImmutableList<ChildNumber> PROVIDER_IMPRINTING_ADDRESS = ImmutableList.of(
-	    		new ChildNumber(44, true),
-	    		new ChildNumber(0, true),
-	    		new ChildNumber(0, false),
-	    		new ChildNumber(0, false),
-	    		new ChildNumber(0, false),
-	    		new ChildNumber(0, false)
-	    	);
-		
-		DeterministicKey imprintingProviderKey = deterministicHierarchy.get(PROVIDER_IMPRINTING_ADDRESS, true, true);
-		Address imprintingAddress = imprintingProviderKey.toAddress(networkParameters);
-		LOGGER.info("Address: " + imprintingAddress.toBase58());
+	public String getPublicKey() {
+		return publicKey;
+	}
+
+	public void initNode() throws Exception {
 		
 		if (providerFile.exists() && !providerFile.isDirectory() &&
 				userFile.exists() && !userFile.isDirectory()) {
@@ -212,13 +157,22 @@ public class UniquidNode implements NodeStateContext {
 			providerWallet = Wallet.loadFromFile(providerFile);
 			userWallet = Wallet.loadFromFile(userFile);
 			
+			byte[] bytes = providerWallet.getKeyChainSeed().getSeedBytes();
+			long creationTime = providerWallet.getKeyChainSeed().getCreationTimeSeconds();
+			
+			calculatePublicInfo(bytes, creationTime);
+			
 			// Jump to ready state
 			setNodeState(new ReadyState(this, imprintingAddress));
 			
 		} else {
 			
-//			providerWallet = NodeUtils.createOrLoadWallet(tpriv, creationTime, providerFile, networkParameters, BIP44_ACCOUNT_PROVIDER);
-//			userWallet = NodeUtils.createOrLoadWallet(tpriv, creationTime, userFile, networkParameters, BIP44_ACCOUNT_USER);
+			SecureRandom random = new SecureRandom();
+			byte bytes[] = new byte[32];
+			random.nextBytes(bytes);
+			long creationTime = System.currentTimeMillis() / 1000;
+			
+			calculatePublicInfo(bytes, creationTime);
 			
 			// Create a new provider wallet
 			providerWallet = Wallet.fromSeed(networkParameters,
@@ -228,16 +182,17 @@ public class UniquidNode implements NodeStateContext {
 			userWallet = Wallet.fromSeed(networkParameters,
 					NodeUtils.createDeterministicSeed(bytes, creationTime), UniquidNode.BIP44_ACCOUNT_USER);
 			
-			// Now we need to wait for imprinting
-			
-			LOGGER.info("PROVIDER WALLET created: " + providerWallet.currentReceiveAddress().toBase58());
-			LOGGER.info("PROVIDER WALLET current change addr: " + providerWallet.currentChangeAddress().toBase58());
-			LOGGER.info("PROVIDER WALLET: " + providerWallet.toString());
-			LOGGER.info("USER WALLET created: " + userWallet.currentReceiveAddress().toBase58());
-			LOGGER.info("USER WALLET curent change addr: " + userWallet.currentChangeAddress().toBase58());
-			LOGGER.info("USER WALLET: " + userWallet.toString());
+//			LOGGER.info("PROVIDER WALLET created: " + providerWallet.currentReceiveAddress().toBase58());
+//			LOGGER.info("PROVIDER WALLET current change addr: " + providerWallet.currentChangeAddress().toBase58());
+//			LOGGER.info("PROVIDER WALLET: " + providerWallet.toString());
+//			LOGGER.info("USER WALLET created: " + userWallet.currentReceiveAddress().toBase58());
+//			LOGGER.info("USER WALLET curent change addr: " + userWallet.currentChangeAddress().toBase58());
+//			LOGGER.info("USER WALLET: " + userWallet.toString());
 			
 			setNodeState(new CreatedState(this, imprintingAddress));
+			
+			providerWallet.saveToFile(providerFile);
+			userWallet.saveToFile(userFile);
 			
 		}
 		
@@ -252,7 +207,44 @@ public class UniquidNode implements NodeStateContext {
 		userWallet.addCoinsReceivedEventListener(nodeEventListner);
 		userWallet.addCoinsSentEventListener(nodeEventListner);
 		
+		// First BC sync
+		NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
+		
 		//DONE INITIALIZATION
+	}
+	
+	private void calculatePublicInfo(byte[] bytes, long creationTime) {
+		
+		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(bytes);
+		
+		//LOGGER.info("START_NODE tpriv: " + deterministicKey.serializePrivB58(networkParameters));
+		LOGGER.info("START_NODE tpub: " + deterministicKey.serializePubB58(networkParameters));
+		
+		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
+		
+		ImmutableList<ChildNumber> IMPRINTING_PATH = ImmutableList.of(
+	    		new ChildNumber(44, true),
+	    		new ChildNumber(0, true)
+	    	);
+		
+		DeterministicKey imprintingKey = deterministicHierarchy.get(IMPRINTING_PATH, true, true);
+		//LOGGER.info("Imprinting key tpriv: " + imprintingKey.serializePrivB58(networkParameters));
+		//LOGGER.info("Imprinting key tpub: " + imprintingKey.serializePubB58(networkParameters));
+		
+		publicKey = imprintingKey.serializePubB58(networkParameters);
+		
+		ImmutableList<ChildNumber> PROVIDER_IMPRINTING_ADDRESS = ImmutableList.of(
+	    		new ChildNumber(44, true),
+	    		new ChildNumber(0, true),
+	    		new ChildNumber(0, false),
+	    		new ChildNumber(0, false),
+	    		new ChildNumber(0, false),
+	    		new ChildNumber(0, false)
+	    	);
+		
+		DeterministicKey imprintingProviderKey = deterministicHierarchy.get(PROVIDER_IMPRINTING_ADDRESS, true, true);
+		imprintingAddress = imprintingProviderKey.toAddress(networkParameters);
+		
 	}
 	
 	public void startNode() throws Exception {
@@ -264,7 +256,7 @@ public class UniquidNode implements NodeStateContext {
 			public void run() {
 
 				// Synchronize wallets against blockchain
-				NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile, creationTime);
+				NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
 				
 				try {
 					providerWallet.saveToFile(providerFile);
@@ -275,7 +267,7 @@ public class UniquidNode implements NodeStateContext {
 			}
 		};
 
-		final ScheduledFuture<?> updaterThread = scheduledExecutorService.scheduleAtFixedRate(walletSyncher, 0, 5,
+		final ScheduledFuture<?> updaterThread = scheduledExecutorService.scheduleAtFixedRate(walletSyncher, 5, 5,
 				TimeUnit.MINUTES);
 		
 		//nodeState.startNode();
@@ -342,9 +334,6 @@ public class UniquidNode implements NodeStateContext {
 
 	public static class Builder {
 
-		private String _seed;
-		private long _creationTime;
-
 		private NetworkParameters _params;
 
 		private File _providerFile;
@@ -355,16 +344,6 @@ public class UniquidNode implements NodeStateContext {
 		private Wallet _userWallet;
 
 		private RegisterFactory _registerFactory;
-
-		public Builder set_seed(String _seed) {
-			this._seed = _seed;
-			return this;
-		}
-
-		public Builder set_creationTime(long _creationTime) {
-			this._creationTime = _creationTime;
-			return this;
-		}
 
 		public Builder set_params(NetworkParameters _params) {
 			this._params = _params;

@@ -25,11 +25,13 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	
 	private static final String PROVIDER_CREATE_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, primary key (provider_address, user_address));";
 
-	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask from provider_channel where user_address = ?";
+	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_addresss from provider_channel where user_address = ?";
 	
 	private static final String PROVIDER_INSERT = "insert into provider_channel (provider_address, user_address, bitmask, revoke_address) values (?, ?, ?, ?);";
 	
 	private static final String PROVIDER_DELETE = "delete from provider_channel where provider_address = ? and user_address = ?;";
+	
+	public static final String PROVIDER_ALL_CHANNEL = "select provider_address, user_address, bitmask, revoke_address from provider_channel;";
 	
 	public static final String TABLE_USER = "user_channel";
 	
@@ -316,6 +318,42 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			throw new RegisterException("Exception while deleteChannel()", ex);
 		}
 		
+	}
+
+	@Override
+	public List<ProviderChannel> getAllChannels() throws RegisterException {
+		
+		List<ProviderChannel> providerChannels = new ArrayList<ProviderChannel>();
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(PROVIDER_ALL_CHANNEL);
+
+			try {
+
+				ResultSet rs = statement.executeQuery();
+
+				while (rs.next()) {
+
+					ProviderChannel providerChannel = new ProviderChannel();
+
+					providerChannel.setProviderAddress(rs.getString("provider_address"));
+					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
+					providerChannel.setUserAddress(rs.getString("user_address"));
+					providerChannel.setBitmask(rs.getString("bitmask"));
+
+					providerChannels.add(providerChannel);
+				}
+
+			} finally {
+
+				statement.close();
+
+			}
+		} catch (SQLException ex) {
+			throw new RegisterException("Exception while getAllChannels()", ex);
+		}
+		
+		return providerChannels;
 	}
 
 }

@@ -51,4 +51,9 @@ public class ProviderChannel {
 		this.revokeAddress = revokeAddress;
 	}
 	
+	public String toString() {
+		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
+				"; revoke address: " + revokeAddress;
+	}
+	
 }

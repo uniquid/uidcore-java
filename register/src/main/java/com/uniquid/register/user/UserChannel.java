@@ -51,5 +51,9 @@ public class UserChannel implements Serializable {
     public void setBitmask(String bitmask) {
         this.bitmask = bitmask;
     }
+    
+    public String toString() {
+		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask;
+	}
 
 }
