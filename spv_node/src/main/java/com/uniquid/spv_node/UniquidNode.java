@@ -71,8 +71,12 @@ public class UniquidNode implements NodeStateContext {
 	private File providerFile;
 	private File userFile;
 	private File chainFile;
+	private File providerRevokeFile;
+	private File userRevokeFile;
 	private Wallet providerWallet;
 	private Wallet userWallet;
+	private Wallet providerRevokeWallet;
+	private Wallet userRevokeWallet;
 	
 	private Address imprintingAddress;
 	private String publicKey;
@@ -90,6 +94,8 @@ public class UniquidNode implements NodeStateContext {
 		this.userWallet = builder._userWallet;
 		this.registerFactory = builder._registerFactory;
 		this.machineName = builder._machineName;
+		this.providerRevokeFile = builder._providerRevokeFile;
+		this.userRevokeFile = builder._userRevokeFile;
 		
 	}
 	
@@ -106,6 +112,16 @@ public class UniquidNode implements NodeStateContext {
 	@Override
 	public File getChainFile() {
 		return chainFile;
+	}
+	
+	@Override
+	public File getProviderRevokeFile() {
+		return providerRevokeFile;
+	}
+	
+	@Override
+	public File getUserRevokeFile() {
+		return userRevokeFile;
 	}
 
 	@Override
@@ -129,8 +145,18 @@ public class UniquidNode implements NodeStateContext {
 	}
 	
 	@Override
+	public Wallet getProviderRevokeWallet() {
+		return providerRevokeWallet;
+	}
+	
+	@Override
 	public Wallet getUserWallet() {
 		return userWallet;
+	}
+	
+	@Override
+	public Wallet getUserRevokeWallet() {
+		return userRevokeWallet;
 	}
 
 	@Override
@@ -162,6 +188,8 @@ public class UniquidNode implements NodeStateContext {
 			// Wallets already present!
 			providerWallet = Wallet.loadFromFile(providerFile);
 			userWallet = Wallet.loadFromFile(userFile);
+			providerRevokeWallet = Wallet.loadFromFile(providerRevokeFile);
+			userRevokeWallet = Wallet.loadFromFile(userRevokeFile);
 			
 			byte[] bytes = providerWallet.getKeyChainSeed().getSeedBytes();
 			long creationTime = providerWallet.getKeyChainSeed().getCreationTimeSeconds();
@@ -188,6 +216,12 @@ public class UniquidNode implements NodeStateContext {
 			userWallet = Wallet.fromSeed(networkParameters,
 					NodeUtils.createDeterministicSeed(bytes, creationTime), UniquidNode.BIP44_ACCOUNT_USER);
 			
+			// Create provider revoke watching wallet
+			providerRevokeWallet = new Wallet(networkParameters);
+			
+			// Create user revoke watching wallet
+			userRevokeWallet = new Wallet(networkParameters);
+			
 //			LOGGER.info("PROVIDER WALLET created: " + providerWallet.currentReceiveAddress().toBase58());
 //			LOGGER.info("PROVIDER WALLET current change addr: " + providerWallet.currentChangeAddress().toBase58());
 //			LOGGER.info("PROVIDER WALLET: " + providerWallet.toString());
@@ -199,22 +233,25 @@ public class UniquidNode implements NodeStateContext {
 			
 			providerWallet.saveToFile(providerFile);
 			userWallet.saveToFile(userFile);
+			providerRevokeWallet.saveToFile(providerRevokeFile);
+			userWallet.saveToFile(userRevokeFile);
 			
 		}
 		
 		// Create node event listner
 		NodeEventListener nodeEventListner = new NodeEventListener(this);
 		
-		// Add event listener
-//		providerWallet.addChangeEventListener(nodeEventListner);
-//		userWallet.addChangeEventListener(nodeEventListner);
+		// Add event listeners
 		providerWallet.addCoinsReceivedEventListener(nodeEventListner);
 		providerWallet.addCoinsSentEventListener(nodeEventListner);
 		userWallet.addCoinsReceivedEventListener(nodeEventListner);
 		userWallet.addCoinsSentEventListener(nodeEventListner);
+		providerRevokeWallet.addCoinsSentEventListener(nodeEventListner);
+		userRevokeWallet.addCoinsSentEventListener(nodeEventListner);
+		
 		
 		// First BC sync
-		NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
+		NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet, providerRevokeWallet, userRevokeWallet }), chainFile);
 		
 		//DONE INITIALIZATION
 	}
@@ -262,11 +299,13 @@ public class UniquidNode implements NodeStateContext {
 			public void run() {
 
 				// Synchronize wallets against blockchain
-				NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
+				NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet, providerRevokeWallet, userRevokeWallet }), chainFile);
 				
 				try {
 					providerWallet.saveToFile(providerFile);
 					userWallet.saveToFile(userFile);
+					providerRevokeWallet.saveToFile(providerRevokeFile);
+					userRevokeWallet.saveToFile(userRevokeFile);
 				} catch (Exception ex) {
 					LOGGER.error("Exception while saving wallets");
 				}
@@ -345,6 +384,8 @@ public class UniquidNode implements NodeStateContext {
 		private File _providerFile;
 		private File _userFile;
 		private File _chainFile;
+		private File _providerRevokeFile;
+		private File _userRevokeFile;
 
 		private Wallet _providerWallet;
 		private Wallet _userWallet;
@@ -370,6 +411,16 @@ public class UniquidNode implements NodeStateContext {
 
 		public Builder set_chainFile(File _chainFile) {
 			this._chainFile = _chainFile;
+			return this;
+		}
+		
+		public Builder set_providerRevokeFile(File _providerRevokeFile) {
+			this._providerRevokeFile = _providerRevokeFile;
+			return this;
+		}
+		
+		public Builder set_userRevokeFile(File _userRevokeFile) {
+			this._userRevokeFile = _userRevokeFile;
 			return this;
 		}
 		

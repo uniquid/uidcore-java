@@ -18,13 +18,6 @@ public class NodeEventListener implements WalletCoinsSentEventListener, WalletCo
 		this.nodeStateContext = nodeStateContext;
 	}
 
-	public void onWalletChanged(Wallet wallet) {
-
-		// Delegate the oncoinreceived to current state machine
-		nodeStateContext.getNodeState().onWalletChanged(wallet);
-		
-	}
-
 	@Override
 	public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
 		nodeStateContext.getNodeState().onCoinsReceived(wallet, tx, prevBalance, newBalance);

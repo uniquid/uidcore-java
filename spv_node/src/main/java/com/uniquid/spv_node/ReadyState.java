@@ -43,137 +43,52 @@ public class ReadyState implements NodeState {
 	}
 
 	@Override
-	public void onWalletChanged(Wallet wallet) {
+	public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
 		
-		Set<Transaction> transactions = wallet.getTransactions(false);
-
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
-			
-			for (Transaction t : transactions) {
-			
-				try {
-					// Populate provider register
-					LOGGER.info("GETCHANNELS t.size: " + transactions.size());
-//					List<Address> addresses = masterWallet.getIssuedReceiveAddresses();
-					
-					List<DeterministicKey> keys = wallet.getActiveKeyChain().getLeafKeys();
-					List<String> addresses = new ArrayList<>();
-					for (ECKey key : keys) {
-						addresses.add(key.toAddress(networkParameters).toBase58());
-					}
-					
-					List<TransactionOutput> to = t.getOutputs();
-
-					if (to.size() != 4)
-						continue;
-
-					Script script = t.getInput(0).getScriptSig();
-					Address p_address = new Address(networkParameters, Utils.sha256hash160(script.getPubKey()));
-
-					List<TransactionOutput> ts = new ArrayList<>(to);
-
-					Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
-
-					// We are provider!!!
-					if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
-						continue;
-					}
-
-					if (!WalletUtils.isValidOpReturn(t)) {
-						continue;
-					}
-
-					Address revoca = ts.get(2).getAddressFromP2PKHScript(networkParameters);
-					if(revoca == null || !WalletUtils.isUnspent(t.getHashAsString(), revoca.toBase58())){
-						continue;
-					}
-
-					ProviderChannel providerChannel = new ProviderChannel();
-					providerChannel.setProviderAddress(p_address.toBase58());
-					providerChannel.setUserAddress(u_address.toBase58());
-					providerChannel.setRevokeAddress(revoca.toBase58());
-					
-					String opreturn = WalletUtils.getOpReturn(t);
-					
-					byte[] op_to_byte = Hex.decode(opreturn);
-					
-					byte[] bitmask = Arrays.copyOfRange(op_to_byte, 1, 19);
-					
-					// encode to be saved on db
-					String bitmaskToString = new String(Hex.encode(bitmask));
-					
-					providerChannel.setBitmask(bitmaskToString);
-					
-					try {
-
-						ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
-						
-						providerRegister.insertChannel(providerChannel);
-						
-					} catch (Exception e) {
-
-						LOGGER.error("Exception while inserting providerregister", e);
-
-					}
-
-					LOGGER.info("GETCHANNELS txid: " + t.getHashAsString());
-					LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
-					LOGGER.info("GETCHANNELS user: " + u_address);
-					LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
-					LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
-					LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
-		
-				} catch (Exception ex) {
-		
-					LOGGER.error("Exception while populating Register", ex);
-		
-				}
-			
-			}
-		
-		} else {
-			
-			// Populate user register
-			LOGGER.info("GETCHANNELS t.size: " + transactions.size());
-			List<Address> issuedAddresses = wallet.getIssuedReceiveAddresses();
-			for (Transaction t : transactions) {
+			// Created a contract!!!
+			try {
+				// Populate provider register
+	//			List<Address> addresses = masterWallet.getIssuedReceiveAddresses();
 				
-				List<TransactionOutput> to = t.getOutputs();
-
+	//			List<DeterministicKey> keys = wallet.getActiveKeyChain().getLeafKeys();
+	//			List<String> addresses = new ArrayList<>();
+	//			for (ECKey key : keys) {
+	//				addresses.add(key.toAddress(networkParameters).toBase58());
+	//			}
+				
+				List<TransactionOutput> to = tx.getOutputs();
+	
 				if (to.size() != 4)
-					continue;
-
-				Script script = t.getInput(0).getScriptSig();
+					return;
+	
+				Script script = tx.getInput(0).getScriptSig();
 				Address p_address = new Address(networkParameters, Utils.sha256hash160(script.getPubKey()));
-
+	
 				List<TransactionOutput> ts = new ArrayList<>(to);
-
+	
 				Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
-
-				if (u_address == null /*|| !addresses.contains(u_address)*/) {
-					continue;
+	
+				// We are provider!!!
+				if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
+					return;
 				}
-
-				if (!WalletUtils.isValidOpReturn(t)) {
-					continue;
+	
+				if (!WalletUtils.isValidOpReturn(tx)) {
+					return;
 				}
-
-				Address revoca = ts.get(2).getAddressFromP2PKHScript(networkParameters);
-				if(revoca == null || !WalletUtils.isUnspent(t.getHashAsString(), revoca.toBase58())){
-					continue;
+	
+				Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
+				if(revoke == null || !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())){
+					return;
 				}
+	
+				ProviderChannel providerChannel = new ProviderChannel();
+				providerChannel.setProviderAddress(p_address.toBase58());
+				providerChannel.setUserAddress(u_address.toBase58());
+				providerChannel.setRevokeAddress(revoke.toBase58());
 				
-				String providerName = WalletUtils.retrieveNameFromProvider(p_address.toBase58());
-				if (providerName == null) {
-					continue;
-				}
-
-				UserChannel userChannel = new UserChannel();
-				userChannel.setProviderAddress(p_address.toBase58());
-				userChannel.setUserAddress(u_address.toBase58());
-				userChannel.setProviderName(providerName);
-				
-				String opreturn = WalletUtils.getOpReturn(t);
+				String opreturn = WalletUtils.getOpReturn(tx);
 				
 				byte[] op_to_byte = Hex.decode(opreturn);
 				
@@ -182,115 +97,45 @@ public class ReadyState implements NodeState {
 				// encode to be saved on db
 				String bitmaskToString = new String(Hex.encode(bitmask));
 				
-				userChannel.setBitmask(bitmaskToString);
+				providerChannel.setBitmask(bitmaskToString);
 				
 				try {
-
-					UserRegister userRegister = nodeStateContext.getRegisterFactory().createUserRegister();
+	
+					ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
 					
-					userRegister.insertChannel(userChannel);
+					providerRegister.insertChannel(providerChannel);
 					
 				} catch (Exception e) {
-
-					LOGGER.error("Exception while inserting userChannel", e);
-
+	
+					LOGGER.error("Exception while inserting providerregister", e);
+	
 				}
-
-				LOGGER.info("GETCHANNELS txid: " + t.getHashAsString());
+				
+				// We need to watch the revoked address
+				nodeStateContext.getProviderRevokeWallet().addWatchedAddress(revoke);
+	
+				LOGGER.info("GETCHANNELS txid: " + tx.getHashAsString());
 				LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
 				LOGGER.info("GETCHANNELS user: " + u_address);
 				LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
 				LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
 				LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
-
+	
+			} catch (Exception ex) {
+	
+				LOGGER.error("Exception while populating Register", ex);
+	
 			}
-
-		}
-
-	}
-
-	@Override
-	public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
-		
-		// Created a contract!!!
-		try {
-			// Populate provider register
-//			List<Address> addresses = masterWallet.getIssuedReceiveAddresses();
+		} else if (wallet.equals(nodeStateContext.getProviderRevokeWallet())) {
+			// A contract was revoked on Provider Side!!!
 			
-//			List<DeterministicKey> keys = wallet.getActiveKeyChain().getLeafKeys();
-//			List<String> addresses = new ArrayList<>();
-//			for (ECKey key : keys) {
-//				addresses.add(key.toAddress(networkParameters).toBase58());
-//			}
+			LOGGER.info("A Provider contract was revoked!!!");
 			
-			List<TransactionOutput> to = tx.getOutputs();
-
-			if (to.size() != 4)
-				return;
-
-			Script script = tx.getInput(0).getScriptSig();
-			Address p_address = new Address(networkParameters, Utils.sha256hash160(script.getPubKey()));
-
-			List<TransactionOutput> ts = new ArrayList<>(to);
-
-			Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
-
-			// We are provider!!!
-			if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
-				return;
-			}
-
-			if (!WalletUtils.isValidOpReturn(tx)) {
-				return;
-			}
-
-			Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
-			if(revoke == null || !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())){
-				return;
-			}
-
-			ProviderChannel providerChannel = new ProviderChannel();
-			providerChannel.setProviderAddress(p_address.toBase58());
-			providerChannel.setUserAddress(u_address.toBase58());
-			providerChannel.setRevokeAddress(revoke.toBase58());
+		} else if (wallet.equals(nodeStateContext.getUserRevokeWallet())) {
+			// A contract was revoked on User Side!!!
 			
-			String opreturn = WalletUtils.getOpReturn(tx);
+			LOGGER.info("A User contract was revoked!!!");
 			
-			byte[] op_to_byte = Hex.decode(opreturn);
-			
-			byte[] bitmask = Arrays.copyOfRange(op_to_byte, 1, 19);
-			
-			// encode to be saved on db
-			String bitmaskToString = new String(Hex.encode(bitmask));
-			
-			providerChannel.setBitmask(bitmaskToString);
-			
-			try {
-
-				ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
-				
-				providerRegister.insertChannel(providerChannel);
-				
-			} catch (Exception e) {
-
-				LOGGER.error("Exception while inserting providerregister", e);
-
-			}
-			
-			// We need to watch the revoke address
-			//wallet.addWatchedAddress(revoke);
-
-			LOGGER.info("GETCHANNELS txid: " + tx.getHashAsString());
-			LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
-			LOGGER.info("GETCHANNELS user: " + u_address);
-			LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
-			LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
-			LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
-
-		} catch (Exception ex) {
-
-			LOGGER.error("Exception while populating Register", ex);
-
 		}
 		
 	}
