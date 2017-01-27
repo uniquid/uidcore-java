@@ -76,6 +76,7 @@ public class UniquidNode implements NodeStateContext {
 	
 	private Address imprintingAddress;
 	private String publicKey;
+	private String  machineName;
 
 	private RegisterFactory registerFactory;
 
@@ -88,6 +89,7 @@ public class UniquidNode implements NodeStateContext {
 		this.providerWallet = builder._providerWallet;
 		this.userWallet = builder._userWallet;
 		this.registerFactory = builder._registerFactory;
+		this.machineName = builder._machineName;
 		
 	}
 	
@@ -146,6 +148,10 @@ public class UniquidNode implements NodeStateContext {
 
 	public String getPublicKey() {
 		return publicKey;
+	}
+	
+	public String  getMachineName() {
+		return machineName;
 	}
 
 	public void initNode() throws Exception {
@@ -344,6 +350,8 @@ public class UniquidNode implements NodeStateContext {
 		private Wallet _userWallet;
 
 		private RegisterFactory _registerFactory;
+		
+		private String _machineName;
 
 		public Builder set_params(NetworkParameters _params) {
 			this._params = _params;
@@ -377,6 +385,11 @@ public class UniquidNode implements NodeStateContext {
 
 		public Builder set_registerFactory(RegisterFactory _registerFactory) {
 			this._registerFactory = _registerFactory;
+			return this;
+		}
+		
+		public Builder set_machine_name(String _machineName) {
+			this._machineName = _machineName;
 			return this;
 		}
 

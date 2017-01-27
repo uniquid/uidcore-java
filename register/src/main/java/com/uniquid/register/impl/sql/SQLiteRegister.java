@@ -25,7 +25,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	
 	private static final String PROVIDER_CREATE_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, primary key (provider_address, user_address));";
 
-	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_addresss from provider_channel where user_address = ?";
+	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_address from provider_channel where user_address = ?";
 	
 	private static final String PROVIDER_INSERT = "insert into provider_channel (provider_address, user_address, bitmask, revoke_address) values (?, ?, ?, ?);";
 	
