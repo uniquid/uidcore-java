@@ -27,5 +27,5 @@ public class NodeEventListener implements WalletCoinsSentEventListener, WalletCo
 	public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
 		nodeStateContext.getNodeState().onCoinsSent(wallet, tx, prevBalance, newBalance);
 	}
-	
+
 }

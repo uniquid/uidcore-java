@@ -9,6 +9,8 @@ import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.TransactionConfidence;
+import org.bitcoinj.core.TransactionConfidence.Listener;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.script.Script;
@@ -45,46 +47,18 @@ public class CreatedState implements NodeState {
 
 	@Override
 	public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
-		// Received a contract!!!
 
+		// Received a contract!!!
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
 			
 			try {
-				// skip unconfirmed transactions
-				if (!tx.isPending() && !imprinted) {
+				
+				// If is imprinting transaction...
+				if (isValidImprintingTransaction(tx) && !imprinted) {
 					
-					// Retrieve sender
-					String sender = tx.getInput(0).getFromAddress().toBase58();
-					
-					// Check output
-					List<TransactionOutput> transactionOutputs = tx.getOutputs();
-					for (TransactionOutput to : transactionOutputs) {
-						Address address = to.getAddressFromP2PKHScript(networkParameters);
-						if (address != null && address.equals(imprintingAddress)) {
-							
-							// This is our imprinter!!!
-							
-							ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
-							
-							ProviderChannel providerChannel = new ProviderChannel();
-							providerChannel.setUserAddress(sender);
-							providerChannel.setProviderAddress(imprintingAddress.toBase58());
-							providerChannel.setBitmask("ffffffff0000000000000000000000000000");
-							providerChannel.setRevokeAddress(sender);
-							
-							providerRegister.insertChannel(providerChannel);
-							
-							// We are imprinted!!!
-							imprinted = true;
-							
-							// Jump to ready state
-							nodeStateContext.setNodeState(new ReadyState(nodeStateContext, imprintingAddress));
-							
-							break;
-	
-						} 
-					}
-					
+					// imprint!
+					imprint(tx);
+
 				}
 	
 			} catch (Exception ex) {
@@ -167,6 +141,108 @@ public class CreatedState implements NodeState {
 		} else {
 			
 			LOGGER.warn("Unknown wallet!");
+			
+		}
+	}
+	
+	private boolean isValidImprintingTransaction(Transaction tx) {
+		// Retrieve sender
+		String sender = tx.getInput(0).getFromAddress().toBase58();
+		
+		// Check output
+		List<TransactionOutput> transactionOutputs = tx.getOutputs();
+		for (TransactionOutput to : transactionOutputs) {
+			Address address = to.getAddressFromP2PKHScript(networkParameters);
+			if (address != null && address.equals(imprintingAddress)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	private void imprint(Transaction tx) throws Exception {
+		
+		// Transaction already confirmed
+		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
+			
+			doImprint(tx);
+			
+			// DONE
+			
+		} else {
+			
+			final Listener listener = new Listener() {
+
+				@Override
+				public void onConfidenceChanged(TransactionConfidence confidence, ChangeReason reason) {
+
+					try {
+						
+						if (confidence.equals(TransactionConfidence.ConfidenceType.BUILDING) && reason.equals(ChangeReason.TYPE)) {
+					
+							doImprint(tx);
+							
+							tx.getConfidence().removeEventListener(this);
+							
+							LOGGER.info("Imprinting Done!");
+							
+						} else if (confidence.equals(TransactionConfidence.ConfidenceType.DEAD) && reason.equals(ChangeReason.TYPE)) {
+							
+							LOGGER.error("Something bad happened! TRansaction is DEAD!");
+							
+							tx.getConfidence().removeEventListener(this);
+							
+						}
+					
+					} catch (Exception ex) {
+						
+						LOGGER.error("Exception while populating Register", ex);
+						
+					}
+					
+				}
+				
+			};
+			
+			// Transaction not yet confirmed! Register callback!
+			tx.getConfidence().addEventListener(listener);
+			
+		}
+		
+	}
+	
+	private void doImprint(Transaction tx) throws Exception {
+		
+		// Retrieve sender
+		String sender = tx.getInput(0).getFromAddress().toBase58();
+		
+		// Check output
+		List<TransactionOutput> transactionOutputs = tx.getOutputs();
+		for (TransactionOutput to : transactionOutputs) {
+			Address address = to.getAddressFromP2PKHScript(networkParameters);
+			if (address != null && address.equals(imprintingAddress)) {
+				
+				// This is our imprinter!!!
+				
+				ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+				
+				ProviderChannel providerChannel = new ProviderChannel();
+				providerChannel.setUserAddress(sender);
+				providerChannel.setProviderAddress(imprintingAddress.toBase58());
+				providerChannel.setBitmask("ffffffff0000000000000000000000000000");
+				providerChannel.setRevokeAddress(sender);
+				
+				providerRegister.insertChannel(providerChannel);
+				
+				// Jump to ready state
+				nodeStateContext.setNodeState(new ReadyState(nodeStateContext, imprintingAddress));
+				
+				imprinted = true;
+				
+				break;
+
+			} 
 			
 		}
 	}
