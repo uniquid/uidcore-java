@@ -247,6 +247,8 @@ public final class Core {
 						performProviderRequest(inputMessage, outputMessage);
 
 						endPoint.close();
+						
+						LOGGER.info("Done!");
 
 					} catch (Throwable t) {
 
