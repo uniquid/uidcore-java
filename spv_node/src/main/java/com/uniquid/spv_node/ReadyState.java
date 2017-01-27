@@ -12,8 +12,11 @@ import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.TransactionConfidence;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.core.Utils;
+import org.bitcoinj.core.TransactionConfidence.Listener;
+import org.bitcoinj.core.TransactionConfidence.Listener.ChangeReason;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.Wallet;
@@ -48,79 +51,13 @@ public class ReadyState implements NodeState {
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
 			// Created a contract!!!
 			try {
-				// Populate provider register
-	//			List<Address> addresses = masterWallet.getIssuedReceiveAddresses();
 				
-	//			List<DeterministicKey> keys = wallet.getActiveKeyChain().getLeafKeys();
-	//			List<String> addresses = new ArrayList<>();
-	//			for (ECKey key : keys) {
-	//				addresses.add(key.toAddress(networkParameters).toBase58());
-	//			}
-				
-				List<TransactionOutput> to = tx.getOutputs();
-	
-				if (to.size() != 4)
-					return;
-	
-				Script script = tx.getInput(0).getScriptSig();
-				Address p_address = new Address(networkParameters, Utils.sha256hash160(script.getPubKey()));
-	
-				List<TransactionOutput> ts = new ArrayList<>(to);
-	
-				Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
-	
-				// We are provider!!!
-				if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
-					return;
-				}
-	
-				if (!WalletUtils.isValidOpReturn(tx)) {
-					return;
-				}
-	
-				Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
-				if(revoke == null || !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())){
-					return;
-				}
-	
-				ProviderChannel providerChannel = new ProviderChannel();
-				providerChannel.setProviderAddress(p_address.toBase58());
-				providerChannel.setUserAddress(u_address.toBase58());
-				providerChannel.setRevokeAddress(revoke.toBase58());
-				
-				String opreturn = WalletUtils.getOpReturn(tx);
-				
-				byte[] op_to_byte = Hex.decode(opreturn);
-				
-				byte[] bitmask = Arrays.copyOfRange(op_to_byte, 1, 19);
-				
-				// encode to be saved on db
-				String bitmaskToString = new String(Hex.encode(bitmask));
-				
-				providerChannel.setBitmask(bitmaskToString);
-				
-				try {
-	
-					ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+				if (isValidContract(tx)) {
 					
-					providerRegister.insertChannel(providerChannel);
+					makeContract(tx);
 					
-				} catch (Exception e) {
-	
-					LOGGER.error("Exception while inserting providerregister", e);
-	
 				}
 				
-				// We need to watch the revoked address
-				nodeStateContext.getProviderRevokeWallet().addWatchedAddress(revoke);
-	
-				LOGGER.info("GETCHANNELS txid: " + tx.getHashAsString());
-				LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
-				LOGGER.info("GETCHANNELS user: " + u_address);
-				LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
-				LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
-				LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
-	
 			} catch (Exception ex) {
 	
 				LOGGER.error("Exception while populating Register", ex);
@@ -146,33 +83,33 @@ public class ReadyState implements NodeState {
 		// Received a contract!!!
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
 			
-			try {
-				// skip unconfirmed transactions
-				if (!tx.isPending()) {
-					
-					// Retrieve sender
-					String sender = tx.getInput(0).getFromAddress().toBase58();
-					
-					// Check output
-					List<TransactionOutput> transactionOutputs = tx.getOutputs();
-					for (TransactionOutput to : transactionOutputs) {
-						Address address = to.getAddressFromP2PKHScript(networkParameters);
-						if (address != null && address.equals(imprintingAddress)) {
-							
-							LOGGER.warn(sender + " wants to do an Imprinting contract with Us, but we are already imprinted!!!");
-							
-							break;
-	
-						} 
-					}
-					
-				}
-	
-			} catch (Exception ex) {
-	
-				LOGGER.error("Exception while populating Register", ex);
-	
-			}
+//			try {
+//				// skip unconfirmed transactions
+//				if (!tx.isPending()) {
+//					
+//					// Retrieve sender
+//					String sender = tx.getInput(0).getFromAddress().toBase58();
+//					
+//					// Check output
+//					List<TransactionOutput> transactionOutputs = tx.getOutputs();
+//					for (TransactionOutput to : transactionOutputs) {
+//						Address address = to.getAddressFromP2PKHScript(networkParameters);
+//						if (address != null && address.equals(imprintingAddress)) {
+//							
+//							LOGGER.warn(sender + " wants to do an Imprinting contract with Us, but we are already imprinted!!!");
+//							
+//							break;
+//	
+//						} 
+//					}
+//					
+//				}
+//	
+//			} catch (Exception ex) {
+//	
+//				LOGGER.error("Exception while populating Register", ex);
+//	
+//			}
 		
 		} else if (wallet.equals(nodeStateContext.getUserWallet())) {
 
@@ -249,6 +186,128 @@ public class ReadyState implements NodeState {
 			LOGGER.warn("Unknown wallet!");
 			
 		}
+	}
+	
+	private boolean isValidContract(Transaction tx) {
+		return true;
+	}
+	
+	private void makeContract(Transaction tx) {
+		
+		// Transaction already confirmed
+		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
+			
+			doContract(tx);
+			
+			// DONE
+			
+		} else {
+			
+			final Listener listener = new Listener() {
+
+				@Override
+				public void onConfidenceChanged(TransactionConfidence confidence, ChangeReason reason) {
+
+					try {
+						
+						if (confidence.equals(TransactionConfidence.ConfidenceType.BUILDING) && reason.equals(ChangeReason.TYPE)) {
+					
+							doContract(tx);
+							
+							tx.getConfidence().removeEventListener(this);
+							
+							LOGGER.info("Contract Done!");
+							
+						} else if (confidence.equals(TransactionConfidence.ConfidenceType.DEAD) && reason.equals(ChangeReason.TYPE)) {
+							
+							LOGGER.error("Something bad happened! TRansaction is DEAD!");
+							
+							tx.getConfidence().removeEventListener(this);
+							
+						}
+					
+					} catch (Exception ex) {
+						
+						LOGGER.error("Exception while populating Register", ex);
+						
+					}
+					
+				}
+				
+			};
+			
+			// Transaction not yet confirmed! Register callback!
+			tx.getConfidence().addEventListener(listener);
+		}
+		
+	}
+	
+	private void doContract(Transaction tx) {
+		
+		List<TransactionOutput> to = tx.getOutputs();
+		
+		if (to.size() != 4)
+			return;
+
+		Script script = tx.getInput(0).getScriptSig();
+		Address p_address = new Address(networkParameters, Utils.sha256hash160(script.getPubKey()));
+
+		List<TransactionOutput> ts = new ArrayList<>(to);
+
+		Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
+
+		// We are provider!!!
+		if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
+			return;
+		}
+
+		if (!WalletUtils.isValidOpReturn(tx)) {
+			return;
+		}
+
+		Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
+		if(revoke == null || !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())){
+			return;
+		}
+
+		ProviderChannel providerChannel = new ProviderChannel();
+		providerChannel.setProviderAddress(p_address.toBase58());
+		providerChannel.setUserAddress(u_address.toBase58());
+		providerChannel.setRevokeAddress(revoke.toBase58());
+		
+		String opreturn = WalletUtils.getOpReturn(tx);
+		
+		byte[] op_to_byte = Hex.decode(opreturn);
+		
+		byte[] bitmask = Arrays.copyOfRange(op_to_byte, 1, 19);
+		
+		// encode to be saved on db
+		String bitmaskToString = new String(Hex.encode(bitmask));
+		
+		providerChannel.setBitmask(bitmaskToString);
+		
+		try {
+
+			ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+			
+			providerRegister.insertChannel(providerChannel);
+			
+		} catch (Exception e) {
+
+			LOGGER.error("Exception while inserting providerregister", e);
+
+		}
+		
+		// We need to watch the revoked address
+		nodeStateContext.getProviderRevokeWallet().addWatchedAddress(revoke);
+
+		LOGGER.info("GETCHANNELS txid: " + tx.getHashAsString());
+		LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
+		LOGGER.info("GETCHANNELS user: " + u_address);
+		LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
+		LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
+		LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
+		
 	}
 
 

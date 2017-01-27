@@ -312,10 +312,8 @@ public class UniquidNode implements NodeStateContext {
 			}
 		};
 
-		final ScheduledFuture<?> updaterThread = scheduledExecutorService.scheduleAtFixedRate(walletSyncher, 5, 5,
+		final ScheduledFuture<?> updaterThread = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 5,
 				TimeUnit.MINUTES);
-		
-		//nodeState.startNode();
 		
 	}
 	
