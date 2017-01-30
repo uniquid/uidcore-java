@@ -1,5 +1,7 @@
 package com.uniquid.node;
 
+import static org.bitcoinj.core.Utils.HEX;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -19,6 +21,7 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.store.BlockStoreException;
+import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
@@ -27,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
-import com.uniquid.register.RegisterFactory;
 import com.uniquid.node.event.NodeEventListener;
 import com.uniquid.node.state.NodeState;
 import com.uniquid.node.state.NodeStateContext;
@@ -35,6 +37,7 @@ import com.uniquid.node.state.impl.InitializingState;
 import com.uniquid.node.state.impl.ReadyState;
 import com.uniquid.node.utils.NodeUtils;
 import com.uniquid.node.utils.WalletUtils;
+import com.uniquid.register.RegisterFactory;
 
 /**
  * This class represents an Uniquid Node: an entity that have wallets and a state
@@ -182,6 +185,8 @@ public class UniquidNode implements NodeStateContext {
 			byte bytes[] = new byte[32];
 			random.nextBytes(bytes);
 			long creationTime = System.currentTimeMillis() / 1000;
+//			byte[] bytes = HEX.decode("1d3edd43871146bfee0ad4c23316f336905976b4c0401206c94f51d8aa090b35");
+//			long creationTime = 1485786885;
 			
 			calculatePublicInfo(bytes, creationTime);
 			
@@ -215,6 +220,10 @@ public class UniquidNode implements NodeStateContext {
 			
 		}
 		
+		DeterministicSeed seed = providerWallet.getKeyChainSeed();
+        LOGGER.info("seed: " + seed.toString());
+        LOGGER.info("creation time: " + seed.getCreationTimeSeconds());
+		
 		// Create node event listner
 		NodeEventListener nodeEventListner = new NodeEventListener(this);
 		
@@ -238,7 +247,7 @@ public class UniquidNode implements NodeStateContext {
 		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(bytes);
 		
 		//LOGGER.info("START_NODE tpriv: " + deterministicKey.serializePrivB58(networkParameters));
-		LOGGER.info("START_NODE tpub: " + deterministicKey.serializePubB58(networkParameters));
+		//LOGGER.info("START_NODE tpub: " + deterministicKey.serializePubB58(networkParameters));
 		
 		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 		
@@ -249,7 +258,7 @@ public class UniquidNode implements NodeStateContext {
 		
 		DeterministicKey imprintingKey = deterministicHierarchy.get(IMPRINTING_PATH, true, true);
 		//LOGGER.info("Imprinting key tpriv: " + imprintingKey.serializePrivB58(networkParameters));
-		//LOGGER.info("Imprinting key tpub: " + imprintingKey.serializePubB58(networkParameters));
+		LOGGER.info("Imprinting key tpub: " + imprintingKey.serializePubB58(networkParameters));
 		
 		publicKey = imprintingKey.serializePubB58(networkParameters);
 		
@@ -423,5 +432,5 @@ public class UniquidNode implements NodeStateContext {
 
 		}
 	}
-
+	
 }

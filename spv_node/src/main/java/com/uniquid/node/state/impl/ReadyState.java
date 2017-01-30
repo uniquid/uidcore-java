@@ -88,35 +88,15 @@ public class ReadyState implements NodeState {
 		
 		// Received a contract!!!
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
-			
-//			try {
-//				// skip unconfirmed transactions
-//				if (!tx.isPending()) {
-//					
-//					// Retrieve sender
-//					String sender = tx.getInput(0).getFromAddress().toBase58();
-//					
-//					// Check output
-//					List<TransactionOutput> transactionOutputs = tx.getOutputs();
-//					for (TransactionOutput to : transactionOutputs) {
-//						Address address = to.getAddressFromP2PKHScript(networkParameters);
-//						if (address != null && address.equals(imprintingAddress)) {
-//							
-//							LOGGER.warn(sender + " wants to do an Imprinting contract with Us, but we are already imprinted!!!");
-//							
-//							break;
-//	
-//						} 
-//					}
-//					
-//				}
-//	
-//			} catch (Exception ex) {
-//	
-//				LOGGER.error("Exception while populating Register", ex);
-//	
-//			}
-		
+				
+			// If is imprinting transaction...
+			if (isValidImprintingTransaction(tx)) {
+				
+				// imprint!
+				LOGGER.warn("Another machine tried to do impriting! Skip requests");
+
+			}
+	
 		} else if (wallet.equals(nodeStateContext.getUserWallet())) {
 
 			// Populate user register
@@ -192,6 +172,22 @@ public class ReadyState implements NodeState {
 			LOGGER.warn("Unknown wallet!");
 			
 		}
+	}
+	
+	private boolean isValidImprintingTransaction(Transaction tx) {
+		// Retrieve sender
+		String sender = tx.getInput(0).getFromAddress().toBase58();
+		
+		// Check output
+		List<TransactionOutput> transactionOutputs = tx.getOutputs();
+		for (TransactionOutput to : transactionOutputs) {
+			Address address = to.getAddressFromP2PKHScript(networkParameters);
+			if (address != null && address.equals(imprintingAddress)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 	
 	private boolean isValidContract(Transaction tx) {

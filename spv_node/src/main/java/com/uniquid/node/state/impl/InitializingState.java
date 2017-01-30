@@ -34,6 +34,8 @@ public class InitializingState implements NodeState {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializingState.class.getName());
 	
+	private static final String CONTRACT_FUNCTION = "000000400000000000000000000000000000";
+	
 	private NodeStateContext nodeStateContext;
 	private NetworkParameters networkParameters;
 	private Address imprintingAddress;
@@ -237,7 +239,7 @@ public class InitializingState implements NodeState {
 				ProviderChannel providerChannel = new ProviderChannel();
 				providerChannel.setUserAddress(sender);
 				providerChannel.setProviderAddress(imprintingAddress.toBase58());
-				providerChannel.setBitmask("ffffffff0000000000000000000000000000");
+				providerChannel.setBitmask(CONTRACT_FUNCTION);
 				providerChannel.setRevokeAddress(sender);
 				
 				providerRegister.insertChannel(providerChannel);
