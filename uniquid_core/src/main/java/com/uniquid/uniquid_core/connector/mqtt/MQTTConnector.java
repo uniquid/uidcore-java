@@ -2,6 +2,8 @@ package com.uniquid.uniquid_core.connector.mqtt;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
@@ -205,6 +207,59 @@ public class MQTTConnector implements Connector<JSONMessage> {
 		}
 		
 	}
+	
+	private JSONMessage receiveMessage(String broker, String topic, long timeout) throws Exception {
+		
+		BlockingConnection connection = null;
+
+		try {
+
+			MQTT mqtt = new MQTT();
+
+			mqtt.setHost(broker);
+
+			connection = mqtt.blockingConnection();
+			connection.connect();
+
+			// subscribe
+			Topic[] topics = { new Topic(topic, QoS.AT_LEAST_ONCE) };
+			/*byte[] qoses = */connection.subscribe(topics);
+
+			// blocks!!!
+			Message message = connection.receive(timeout, TimeUnit.SECONDS);
+			
+			if (message == null) {
+
+				throw new TimeoutException();
+
+			}
+
+			byte[] payload = message.getPayload();
+
+			//
+			message.ack();
+
+			// Create a JSON Message
+			return JSONMessage.fromJsonString(new String(payload));
+
+			// DONE!
+
+		} finally {
+
+			// disconnect
+			try {
+
+				connection.disconnect();
+
+			} catch (Exception ex) {
+
+				LOGGER.error("Catched Exception", ex);
+
+			}
+
+		}
+		
+	}
 
 	private void sendProviderMessage() throws ConnectorException, InterruptedException {
 
@@ -299,7 +354,7 @@ public class MQTTConnector implements Connector<JSONMessage> {
 	 * response.
 	 */
 	@Override
-	public InputMessage<JSONMessage> sendOutputMessage(OutputMessage<JSONMessage> outputMessage, long timeout) {
+	public InputMessage<JSONMessage> sendOutputMessage(OutputMessage<JSONMessage> outputMessage, long timeout) throws ConnectorException {
 
 		try {
 
@@ -307,17 +362,15 @@ public class MQTTConnector implements Connector<JSONMessage> {
 			
 			String sender = (String) outputMessage.getParameter(OutputMessage.SENDER);
 			
-			JSONMessage jsonMessage = receiveMessage(broker, sender);
+			JSONMessage jsonMessage = receiveMessage(broker, sender, timeout);
 			
 			return new com.uniquid.uniquid_core.connector.mqtt.user.MQTTMessageResponse(jsonMessage);
 			
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			
-			LOGGER.error("Error", e);
-			
+			throw new ConnectorException("Exception while sendOutputMessage", ex);
 		}
-		
-		return null;
+			
 	}
 
 	@Override

@@ -13,6 +13,8 @@ public interface InputMessage<T> {
 	public static final String METHOD = "METHOD";
 	public static final String PARAMS = "PARAMS";
 	public static final String ID = "ID";
+	public static final String RESULT = "RESULT";
+	public static final String ERROR = "ERROR";
 	
 	/**
 	 * Retrieves the body of the message as binary data using an InputStream.

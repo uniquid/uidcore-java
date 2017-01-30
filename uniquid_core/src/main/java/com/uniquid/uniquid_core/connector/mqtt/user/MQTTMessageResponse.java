@@ -15,14 +15,22 @@ public class MQTTMessageResponse implements InputMessage<JSONMessage> {
 	
 	@Override
 	public String getParameter(String name) {
-		// TODO Auto-generated method stub
+		if (InputMessage.SENDER.equals(name)) {
+			return jsonMessage.getSender();
+		} else if (InputMessage.RESULT.equals(name)) {
+			return String.valueOf(jsonMessage.getBody().get("result"));
+		} else if (InputMessage.ERROR.equals(name)) {
+			return String.valueOf(jsonMessage.getBody().get("error"));
+		} else if (InputMessage.ID.equals(name)) {
+			return String.valueOf(jsonMessage.getBody().get("id"));
+		}
+		
 		return null;
 	}
 
 	@Override
 	public InputStream getInputStream() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Method not yet implemented");
 	}
 
 	@Override

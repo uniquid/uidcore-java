@@ -4,7 +4,7 @@ import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.connector.mqtt.JSONMessage;
 import com.uniquid.uniquid_core.provider.FunctionInputStream;
 
-public class MQTTMessageRequest implements InputMessage {
+public class MQTTMessageRequest implements InputMessage<JSONMessage> {
 	
 	private JSONMessage jsonMessage;
 	
@@ -31,10 +31,6 @@ public class MQTTMessageRequest implements InputMessage {
 	@Override
 	public FunctionInputStream getInputStream() {
 		throw new UnsupportedOperationException("Method not yet implemented");
-	}
-	
-	public JSONMessage getJSONMessage() {
-		return jsonMessage;
 	}
 	
 	public static MQTTMessageRequest fromJSONString(String jsonString) throws Exception {
@@ -67,8 +63,8 @@ public class MQTTMessageRequest implements InputMessage {
 	}
 	
 	@Override
-	public Object getContent() {
-		return getJSONMessage();
+	public JSONMessage getContent() {
+		return jsonMessage;
 	}
 
 }

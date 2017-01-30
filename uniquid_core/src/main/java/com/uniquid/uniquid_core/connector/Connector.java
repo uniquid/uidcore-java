@@ -38,7 +38,8 @@ public interface Connector<T> {
 	 * @param outputMessage
 	 * @param timeout
 	 * @return
+	 * @throws ConnectorException 
 	 */
-	public InputMessage<T> sendOutputMessage(OutputMessage<T> outputMessage, long timeout);
+	public InputMessage<T> sendOutputMessage(OutputMessage<T> outputMessage, long timeout) throws ConnectorException;
 	
 }
