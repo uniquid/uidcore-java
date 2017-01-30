@@ -1,4 +1,4 @@
-package com.uniquid.spv_node;
+package com.uniquid.node;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -28,9 +28,16 @@ import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
 import com.uniquid.register.RegisterFactory;
+import com.uniquid.node.event.NodeEventListener;
+import com.uniquid.node.state.NodeState;
+import com.uniquid.node.state.NodeStateContext;
+import com.uniquid.node.state.impl.InitializingState;
+import com.uniquid.node.state.impl.ReadyState;
+import com.uniquid.node.utils.NodeUtils;
+import com.uniquid.node.utils.WalletUtils;
 
 /**
- * This class represents an Uniquid Node: an entity that have wallets
+ * This class represents an Uniquid Node: an entity that have wallets and a state
  * 
  * @author giuseppe
  *
@@ -100,41 +107,6 @@ public class UniquidNode implements NodeStateContext {
 	}
 	
 	@Override
-	public File getProviderFile() {
-		return providerFile;
-	}
-
-	@Override
-	public File getUserFile() {
-		return userFile;
-	}
-
-	@Override
-	public File getChainFile() {
-		return chainFile;
-	}
-	
-	@Override
-	public File getProviderRevokeFile() {
-		return providerRevokeFile;
-	}
-	
-	@Override
-	public File getUserRevokeFile() {
-		return userRevokeFile;
-	}
-
-	@Override
-	public void setProviderWallet(Wallet providerWallet) {
-		this.providerWallet = providerWallet;
-	}
-
-	@Override
-	public void setUserWallet(Wallet userWallet) {
-		this.userWallet = userWallet;
-	}
-
-	@Override
 	public void setNodeState(NodeState nodeState) {
 		this.nodeState = nodeState;
 	}
@@ -162,6 +134,11 @@ public class UniquidNode implements NodeStateContext {
 	@Override
 	public NetworkParameters getNetworkParameters() {
 		return networkParameters;
+	}
+	
+	@Override
+	public RegisterFactory getRegisterFactory() {
+		return registerFactory;
 	}
 	
 	public NodeState getNodeState() {
@@ -229,7 +206,7 @@ public class UniquidNode implements NodeStateContext {
 //			LOGGER.info("USER WALLET curent change addr: " + userWallet.currentChangeAddress().toBase58());
 //			LOGGER.info("USER WALLET: " + userWallet.toString());
 			
-			setNodeState(new CreatedState(this, imprintingAddress));
+			setNodeState(new InitializingState(this, imprintingAddress));
 			
 			providerWallet.saveToFile(providerFile);
 			userWallet.saveToFile(userFile);
@@ -319,8 +296,6 @@ public class UniquidNode implements NodeStateContext {
 	
 	public void stopNode() throws Exception{
 		
-		//nodeState.stopNode();
-
 		scheduledExecutorService.shutdown();
 		try {
 
@@ -447,11 +422,6 @@ public class UniquidNode implements NodeStateContext {
 			return new UniquidNode(this);
 
 		}
-	}
-
-	@Override
-	public RegisterFactory getRegisterFactory() {
-		return registerFactory;
 	}
 
 }

@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.uniquid.spv_node.UniquidNode;
+import com.uniquid.node.UniquidNode;
 import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.OutputMessage;
 import com.uniquid.uniquid_core.provider.FunctionException;

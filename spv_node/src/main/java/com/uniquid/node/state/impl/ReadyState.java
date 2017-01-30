@@ -1,34 +1,39 @@
-package com.uniquid.spv_node;
+package com.uniquid.node.state.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionConfidence;
+import org.bitcoinj.core.TransactionConfidence.Listener;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.core.Utils;
-import org.bitcoinj.core.TransactionConfidence.Listener;
-import org.bitcoinj.core.TransactionConfidence.Listener.ChangeReason;
-import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import com.uniquid.node.state.NodeState;
+import com.uniquid.node.state.NodeStateContext;
+import com.uniquid.node.utils.WalletUtils;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
+/**
+ * This class represents an Uniquid Node imprinted and ready to reeive/sign contracts.
+ * 
+ * @author giuseppe
+ *
+ */
 public class ReadyState implements NodeState {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReadyState.class.getName());
@@ -48,8 +53,9 @@ public class ReadyState implements NodeState {
 	@Override
 	public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
 		
+		// We sent some coins. Probably we create a contract as Provider
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
-			// Created a contract!!!
+
 			try {
 				
 				if (isValidContract(tx)) {
@@ -60,7 +66,7 @@ public class ReadyState implements NodeState {
 				
 			} catch (Exception ex) {
 	
-				LOGGER.error("Exception while populating Register", ex);
+				LOGGER.error("Exception while creating provider contract", ex);
 	
 			}
 		} else if (wallet.equals(nodeStateContext.getProviderRevokeWallet())) {

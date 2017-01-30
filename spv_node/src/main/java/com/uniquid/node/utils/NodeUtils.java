@@ -1,4 +1,4 @@
-package com.uniquid.spv_node;
+package com.uniquid.node.utils;
 
 import java.io.File;
 import java.io.InputStream;

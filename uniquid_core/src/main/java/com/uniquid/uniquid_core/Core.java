@@ -11,12 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import com.uniquid.node.UniquidNode;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
-import com.uniquid.spv_node.UniquidNode;
 import com.uniquid.uniquid_core.connector.Connector;
 import com.uniquid.uniquid_core.connector.ConnectorException;
 import com.uniquid.uniquid_core.connector.ConnectorFactory;

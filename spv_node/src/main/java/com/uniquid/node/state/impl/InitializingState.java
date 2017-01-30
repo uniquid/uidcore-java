@@ -1,9 +1,8 @@
-package com.uniquid.spv_node;
+package com.uniquid.node.state.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
@@ -19,25 +18,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import com.uniquid.node.state.NodeState;
+import com.uniquid.node.state.NodeStateContext;
+import com.uniquid.node.utils.WalletUtils;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
-public class CreatedState implements NodeState {
+/**
+ * This class represent an Uniquid Node just created (empty).
+ * 
+ */
+public class InitializingState implements NodeState {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(CreatedState.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(InitializingState.class.getName());
 	
 	private NodeStateContext nodeStateContext;
 	private NetworkParameters networkParameters;
 	private Address imprintingAddress;
-	private boolean imprinted;
+	private boolean alreadyImprinted;
 	
-	public CreatedState(NodeStateContext nodeStateContext, Address imprintingAddress) {
+	public InitializingState(NodeStateContext nodeStateContext, Address imprintingAddress) {
 		this.nodeStateContext = nodeStateContext;
 		this.networkParameters = nodeStateContext.getNetworkParameters();
 		this.imprintingAddress = imprintingAddress;
-		this.imprinted = false;
+		this.alreadyImprinted = false;
 	}
 	
 	@Override
@@ -48,13 +54,14 @@ public class CreatedState implements NodeState {
 	@Override
 	public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
 
-		// Received a contract!!!
+		// We received some coins.
+		// Check if this is an impriting contract
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
 			
 			try {
 				
 				// If is imprinting transaction...
-				if (isValidImprintingTransaction(tx) && !imprinted) {
+				if (isValidImprintingTransaction(tx) && !alreadyImprinted) {
 					
 					// imprint!
 					imprint(tx);
@@ -63,12 +70,12 @@ public class CreatedState implements NodeState {
 	
 			} catch (Exception ex) {
 	
-				LOGGER.error("Exception while populating Register", ex);
+				LOGGER.error("Exception while imprinting", ex);
 	
 			}
-			
 		
 		} else if (wallet.equals(nodeStateContext.getUserWallet())) {
+			// We received a contract as user node
 
 			// Populate user register
 			List<Address> issuedAddresses = wallet.getIssuedReceiveAddresses();
@@ -140,7 +147,7 @@ public class CreatedState implements NodeState {
 
 		} else {
 			
-			LOGGER.warn("Unknown wallet!");
+			LOGGER.warn("We received coins on a wallet that we don't know!");
 			
 		}
 	}
@@ -235,10 +242,10 @@ public class CreatedState implements NodeState {
 				
 				providerRegister.insertChannel(providerChannel);
 				
-				// Jump to ready state
+				// We can move now to ReadyState
 				nodeStateContext.setNodeState(new ReadyState(nodeStateContext, imprintingAddress));
 				
-				imprinted = true;
+				alreadyImprinted = true;
 				
 				break;
 
