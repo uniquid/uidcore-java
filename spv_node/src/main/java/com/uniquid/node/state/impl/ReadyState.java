@@ -62,6 +62,8 @@ public class ReadyState implements NodeState {
 				
 				if (isValidContract(tx)) {
 					
+					LOGGER.info("Valid contract! Create");
+					
 					makeContract(tx);
 					
 				} else {
@@ -105,11 +107,12 @@ public class ReadyState implements NodeState {
 			if (isValidImprintingTransaction(tx)) {
 				
 				// imprint!
-				LOGGER.warn("Another machine tried to do impriting! Skip requests");
+				LOGGER.warn("Another machine tried to imprint US! Skip request!");
 
 			} else {
 				
-				LOGGER.info("Not an impriting transaction");
+				LOGGER.info("Unknown contract");
+				
 			}
 	
 		} else if (wallet.equals(nodeStateContext.getUserWallet())) {
@@ -213,36 +216,49 @@ public class ReadyState implements NodeState {
 	
 	private void makeContract(Transaction tx) {
 		
+		LOGGER.info("Creating contract...");
+		
 		// Transaction already confirmed
 		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
 			
+			LOGGER.info("tx.getConfidence is BUILDING...");
+			
 			doContract(tx);
 			
-			// DONE
+			LOGGER.info("Done creating contract");
 			
 		} else {
+			
+			LOGGER.info("tx.getConfidence is not BUILDING: " + tx.getConfidence() + ", registering a listener");
 			
 			final Listener listener = new Listener() {
 
 				@Override
 				public void onConfidenceChanged(TransactionConfidence confidence, ChangeReason reason) {
+					
+					LOGGER.info("tx.getConfidence is changed: " + confidence);
 
 					try {
 						
-						if (confidence.equals(TransactionConfidence.ConfidenceType.BUILDING) && reason.equals(ChangeReason.TYPE)) {
+						if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING) && reason.equals(ChangeReason.TYPE)) {
 					
+							LOGGER.info("tx.getConfidence is BUILDING...");
+							
 							doContract(tx);
 							
 							tx.getConfidence().removeEventListener(this);
 							
 							LOGGER.info("Contract Done!");
 							
-						} else if (confidence.equals(TransactionConfidence.ConfidenceType.DEAD) && reason.equals(ChangeReason.TYPE)) {
+						} else if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.DEAD) && reason.equals(ChangeReason.TYPE)) {
 							
 							LOGGER.error("Something bad happened! TRansaction is DEAD!");
 							
 							tx.getConfidence().removeEventListener(this);
 							
+						} else {
+							
+							LOGGER.warn("Unexpected tx.getConfidence..");
 						}
 					
 					} catch (Exception ex) {
@@ -293,6 +309,7 @@ public class ReadyState implements NodeState {
 		providerChannel.setProviderAddress(p_address.toBase58());
 		providerChannel.setUserAddress(u_address.toBase58());
 		providerChannel.setRevokeAddress(revoke.toBase58());
+		providerChannel.setRevokeTxId(tx.getHashAsString());
 		
 		String opreturn = WalletUtils.getOpReturn(tx);
 		
@@ -320,12 +337,12 @@ public class ReadyState implements NodeState {
 		// We need to watch the revoked address
 		nodeStateContext.getProviderRevokeWallet().addWatchedAddress(revoke);
 
-		LOGGER.info("GETCHANNELS txid: " + tx.getHashAsString());
-		LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
-		LOGGER.info("GETCHANNELS user: " + u_address);
-		LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
-		LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
-		LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
+//		LOGGER.info("GETCHANNELS txid: " + tx.getHashAsString());
+//		LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
+//		LOGGER.info("GETCHANNELS user: " + u_address);
+//		LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
+//		LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
+//		LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
 		
 	}
 

@@ -214,7 +214,7 @@ public class InitializingState implements NodeState {
 
 					try {
 						
-						if (confidence.equals(TransactionConfidence.ConfidenceType.BUILDING) && reason.equals(ChangeReason.TYPE)) {
+						if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING) && reason.equals(ChangeReason.TYPE)) {
 					
 							doImprint(tx);
 							
@@ -222,7 +222,7 @@ public class InitializingState implements NodeState {
 							
 							LOGGER.info("Imprinting Done!");
 							
-						} else if (confidence.equals(TransactionConfidence.ConfidenceType.DEAD) && reason.equals(ChangeReason.TYPE)) {
+						} else if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.DEAD) && reason.equals(ChangeReason.TYPE)) {
 							
 							LOGGER.error("Something bad happened! TRansaction is DEAD!");
 							
@@ -267,6 +267,7 @@ public class InitializingState implements NodeState {
 				providerChannel.setProviderAddress(imprintingAddress.toBase58());
 				providerChannel.setBitmask(CONTRACT_FUNCTION);
 				providerChannel.setRevokeAddress(sender);
+				providerChannel.setRevokeTxId(tx.getHashAsString());
 				
 				providerRegister.insertChannel(providerChannel);
 				

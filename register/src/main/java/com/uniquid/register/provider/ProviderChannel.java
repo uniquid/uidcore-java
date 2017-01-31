@@ -8,6 +8,7 @@ public class ProviderChannel {
 	private String userAddress;
 	private String revokeAddress;
 	private String bitmask;
+	private String revokeTxId;
 
 	public ProviderChannel() {
 
@@ -51,9 +52,17 @@ public class ProviderChannel {
 		this.revokeAddress = revokeAddress;
 	}
 	
+	public void setRevokeTxId(String revokeTxId) {
+		this.revokeTxId = revokeTxId;
+	}
+	
+	public String getRevokeTxId() {
+		return revokeTxId;
+	}
+	
 	public String toString() {
 		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
-				"; revoke address: " + revokeAddress;
+				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId;
 	}
 	
 }

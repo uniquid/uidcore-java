@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.node.UniquidNode;
+import com.uniquid.node.utils.WalletUtils;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
@@ -295,7 +296,8 @@ public final class Core {
 
 			String method = inputMessage.getParameter(InputMessage.RPC_METHOD);
 
-			if (bitset.get(Integer.valueOf(method))) {
+			if (bitset.get(Integer.valueOf(method)) && 
+					WalletUtils.isUnspent(providerChannel.getRevokeTxId(), providerChannel.getRevokeAddress())) {
 
 				return;
 

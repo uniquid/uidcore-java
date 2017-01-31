@@ -23,15 +23,15 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	public static final String PROVIDER_CLM_USER_ADDRESS = "user_address";
 	public static final String PROVIDER_CLM_BITMASK = "bitmask";
 	
-	private static final String PROVIDER_CREATE_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, primary key (provider_address, user_address));";
+	private static final String PROVIDER_CREATE_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null primary key (provider_address, user_address));";
 
-	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_address from provider_channel where user_address = ?";
+	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id from provider_channel where user_address = ?";
 	
-	private static final String PROVIDER_INSERT = "insert into provider_channel (provider_address, user_address, bitmask, revoke_address) values (?, ?, ?, ?);";
+	private static final String PROVIDER_INSERT = "insert into provider_channel (provider_address, user_address, bitmask, revoke_address, revoke_tx_id) values (?, ?, ?, ?, ?);";
 	
 	private static final String PROVIDER_DELETE = "delete from provider_channel where provider_address = ? and user_address = ?;";
 	
-	public static final String PROVIDER_ALL_CHANNEL = "select provider_address, user_address, bitmask, revoke_address from provider_channel;";
+	public static final String PROVIDER_ALL_CHANNEL = "select provider_address, user_address, bitmask, revoke_address , revoke_tx_id from provider_channel;";
 	
 	public static final String TABLE_USER = "user_channel";
 	
@@ -78,6 +78,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 					providerChannel.setProviderAddress(rs.getString("provider_address"));
 					providerChannel.setUserAddress(rs.getString("user_address"));
 					providerChannel.setBitmask(rs.getString("bitmask"));
+					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
 
 					return providerChannel;
 				}
@@ -106,6 +107,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 				statement.setString(2, providerChannel.getUserAddress());
 				statement.setString(3, providerChannel.getBitmask());
 				statement.setString(4, providerChannel.getRevokeAddress());
+				statement.setString(5, providerChannel.getRevokeTxId());
 
 				int rs = statement.executeUpdate();
 
@@ -340,6 +342,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
 					providerChannel.setUserAddress(rs.getString("user_address"));
 					providerChannel.setBitmask(rs.getString("bitmask"));
+					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
 
 					providerChannels.add(providerChannel);
 				}
