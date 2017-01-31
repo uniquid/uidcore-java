@@ -55,12 +55,18 @@ public class ReadyState implements NodeState {
 		
 		// We sent some coins. Probably we create a contract as Provider
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
+			
+			LOGGER.info("Sent coins from provider wallet");
 
 			try {
 				
 				if (isValidContract(tx)) {
 					
 					makeContract(tx);
+					
+				} else {
+					
+					LOGGER.info("Invalid contract");
 					
 				}
 				
@@ -92,6 +98,8 @@ public class ReadyState implements NodeState {
 		
 		// Received a contract!!!
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
+			
+			LOGGER.info("Received coins on provider wallet");
 				
 			// If is imprinting transaction...
 			if (isValidImprintingTransaction(tx)) {
@@ -99,9 +107,14 @@ public class ReadyState implements NodeState {
 				// imprint!
 				LOGGER.warn("Another machine tried to do impriting! Skip requests");
 
+			} else {
+				
+				LOGGER.info("Not an impriting transaction");
 			}
 	
 		} else if (wallet.equals(nodeStateContext.getUserWallet())) {
+			
+			LOGGER.info("Received coins on user wallet");
 
 			// Populate user register
 			List<Address> issuedAddresses = wallet.getIssuedReceiveAddresses();
@@ -164,16 +177,16 @@ public class ReadyState implements NodeState {
 
 			}
 
-			LOGGER.info("GETCHANNELS txid: " + tx.getHashAsString());
-			LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
-			LOGGER.info("GETCHANNELS user: " + u_address);
-			LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
-			LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
-			LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
+//			LOGGER.info("GETCHANNELS txid: " + tx.getHashAsString());
+//			LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
+//			LOGGER.info("GETCHANNELS user: " + u_address);
+//			LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
+//			LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
+//			LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
 
 		} else {
 			
-			LOGGER.warn("Received coins on an unknown wallet!");
+			LOGGER.warn("We received coins on a wallet that we don't expect!");
 			
 		}
 	}
@@ -316,5 +329,8 @@ public class ReadyState implements NodeState {
 		
 	}
 
+	public String toString() {
+		return "Initialized! Ready";
+	}
 
 }

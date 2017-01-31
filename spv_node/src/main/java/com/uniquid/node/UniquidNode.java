@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -12,6 +13,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.bitcoinj.core.Address;
+import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
@@ -19,7 +21,6 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.store.BlockStoreException;
-import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
@@ -108,7 +109,7 @@ public class UniquidNode implements NodeStateContext {
 	}
 	
 	@Override
-	public void setNodeState(NodeState nodeState) {
+	public synchronized void setNodeState(NodeState nodeState) {
 		this.nodeState = nodeState;
 	}
 	
@@ -142,10 +143,6 @@ public class UniquidNode implements NodeStateContext {
 		return registerFactory;
 	}
 	
-	public NodeState getNodeState() {
-		return nodeState;
-	}
-	
 	public Address getImprintingAddress() {
 		return imprintingAddress;
 	}
@@ -160,6 +157,9 @@ public class UniquidNode implements NodeStateContext {
 
 	public void initNode() throws Exception {
 		
+		byte[] bytes;
+		long creationTime;
+		
 		if (providerFile.exists() && !providerFile.isDirectory() &&
 				userFile.exists() && !userFile.isDirectory()) {
 
@@ -169,22 +169,17 @@ public class UniquidNode implements NodeStateContext {
 			providerRevokeWallet = Wallet.loadFromFile(providerRevokeFile);
 			userRevokeWallet = Wallet.loadFromFile(userRevokeFile);
 			
-			byte[] bytes = providerWallet.getKeyChainSeed().getSeedBytes();
-			long creationTime = providerWallet.getKeyChainSeed().getCreationTimeSeconds();
-			
-			calculatePublicInfo(bytes, creationTime);
-			
-			// Jump to ready state
-			setNodeState(new ReadyState(this, imprintingAddress));
+			bytes = providerWallet.getKeyChainSeed().getSeedBytes();
+			creationTime = providerWallet.getKeyChainSeed().getCreationTimeSeconds();
 			
 		} else {
 			
 			SecureRandom random = new SecureRandom();
-			byte bytes[] = new byte[32];
+			bytes = new byte[32];
 			random.nextBytes(bytes);
-			long creationTime = System.currentTimeMillis() / 1000;
-			
-			calculatePublicInfo(bytes, creationTime);
+			creationTime = System.currentTimeMillis() / 1000;
+//			bytes = Hex.decode("717aff69d316139ae7ea28f067a470998eb83f2f5378472998940d3e29cb30cf");
+//			creationTime = 1485863345;
 			
 			// Create a new provider wallet
 			providerWallet = Wallet.fromSeed(networkParameters,
@@ -200,8 +195,6 @@ public class UniquidNode implements NodeStateContext {
 			// Create user revoke watching wallet
 			userRevokeWallet = new Wallet(networkParameters);
 			
-			setNodeState(new InitializingState(this, imprintingAddress));
-			
 			providerWallet.saveToFile(providerFile);
 			userWallet.saveToFile(userFile);
 			providerRevokeWallet.saveToFile(providerRevokeFile);
@@ -209,9 +202,24 @@ public class UniquidNode implements NodeStateContext {
 			
 		}
 		
-		DeterministicSeed seed = providerWallet.getKeyChainSeed();
-        LOGGER.info("seed: " + seed.toString());
-        LOGGER.info("creation time: " + seed.getCreationTimeSeconds());
+		// Calculate public info
+		calculatePublicInfo(bytes, creationTime);
+		
+		// Retrieve contracts
+		Set<Transaction> transactions = providerWallet.getTransactions(false);
+		
+		// If there is at least 1 contract, then we are ready
+		if (transactions.size() > 0) {
+
+			// Jump to ready state
+			setNodeState(new ReadyState(this, imprintingAddress));
+
+		} else {
+
+			// Jump to initializing
+			setNodeState(new InitializingState(this, imprintingAddress));
+
+		}
 		
 		// Create node event listner
 		NodeEventListener nodeEventListner = new NodeEventListener(this);
@@ -264,6 +272,22 @@ public class UniquidNode implements NodeStateContext {
 		DeterministicKey imprintingProviderKey = deterministicHierarchy.get(PROVIDER_IMPRINTING_ADDRESS, true, true);
 		imprintingAddress = imprintingProviderKey.toAddress(networkParameters);
 		
+	}
+	
+	public synchronized void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+		
+		nodeState.onCoinsReceived(wallet, tx, prevBalance, newBalance);
+	
+	}
+	
+	public synchronized void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+	
+		nodeState.onCoinsSent(wallet, tx, prevBalance, newBalance);
+	
+	}
+	
+	public synchronized String getNodeState() {
+		return nodeState.toString();
 	}
 	
 	public void startNode() throws Exception {

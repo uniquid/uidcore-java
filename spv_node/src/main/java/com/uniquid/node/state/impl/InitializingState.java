@@ -71,19 +71,27 @@ public class InitializingState implements NodeState {
 
 	@Override
 	public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
-
+		
 		// We received some coins.
 		// Check if this is an impriting contract
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
+			
+			LOGGER.info("Received coins on provider wallet");
 			
 			try {
 				
 				// If is imprinting transaction...
 				if (isValidImprintingTransaction(tx) && !alreadyImprinted) {
 					
+					LOGGER.info("Imprinting contract");
+					
 					// imprint!
 					imprint(tx);
 
+				} else {
+					
+					LOGGER.info("Unknown contract");
+					
 				}
 	
 			} catch (Exception ex) {
@@ -93,6 +101,8 @@ public class InitializingState implements NodeState {
 			}
 		
 		} else if (wallet.equals(nodeStateContext.getUserWallet())) {
+			
+			LOGGER.info("Received coins on user wallet");
 			// We received a contract as user node
 
 			// Populate user register
@@ -156,16 +166,16 @@ public class InitializingState implements NodeState {
 
 			}
 
-			LOGGER.info("GETCHANNELS txid: " + tx.getHashAsString());
-			LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
-			LOGGER.info("GETCHANNELS user: " + u_address);
-			LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
-			LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
-			LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
+//			LOGGER.info("GETCHANNELS txid: " + tx.getHashAsString());
+//			LOGGER.info("GETCHANNELS provider: " + p_address.toBase58());
+//			LOGGER.info("GETCHANNELS user: " + u_address);
+//			LOGGER.info("GETCHANNELS revoca: " + ts.get(2).getAddressFromP2PKHScript(networkParameters));
+//			LOGGER.info("GETCHANNELS change_provider: " + ts.get(3).getAddressFromP2PKHScript(networkParameters));
+//			LOGGER.info("GETCHANNELS OPRETURN: " + Hex.toHexString(op_to_byte)  + "\n");
 
 		} else {
 			
-			LOGGER.warn("We received coins on a wallet that we don't know!");
+			LOGGER.warn("We received coins on a wallet that we don't expect!");
 			
 		}
 	}
@@ -265,11 +275,17 @@ public class InitializingState implements NodeState {
 				
 				alreadyImprinted = true;
 				
+				LOGGER.info("Machine IMPRINTED!");
+				
 				break;
 
 			} 
 			
 		}
+	}
+	
+	public String toString() {
+		return "Initializing State";
 	}
 
 }

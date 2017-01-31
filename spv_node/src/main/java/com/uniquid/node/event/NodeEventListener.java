@@ -35,14 +35,14 @@ public class NodeEventListener implements WalletCoinsSentEventListener, WalletCo
 	public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
 		
 		LOGGER.info("onCoinsReceived() " + tx.getHashAsString());
-		nodeStateContext.getNodeState().onCoinsReceived(wallet, tx, prevBalance, newBalance);
+		nodeStateContext.onCoinsReceived(wallet, tx, prevBalance, newBalance);
 	}
 
 	@Override
 	public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
 		
 		LOGGER.info("onCoinsReceived() " + tx.getHashAsString());
-		nodeStateContext.getNodeState().onCoinsSent(wallet, tx, prevBalance, newBalance);
+		nodeStateContext.onCoinsSent(wallet, tx, prevBalance, newBalance);
 	}
 
 }
