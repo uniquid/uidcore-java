@@ -1,15 +1,19 @@
-package com.uniquid.uniquid_core.provider;
+package com.uniquid.uniquid_core.provider.impl;
 
 import java.io.IOException;
 import java.util.Enumeration;
 
 import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.OutputMessage;
+import com.uniquid.uniquid_core.provider.Function;
+import com.uniquid.uniquid_core.provider.FunctionConfig;
+import com.uniquid.uniquid_core.provider.FunctionContext;
+import com.uniquid.uniquid_core.provider.exception.FunctionException;
 
 /*
  * Defines a generic, protocol-independent function.
  */
-public abstract class GenericFunction implements ProviderFunction, FunctionConfig {
+public abstract class GenericFunction implements Function, FunctionConfig {
 	
 	private transient FunctionConfig config;
 	

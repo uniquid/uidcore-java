@@ -1,7 +1,5 @@
 package com.uniquid.node;
 
-import static org.bitcoinj.core.Utils.HEX;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -185,8 +183,6 @@ public class UniquidNode implements NodeStateContext {
 			byte bytes[] = new byte[32];
 			random.nextBytes(bytes);
 			long creationTime = System.currentTimeMillis() / 1000;
-//			byte[] bytes = HEX.decode("1d3edd43871146bfee0ad4c23316f336905976b4c0401206c94f51d8aa090b35");
-//			long creationTime = 1485786885;
 			
 			calculatePublicInfo(bytes, creationTime);
 			
@@ -203,13 +199,6 @@ public class UniquidNode implements NodeStateContext {
 			
 			// Create user revoke watching wallet
 			userRevokeWallet = new Wallet(networkParameters);
-			
-//			LOGGER.info("PROVIDER WALLET created: " + providerWallet.currentReceiveAddress().toBase58());
-//			LOGGER.info("PROVIDER WALLET current change addr: " + providerWallet.currentChangeAddress().toBase58());
-//			LOGGER.info("PROVIDER WALLET: " + providerWallet.toString());
-//			LOGGER.info("USER WALLET created: " + userWallet.currentReceiveAddress().toBase58());
-//			LOGGER.info("USER WALLET curent change addr: " + userWallet.currentChangeAddress().toBase58());
-//			LOGGER.info("USER WALLET: " + userWallet.toString());
 			
 			setNodeState(new InitializingState(this, imprintingAddress));
 			
@@ -244,6 +233,8 @@ public class UniquidNode implements NodeStateContext {
 	
 	private void calculatePublicInfo(byte[] bytes, long creationTime) {
 		
+		LOGGER.info("HEX seed " + Hex.toHexString(bytes) + "; creation time " + creationTime);
+		
 		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(bytes);
 		
 		//LOGGER.info("START_NODE tpriv: " + deterministicKey.serializePrivB58(networkParameters));
@@ -257,7 +248,6 @@ public class UniquidNode implements NodeStateContext {
 	    	);
 		
 		DeterministicKey imprintingKey = deterministicHierarchy.get(IMPRINTING_PATH, true, true);
-		//LOGGER.info("Imprinting key tpriv: " + imprintingKey.serializePrivB58(networkParameters));
 		LOGGER.info("Imprinting key tpub: " + imprintingKey.serializePubB58(networkParameters));
 		
 		publicKey = imprintingKey.serializePubB58(networkParameters);

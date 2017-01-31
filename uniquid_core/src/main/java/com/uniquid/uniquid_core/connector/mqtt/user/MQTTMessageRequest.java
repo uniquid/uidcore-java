@@ -24,7 +24,7 @@ public class MQTTMessageRequest implements OutputMessage<JSONMessage> {
 		
 		if (OutputMessage.SENDER.equals(name)) {
 			jsonMessage.setSender((String) value);
-		} else if (OutputMessage.METHOD.equals(name)) {
+		} else if (OutputMessage.RPC_METHOD.equals(name)) {
 			jsonMessage.getBody().put("method", value);
 		} else if (OutputMessage.PARAMS.equals(name)) {
 			jsonMessage.getBody().put("params", value);
@@ -51,7 +51,7 @@ public class MQTTMessageRequest implements OutputMessage<JSONMessage> {
 	}
 
 	@Override
-	public JSONMessage getContent() {
+	public JSONMessage getPayload() {
 		return jsonMessage;
 	}
 
@@ -59,7 +59,7 @@ public class MQTTMessageRequest implements OutputMessage<JSONMessage> {
 	public Object getParameter(String name) {
 		if (OutputMessage.SENDER.equals(name)) {
 			return jsonMessage.getSender();
-		} else if (OutputMessage.METHOD.equals(name)) {
+		} else if (OutputMessage.RPC_METHOD.equals(name)) {
 			return jsonMessage.getBody().get("method");
 		} else if (OutputMessage.PARAMS.equals(name)) {
 			return jsonMessage.getBody().get("params");

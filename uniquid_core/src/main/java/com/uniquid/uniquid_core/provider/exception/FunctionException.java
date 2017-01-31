@@ -1,4 +1,4 @@
-package com.uniquid.uniquid_core.provider;
+package com.uniquid.uniquid_core.provider.exception;
 
 public class FunctionException extends Exception {
 

@@ -1,4 +1,4 @@
-package com.uniquid.uniquid_core.provider;
+package com.uniquid.uniquid_core.provider.impl;
 
 import java.util.Collections;
 import java.util.Enumeration;
@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.uniquid.uniquid_core.provider.FunctionContext;
 
 public class ApplicationContext implements FunctionContext {
 

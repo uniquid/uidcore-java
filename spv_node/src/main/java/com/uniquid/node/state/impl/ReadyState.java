@@ -79,6 +79,10 @@ public class ReadyState implements NodeState {
 			
 			LOGGER.info("A User contract was revoked!!!");
 			
+		} else {
+			
+			LOGGER.info("We sent coins on a wallet that we don't expect!");
+			
 		}
 		
 	}
@@ -169,7 +173,7 @@ public class ReadyState implements NodeState {
 
 		} else {
 			
-			LOGGER.warn("Unknown wallet!");
+			LOGGER.warn("Received coins on an unknown wallet!");
 			
 		}
 	}

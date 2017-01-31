@@ -21,12 +21,12 @@ import com.uniquid.uniquid_core.connector.Connector;
 import com.uniquid.uniquid_core.connector.ConnectorException;
 import com.uniquid.uniquid_core.connector.ConnectorFactory;
 import com.uniquid.uniquid_core.connector.EndPoint;
-import com.uniquid.uniquid_core.provider.ApplicationContext;
-import com.uniquid.uniquid_core.provider.FunctionConfigImpl;
-import com.uniquid.uniquid_core.provider.FunctionException;
-import com.uniquid.uniquid_core.provider.ProviderFunction;
+import com.uniquid.uniquid_core.provider.Function;
+import com.uniquid.uniquid_core.provider.exception.FunctionException;
+import com.uniquid.uniquid_core.provider.impl.ApplicationContext;
 import com.uniquid.uniquid_core.provider.impl.ContractFunction;
 import com.uniquid.uniquid_core.provider.impl.EchoFunction;
+import com.uniquid.uniquid_core.provider.impl.FunctionConfigImpl;
 
 /**
  * This is the core of Uniquid library. It contains all the functionalities
@@ -48,17 +48,17 @@ public final class Core {
 
 	private Thread thread;
 
-	private final Map<Integer, ProviderFunction> functionsMap = new HashMap<>();
+	private final Map<Integer, Function> functionsMap = new HashMap<>();
 
-	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, UniquidNode spvNode)
+	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, UniquidNode node)
 			throws Exception {
 
 		this.registerFactory = registerFactory;
 		this.connectorService = connectorServiceFactory.createConnector();
-		this.uniquidNode = spvNode;
+		this.uniquidNode = node;
 
 		applicationContext = new ApplicationContext();
-		applicationContext.setAttribute("com.uniquid.spv_node.SpvNode", spvNode);
+		applicationContext.setAttribute("com.uniquid.spv_node.SpvNode", node);
 		applicationContext.setAttributeReadOnly("com.uniquid.spv_node.SpvNode");
 		applicationContext.setAttribute("com.uniquid.register.RegisterFactory", registerFactory);
 		applicationContext.setAttributeReadOnly("com.uniquid.register.RegisterFactory");
@@ -76,7 +76,7 @@ public final class Core {
 		}
 	}
 	
-	public UniquidNode getSpvNode() {
+	public UniquidNode getNode() {
 		return uniquidNode;
 	}
 	
@@ -84,15 +84,15 @@ public final class Core {
 		return registerFactory;
 	}
 
-	private ProviderFunction getFunction(InputMessage<?> inputMessage) {
+	private Function getFunction(InputMessage<?> inputMessage) {
 
-		String method = inputMessage.getParameter(InputMessage.METHOD);
+		String rpcMethod = inputMessage.getParameter(InputMessage.RPC_METHOD);
 
-		return functionsMap.get(Integer.valueOf(method).intValue());
+		return functionsMap.get(Integer.valueOf(rpcMethod).intValue());
 
 	}
 
-	public void addFunction(ProviderFunction function, int value) throws FunctionException {
+	public void addFunction(Function function, int value) throws FunctionException {
 
 		if (value >= 32) {
 
@@ -110,7 +110,7 @@ public final class Core {
 
 	}
 
-	private void addUniquidFunction(ProviderFunction function, int value) throws FunctionException {
+	private void addUniquidFunction(Function function, int value) throws FunctionException {
 
 		if (value >= 0 && value <= 31) {
 
@@ -139,7 +139,7 @@ public final class Core {
 	 */
 	private void performProviderRequest(InputMessage<?> inputMessage, OutputMessage<?> outputMessage) throws Exception {
 
-		ProviderFunction function = getFunction(inputMessage);
+		Function function = getFunction(inputMessage);
 
 		try {
 			if (function != null) {
@@ -236,7 +236,7 @@ public final class Core {
 						OutputMessage<?> outputMessage = endPoint.getOutputMessage();
 
 						LOGGER.info("Received input message from : " + inputMessage.getParameter(InputMessage.SENDER)
-								+ " asking method " + inputMessage.getParameter(InputMessage.METHOD));
+								+ " asking method " + inputMessage.getParameter(InputMessage.RPC_METHOD));
 
 						LOGGER.info("Checking sender...");
 
@@ -293,7 +293,7 @@ public final class Core {
 
 			BitSet bitset = BitSet.valueOf(b);
 
-			String method = inputMessage.getParameter(InputMessage.METHOD);
+			String method = inputMessage.getParameter(InputMessage.RPC_METHOD);
 
 			if (bitset.get(Integer.valueOf(method))) {
 
@@ -339,7 +339,7 @@ public final class Core {
 
 			BitSet bitset = BitSet.valueOf(b);
 
-			Integer method = (Integer) outputMessage.getParameter(OutputMessage.METHOD);
+			Integer method = (Integer) outputMessage.getParameter(OutputMessage.RPC_METHOD);
 
 			if (bitset.get(method)) {
 				

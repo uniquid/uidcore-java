@@ -34,7 +34,7 @@ public class MQTTMessageResponse implements InputMessage<JSONMessage> {
 	}
 
 	@Override
-	public JSONMessage getContent() {
+	public JSONMessage getPayload() {
 		return jsonMessage;
 	}
 

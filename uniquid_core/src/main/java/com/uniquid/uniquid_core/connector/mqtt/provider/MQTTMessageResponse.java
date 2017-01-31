@@ -49,7 +49,7 @@ public class MQTTMessageResponse implements OutputMessage<JSONMessage> {
 	}
 
 	@Override
-	public JSONMessage getContent() {
+	public JSONMessage getPayload() {
 		return getJSONResponse();
 	}
 

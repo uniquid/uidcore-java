@@ -4,12 +4,13 @@ import java.io.IOException;
 
 import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.OutputMessage;
+import com.uniquid.uniquid_core.provider.exception.FunctionException;
 
 /**
  * Defines methods that all functions must implement.
  *
  */
-public interface ProviderFunction {
+public interface Function {
 
 	/**
 	 * Called by the function container to indicate to a function that the function is being placed into service.
@@ -38,6 +39,6 @@ public interface ProviderFunction {
 	 * @param response
 	 * @throws Exception
 	 */
-	public void service(InputMessage inputMessage, OutputMessage outputMessage) throws FunctionException, IOException;
+	public void service(InputMessage<?> inputMessage, OutputMessage<?> outputMessage) throws FunctionException, IOException;
 	
 }

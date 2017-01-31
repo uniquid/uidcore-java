@@ -1,6 +1,9 @@
-package com.uniquid.uniquid_core.provider;
+package com.uniquid.uniquid_core.provider.impl;
 
 import java.util.Enumeration;
+
+import com.uniquid.uniquid_core.provider.FunctionConfig;
+import com.uniquid.uniquid_core.provider.FunctionContext;
 
 public class FunctionConfigImpl implements FunctionConfig {
 	

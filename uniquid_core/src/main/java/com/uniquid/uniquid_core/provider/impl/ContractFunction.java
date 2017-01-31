@@ -9,8 +9,7 @@ import org.json.JSONObject;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.OutputMessage;
-import com.uniquid.uniquid_core.provider.FunctionException;
-import com.uniquid.uniquid_core.provider.GenericFunction;
+import com.uniquid.uniquid_core.provider.exception.FunctionException;
 
 public class ContractFunction extends GenericFunction {
 

@@ -17,7 +17,7 @@ public class MQTTMessageRequest implements InputMessage<JSONMessage> {
 		
 		if (InputMessage.SENDER.equals(name)) {
 			return jsonMessage.getSender();
-		} else if (InputMessage.METHOD.equals(name)) {
+		} else if (InputMessage.RPC_METHOD.equals(name)) {
 			return String.valueOf(jsonMessage.getBody().get("method"));
 		} else if (InputMessage.PARAMS.equals(name)) {
 			return (String) jsonMessage.getBody().get("params");
@@ -63,7 +63,7 @@ public class MQTTMessageRequest implements InputMessage<JSONMessage> {
 	}
 	
 	@Override
-	public JSONMessage getContent() {
+	public JSONMessage getPayload() {
 		return jsonMessage;
 	}
 

@@ -5,8 +5,7 @@ import java.io.PrintWriter;
 
 import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.OutputMessage;
-import com.uniquid.uniquid_core.provider.FunctionException;
-import com.uniquid.uniquid_core.provider.GenericFunction;
+import com.uniquid.uniquid_core.provider.exception.FunctionException;
 
 public class EchoFunction extends GenericFunction {
 

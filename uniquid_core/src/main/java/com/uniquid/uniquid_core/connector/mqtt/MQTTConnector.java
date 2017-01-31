@@ -313,7 +313,7 @@ public class MQTTConnector implements Connector<JSONMessage> {
 			/*byte[] qoses = */connection.subscribe(topics);
 
 			// consume
-			connection.publish(destinationTopic, outputMessage.getContent().toJSON().getBytes(), QoS.AT_LEAST_ONCE, false);
+			connection.publish(destinationTopic, outputMessage.getPayload().toJSON().getBytes(), QoS.AT_LEAST_ONCE, false);
 
 		} finally {
 
