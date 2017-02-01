@@ -296,8 +296,8 @@ public final class Core {
 
 			String method = inputMessage.getParameter(InputMessage.RPC_METHOD);
 
-			if (bitset.get(Integer.valueOf(method)) && 
-					WalletUtils.isUnspent(providerChannel.getRevokeTxId(), providerChannel.getRevokeAddress())) {
+			if (bitset.get(Integer.valueOf(method)) /*&& 
+					WalletUtils.isUnspent(providerChannel.getRevokeTxId(), providerChannel.getRevokeAddress())*/) {
 
 				return;
 

@@ -80,12 +80,10 @@ public class UniquidNode implements NodeStateContext {
 	private File providerFile;
 	private File userFile;
 	private File chainFile;
-	private File providerRevokeFile;
-	private File userRevokeFile;
+	private File revokeFile;
 	private Wallet providerWallet;
 	private Wallet userWallet;
-	private Wallet providerRevokeWallet;
-	private Wallet userRevokeWallet;
+	private Wallet revokeWallet;
 	
 	private Address imprintingAddress;
 	private String publicKey;
@@ -99,12 +97,12 @@ public class UniquidNode implements NodeStateContext {
 		this.providerFile = builder._providerFile;
 		this.userFile = builder._userFile;
 		this.chainFile = builder._chainFile;
+		this.revokeFile = builder._revokeFile;
 		this.providerWallet = builder._providerWallet;
 		this.userWallet = builder._userWallet;
+		this.revokeWallet = builder._revokeWallet;
 		this.registerFactory = builder._registerFactory;
 		this.machineName = builder._machineName;
-		this.providerRevokeFile = builder._providerRevokeFile;
-		this.userRevokeFile = builder._userRevokeFile;
 		
 	}
 	
@@ -119,8 +117,8 @@ public class UniquidNode implements NodeStateContext {
 	}
 	
 	@Override
-	public Wallet getProviderRevokeWallet() {
-		return providerRevokeWallet;
+	public Wallet getRevokeWallet() {
+		return revokeWallet;
 	}
 	
 	@Override
@@ -128,11 +126,6 @@ public class UniquidNode implements NodeStateContext {
 		return userWallet;
 	}
 	
-	@Override
-	public Wallet getUserRevokeWallet() {
-		return userRevokeWallet;
-	}
-
 	@Override
 	public NetworkParameters getNetworkParameters() {
 		return networkParameters;
@@ -166,8 +159,7 @@ public class UniquidNode implements NodeStateContext {
 			// Wallets already present!
 			providerWallet = Wallet.loadFromFile(providerFile);
 			userWallet = Wallet.loadFromFile(userFile);
-			providerRevokeWallet = Wallet.loadFromFile(providerRevokeFile);
-			userRevokeWallet = Wallet.loadFromFile(userRevokeFile);
+			revokeWallet = Wallet.loadFromFile(revokeFile);
 			
 			bytes = providerWallet.getKeyChainSeed().getSeedBytes();
 			creationTime = providerWallet.getKeyChainSeed().getCreationTimeSeconds();
@@ -178,8 +170,8 @@ public class UniquidNode implements NodeStateContext {
 			bytes = new byte[32];
 			random.nextBytes(bytes);
 			creationTime = System.currentTimeMillis() / 1000;
-//			bytes = Hex.decode("fb12d93c75cdab9d867faf8750e644dc9cfdd97f319cf69514da2c68aaf909f1");
-//			creationTime = 1485874337;
+//			bytes = Hex.decode("6b9a445aec588ae54798379e68987c97edc1502d6f6c328bd8021346e4c4727c");
+//			creationTime = 1485939601;
 			
 			// Create a new provider wallet
 			providerWallet = Wallet.fromSeed(networkParameters,
@@ -190,15 +182,11 @@ public class UniquidNode implements NodeStateContext {
 					NodeUtils.createDeterministicSeed(bytes, creationTime), UniquidNode.BIP44_ACCOUNT_USER);
 			
 			// Create provider revoke watching wallet
-			providerRevokeWallet = new Wallet(networkParameters);
-			
-			// Create user revoke watching wallet
-			userRevokeWallet = new Wallet(networkParameters);
+			revokeWallet = new Wallet(networkParameters);
 			
 			providerWallet.saveToFile(providerFile);
 			userWallet.saveToFile(userFile);
-			providerRevokeWallet.saveToFile(providerRevokeFile);
-			userWallet.saveToFile(userRevokeFile);
+			revokeWallet.saveToFile(revokeFile);
 			
 			//providerRevokeWallet.addWatchedAddress(Address.fromBase58(networkParameters, "mxUQnt3f3H28qvovdMwyKW1Gz7WjzaJLCc"));
 			
@@ -232,13 +220,21 @@ public class UniquidNode implements NodeStateContext {
 		userWallet.addCoinsReceivedEventListener(nodeEventListner);
 		userWallet.addCoinsSentEventListener(nodeEventListner);
 		//providerRevokeWallet.addChangeEventListener(nodeEventListner);
-		providerRevokeWallet.addCoinsSentEventListener(nodeEventListner);
-		userRevokeWallet.addCoinsSentEventListener(nodeEventListner);
-		
+		revokeWallet.addCoinsSentEventListener(nodeEventListner);
 		
 		// First BC sync
-		NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet, providerRevokeWallet, userRevokeWallet }), chainFile);
+		NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
 		
+		// Update revoke
+		NodeUtils.syncBlockChain(networkParameters, revokeWallet, chainFile);
+		
+		try {
+			providerWallet.saveToFile(providerFile);
+			userWallet.saveToFile(userFile);
+			revokeWallet.saveToFile(revokeFile);
+		} catch (Exception ex) {
+			LOGGER.error("Exception while saving wallets");
+		}
 		//DONE INITIALIZATION
 	}
 	
@@ -302,20 +298,22 @@ public class UniquidNode implements NodeStateContext {
 			public void run() {
 
 				// Synchronize wallets against blockchain
-				NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet, providerRevokeWallet, userRevokeWallet }), chainFile);
+				NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
+				
+				// Update revoke
+				NodeUtils.syncBlockChain(networkParameters, revokeWallet, chainFile);
 				
 				try {
 					providerWallet.saveToFile(providerFile);
 					userWallet.saveToFile(userFile);
-					providerRevokeWallet.saveToFile(providerRevokeFile);
-					userRevokeWallet.saveToFile(userRevokeFile);
+					revokeWallet.saveToFile(revokeFile);
 				} catch (Exception ex) {
 					LOGGER.error("Exception while saving wallets");
 				}
 			}
 		};
 
-		final ScheduledFuture<?> updaterThread = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 5,
+		final ScheduledFuture<?> updaterThread = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 1,
 				TimeUnit.MINUTES);
 		
 	}
@@ -383,11 +381,11 @@ public class UniquidNode implements NodeStateContext {
 		private File _providerFile;
 		private File _userFile;
 		private File _chainFile;
-		private File _providerRevokeFile;
-		private File _userRevokeFile;
+		private File _revokeFile;
 
 		private Wallet _providerWallet;
 		private Wallet _userWallet;
+		private Wallet _revokeWallet;
 
 		private RegisterFactory _registerFactory;
 		
@@ -413,13 +411,8 @@ public class UniquidNode implements NodeStateContext {
 			return this;
 		}
 		
-		public Builder set_providerRevokeFile(File _providerRevokeFile) {
-			this._providerRevokeFile = _providerRevokeFile;
-			return this;
-		}
-		
-		public Builder set_userRevokeFile(File _userRevokeFile) {
-			this._userRevokeFile = _userRevokeFile;
+		public Builder set_revokeFile(File _revokeFile) {
+			this._revokeFile = _revokeFile;
 			return this;
 		}
 		
@@ -430,6 +423,11 @@ public class UniquidNode implements NodeStateContext {
 		
 		public Builder set_userWallet(Wallet _userWallet) {
 			this._userWallet = _userWallet;
+			return this;
+		}
+		
+		public Builder set_revokeWallet(Wallet _revokeWallet) {
+			this._revokeWallet = _revokeWallet;
 			return this;
 		}
 

@@ -53,13 +53,9 @@ public class ReadyState implements NodeState {
 				LOGGER.error("Exception while creating provider contract", ex);
 	
 			}
-		} else if (wallet.equals(nodeStateContext.getProviderRevokeWallet())) {
+		} else if (wallet.equals(nodeStateContext.getRevokeWallet())) {
 			
-			LOGGER.info("A Provider contract was revoked!!!");
-			
-		} else if (wallet.equals(nodeStateContext.getUserRevokeWallet())) {
-			
-			LOGGER.info("A User contract was revoked!!!");
+			LOGGER.info("A contract was revoked!!!");
 			
 		} else {
 			

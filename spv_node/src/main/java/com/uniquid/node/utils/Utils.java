@@ -372,8 +372,10 @@ public class Utils {
 		
 		List<TransactionOutput> to = tx.getOutputs();
 		
-		if (to.size() != 4)
+		if (to.size() != 4) {
+			LOGGER.error("Contract not valid! size is not 4");
 			return;
+		}
 
 		Script script = tx.getInput(0).getScriptSig();
 		Address p_address = new Address(networkParameters, org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
@@ -384,20 +386,24 @@ public class Utils {
 
 		// We are user!!!!
 		if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
+			LOGGER.error("Contract not valid! User address is null");
 			return;
 		}
 
 		if (!WalletUtils.isValidOpReturn(tx)) {
+			LOGGER.error("Contract not valid! OPRETURN not valid");
 			return;
 		}
 
 		Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
-		if(revoke == null || !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())){
+		if(revoke == null /*|| !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())*/){
+			LOGGER.error("Contract not valid! Revoke address is null");
 			return;
 		}
 		
 		String providerName = WalletUtils.retrieveNameFromProvider(p_address.toBase58());
 		if (providerName == null) {
+			LOGGER.error("Contract not valid! Provider name is null");
 			return;
 		}
 
@@ -430,7 +436,7 @@ public class Utils {
 		}
 		
 		// We need to watch the revoked address
-		nodeStateContext.getProviderRevokeWallet().addWatchedAddress(revoke);
+		nodeStateContext.getRevokeWallet().addWatchedAddress(revoke);
 
 	}
 	
@@ -501,8 +507,10 @@ public class Utils {
 		
 		List<TransactionOutput> to = tx.getOutputs();
 		
-		if (to.size() != 4)
+		if (to.size() != 4) {
+			LOGGER.error("Contract not valid! size is not 4");
 			return;
+		}
 
 		Script script = tx.getInput(0).getScriptSig();
 		Address p_address = new Address(networkParameters, org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
@@ -513,15 +521,18 @@ public class Utils {
 
 		// We are provider!!!
 		if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
+			LOGGER.error("Contract not valid! User address is null");
 			return;
 		}
 
 		if (!WalletUtils.isValidOpReturn(tx)) {
+			LOGGER.error("Contract not valid! OPRETURN not valid");
 			return;
 		}
 
 		Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
-		if(revoke == null || !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())){
+		if(revoke == null /*|| !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())*/){
+			LOGGER.error("Contract not valid! Revoke address is null");
 			return;
 		}
 
@@ -555,7 +566,7 @@ public class Utils {
 		}
 		
 		// We need to watch the revoked address
-		nodeStateContext.getProviderRevokeWallet().addWatchedAddress(revoke);
+		nodeStateContext.getRevokeWallet().addWatchedAddress(revoke);
 
 	}
 	
@@ -641,7 +652,7 @@ public class Utils {
 				
 				break;
 
-			} 
+			}
 			
 		}
 	}
