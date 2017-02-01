@@ -178,8 +178,8 @@ public class UniquidNode implements NodeStateContext {
 			bytes = new byte[32];
 			random.nextBytes(bytes);
 			creationTime = System.currentTimeMillis() / 1000;
-//			bytes = Hex.decode("717aff69d316139ae7ea28f067a470998eb83f2f5378472998940d3e29cb30cf");
-//			creationTime = 1485863345;
+//			bytes = Hex.decode("fb12d93c75cdab9d867faf8750e644dc9cfdd97f319cf69514da2c68aaf909f1");
+//			creationTime = 1485874337;
 			
 			// Create a new provider wallet
 			providerWallet = Wallet.fromSeed(networkParameters,
@@ -199,6 +199,8 @@ public class UniquidNode implements NodeStateContext {
 			userWallet.saveToFile(userFile);
 			providerRevokeWallet.saveToFile(providerRevokeFile);
 			userWallet.saveToFile(userRevokeFile);
+			
+			//providerRevokeWallet.addWatchedAddress(Address.fromBase58(networkParameters, "mxUQnt3f3H28qvovdMwyKW1Gz7WjzaJLCc"));
 			
 		}
 		
@@ -229,6 +231,7 @@ public class UniquidNode implements NodeStateContext {
 		providerWallet.addCoinsSentEventListener(nodeEventListner);
 		userWallet.addCoinsReceivedEventListener(nodeEventListner);
 		userWallet.addCoinsSentEventListener(nodeEventListner);
+		//providerRevokeWallet.addChangeEventListener(nodeEventListner);
 		providerRevokeWallet.addCoinsSentEventListener(nodeEventListner);
 		userRevokeWallet.addCoinsSentEventListener(nodeEventListner);
 		

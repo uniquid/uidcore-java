@@ -3,6 +3,7 @@ package com.uniquid.node.utils;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,11 +14,16 @@ import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.TransactionConfidence;
+import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.core.TransactionConfidence.Listener;
+import org.bitcoinj.core.TransactionConfidence.Listener.ChangeReason;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.crypto.MnemonicCode;
+import org.bitcoinj.script.Script;
 import org.bitcoinj.script.ScriptBuilder;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
@@ -32,10 +38,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.uniquid.node.state.NodeStateContext;
+import com.uniquid.node.state.impl.ReadyState;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.user.UserChannel;
+import com.uniquid.register.user.UserRegister;
 
 public class Utils {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class.getName());
+	
+	private static final String CONTRACT_FUNCTION = "000000400000000000000000000000000000";
 	
 	/**
 	 * Generate a new Deterministic Hierarchy starting from seed
@@ -285,5 +299,367 @@ public class Utils {
         ekprv_0.toAddress(params); //mgkyT4e2BU5EVgndzVYZ51rTrzMVFM5ZPx
 	}
 	
+	public static void makeUserContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+		
+		LOGGER.info("Creating contract...");
+		
+		// Transaction already confirmed
+		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
+			
+			LOGGER.info("tx.getConfidence is BUILDING...");
+			
+			doUserContract(tx, networkParameters, nodeStateContext);
+			
+			LOGGER.info("Done creating contract");
+			
+		} else {
+			
+			LOGGER.info("tx.getConfidence is not BUILDING: " + tx.getConfidence() + ", registering a listener");
+			
+			final Listener listener = new Listener() {
+
+				@Override
+				public void onConfidenceChanged(TransactionConfidence confidence, ChangeReason reason) {
+					
+					LOGGER.info("tx.getConfidence is changed: " + confidence);
+
+					try {
+						
+						if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING) && reason.equals(ChangeReason.TYPE)) {
+					
+							LOGGER.info("tx.getConfidence is BUILDING...");
+							
+							doUserContract(tx, networkParameters, nodeStateContext);
+							
+							tx.getConfidence().removeEventListener(this);
+							
+							LOGGER.info("Contract Done!");
+							
+						} else if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.DEAD) && reason.equals(ChangeReason.TYPE)) {
+							
+							LOGGER.error("Something bad happened! TRansaction is DEAD!");
+							
+							tx.getConfidence().removeEventListener(this);
+							
+						} else {
+							
+							LOGGER.warn("Unexpected tx.getConfidence..");
+						}
+					
+					} catch (Exception ex) {
+						
+						LOGGER.error("Exception while populating Register", ex);
+						
+					}
+					
+				}
+				
+			};
+			
+			// Transaction not yet confirmed! Register callback!
+			tx.getConfidence().addEventListener(listener);
+		}
+		
+	}
+	
+	/**
+	 * Create contract
+	 * @param tx
+	 * @param networkParameters
+	 * @param nodeStateContext
+	 */
+	private static void doUserContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+		
+		List<TransactionOutput> to = tx.getOutputs();
+		
+		if (to.size() != 4)
+			return;
+
+		Script script = tx.getInput(0).getScriptSig();
+		Address p_address = new Address(networkParameters, org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
+
+		List<TransactionOutput> ts = new ArrayList<>(to);
+
+		Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
+
+		// We are user!!!!
+		if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
+			return;
+		}
+
+		if (!WalletUtils.isValidOpReturn(tx)) {
+			return;
+		}
+
+		Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
+		if(revoke == null || !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())){
+			return;
+		}
+		
+		String providerName = WalletUtils.retrieveNameFromProvider(p_address.toBase58());
+		if (providerName == null) {
+			return;
+		}
+
+		UserChannel userChannel = new UserChannel();
+		userChannel.setProviderAddress(p_address.toBase58());
+		userChannel.setUserAddress(u_address.toBase58());
+		userChannel.setProviderName(providerName);
+		
+		String opreturn = WalletUtils.getOpReturn(tx);
+		
+		byte[] op_to_byte = Hex.decode(opreturn);
+		
+		byte[] bitmask = Arrays.copyOfRange(op_to_byte, 1, 19);
+		
+		// encode to be saved on db
+		String bitmaskToString = new String(Hex.encode(bitmask));
+		
+		userChannel.setBitmask(bitmaskToString);
+		
+		try {
+
+			UserRegister userRegister = nodeStateContext.getRegisterFactory().createUserRegister();
+			
+			userRegister.insertChannel(userChannel);
+			
+		} catch (Exception e) {
+
+			LOGGER.error("Exception while inserting userChannel", e);
+
+		}
+		
+		// We need to watch the revoked address
+		nodeStateContext.getProviderRevokeWallet().addWatchedAddress(revoke);
+
+	}
+	
+	public static void makeProviderContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+		
+		LOGGER.info("Creating contract...");
+		
+		// Transaction already confirmed
+		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
+			
+			LOGGER.info("tx.getConfidence is BUILDING...");
+			
+			doProviderContract(tx, networkParameters, nodeStateContext);
+			
+			LOGGER.info("Done creating contract");
+			
+		} else {
+			
+			LOGGER.info("tx.getConfidence is not BUILDING: " + tx.getConfidence() + ", registering a listener");
+			
+			final Listener listener = new Listener() {
+
+				@Override
+				public void onConfidenceChanged(TransactionConfidence confidence, ChangeReason reason) {
+					
+					LOGGER.info("tx.getConfidence is changed: " + confidence);
+
+					try {
+						
+						if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING) && reason.equals(ChangeReason.TYPE)) {
+					
+							LOGGER.info("tx.getConfidence is BUILDING...");
+							
+							doProviderContract(tx, networkParameters, nodeStateContext);
+							
+							tx.getConfidence().removeEventListener(this);
+							
+							LOGGER.info("Contract Done!");
+							
+						} else if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.DEAD) && reason.equals(ChangeReason.TYPE)) {
+							
+							LOGGER.error("Something bad happened! TRansaction is DEAD!");
+							
+							tx.getConfidence().removeEventListener(this);
+							
+						} else {
+							
+							LOGGER.warn("Unexpected tx.getConfidence..");
+						}
+					
+					} catch (Exception ex) {
+						
+						LOGGER.error("Exception while populating Register", ex);
+						
+					}
+					
+				}
+				
+			};
+			
+			// Transaction not yet confirmed! Register callback!
+			tx.getConfidence().addEventListener(listener);
+		}
+		
+	}
+	
+	private static void doProviderContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+		
+		List<TransactionOutput> to = tx.getOutputs();
+		
+		if (to.size() != 4)
+			return;
+
+		Script script = tx.getInput(0).getScriptSig();
+		Address p_address = new Address(networkParameters, org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
+
+		List<TransactionOutput> ts = new ArrayList<>(to);
+
+		Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
+
+		// We are provider!!!
+		if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
+			return;
+		}
+
+		if (!WalletUtils.isValidOpReturn(tx)) {
+			return;
+		}
+
+		Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
+		if(revoke == null || !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())){
+			return;
+		}
+
+		ProviderChannel providerChannel = new ProviderChannel();
+		providerChannel.setProviderAddress(p_address.toBase58());
+		providerChannel.setUserAddress(u_address.toBase58());
+		providerChannel.setRevokeAddress(revoke.toBase58());
+		providerChannel.setRevokeTxId(tx.getHashAsString());
+		
+		String opreturn = WalletUtils.getOpReturn(tx);
+		
+		byte[] op_to_byte = Hex.decode(opreturn);
+		
+		byte[] bitmask = Arrays.copyOfRange(op_to_byte, 1, 19);
+		
+		// encode to be saved on db
+		String bitmaskToString = new String(Hex.encode(bitmask));
+		
+		providerChannel.setBitmask(bitmaskToString);
+		
+		try {
+
+			ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+			
+			providerRegister.insertChannel(providerChannel);
+			
+		} catch (Exception e) {
+
+			LOGGER.error("Exception while inserting providerregister", e);
+
+		}
+		
+		// We need to watch the revoked address
+		nodeStateContext.getProviderRevokeWallet().addWatchedAddress(revoke);
+
+	}
+	
+	public static void makeImprintContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext, Address imprintingAddress) throws Exception {
+		
+		// Transaction already confirmed
+		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
+			
+			doImprint(tx, networkParameters, nodeStateContext, imprintingAddress);
+			
+			// DONE
+			
+		} else {
+			
+			final Listener listener = new Listener() {
+
+				@Override
+				public void onConfidenceChanged(TransactionConfidence confidence, ChangeReason reason) {
+
+					try {
+						
+						if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING) && reason.equals(ChangeReason.TYPE)) {
+					
+							doImprint(tx, networkParameters, nodeStateContext, imprintingAddress);
+							
+							tx.getConfidence().removeEventListener(this);
+							
+							LOGGER.info("Imprinting Done!");
+							
+						} else if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.DEAD) && reason.equals(ChangeReason.TYPE)) {
+							
+							LOGGER.error("Something bad happened! TRansaction is DEAD!");
+							
+							tx.getConfidence().removeEventListener(this);
+							
+						}
+					
+					} catch (Exception ex) {
+						
+						LOGGER.error("Exception while populating Register", ex);
+						
+					}
+					
+				}
+				
+			};
+			
+			// Transaction not yet confirmed! Register callback!
+			tx.getConfidence().addEventListener(listener);
+			
+		}
+		
+	}
+	
+	private static void doImprint(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext, Address imprintingAddress) throws Exception {
+		
+		// Retrieve sender
+		String sender = tx.getInput(0).getFromAddress().toBase58();
+		
+		// Check output
+		List<TransactionOutput> transactionOutputs = tx.getOutputs();
+		for (TransactionOutput to : transactionOutputs) {
+			Address address = to.getAddressFromP2PKHScript(networkParameters);
+			if (address != null && address.equals(imprintingAddress)) {
+				
+				// This is our imprinter!!!
+				
+				ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+				
+				ProviderChannel providerChannel = new ProviderChannel();
+				providerChannel.setUserAddress(sender);
+				providerChannel.setProviderAddress(imprintingAddress.toBase58());
+				providerChannel.setBitmask(CONTRACT_FUNCTION);
+				providerChannel.setRevokeAddress(sender);
+				providerChannel.setRevokeTxId(tx.getHashAsString());
+				
+				providerRegister.insertChannel(providerChannel);
+				
+				// We can move now to ReadyState
+				nodeStateContext.setNodeState(new ReadyState(nodeStateContext, imprintingAddress));
+				
+				LOGGER.info("Machine IMPRINTED!");
+				
+				break;
+
+			} 
+			
+		}
+	}
+	
+	public static boolean isValidImprintingTransaction(Transaction tx, NetworkParameters networkParameters, Address imprintingAddress) {
+		// Retrieve sender
+		String sender = tx.getInput(0).getFromAddress().toBase58();
+		
+		// Check output
+		List<TransactionOutput> transactionOutputs = tx.getOutputs();
+		for (TransactionOutput to : transactionOutputs) {
+			Address address = to.getAddressFromP2PKHScript(networkParameters);
+			if (address != null && address.equals(imprintingAddress)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 	
 }

@@ -3,6 +3,7 @@ package com.uniquid.node.event;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.wallet.Wallet;
+import org.bitcoinj.wallet.listeners.WalletChangeEventListener;
 import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ import com.uniquid.node.state.NodeStateContext;
  * @author giuseppe
  *
  */
-public class NodeEventListener implements WalletCoinsSentEventListener, WalletCoinsReceivedEventListener {
+public class NodeEventListener implements WalletCoinsSentEventListener, WalletCoinsReceivedEventListener, WalletChangeEventListener {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeEventListener.class.getName());
 	
@@ -43,6 +44,11 @@ public class NodeEventListener implements WalletCoinsSentEventListener, WalletCo
 		
 		LOGGER.info("onCoinsSent() " + tx.getHashAsString());
 		nodeStateContext.onCoinsSent(wallet, tx, prevBalance, newBalance);
+	}
+
+	@Override
+	public void onWalletChanged(Wallet wallet) {
+		LOGGER.info("onCoinsSent() " + wallet);
 	}
 
 }
