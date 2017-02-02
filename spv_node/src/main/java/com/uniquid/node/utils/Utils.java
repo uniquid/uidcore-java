@@ -593,6 +593,16 @@ public class Utils {
 
 			ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
 			
+			List<ProviderChannel> channels = providerRegister.getAllChannels();
+			
+			// If this is the first "normal" contract then remove the imprinting contract
+			if (channels.size() == 1 &&
+					channels.get(0).getRevokeAddress().equals("IMPRINTING") ) {
+				
+				providerRegister.deleteChannel(channels.get(0));
+				
+			}
+			
 			providerRegister.insertChannel(providerChannel);
 			
 		} catch (Exception e) {
@@ -676,7 +686,7 @@ public class Utils {
 				providerChannel.setUserAddress(sender);
 				providerChannel.setProviderAddress(imprintingAddress.toBase58());
 				providerChannel.setBitmask(CONTRACT_FUNCTION);
-				providerChannel.setRevokeAddress(sender);
+				providerChannel.setRevokeAddress("IMPRINTING");
 				providerChannel.setRevokeTxId(tx.getHashAsString());
 				
 				providerRegister.insertChannel(providerChannel);
