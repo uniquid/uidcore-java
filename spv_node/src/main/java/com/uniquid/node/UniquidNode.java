@@ -3,6 +3,7 @@ package com.uniquid.node;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
@@ -159,12 +160,12 @@ public class UniquidNode implements NodeStateContext {
 			
 		} else {
 			
-//			SecureRandom random = new SecureRandom();
-//			bytes = new byte[32];
-//			random.nextBytes(bytes);
-//			creationTime = System.currentTimeMillis() / 1000;
-			bytes = Hex.decode("c56007a36152e220c585c4a5692dab0d7bbfad1cb48557b681c7df9618cc5548");
-			creationTime = 1485961534;
+			SecureRandom random = new SecureRandom();
+			bytes = new byte[32];
+			random.nextBytes(bytes);
+			creationTime = System.currentTimeMillis() / 1000;
+//			bytes = Hex.decode("df86b0bf20a3d8d46414845e18bf302d7b4a8f4ed3894e82390f6564a3687dd5");
+//			creationTime = 1485949522;
 			
 			// Create a new provider wallet
 			providerWallet = Wallet.fromSeed(networkParameters,
@@ -213,8 +214,6 @@ public class UniquidNode implements NodeStateContext {
 //		revokeWallet.addChangeEventListener(nodeEventListner);
 //		revokeWallet.addCoinsSentEventListener(nodeEventListner);
 //		revokeWallet.addCoinsReceivedEventListener(nodeEventListner);
-		
-		
 		
 		// First BC sync
 		NodeUtils.syncBlockChain(networkParameters, providerWallet, chainFile);
