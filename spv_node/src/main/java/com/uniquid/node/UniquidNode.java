@@ -3,14 +3,8 @@ package com.uniquid.node;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
@@ -78,6 +72,8 @@ public class UniquidNode implements NodeStateContext {
 	private File providerFile;
 	private File userFile;
 	private File chainFile;
+	private File userChainFile;
+	private File revokeChainFile;
 	private File revokeFile;
 	private Wallet providerWallet;
 	private Wallet userWallet;
@@ -96,11 +92,10 @@ public class UniquidNode implements NodeStateContext {
 		this.userFile = builder._userFile;
 		this.chainFile = builder._chainFile;
 		this.revokeFile = builder._revokeFile;
-		this.providerWallet = builder._providerWallet;
-		this.userWallet = builder._userWallet;
-		this.revokeWallet = builder._revokeWallet;
 		this.registerFactory = builder._registerFactory;
 		this.machineName = builder._machineName;
+		this.revokeChainFile = builder._revokeChainFile;
+		this.userChainFile = builder._userChainFile;
 		
 	}
 	
@@ -186,8 +181,6 @@ public class UniquidNode implements NodeStateContext {
 			userWallet.saveToFile(userFile);
 			revokeWallet.saveToFile(revokeFile);
 			
-			//providerRevokeWallet.addWatchedAddress(Address.fromBase58(networkParameters, "mxUQnt3f3H28qvovdMwyKW1Gz7WjzaJLCc"));
-			
 		}
 		
 		// Calculate public info
@@ -217,15 +210,20 @@ public class UniquidNode implements NodeStateContext {
 		providerWallet.addCoinsSentEventListener(nodeEventListner);
 		userWallet.addCoinsReceivedEventListener(nodeEventListner);
 		userWallet.addCoinsSentEventListener(nodeEventListner);
-		//providerRevokeWallet.addChangeEventListener(nodeEventListner);
-		revokeWallet.addCoinsSentEventListener(nodeEventListner);
-		revokeWallet.addCoinsReceivedEventListener(nodeEventListner);
+//		revokeWallet.addChangeEventListener(nodeEventListner);
+//		revokeWallet.addCoinsSentEventListener(nodeEventListner);
+//		revokeWallet.addCoinsReceivedEventListener(nodeEventListner);
+		
+		
 		
 		// First BC sync
-		NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
+		NodeUtils.syncBlockChain(networkParameters, providerWallet, chainFile);
 		
-		// Update revoke
-		NodeUtils.syncBlockChain(networkParameters, revokeWallet, chainFile);
+		// 
+		NodeUtils.syncBlockChain(networkParameters, userWallet, userChainFile);
+		
+//		// Update revoke
+//		NodeUtils.syncBlockChain(networkParameters, revokeWallet, revokeChainFile);
 		
 		try {
 			providerWallet.saveToFile(providerFile);
@@ -294,11 +292,14 @@ public class UniquidNode implements NodeStateContext {
 	 */
 	public void updateNode() throws Exception {
 		
-		// Synchronize wallets against blockchain
-		NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
+		// First BC sync
+		NodeUtils.syncBlockChain(networkParameters, providerWallet, chainFile);
+		
+		// 
+		NodeUtils.syncBlockChain(networkParameters, userWallet, userChainFile);
 		
 		// Update revoke
-		NodeUtils.syncBlockChain(networkParameters, revokeWallet, chainFile);
+//		NodeUtils.syncBlockChain(networkParameters, revokeWallet, revokeChainFile);
 		
 		try {
 			
@@ -361,12 +362,10 @@ public class UniquidNode implements NodeStateContext {
 
 		private File _providerFile;
 		private File _userFile;
-		private File _chainFile;
 		private File _revokeFile;
-
-		private Wallet _providerWallet;
-		private Wallet _userWallet;
-		private Wallet _revokeWallet;
+		private File _chainFile;
+		private File _userChainFile;
+		private File _revokeChainFile;
 
 		private RegisterFactory _registerFactory;
 		
@@ -392,26 +391,21 @@ public class UniquidNode implements NodeStateContext {
 			return this;
 		}
 		
+		public Builder set_userChainFile(File _userChainFile) {
+			this._userChainFile = _userChainFile;
+			return this;
+		}
+		
+		public Builder set_revokeChainFile(File _revokeChainFile) {
+			this._revokeChainFile = _revokeChainFile;
+			return this;
+		}
+		
 		public Builder set_revokeFile(File _revokeFile) {
 			this._revokeFile = _revokeFile;
 			return this;
 		}
 		
-		public Builder set_providerWallet(Wallet _providerWallet) {
-			this._providerWallet = _providerWallet;
-			return this;
-		}
-		
-		public Builder set_userWallet(Wallet _userWallet) {
-			this._userWallet = _userWallet;
-			return this;
-		}
-		
-		public Builder set_revokeWallet(Wallet _revokeWallet) {
-			this._revokeWallet = _revokeWallet;
-			return this;
-		}
-
 		public Builder set_registerFactory(RegisterFactory _registerFactory) {
 			this._registerFactory = _registerFactory;
 			return this;

@@ -18,6 +18,7 @@ import org.bitcoinj.core.TransactionConfidence;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.core.TransactionConfidence.Listener;
 import org.bitcoinj.core.TransactionConfidence.Listener.ChangeReason;
+import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
@@ -695,10 +696,25 @@ public class Utils {
 	public static void revokeContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
 		String txid = tx.getHashAsString();
 		
-		//ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
-		
-		//providerRegister.getChannelByRevokeTxId(address)
-		
+		ProviderRegister providerRegister;
+		try {
+			providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+			ProviderChannel channel = providerRegister.getChannelByRevokeTxId(txid);
+			
+			
+			if (channel != null) {
+				LOGGER.info("Found a contract to revoke!");
+				// contract revoked
+				providerRegister.deleteChannel(channel);
+				
+				LOGGER.info("Contract revoked! " + channel);
+			}
+			
+		} catch (Exception e) {
+			
+			LOGGER.error("Exception", e);
+			
+		}
 		
 	}
 	
@@ -716,6 +732,30 @@ public class Utils {
 		}
 
 		return false;
+	}
+	
+	public static boolean isValidRevokeContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+		
+		String txid = tx.getHashAsString();
+		
+		ProviderRegister providerRegister;
+		try {
+			providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+			ProviderChannel channel = providerRegister.getChannelByRevokeTxId(txid);
+			
+			
+			if (channel != null) {
+				return true;
+			}
+			
+		} catch (Exception e) {
+			
+			LOGGER.error("Exception", e);
+			
+		}
+		
+		return false;
+		
 	}
 	
 }

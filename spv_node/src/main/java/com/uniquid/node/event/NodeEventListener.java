@@ -1,5 +1,7 @@
 package com.uniquid.node.event;
 
+import java.util.Set;
+
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.wallet.Wallet;
@@ -49,6 +51,13 @@ public class NodeEventListener implements WalletCoinsSentEventListener, WalletCo
 	@Override
 	public void onWalletChanged(Wallet wallet) {
 		LOGGER.info("onCoinsSent() " + wallet);
+		
+		Set<Transaction> transactions = wallet.getTransactions(false);
+		
+		for (Transaction t : transactions) {
+			
+			LOGGER.info("" + t);
+		}
 	}
 
 }

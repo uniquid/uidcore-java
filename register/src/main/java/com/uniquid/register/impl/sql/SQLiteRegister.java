@@ -27,6 +27,10 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id from provider_channel where user_address = ?";
 	
+	private static final String PROVIDER_CHANNEL_BY_REVOKE_ADDRESS = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id from provider_channel where revoke_address = ?";
+	
+	private static final String PROVIDER_CHANNEL_BY_REVOKE_TXID = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id from provider_channel where revoke_tx_id = ?";
+	
 	private static final String PROVIDER_INSERT = "insert into provider_channel (provider_address, user_address, bitmask, revoke_address, revoke_tx_id) values (?, ?, ?, ?, ?);";
 	
 	private static final String PROVIDER_DELETE = "delete from provider_channel where provider_address = ? and user_address = ?;";
@@ -94,6 +98,80 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		return null;
 
+	}
+	
+	@Override
+	public ProviderChannel getChannelByRevokeAddress(String revokeAddress) throws RegisterException {
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(PROVIDER_CHANNEL_BY_REVOKE_ADDRESS);
+
+			try {
+
+				statement.setString(1, revokeAddress);
+
+				ResultSet rs = statement.executeQuery();
+
+				if (rs.next()) {
+
+					ProviderChannel providerChannel = new ProviderChannel();
+
+					providerChannel.setProviderAddress(rs.getString("provider_address"));
+					providerChannel.setUserAddress(rs.getString("user_address"));
+					providerChannel.setBitmask(rs.getString("bitmask"));
+					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
+
+					return providerChannel;
+				}
+
+			} finally {
+
+				statement.close();
+
+			}
+		} catch (SQLException ex) {
+			throw new RegisterException("Exception while getChannelByUserAddress()", ex);
+		}
+		
+		return null;
+		
+	}
+	
+	@Override
+	public ProviderChannel getChannelByRevokeTxId(String revokeTxId) throws RegisterException {
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(PROVIDER_CHANNEL_BY_REVOKE_TXID);
+
+			try {
+
+				statement.setString(1, revokeTxId);
+
+				ResultSet rs = statement.executeQuery();
+
+				if (rs.next()) {
+
+					ProviderChannel providerChannel = new ProviderChannel();
+
+					providerChannel.setProviderAddress(rs.getString("provider_address"));
+					providerChannel.setUserAddress(rs.getString("user_address"));
+					providerChannel.setBitmask(rs.getString("bitmask"));
+					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
+
+					return providerChannel;
+				}
+
+			} finally {
+
+				statement.close();
+
+			}
+		} catch (SQLException ex) {
+			throw new RegisterException("Exception while getChannelByUserAddress()", ex);
+		}
+		
+		return null;
+		
 	}
 
 	public void insertChannel(ProviderChannel providerChannel) throws RegisterException {
