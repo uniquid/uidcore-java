@@ -2,16 +2,23 @@ package com.uniquid.uniquid_core;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.node.UniquidNode;
+import com.uniquid.node.utils.NodeUtils;
 import com.uniquid.node.utils.WalletUtils;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
@@ -50,6 +57,8 @@ public final class Core {
 	private Thread thread;
 
 	private final Map<Integer, Function> functionsMap = new HashMap<>();
+	
+	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
 	public Core(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, UniquidNode node)
 			throws Exception {
@@ -208,8 +217,25 @@ public final class Core {
 		// initialize node
 		uniquidNode.initNode();
 		
-		// Init node
-		uniquidNode.startNode();
+		final Runnable walletSyncher = new Runnable() {
+			
+			public void run() {
+				
+				try {
+					
+					// Update node from blockchain
+					uniquidNode.updateNode();
+
+				} catch (Exception e) {
+					
+					LOGGER.error("Exception", e);
+				}
+
+			}
+		};
+
+		final ScheduledFuture<?> updaterThread = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 1,
+				TimeUnit.MINUTES);
 
 		// start connector
 		try {
@@ -367,7 +393,17 @@ public final class Core {
 
 		thread.interrupt();
 
-		uniquidNode.stopNode();
+		scheduledExecutorService.shutdown();
+		
+ 		try {
+			
+			scheduledExecutorService.awaitTermination(20, TimeUnit.SECONDS);
+
+		} catch (InterruptedException e) {
+
+			LOGGER.error("Exception while awaiting for termination", e);
+
+		}
 
 		try {
 			connectorService.stop();

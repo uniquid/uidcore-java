@@ -46,7 +46,7 @@ public class ReadyState implements NodeState {
 
 			try {
 				
-				com.uniquid.node.utils.Utils.makeProviderContract(tx, networkParameters, nodeStateContext);
+				com.uniquid.node.utils.Utils.makeProviderContract(wallet, tx, networkParameters, nodeStateContext);
 				
 			} catch (Exception ex) {
 	
@@ -56,6 +56,8 @@ public class ReadyState implements NodeState {
 		} else if (wallet.equals(nodeStateContext.getRevokeWallet())) {
 			
 			LOGGER.info("A contract was revoked!!!");
+			
+			com.uniquid.node.utils.Utils.revokeContract(wallet, tx, networkParameters, nodeStateContext);
 			
 		} else {
 			
@@ -91,7 +93,7 @@ public class ReadyState implements NodeState {
 			
 			try {
 				
-				com.uniquid.node.utils.Utils.makeUserContract(tx, networkParameters, nodeStateContext);
+				com.uniquid.node.utils.Utils.makeUserContract(wallet, tx, networkParameters, nodeStateContext);
 					
 			} catch (Exception ex) {
 	
@@ -99,7 +101,11 @@ public class ReadyState implements NodeState {
 	
 			}
 			
-		} else {
+		} /*else if (wallet.equals(nodeStateContext.getRevokeWallet())) {
+			
+			com.uniquid.node.utils.Utils.revokeContract(wallet, tx, networkParameters, nodeStateContext);
+			
+		}*/ else {
 			
 			LOGGER.warn("We received coins on a wallet that we don't expect!");
 			

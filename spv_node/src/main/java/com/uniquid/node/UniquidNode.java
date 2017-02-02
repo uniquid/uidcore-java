@@ -48,8 +48,6 @@ public class UniquidNode implements NodeStateContext {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNode.class.getName());
 	
-	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-    
     public static ImmutableList<ChildNumber> BIP44_ACCOUNT_PROVIDER = ImmutableList.of(
     		new ChildNumber(44, true),
     		new ChildNumber(0, true),
@@ -166,12 +164,12 @@ public class UniquidNode implements NodeStateContext {
 			
 		} else {
 			
-			SecureRandom random = new SecureRandom();
-			bytes = new byte[32];
-			random.nextBytes(bytes);
-			creationTime = System.currentTimeMillis() / 1000;
-//			bytes = Hex.decode("6b9a445aec588ae54798379e68987c97edc1502d6f6c328bd8021346e4c4727c");
-//			creationTime = 1485939601;
+//			SecureRandom random = new SecureRandom();
+//			bytes = new byte[32];
+//			random.nextBytes(bytes);
+//			creationTime = System.currentTimeMillis() / 1000;
+			bytes = Hex.decode("c56007a36152e220c585c4a5692dab0d7bbfad1cb48557b681c7df9618cc5548");
+			creationTime = 1485961534;
 			
 			// Create a new provider wallet
 			providerWallet = Wallet.fromSeed(networkParameters,
@@ -221,6 +219,7 @@ public class UniquidNode implements NodeStateContext {
 		userWallet.addCoinsSentEventListener(nodeEventListner);
 		//providerRevokeWallet.addChangeEventListener(nodeEventListner);
 		revokeWallet.addCoinsSentEventListener(nodeEventListner);
+		revokeWallet.addCoinsReceivedEventListener(nodeEventListner);
 		
 		// First BC sync
 		NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
@@ -289,50 +288,32 @@ public class UniquidNode implements NodeStateContext {
 		return nodeState.toString();
 	}
 	
-	public void startNode() throws Exception {
+	/**
+	 * This method will blocks
+	 * @throws Exception
+	 */
+	public void updateNode() throws Exception {
 		
-		// This will start BlockChain synchronization
+		// Synchronize wallets against blockchain
+		NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
 		
-		final Runnable walletSyncher = new Runnable() {
-			
-			public void run() {
-
-				// Synchronize wallets against blockchain
-				NodeUtils.syncBlockChain(networkParameters, Arrays.asList(new Wallet[] { providerWallet, userWallet }), chainFile);
-				
-				// Update revoke
-				NodeUtils.syncBlockChain(networkParameters, revokeWallet, chainFile);
-				
-				try {
-					providerWallet.saveToFile(providerFile);
-					userWallet.saveToFile(userFile);
-					revokeWallet.saveToFile(revokeFile);
-				} catch (Exception ex) {
-					LOGGER.error("Exception while saving wallets");
-				}
-			}
-		};
-
-		final ScheduledFuture<?> updaterThread = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 1,
-				TimeUnit.MINUTES);
+		// Update revoke
+		NodeUtils.syncBlockChain(networkParameters, revokeWallet, chainFile);
 		
-	}
-	
-	public void stopNode() throws Exception{
-		
-		scheduledExecutorService.shutdown();
 		try {
+			
+			providerWallet.saveToFile(providerFile);
+			userWallet.saveToFile(userFile);
+			revokeWallet.saveToFile(revokeFile);
 
-			scheduledExecutorService.awaitTermination(20, TimeUnit.SECONDS);
+		} catch (Exception ex) {
 
-		} catch (InterruptedException e) {
-
-			LOGGER.error("Exception while awaiting for termination", e);
-
+			LOGGER.error("Exception while saving wallets");
+		
 		}
 		
 	}
-
+	
 	public String signTransaction(String s_tx, String path)
 			throws BlockStoreException, InterruptedException, ExecutionException, InsufficientMoneyException, Exception {
 	

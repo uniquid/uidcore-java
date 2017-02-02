@@ -8,6 +8,8 @@ public class UserChannel implements Serializable {
     private String providerAddress;
     private String userAddress;
     private String bitmask;
+    private String revokeAddress;
+    private String revokeTxId;
 
     public UserChannel(){
 
@@ -52,8 +54,25 @@ public class UserChannel implements Serializable {
         this.bitmask = bitmask;
     }
     
+    public String getRevokeAddress() {
+		return revokeAddress;
+	}
+
+	public void setRevokeAddress(String revokeAddress) {
+		this.revokeAddress = revokeAddress;
+	}
+	
+	public void setRevokeTxId(String revokeTxId) {
+		this.revokeTxId = revokeTxId;
+	}
+	
+	public String getRevokeTxId() {
+		return revokeTxId;
+	}
+    
     public String toString() {
-		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask;
+		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
+				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId;
 	}
 
 }

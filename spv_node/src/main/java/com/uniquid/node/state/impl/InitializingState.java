@@ -82,7 +82,7 @@ public class InitializingState implements NodeState {
 			
 			try {
 				
-				com.uniquid.node.utils.Utils.makeUserContract(tx, networkParameters, nodeStateContext);
+				com.uniquid.node.utils.Utils.makeUserContract(wallet, tx, networkParameters, nodeStateContext);
 					
 			} catch (Exception ex) {
 	

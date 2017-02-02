@@ -299,7 +299,7 @@ public class Utils {
         ekprv_0.toAddress(params); //mgkyT4e2BU5EVgndzVYZ51rTrzMVFM5ZPx
 	}
 	
-	public static void makeUserContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+	public static void makeUserContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
 		
 		LOGGER.info("Creating contract...");
 		
@@ -308,7 +308,7 @@ public class Utils {
 			
 			LOGGER.info("tx.getConfidence is BUILDING...");
 			
-			doUserContract(tx, networkParameters, nodeStateContext);
+			doUserContract(wallet, tx, networkParameters, nodeStateContext);
 			
 			LOGGER.info("Done creating contract");
 			
@@ -329,7 +329,7 @@ public class Utils {
 					
 							LOGGER.info("tx.getConfidence is BUILDING...");
 							
-							doUserContract(tx, networkParameters, nodeStateContext);
+							doUserContract(wallet, tx, networkParameters, nodeStateContext);
 							
 							tx.getConfidence().removeEventListener(this);
 							
@@ -368,7 +368,15 @@ public class Utils {
 	 * @param networkParameters
 	 * @param nodeStateContext
 	 */
-	private static void doUserContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+	private static void doUserContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+		
+//		List<Address> addresses = wallet.getIssuedReceiveAddresses();
+					
+//		List<DeterministicKey> keys = wallet.getActiveKeyChain().getLeafKeys();
+//		List<Address> addresses2 = new ArrayList<>();
+//		for (ECKey key : keys) {
+//			addresses2.add(key.toAddress(networkParameters));
+//		}
 		
 		List<TransactionOutput> to = tx.getOutputs();
 		
@@ -383,10 +391,17 @@ public class Utils {
 		List<TransactionOutput> ts = new ArrayList<>(to);
 
 		Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
-
-		// We are user!!!!
-		if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
-			LOGGER.error("Contract not valid! User address is null");
+		
+//		if (u_address == null || !addresses2.contains(u_address)) {
+//			// is u_address one of our user addresses?
+//			LOGGER.error("Contract not valid! User address is null or we are not the user");
+//			return;
+//		}
+		
+//		wallet.isPubKeyHashMine(ts.get(0).getScriptPubKey().getPubKeyHash());
+		if (u_address == null || !wallet.isPubKeyHashMine(u_address.getHash160())) {
+			// is u_address one of our user addresses?
+			LOGGER.error("Contract not valid! User address is null or we are not the user");
 			return;
 		}
 
@@ -411,6 +426,8 @@ public class Utils {
 		userChannel.setProviderAddress(p_address.toBase58());
 		userChannel.setUserAddress(u_address.toBase58());
 		userChannel.setProviderName(providerName);
+		userChannel.setRevokeAddress(revoke.toBase58());
+		userChannel.setRevokeTxId(tx.getHashAsString());
 		
 		String opreturn = WalletUtils.getOpReturn(tx);
 		
@@ -440,7 +457,7 @@ public class Utils {
 
 	}
 	
-	public static void makeProviderContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+	public static void makeProviderContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
 		
 		LOGGER.info("Creating contract...");
 		
@@ -449,7 +466,7 @@ public class Utils {
 			
 			LOGGER.info("tx.getConfidence is BUILDING...");
 			
-			doProviderContract(tx, networkParameters, nodeStateContext);
+			doProviderContract(wallet, tx, networkParameters, nodeStateContext);
 			
 			LOGGER.info("Done creating contract");
 			
@@ -470,7 +487,7 @@ public class Utils {
 					
 							LOGGER.info("tx.getConfidence is BUILDING...");
 							
-							doProviderContract(tx, networkParameters, nodeStateContext);
+							doProviderContract(wallet, tx, networkParameters, nodeStateContext);
 							
 							tx.getConfidence().removeEventListener(this);
 							
@@ -503,7 +520,15 @@ public class Utils {
 		
 	}
 	
-	private static void doProviderContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+	private static void doProviderContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+		
+//		List<Address> addresses = wallet.getIssuedReceiveAddresses();
+		
+//		List<DeterministicKey> keys = wallet.getActiveKeyChain().getLeafKeys();
+//		List<Address> addresses2 = new ArrayList<>();
+//		for (ECKey key : keys) {
+//			addresses2.add(key.toAddress(networkParameters));
+//		}
 		
 		List<TransactionOutput> to = tx.getOutputs();
 		
@@ -515,12 +540,22 @@ public class Utils {
 		Script script = tx.getInput(0).getScriptSig();
 		Address p_address = new Address(networkParameters, org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
 
+//		if (/*!addresses.contains(p_address) ||*/ !addresses2.contains(p_address)) {
+//			LOGGER.error("Contract not valid! We are not the provider");
+//			return;
+//		}
+		
+		if (!wallet.isPubKeyHashMine(p_address.getHash160())) {
+			LOGGER.error("Contract not valid! We are not the provider");
+			return;
+		}
+		
 		List<TransactionOutput> ts = new ArrayList<>(to);
 
 		Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
 
 		// We are provider!!!
-		if (u_address == null /*|| !addresses.contains(u_address.toBase58())*/) {
+		if (u_address == null) {
 			LOGGER.error("Contract not valid! User address is null");
 			return;
 		}
@@ -655,6 +690,16 @@ public class Utils {
 			}
 			
 		}
+	}
+	
+	public static void revokeContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+		String txid = tx.getHashAsString();
+		
+		//ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+		
+		//providerRegister.getChannelByRevokeTxId(address)
+		
+		
 	}
 	
 	public static boolean isValidImprintingTransaction(Transaction tx, NetworkParameters networkParameters, Address imprintingAddress) {
