@@ -164,8 +164,8 @@ public class UniquidNode implements NodeStateContext {
 			bytes = new byte[32];
 			random.nextBytes(bytes);
 			creationTime = System.currentTimeMillis() / 1000;
-//			bytes = Hex.decode("df86b0bf20a3d8d46414845e18bf302d7b4a8f4ed3894e82390f6564a3687dd5");
-//			creationTime = 1485949522;
+//			bytes = Hex.decode("c56007a36152e220c585c4a5692dab0d7bbfad1cb48557b681c7df9618cc5548");
+//			creationTime = 1485961534;
 			
 			// Create a new provider wallet
 			providerWallet = Wallet.fromSeed(networkParameters,
