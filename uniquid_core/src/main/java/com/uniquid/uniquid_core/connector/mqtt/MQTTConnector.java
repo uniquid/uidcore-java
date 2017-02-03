@@ -208,7 +208,7 @@ public class MQTTConnector implements Connector<JSONMessage> {
 		
 	}
 	
-	private JSONMessage receiveMessage(String broker, String topic, long timeout) throws Exception {
+	private JSONMessage receiveMessage(String broker, String topic, long timeout) throws Exception, TimeoutException {
 		
 		BlockingConnection connection = null;
 
@@ -366,6 +366,10 @@ public class MQTTConnector implements Connector<JSONMessage> {
 			
 			return new com.uniquid.uniquid_core.connector.mqtt.user.MQTTMessageResponse(jsonMessage);
 			
+		} catch (TimeoutException ex) {
+			
+			throw new ConnectorException("Timeout while sendOutputMessage", ex);
+
 		} catch (Exception ex) {
 			
 			throw new ConnectorException("Exception while sendOutputMessage", ex);
