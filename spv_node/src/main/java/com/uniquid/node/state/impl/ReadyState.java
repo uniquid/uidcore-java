@@ -46,6 +46,7 @@ public class ReadyState implements NodeState {
 
 			try {
 				
+				LOGGER.info("Creating provider contract!");
 				com.uniquid.node.utils.Utils.makeProviderContract(wallet, tx, networkParameters, nodeStateContext);
 				
 			} catch (Exception ex) {
@@ -53,11 +54,17 @@ public class ReadyState implements NodeState {
 				LOGGER.error("Exception while creating provider contract", ex);
 	
 			}
-		} else if (wallet.equals(nodeStateContext.getRevokeWallet())) {
+
+		} else if (wallet.equals(nodeStateContext.getUserWallet())) {
 			
-			LOGGER.info("A contract was revoked!!!");
+			LOGGER.info("Sent coins from user wallet");
 			
-			com.uniquid.node.utils.Utils.revokeContract(wallet, tx, networkParameters, nodeStateContext);
+			if (com.uniquid.node.utils.Utils.isValidRevokeContract(tx, networkParameters, nodeStateContext)) {
+			
+				LOGGER.info("Revoking contract!");
+				com.uniquid.node.utils.Utils.revokeContract(wallet, tx, networkParameters, nodeStateContext);
+				
+			}
 			
 		} else {
 			
@@ -69,59 +76,55 @@ public class ReadyState implements NodeState {
 
 	@Override
 	public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
-		
+
 		// Received a contract!!!
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
-			
+
 			LOGGER.info("Received coins on provider wallet");
-				
+
 			// If is imprinting transaction...
 			if (com.uniquid.node.utils.Utils.isValidImprintingTransaction(tx, networkParameters, imprintingAddress)) {
-				
+
 				// imprint!
 				LOGGER.warn("Attention! Another machine tried to imprint US! Skip request!");
 
-			} else if (com.uniquid.node.utils.Utils.isValidRevokeContract(tx, networkParameters, nodeStateContext)) {
-				
+			} /*else if (com.uniquid.node.utils.Utils.isValidRevokeContract(tx, networkParameters, nodeStateContext)) {
+
 				LOGGER.info("Revoking contract!");
 				com.uniquid.node.utils.Utils.revokeContract(wallet, tx, networkParameters, nodeStateContext);
-				
-			} else {
-				
+
+			} */ else {
+
 				LOGGER.info("Unknown contract");
-				
+
 			}
-	
+
 		} else if (wallet.equals(nodeStateContext.getUserWallet())) {
-			
+
 			// Currently this is a workaround!! In the Uniquid definition a revoke is done on Provider recharge address!
 			// In future the revoking here will be dropped!
 			LOGGER.info("Received coins on user wallet");
-			
-			if (com.uniquid.node.utils.Utils.isValidRevokeContract(tx, networkParameters, nodeStateContext)) {
-				
+
+			/*if (com.uniquid.node.utils.Utils.isValidRevokeContract(tx, networkParameters, nodeStateContext)) {
+
 				LOGGER.info("Revoking contract!");
 				com.uniquid.node.utils.Utils.revokeContract(wallet, tx, networkParameters, nodeStateContext);
-				
-			} else {
-				
+
+			} else {*/
+
 				try {
-					
+
+					LOGGER.info("Creating user contract!");
 					com.uniquid.node.utils.Utils.makeUserContract(wallet, tx, networkParameters, nodeStateContext);
-					
+
 				} catch (Exception ex) {
-					
+
 					LOGGER.error("Exception while creating provider contract", ex);
-					
+
 				}
 
-			}
-			
-			
-		} else if (wallet.equals(nodeStateContext.getRevokeWallet())) {
-			
-			LOGGER.info("Received an revoke address");
-			
+			//}
+
 		} else {
 			
 			LOGGER.warn("We received coins on a wallet that we don't expect!");

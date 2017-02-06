@@ -704,13 +704,14 @@ public class Utils {
 	}
 	
 	public static void revokeContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
-		String txid = tx.getHashAsString();
+
+		// Retrieve sender
+		String sender = tx.getInput(0).getFromAddress().toBase58();
 		
 		ProviderRegister providerRegister;
 		try {
 			providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
-			ProviderChannel channel = providerRegister.getChannelByRevokeTxId(txid);
-			
+			ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
 			
 			if (channel != null) {
 				LOGGER.info("Found a contract to revoke!");
@@ -746,13 +747,13 @@ public class Utils {
 	
 	public static boolean isValidRevokeContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
 		
-		String txid = tx.getHashAsString();
+		// Retrieve sender
+		String sender = tx.getInput(0).getFromAddress().toBase58();
 		
 		ProviderRegister providerRegister;
 		try {
 			providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
-			ProviderChannel channel = providerRegister.getChannelByRevokeTxId(txid);
-			
+			ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
 			
 			if (channel != null) {
 				return true;
