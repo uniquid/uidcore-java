@@ -101,8 +101,6 @@ public class ReadyState implements NodeState {
 
 		} else if (wallet.equals(nodeStateContext.getUserWallet())) {
 
-			// Currently this is a workaround!! In the Uniquid definition a revoke is done on Provider recharge address!
-			// In future the revoking here will be dropped!
 			LOGGER.info("Received coins on user wallet");
 
 			/*if (com.uniquid.node.utils.Utils.isValidRevokeContract(tx, networkParameters, nodeStateContext)) {
