@@ -255,7 +255,7 @@ public class NodeUtils {
 	}
 
 	public static InputStream openStream(NetworkParameters params) {
-        return NodeUtils.class.getResourceAsStream("/" + params.getId() + ".checkpoints.txt");
+        return NodeUtils.class.getResourceAsStream("/" + params.getId() + ".uniquidcheckpoints.txt");
     }
 	
 	public static Wallet createOrLoadWallet(String seed, long creationTime, File walletFile,
