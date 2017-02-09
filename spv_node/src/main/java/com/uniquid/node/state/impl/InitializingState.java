@@ -34,15 +34,15 @@ public class InitializingState implements NodeState {
 	@Override
 	public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
 		
-		if (wallet.equals(nodeStateContext.getRevokeWallet())) {
+		/*if (wallet.equals(nodeStateContext.getRevokeWallet())) {
 			
 			LOGGER.info("A contract was revoked!!!");
 			
-		} else {
+		} else {*/
 			
 			LOGGER.info("We sent coins from a wallet that we don't expect!");
 			
-		}
+		//}
 	}
 
 	@Override

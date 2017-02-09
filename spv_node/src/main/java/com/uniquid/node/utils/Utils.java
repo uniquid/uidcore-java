@@ -300,7 +300,7 @@ public class Utils {
         ekprv_0.toAddress(params); //mgkyT4e2BU5EVgndzVYZ51rTrzMVFM5ZPx
 	}
 	
-	public static void makeUserContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+	public static void makeUserContract(final Wallet wallet, final Transaction tx, final NetworkParameters networkParameters, final NodeStateContext nodeStateContext) {
 		
 		LOGGER.info("Creating contract...");
 		
@@ -454,11 +454,11 @@ public class Utils {
 		}
 		
 		// We need to watch the revoked address
-		nodeStateContext.getRevokeWallet().addWatchedAddress(revoke);
+//		nodeStateContext.getRevokeWallet().addWatchedAddress(revoke);
 
 	}
 	
-	public static void makeProviderContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+	public static void makeProviderContract(final Wallet wallet, final Transaction tx, final NetworkParameters networkParameters, final NodeStateContext nodeStateContext) {
 		
 		LOGGER.info("Creating contract...");
 		
@@ -612,11 +612,11 @@ public class Utils {
 		}
 		
 		// We need to watch the revoked address
-		nodeStateContext.getRevokeWallet().addWatchedAddress(revoke);
+//		nodeStateContext.getRevokeWallet().addWatchedAddress(revoke);
 
 	}
 	
-	public static void makeImprintContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext, Address imprintingAddress) throws Exception {
+	public static void makeImprintContract(final Transaction tx, final NetworkParameters networkParameters, final NodeStateContext nodeStateContext, final Address imprintingAddress) throws Exception {
 		
 		// Transaction already confirmed
 		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {

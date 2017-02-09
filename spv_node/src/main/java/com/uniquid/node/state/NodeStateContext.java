@@ -17,7 +17,7 @@ public interface NodeStateContext {
 
 	public NetworkParameters getNetworkParameters();
 	public Wallet getProviderWallet();
-	public Wallet getRevokeWallet();
+//	public Wallet getRevokeWallet();
 	public Wallet getUserWallet();
 	
 	public RegisterFactory getRegisterFactory();
