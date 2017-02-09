@@ -1,8 +1,5 @@
 package com.uniquid.node.state.impl;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
@@ -19,20 +16,14 @@ public class InitializingState implements NodeState {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(InitializingState.class.getName());
 	
-	private NodeStateContext nodeStateContext;
-	private NetworkParameters networkParameters;
-	private Address imprintingAddress;
 	private boolean alreadyImprinted;
 	
-	public InitializingState(NodeStateContext nodeStateContext, Address imprintingAddress) {
-		this.nodeStateContext = nodeStateContext;
-		this.networkParameters = nodeStateContext.getNetworkParameters();
-		this.imprintingAddress = imprintingAddress;
+	public InitializingState() {
 		this.alreadyImprinted = false;
 	}
 	
 	@Override
-	public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+	public void onCoinsSent(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
 		
 		/*if (wallet.equals(nodeStateContext.getRevokeWallet())) {
 			
@@ -46,7 +37,7 @@ public class InitializingState implements NodeState {
 	}
 
 	@Override
-	public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+	public void onCoinsReceived(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
 		
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
 			
@@ -55,12 +46,12 @@ public class InitializingState implements NodeState {
 			try {
 				
 				// If is imprinting transaction...
-				if (com.uniquid.node.utils.Utils.isValidImprintingTransaction(tx, networkParameters, imprintingAddress) && !alreadyImprinted) {
+				if (com.uniquid.node.utils.Utils.isValidImprintingTransaction(tx, nodeStateContext) && !alreadyImprinted) {
 					
 					LOGGER.info("Imprinting contract");
 					
 					// imprint!
-					com.uniquid.node.utils.Utils.makeImprintContract(tx, networkParameters,  nodeStateContext, imprintingAddress);
+					com.uniquid.node.utils.Utils.makeImprintContract(tx, nodeStateContext);
 					
 					alreadyImprinted = true;
 
@@ -82,7 +73,7 @@ public class InitializingState implements NodeState {
 			
 			try {
 				
-				com.uniquid.node.utils.Utils.makeUserContract(wallet, tx, networkParameters, nodeStateContext);
+				com.uniquid.node.utils.Utils.makeUserContract(wallet, tx, nodeStateContext);
 					
 			} catch (Exception ex) {
 	
@@ -101,6 +92,13 @@ public class InitializingState implements NodeState {
 
 		return "Initializing State";
 
+	}
+
+	@Override
+	public State getState() {
+		
+		return State.INITIALIZATING;
+		
 	}
 
 }

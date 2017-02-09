@@ -1,19 +1,26 @@
 package com.uniquid.node.state;
 
-import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.wallet.Wallet;
 
 /**
- * This interface defines the methods that can be executed by the node in a particular state
+ * This interface defines the methods that can be executed by the node in a particular states
  * 
  * @author giuseppe
  *
  */
 public interface NodeState {
 	
-	void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance);
+	public enum State {
+		
+		INITIALIZATING, READY;
+		
+	}
 	
-	void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance);
+	public void onCoinsSent(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx);
+	
+	public void onCoinsReceived(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx);
+	
+	public State getState();
 
 }

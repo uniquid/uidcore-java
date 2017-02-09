@@ -8,7 +8,7 @@ import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.node.state.NodeStateContext;
+import com.uniquid.node.UniquidNodeImpl;
 
 /**
  * This class redirects events from BitcoinJ wallet to our current node state.
@@ -20,29 +20,29 @@ public class NodeEventListener implements WalletCoinsSentEventListener, WalletCo
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeEventListener.class.getName());
 	
-	private NodeStateContext nodeStateContext;
+	private UniquidNodeImpl uniquidNode;
 	
 	/**
 	 * Construct a new NodeEventListener
 	 * 
 	 * @param nodeStateContext
 	 */
-	public NodeEventListener(NodeStateContext nodeStateContext) {
-		this.nodeStateContext = nodeStateContext;
+	public NodeEventListener(UniquidNodeImpl uniquidNode) {
+		this.uniquidNode = uniquidNode;
 	}
 
 	@Override
 	public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
 		
 		LOGGER.info("onCoinsReceived() " + tx.getHashAsString());
-		nodeStateContext.onCoinsReceived(wallet, tx, prevBalance, newBalance);
+		uniquidNode.onCoinsReceived(wallet, tx);
 	}
 
 	@Override
 	public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
 		
 		LOGGER.info("onCoinsSent() " + tx.getHashAsString());
-		nodeStateContext.onCoinsSent(wallet, tx, prevBalance, newBalance);
+		uniquidNode.onCoinsSent(wallet, tx);
 	}
 
 }

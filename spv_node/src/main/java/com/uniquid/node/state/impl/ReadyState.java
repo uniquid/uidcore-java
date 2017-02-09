@@ -1,11 +1,5 @@
 package com.uniquid.node.state.impl;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
@@ -24,20 +18,8 @@ public class ReadyState implements NodeState {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReadyState.class.getName());
     
-    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-	
-    private NodeStateContext nodeStateContext;
-	private NetworkParameters networkParameters;
-	private Address imprintingAddress;
-	
-	public ReadyState(NodeStateContext nodeStateContext, Address imprintingAddress) {
-		this.nodeStateContext = nodeStateContext;
-		this.networkParameters = nodeStateContext.getNetworkParameters();
-		this.imprintingAddress = imprintingAddress;
-	}
-
 	@Override
-	public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+	public void onCoinsSent(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
 		
 		// We sent some coins. Probably we create a contract as Provider
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
@@ -47,7 +29,7 @@ public class ReadyState implements NodeState {
 			try {
 				
 				LOGGER.info("Creating provider contract!");
-				com.uniquid.node.utils.Utils.makeProviderContract(wallet, tx, networkParameters, nodeStateContext);
+				com.uniquid.node.utils.Utils.makeProviderContract(wallet, tx, nodeStateContext);
 				
 			} catch (Exception ex) {
 	
@@ -59,10 +41,10 @@ public class ReadyState implements NodeState {
 			
 			LOGGER.info("Sent coins from user wallet");
 			
-			if (com.uniquid.node.utils.Utils.isValidRevokeContract(tx, networkParameters, nodeStateContext)) {
+			if (com.uniquid.node.utils.Utils.isValidRevokeContract(tx, nodeStateContext)) {
 			
 				LOGGER.info("Revoking contract!");
-				com.uniquid.node.utils.Utils.revokeContract(wallet, tx, networkParameters, nodeStateContext);
+				com.uniquid.node.utils.Utils.revokeContract(wallet, tx, nodeStateContext);
 				
 			}
 			
@@ -75,7 +57,7 @@ public class ReadyState implements NodeState {
 	}
 
 	@Override
-	public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+	public void onCoinsReceived(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
 
 		// Received a contract!!!
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
@@ -83,7 +65,7 @@ public class ReadyState implements NodeState {
 			LOGGER.info("Received coins on provider wallet");
 
 			// If is imprinting transaction...
-			if (com.uniquid.node.utils.Utils.isValidImprintingTransaction(tx, networkParameters, imprintingAddress)) {
+			if (com.uniquid.node.utils.Utils.isValidImprintingTransaction(tx, nodeStateContext)) {
 
 				// imprint!
 				LOGGER.warn("Attention! Another machine tried to imprint US! Skip request!");
@@ -113,7 +95,7 @@ public class ReadyState implements NodeState {
 				try {
 
 					LOGGER.info("Creating user contract!");
-					com.uniquid.node.utils.Utils.makeUserContract(wallet, tx, networkParameters, nodeStateContext);
+					com.uniquid.node.utils.Utils.makeUserContract(wallet, tx, nodeStateContext);
 
 				} catch (Exception ex) {
 
@@ -132,6 +114,13 @@ public class ReadyState implements NodeState {
 	
 	public String toString() {
 		return "Initialized! Ready";
+	}
+
+	@Override
+	public State getState() {
+		
+		return State.READY;
+		
 	}
 
 }

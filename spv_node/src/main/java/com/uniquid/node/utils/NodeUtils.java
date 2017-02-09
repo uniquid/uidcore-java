@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
+import com.uniquid.node.event.UniquidNodeDownloadProgressTracker;
 
 /**
  */
@@ -127,7 +128,7 @@ public class NodeUtils {
 	 * @param chainFile
 	 * @param creationTime
 	 */
-	public static void syncBlockChain(NetworkParameters params, final List<Wallet> wallets, final File chainFile) {
+	public static void syncBlockChain(NetworkParameters params, final List<Wallet> wallets, final File chainFile, final DownloadProgressTracker listener) {
 		
 		try {
 
@@ -173,8 +174,6 @@ public class NodeUtils {
 			
 			}
 
-			DownloadProgressTracker listener = new DownloadProgressTracker();
-
 			LOGGER.info("BLOCKCHAIN Preparing to download blockchain...");
 
 			peerGroup.start();
@@ -199,9 +198,9 @@ public class NodeUtils {
 	 * @param chainFile
 	 * @param creationTime
 	 */
-	public static void syncBlockChain(NetworkParameters params, final Wallet wallet, final File chainFile) {
+	public static void syncBlockChain(NetworkParameters params, final Wallet wallet, final File chainFile, final DownloadProgressTracker listener) {
 
-		syncBlockChain(params, Arrays.asList(new Wallet[] { wallet }), chainFile);
+		syncBlockChain(params, Arrays.asList(new Wallet[] { wallet }), chainFile, listener);
 
 	}
 	

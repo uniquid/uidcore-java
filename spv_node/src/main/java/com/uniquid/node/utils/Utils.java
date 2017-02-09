@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.node.state.NodeStateContext;
 import com.uniquid.node.state.impl.ReadyState;
 import com.uniquid.register.provider.ProviderChannel;
@@ -300,7 +301,7 @@ public class Utils {
         ekprv_0.toAddress(params); //mgkyT4e2BU5EVgndzVYZ51rTrzMVFM5ZPx
 	}
 	
-	public static void makeUserContract(final Wallet wallet, final Transaction tx, final NetworkParameters networkParameters, final NodeStateContext nodeStateContext) {
+	public static void makeUserContract(final Wallet wallet, final Transaction tx, final NodeStateContext nodeStateContext) {
 		
 		LOGGER.info("Creating contract...");
 		
@@ -309,7 +310,7 @@ public class Utils {
 			
 			LOGGER.info("tx.getConfidence is BUILDING...");
 			
-			doUserContract(wallet, tx, networkParameters, nodeStateContext);
+			doUserContract(wallet, tx, nodeStateContext);
 			
 			LOGGER.info("Done creating contract");
 			
@@ -330,7 +331,7 @@ public class Utils {
 					
 							LOGGER.info("tx.getConfidence is BUILDING...");
 							
-							doUserContract(wallet, tx, networkParameters, nodeStateContext);
+							doUserContract(wallet, tx, nodeStateContext);
 							
 							tx.getConfidence().removeEventListener(this);
 							
@@ -369,7 +370,7 @@ public class Utils {
 	 * @param networkParameters
 	 * @param nodeStateContext
 	 */
-	private static void doUserContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+	private static void doUserContract(Wallet wallet, Transaction tx, NodeStateContext nodeStateContext) {
 		
 //		List<Address> addresses = wallet.getIssuedReceiveAddresses();
 					
@@ -387,11 +388,11 @@ public class Utils {
 		}
 
 		Script script = tx.getInput(0).getScriptSig();
-		Address p_address = new Address(networkParameters, org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
+		Address p_address = new Address(nodeStateContext.getNetworkParameters(), org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
 
 		List<TransactionOutput> ts = new ArrayList<>(to);
 
-		Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
+		Address u_address = ts.get(0).getAddressFromP2PKHScript(nodeStateContext.getNetworkParameters());
 		
 //		if (u_address == null || !addresses2.contains(u_address)) {
 //			// is u_address one of our user addresses?
@@ -411,7 +412,7 @@ public class Utils {
 			return;
 		}
 
-		Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
+		Address revoke = ts.get(2).getAddressFromP2PKHScript(nodeStateContext.getNetworkParameters());
 		if(revoke == null /*|| !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())*/){
 			LOGGER.error("Contract not valid! Revoke address is null");
 			return;
@@ -453,12 +454,21 @@ public class Utils {
 
 		}
 		
+		// Inform listeners
+		List<UniquidNodeEventListener> listeners = nodeStateContext.getUniquidNodeEventListeners();
+		
+		for (UniquidNodeEventListener listener : listeners) {
+			
+			listener.onUserContractCreated(userChannel);
+			
+		}
+		
 		// We need to watch the revoked address
 //		nodeStateContext.getRevokeWallet().addWatchedAddress(revoke);
 
 	}
 	
-	public static void makeProviderContract(final Wallet wallet, final Transaction tx, final NetworkParameters networkParameters, final NodeStateContext nodeStateContext) {
+	public static void makeProviderContract(final Wallet wallet, final Transaction tx, final NodeStateContext nodeStateContext) {
 		
 		LOGGER.info("Creating contract...");
 		
@@ -467,7 +477,7 @@ public class Utils {
 			
 			LOGGER.info("tx.getConfidence is BUILDING...");
 			
-			doProviderContract(wallet, tx, networkParameters, nodeStateContext);
+			doProviderContract(wallet, tx, nodeStateContext);
 			
 			LOGGER.info("Done creating contract");
 			
@@ -488,7 +498,7 @@ public class Utils {
 					
 							LOGGER.info("tx.getConfidence is BUILDING...");
 							
-							doProviderContract(wallet, tx, networkParameters, nodeStateContext);
+							doProviderContract(wallet, tx, nodeStateContext);
 							
 							tx.getConfidence().removeEventListener(this);
 							
@@ -521,7 +531,7 @@ public class Utils {
 		
 	}
 	
-	private static void doProviderContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+	private static void doProviderContract(Wallet wallet, Transaction tx, NodeStateContext nodeStateContext) {
 		
 //		List<Address> addresses = wallet.getIssuedReceiveAddresses();
 		
@@ -539,7 +549,7 @@ public class Utils {
 		}
 
 		Script script = tx.getInput(0).getScriptSig();
-		Address p_address = new Address(networkParameters, org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
+		Address p_address = new Address(nodeStateContext.getNetworkParameters(), org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
 
 //		if (/*!addresses.contains(p_address) ||*/ !addresses2.contains(p_address)) {
 //			LOGGER.error("Contract not valid! We are not the provider");
@@ -553,7 +563,7 @@ public class Utils {
 		
 		List<TransactionOutput> ts = new ArrayList<>(to);
 
-		Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
+		Address u_address = ts.get(0).getAddressFromP2PKHScript(nodeStateContext.getNetworkParameters());
 
 		// We are provider!!!
 		if (u_address == null) {
@@ -566,7 +576,7 @@ public class Utils {
 			return;
 		}
 
-		Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
+		Address revoke = ts.get(2).getAddressFromP2PKHScript(nodeStateContext.getNetworkParameters());
 		if(revoke == null /*|| !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())*/){
 			LOGGER.error("Contract not valid! Revoke address is null");
 			return;
@@ -611,17 +621,25 @@ public class Utils {
 
 		}
 		
+		// Inform listeners
+		
+		for (UniquidNodeEventListener listener : nodeStateContext.getUniquidNodeEventListeners()) {
+			
+			listener.onProviderContractCreated(providerChannel);
+			
+		}
+		
 		// We need to watch the revoked address
 //		nodeStateContext.getRevokeWallet().addWatchedAddress(revoke);
 
 	}
 	
-	public static void makeImprintContract(final Transaction tx, final NetworkParameters networkParameters, final NodeStateContext nodeStateContext, final Address imprintingAddress) throws Exception {
+	public static void makeImprintContract(final Transaction tx, final NodeStateContext nodeStateContext) throws Exception {
 		
 		// Transaction already confirmed
 		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
 			
-			doImprint(tx, networkParameters, nodeStateContext, imprintingAddress);
+			doImprint(tx, nodeStateContext);
 			
 			// DONE
 			
@@ -636,7 +654,7 @@ public class Utils {
 						
 						if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING) && reason.equals(ChangeReason.TYPE)) {
 					
-							doImprint(tx, networkParameters, nodeStateContext, imprintingAddress);
+							doImprint(tx, nodeStateContext);
 							
 							tx.getConfidence().removeEventListener(this);
 							
@@ -667,7 +685,7 @@ public class Utils {
 		
 	}
 	
-	private static void doImprint(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext, Address imprintingAddress) throws Exception {
+	private static void doImprint(Transaction tx, NodeStateContext nodeStateContext) throws Exception {
 		
 		// Retrieve sender
 		String sender = tx.getInput(0).getFromAddress().toBase58();
@@ -675,8 +693,8 @@ public class Utils {
 		// Check output
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();
 		for (TransactionOutput to : transactionOutputs) {
-			Address address = to.getAddressFromP2PKHScript(networkParameters);
-			if (address != null && address.equals(imprintingAddress)) {
+			Address address = to.getAddressFromP2PKHScript(nodeStateContext.getNetworkParameters());
+			if (address != null && address.equals(nodeStateContext.getImprintingAddress())) {
 				
 				// This is our imprinter!!!
 				
@@ -684,7 +702,7 @@ public class Utils {
 				
 				ProviderChannel providerChannel = new ProviderChannel();
 				providerChannel.setUserAddress(sender);
-				providerChannel.setProviderAddress(imprintingAddress.toBase58());
+				providerChannel.setProviderAddress(nodeStateContext.getImprintingAddress().toBase58());
 				providerChannel.setBitmask(CONTRACT_FUNCTION);
 				providerChannel.setRevokeAddress("IMPRINTING");
 				providerChannel.setRevokeTxId(tx.getHashAsString());
@@ -692,7 +710,14 @@ public class Utils {
 				providerRegister.insertChannel(providerChannel);
 				
 				// We can move now to ReadyState
-				nodeStateContext.setNodeState(new ReadyState(nodeStateContext, imprintingAddress));
+				nodeStateContext.setNodeState(new ReadyState());
+				
+				for (UniquidNodeEventListener listener : nodeStateContext.getUniquidNodeEventListeners()) {
+					
+					// send event to listeners
+					listener.onProviderContractCreated(providerChannel);
+				
+				}
 				
 				LOGGER.info("Machine IMPRINTED!");
 				
@@ -703,7 +728,7 @@ public class Utils {
 		}
 	}
 	
-	public static void revokeContract(Wallet wallet, Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+	public static void revokeContract(Wallet wallet, Transaction tx, NodeStateContext nodeStateContext) {
 
 		// Retrieve sender
 		String sender = tx.getInput(0).getFromAddress().toBase58();
@@ -721,23 +746,31 @@ public class Utils {
 				LOGGER.info("Contract revoked! " + channel);
 			}
 			
+			for (UniquidNodeEventListener listener : nodeStateContext.getUniquidNodeEventListeners()) {
+			
+				// send event to listeners
+				listener.onProviderContractRevoked(channel);
+			
+			}
+		
 		} catch (Exception e) {
 			
 			LOGGER.error("Exception", e);
 			
 		}
 		
+		
 	}
 	
-	public static boolean isValidImprintingTransaction(Transaction tx, NetworkParameters networkParameters, Address imprintingAddress) {
+	public static boolean isValidImprintingTransaction(Transaction tx, NodeStateContext nodeStateContext) {
 		// Retrieve sender
 		String sender = tx.getInput(0).getFromAddress().toBase58();
 		
 		// Check output
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();
 		for (TransactionOutput to : transactionOutputs) {
-			Address address = to.getAddressFromP2PKHScript(networkParameters);
-			if (address != null && address.equals(imprintingAddress)) {
+			Address address = to.getAddressFromP2PKHScript(nodeStateContext.getNetworkParameters());
+			if (address != null && address.equals(nodeStateContext.getImprintingAddress())) {
 				return true;
 			}
 		}
@@ -745,7 +778,7 @@ public class Utils {
 		return false;
 	}
 	
-	public static boolean isValidRevokeContract(Transaction tx, NetworkParameters networkParameters, NodeStateContext nodeStateContext) {
+	public static boolean isValidRevokeContract(Transaction tx, NodeStateContext nodeStateContext) {
 		
 		// Retrieve sender
 		String sender = tx.getInput(0).getFromAddress().toBase58();

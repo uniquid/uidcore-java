@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.uniquid.node.UniquidNode;
+import com.uniquid.node.UniquidNodeImpl;
 import com.uniquid.uniquid_core.Core;
 import com.uniquid.uniquid_core.InputMessage;
 import com.uniquid.uniquid_core.OutputMessage;
@@ -28,7 +28,7 @@ public class ContractFunction extends GenericFunction {
 		
 		try {
 			
-			UniquidNode spvNode = (UniquidNode) getFunctionContext().getAttribute(Core.NODE_ATTRIBUTE);
+			UniquidNodeImpl spvNode = (UniquidNodeImpl) getFunctionContext().getAttribute(Core.NODE_ATTRIBUTE);
 		
 			String txid = spvNode.signTransaction(tx, paths.getString(0));
 			
