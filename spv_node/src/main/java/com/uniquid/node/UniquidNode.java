@@ -7,24 +7,26 @@ import com.uniquid.node.state.NodeState.State;
 
 public interface UniquidNode {
 
-	Address getImprintingAddress();
+	public Address getImprintingAddress();
 
-	String getPublicKey();
+	public String getPublicKey();
 
-	String getMachineName();
+	public String getMachineName();
 
-	void initNode() throws Exception;
+	public void initNode() throws Exception;
+	
+	public void initNodeFromHexEntropy(String hexEntropy, long creationTime) throws Exception;
 
-	void addUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener);
+	public void addUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener);
 
-	void removeUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener);
+	public void removeUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener);
 
-	State getNodeState();
+	public State getNodeState();
 
 	/**
 	 * This method will blocks
 	 * @throws Exception
 	 */
-	void updateNode() throws Exception;
+	public void updateNode() throws Exception;
 
 }

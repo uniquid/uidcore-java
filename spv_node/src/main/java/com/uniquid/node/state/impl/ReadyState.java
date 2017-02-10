@@ -9,7 +9,7 @@ import com.uniquid.node.state.NodeState;
 import com.uniquid.node.state.NodeStateContext;
 
 /**
- * This class represents an Uniquid Node imprinted and ready to reeive/sign contracts.
+ * This class represents an Uniquid Node imprinted and ready to receive/sign contracts.
  * 
  * @author giuseppe
  *
@@ -21,7 +21,7 @@ public class ReadyState implements NodeState {
 	@Override
 	public void onCoinsSent(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
 		
-		// We sent some coins. Probably we create a contract as Provider
+		// We sent some coins. Probably we created a contract as Provider
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
 			
 			LOGGER.info("Sent coins from provider wallet");
@@ -113,7 +113,7 @@ public class ReadyState implements NodeState {
 	}
 	
 	public String toString() {
-		return "Initialized! Ready";
+		return "Ready state";
 	}
 
 	@Override

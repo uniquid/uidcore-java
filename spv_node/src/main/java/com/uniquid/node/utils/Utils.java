@@ -544,7 +544,7 @@ public class Utils {
 		List<TransactionOutput> to = tx.getOutputs();
 		
 		if (to.size() != 4) {
-			LOGGER.error("Contract not valid! size is not 4");
+			LOGGER.error("Contract not valid! output size is not 4");
 			return;
 		}
 
@@ -622,7 +622,6 @@ public class Utils {
 		}
 		
 		// Inform listeners
-		
 		for (UniquidNodeEventListener listener : nodeStateContext.getUniquidNodeEventListeners()) {
 			
 			listener.onProviderContractCreated(providerChannel);
@@ -707,14 +706,15 @@ public class Utils {
 				providerChannel.setRevokeAddress("IMPRINTING");
 				providerChannel.setRevokeTxId(tx.getHashAsString());
 				
+				// persist channel
 				providerRegister.insertChannel(providerChannel);
 				
 				// We can move now to ReadyState
 				nodeStateContext.setNodeState(new ReadyState());
 				
+				// Send event to listeners
 				for (UniquidNodeEventListener listener : nodeStateContext.getUniquidNodeEventListeners()) {
 					
-					// send event to listeners
 					listener.onProviderContractCreated(providerChannel);
 				
 				}
@@ -744,15 +744,15 @@ public class Utils {
 				providerRegister.deleteChannel(channel);
 				
 				LOGGER.info("Contract revoked! " + channel);
+
+				for (UniquidNodeEventListener listener : nodeStateContext.getUniquidNodeEventListeners()) {
+					
+					// send event to listeners
+					listener.onProviderContractRevoked(channel);
+					
+				}
 			}
 			
-			for (UniquidNodeEventListener listener : nodeStateContext.getUniquidNodeEventListeners()) {
-			
-				// send event to listeners
-				listener.onProviderContractRevoked(channel);
-			
-			}
-		
 		} catch (Exception e) {
 			
 			LOGGER.error("Exception", e);

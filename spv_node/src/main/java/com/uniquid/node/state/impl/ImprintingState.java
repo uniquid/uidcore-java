@@ -9,17 +9,19 @@ import com.uniquid.node.state.NodeState;
 import com.uniquid.node.state.NodeStateContext;
 
 /**
- * This class represent an Uniquid Node just created (empty).
+ * This class represent an Uniquid Node just created (empty) to imprint.
  * 
  */
-public class InitializingState implements NodeState {
+public class ImprintingState implements NodeState {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(InitializingState.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(ImprintingState.class.getName());
 	
 	private boolean alreadyImprinted;
 	
-	public InitializingState() {
+	public ImprintingState() {
+
 		this.alreadyImprinted = false;
+
 	}
 	
 	@Override
@@ -57,7 +59,7 @@ public class InitializingState implements NodeState {
 
 				} else {
 					
-					LOGGER.info("Invalid imprit contract");
+					LOGGER.info("Invalid imprinting contract");
 					
 				}
 	
@@ -86,18 +88,19 @@ public class InitializingState implements NodeState {
 			LOGGER.warn("We received coins on a wallet that we don't expect!");
 			
 		}
+
 	}
 	
 	public String toString() {
 
-		return "Initializing State";
+		return "Imprinting State";
 
 	}
 
 	@Override
 	public State getState() {
 		
-		return State.INITIALIZATING;
+		return State.IMPRINTING;
 		
 	}
 

@@ -13,7 +13,7 @@ public interface NodeState {
 	
 	public enum State {
 		
-		INITIALIZATING, READY;
+		IMPRINTING, READY;
 		
 	}
 	
