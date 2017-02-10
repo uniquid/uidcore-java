@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.util.Map;
 
 import com.uniquid.register.RegisterFactory;
+import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserRegister;
 
@@ -14,15 +15,14 @@ public class SQLiteRegisterFactory extends RegisterFactory {
 	public static final String JDBC_DRIVER = PREFIX + ".jdbc.driver";
 	public static final String JDBC_CONNECTION = PREFIX + ".jdbc.connection";
 	
-	private static SQLiteRegister INSTANCE;
+	private SQLiteRegister instance;
 
-	public SQLiteRegisterFactory(Map<String, Object> configuration) {
+	public SQLiteRegisterFactory(Map<String, Object> configuration) throws RegisterException {
+
+		// delegate to superclass
 		super(configuration);
-	}
-
-	private synchronized SQLiteRegister createRegister() throws Exception {
 		
-		if (INSTANCE == null) {
+		try {
 			
 			Class.forName((String) factoryConfiguration.get(JDBC_DRIVER));
 
@@ -34,22 +34,23 @@ public class SQLiteRegisterFactory extends RegisterFactory {
 				connection.setAutoCommit(true);
 			}
 
-			INSTANCE = new SQLiteRegister(connection);
+			instance = new SQLiteRegister(connection);
+		
+		} catch (Exception ex) {
+			
+			throw new RegisterException("Exception while creating register", ex);
 			
 		}
-		
-		return INSTANCE;
-
 	}
 
 	@Override
-	public ProviderRegister createProviderRegister() throws Exception {
-		return createRegister();
+	public ProviderRegister getProviderRegister() throws RegisterException {
+		return instance;
 	}
 
 	@Override
-	public UserRegister createUserRegister() throws Exception {
-		return createRegister();
+	public UserRegister getUserRegister() throws RegisterException {
+		return instance;
 	}
 
 }

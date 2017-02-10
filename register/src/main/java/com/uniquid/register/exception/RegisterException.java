@@ -1,4 +1,4 @@
-package com.uniquid.register;
+package com.uniquid.register.exception;
 
 /**
  * Created by beatriz on 03/01/17, for Uniquid Inc.

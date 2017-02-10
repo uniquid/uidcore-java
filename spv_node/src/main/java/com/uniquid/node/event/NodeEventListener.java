@@ -8,7 +8,7 @@ import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.node.UniquidNodeImpl;
+import com.uniquid.node.impl.UniquidNodeImpl;
 
 /**
  * This class redirects events from BitcoinJ wallet to our current node state.

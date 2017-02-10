@@ -444,7 +444,7 @@ public class Utils {
 		
 		try {
 
-			UserRegister userRegister = nodeStateContext.getRegisterFactory().createUserRegister();
+			UserRegister userRegister = nodeStateContext.getRegisterFactory().getUserRegister();
 			
 			userRegister.insertChannel(userChannel);
 			
@@ -601,7 +601,7 @@ public class Utils {
 		
 		try {
 
-			ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+			ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().getProviderRegister();
 			
 			List<ProviderChannel> channels = providerRegister.getAllChannels();
 			
@@ -697,7 +697,7 @@ public class Utils {
 				
 				// This is our imprinter!!!
 				
-				ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+				ProviderRegister providerRegister = nodeStateContext.getRegisterFactory().getProviderRegister();
 				
 				ProviderChannel providerChannel = new ProviderChannel();
 				providerChannel.setUserAddress(sender);
@@ -735,7 +735,7 @@ public class Utils {
 		
 		ProviderRegister providerRegister;
 		try {
-			providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+			providerRegister = nodeStateContext.getRegisterFactory().getProviderRegister();
 			ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
 			
 			if (channel != null) {
@@ -785,7 +785,7 @@ public class Utils {
 		
 		ProviderRegister providerRegister;
 		try {
-			providerRegister = nodeStateContext.getRegisterFactory().createProviderRegister();
+			providerRegister = nodeStateContext.getRegisterFactory().getProviderRegister();
 			ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
 			
 			if (channel != null) {

@@ -2,31 +2,58 @@ package com.uniquid.node;
 
 import org.bitcoinj.core.Address;
 
+import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.node.state.NodeState.State;
 
+/**
+ * The Uniquid node interface
+ */
 public interface UniquidNode {
 
+	/**
+	 * Returns the impriting address
+	 */
 	public Address getImprintingAddress();
 
+	/**
+	 * Returns the public key of this node
+	 */
 	public String getPublicKey();
 
+	/**
+	 * Returns the machine name
+	 */
 	public String getMachineName();
 
-	public void initNode() throws Exception;
+	/**
+	 * Initialize this node with some random byte entropy 
+	 */
+	public void initNode() throws NodeException;
 	
-	public void initNodeFromHexEntropy(String hexEntropy, long creationTime) throws Exception;
+	/**
+	 * Initialize this node starting with specified byte array entropy and creation date
+	 */
+	public void initNodeFromHexEntropy(String hexEntropy, long creationTime) throws NodeException;
 
-	public void addUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener);
+	/**
+	 * Synchronize the node against the blockchain.
+	 */
+	public void updateNode() throws NodeException;
 
-	public void removeUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener);
-
+	/**
+	 * Returns the state of this node.
+	 */
 	public State getNodeState();
 
 	/**
-	 * This method will blocks
-	 * @throws Exception
+	 * Register an event listener
 	 */
-	public void updateNode() throws Exception;
+	public void addUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener);
+
+	/**
+	 * Unregister an event listener
+	 */
+	public void removeUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener);
 
 }

@@ -2,7 +2,7 @@ package com.uniquid.register.provider;
 
 import java.util.List;
 
-import com.uniquid.register.RegisterException;
+import com.uniquid.register.exception.RegisterException;
 
 public interface ProviderRegister {
 

@@ -1,8 +1,9 @@
-package com.uniquid.node;
+package com.uniquid.node.impl;
 
 import static org.bitcoinj.core.Utils.HEX;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -28,8 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
+import com.uniquid.node.UniquidNode;
 import com.uniquid.node.event.NodeEventListener;
 import com.uniquid.node.event.UniquidNodeDownloadProgressTracker;
+import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.node.state.NodeState;
 import com.uniquid.node.state.NodeState.State;
@@ -161,14 +164,14 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
 	}
 	
 	@Override
-	public void initNodeFromHexEntropy(String hexEntropy, long creationTime) throws Exception {
+	public void initNodeFromHexEntropy(String hexEntropy, long creationTime) throws NodeException {
 		byte[] bytes = HEX.decode(hexEntropy);
 		
 		initNode(bytes, creationTime);
 	}
 	
 	@Override
-	public void initNode() throws Exception {
+	public void initNode() throws NodeException {
 		SecureRandom random = new SecureRandom();
 		//byte[] bytes = new byte[DeterministicSeed.DEFAULT_SEED_ENTROPY_BITS / 8];
 		byte[] bytes = new byte[32];
@@ -181,63 +184,71 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
 	/* (non-Javadoc)
 	 * @see com.uniquid.node.UniquidNode#initNode()
 	 */
-	private void initNode(byte[] bytes, long creationTime) throws Exception {
+	private void initNode(byte[] bytes, long creationTime) throws NodeException {
 		
-		if (providerFile.exists() && !providerFile.isDirectory() &&
-				userFile.exists() && !userFile.isDirectory()) {
-
-			// Wallets already present!
-			providerWallet = Wallet.loadFromFile(providerFile);
-			userWallet = Wallet.loadFromFile(userFile);
+		try {
+		
+			if (providerFile.exists() && !providerFile.isDirectory() &&
+					userFile.exists() && !userFile.isDirectory()) {
+	
+				// Wallets already present!
+				providerWallet = Wallet.loadFromFile(providerFile);
+				userWallet = Wallet.loadFromFile(userFile);
+				
+				bytes = providerWallet.getKeyChainSeed().getSeedBytes();
+				creationTime = providerWallet.getKeyChainSeed().getCreationTimeSeconds();
+				
+			} else {
+				
+				// Create a new provider wallet
+	//			providerWallet = Wallet.fromSeed(networkParameters,
+	//					new DeterministicSeed(bytes, "", creationTime), UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER, UniquidNodeImpl.BIP44_ACCOUNT_USER);
+				
+				providerWallet = Wallet.fromSeed(networkParameters,
+						new DeterministicSeed(bytes, "", creationTime), UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
+				
+				// Create a new user wallet
+				userWallet = Wallet.fromSeed(networkParameters,
+						new DeterministicSeed(bytes, "", creationTime), UniquidNodeImpl.BIP44_ACCOUNT_USER);
+				
+			}
 			
-			bytes = providerWallet.getKeyChainSeed().getSeedBytes();
-			creationTime = providerWallet.getKeyChainSeed().getCreationTimeSeconds();
+			// Calculate public info
+			calculatePublicInfo(bytes, creationTime);
 			
-		} else {
+			// Retrieve contracts
+			List<ProviderChannel> providerChannels = registerFactory.getProviderRegister().getAllChannels();
 			
-			// Create a new provider wallet
-//			providerWallet = Wallet.fromSeed(networkParameters,
-//					new DeterministicSeed(bytes, "", creationTime), UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER, UniquidNodeImpl.BIP44_ACCOUNT_USER);
+			// If there is at least 1 contract, then we are ready
+			if (providerChannels.size() > 0) {
+	
+				// Jump to ready state
+				setNodeState(new ReadyState());
+	
+			} else {
+	
+				// Jump to initializing
+				setNodeState(new ImprintingState());
+	
+			}
 			
-			providerWallet = Wallet.fromSeed(networkParameters,
-					new DeterministicSeed(bytes, "", creationTime), UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
+			// Create node event listner
+			NodeEventListener nodeEventListner = new NodeEventListener(this);
 			
-			// Create a new user wallet
-			userWallet = Wallet.fromSeed(networkParameters,
-					new DeterministicSeed(bytes, "", creationTime), UniquidNodeImpl.BIP44_ACCOUNT_USER);
+			// Add event listeners
+			providerWallet.addCoinsReceivedEventListener(nodeEventListner);
+			providerWallet.addCoinsSentEventListener(nodeEventListner);
+			userWallet.addCoinsReceivedEventListener(nodeEventListner);
+			userWallet.addCoinsSentEventListener(nodeEventListner);
+			
+			// start updating
+			updateNode();
+		
+		} catch (Exception ex) {
+			
+			throw new NodeException("Exception while initializating node", ex);
 			
 		}
-		
-		// Calculate public info
-		calculatePublicInfo(bytes, creationTime);
-		
-		// Retrieve contracts
-		List<ProviderChannel> providerChannels = registerFactory.createProviderRegister().getAllChannels();
-		
-		// If there is at least 1 contract, then we are ready
-		if (providerChannels.size() > 0) {
-
-			// Jump to ready state
-			setNodeState(new ReadyState());
-
-		} else {
-
-			// Jump to initializing
-			setNodeState(new ImprintingState());
-
-		}
-		
-		// Create node event listner
-		NodeEventListener nodeEventListner = new NodeEventListener(this);
-		
-		// Add event listeners
-		providerWallet.addCoinsReceivedEventListener(nodeEventListner);
-		providerWallet.addCoinsSentEventListener(nodeEventListner);
-		userWallet.addCoinsReceivedEventListener(nodeEventListner);
-		userWallet.addCoinsSentEventListener(nodeEventListner);
-		
-		// start updating
-		updateNode();
 	
 		//DONE INITIALIZATION
 	}
@@ -325,7 +336,7 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
 	 * @see com.uniquid.node.UniquidNode#updateNode()
 	 */
 	@Override
-	public void updateNode() throws Exception {
+	public void updateNode() throws NodeException {
 		
 		// Provider wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, providerWallet, providerChainFile, new UniquidNodeDownloadProgressTracker(this));
@@ -333,8 +344,16 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
 		// User wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, userWallet, userChainFile, new UniquidNodeDownloadProgressTracker(this));
 		
-		providerWallet.saveToFile(providerFile);
-		userWallet.saveToFile(userFile);
+		try {
+			
+			providerWallet.saveToFile(providerFile);
+			userWallet.saveToFile(userFile);
+		
+		} catch (IOException ex) {
+			
+			throw new NodeException("Exception while updating node", ex);
+			
+		}
 		
 	}
 	

@@ -33,7 +33,7 @@ public abstract class Core {
 	public static final int RESULT_FUNCTION_NOT_AVAILABLE = 3;
 	public static final int RESULT_ERROR = 4;
 	
-	public static final String NODE_ATTRIBUTE = com.uniquid.node.UniquidNodeImpl.class.getName();
+	public static final String NODE_ATTRIBUTE = com.uniquid.node.impl.UniquidNodeImpl.class.getName();
 	public static final String REGISTER_FACTORY_ATTRIBUTE = com.uniquid.register.RegisterFactory.class.getName();
 	public static final String CONNECTOR_ATTRIBUTE = com.uniquid.uniquid_core.connector.Connector.class.getName();
 
@@ -134,7 +134,7 @@ public abstract class Core {
 			// Populate all missing parameters...
 			String sender = inputMessage.getParameter(InputMessage.SENDER);
 
-			ProviderRegister providerRegister = registerFactory.createProviderRegister();
+			ProviderRegister providerRegister = registerFactory.getProviderRegister();
 
 			ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
 			
@@ -160,7 +160,7 @@ public abstract class Core {
 		// Retrieve sender
 		String sender = inputMessage.getParameter(InputMessage.SENDER);
 
-		ProviderRegister providerRegister = registerFactory.createProviderRegister();
+		ProviderRegister providerRegister = registerFactory.getProviderRegister();
 
 		ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
 
@@ -207,7 +207,7 @@ public abstract class Core {
 		// Retrieve destination
 		String receiver = (String) outputMessage.getParameter(OutputMessage.RECEIVER);
 
-		UserRegister userRegister = registerFactory.createUserRegister();
+		UserRegister userRegister = registerFactory.getUserRegister();
 
 		UserChannel userChannel = userRegister.getChannelByProviderAddress(receiver);
 
