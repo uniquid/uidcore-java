@@ -24,17 +24,17 @@
       </dependency>
       <dependency>
         <groupId>com.uniquid</groupId>
-        <artifactId>spv_node</artifactId>
+        <artifactId>node</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.uniquid</groupId>
-        <artifactId>uniquid_core</artifactId>
+        <artifactId>core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>com.uniquid</groupId>
-        <artifactId>register</artifactId>
+        <artifactId>register-spi</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>
@@ -88,8 +88,11 @@
    </pluginManagement>
   </build>
   <modules>
-    <module>spv_node</module>
-    <module>uniquid_core</module>
-    <module>register</module>
+    <module>node</module>
+    <module>core</module>
+    <module>register-spi</module>
+    <module>register-android</module>
+    <module>register-sqlite</module>
   </modules>
+
 </project>
