@@ -29,7 +29,7 @@ public class ReadyState implements UniquidNodeState {
 			try {
 				
 				LOGGER.info("Creating provider contract!");
-				com.uniquid.node.utils.Utils.makeProviderContract(wallet, tx, nodeStateContext);
+				UniquidNodeStateUtils.makeProviderContract(wallet, tx, nodeStateContext);
 				
 			} catch (Exception ex) {
 	
@@ -41,10 +41,10 @@ public class ReadyState implements UniquidNodeState {
 			
 			LOGGER.info("Sent coins from user wallet");
 			
-			if (com.uniquid.node.utils.Utils.isValidRevokeContract(tx, nodeStateContext)) {
+			if (UniquidNodeStateUtils.isValidRevokeContract(tx, nodeStateContext)) {
 			
 				LOGGER.info("Revoking contract!");
-				com.uniquid.node.utils.Utils.revokeContract(wallet, tx, nodeStateContext);
+				UniquidNodeStateUtils.revokeContract(wallet, tx, nodeStateContext);
 				
 			}
 			
@@ -65,7 +65,7 @@ public class ReadyState implements UniquidNodeState {
 			LOGGER.info("Received coins on provider wallet");
 
 			// If is imprinting transaction...
-			if (com.uniquid.node.utils.Utils.isValidImprintingTransaction(tx, nodeStateContext)) {
+			if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, nodeStateContext)) {
 
 				// imprint!
 				LOGGER.warn("Attention! Another machine tried to imprint US! Skip request!");
@@ -95,7 +95,7 @@ public class ReadyState implements UniquidNodeState {
 				try {
 
 					LOGGER.info("Creating user contract!");
-					com.uniquid.node.utils.Utils.makeUserContract(wallet, tx, nodeStateContext);
+					UniquidNodeStateUtils.makeUserContract(wallet, tx, nodeStateContext);
 
 				} catch (Exception ex) {
 
