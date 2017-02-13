@@ -40,7 +40,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
-import com.uniquid.node.state.NodeStateContext;
+import com.uniquid.node.state.UniquidNodeStateContext;
 import com.uniquid.node.state.impl.ReadyState;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
@@ -301,7 +301,7 @@ public class Utils {
         ekprv_0.toAddress(params); //mgkyT4e2BU5EVgndzVYZ51rTrzMVFM5ZPx
 	}
 	
-	public static void makeUserContract(final Wallet wallet, final Transaction tx, final NodeStateContext nodeStateContext) {
+	public static void makeUserContract(final Wallet wallet, final Transaction tx, final UniquidNodeStateContext nodeStateContext) {
 		
 		LOGGER.info("Creating contract...");
 		
@@ -370,7 +370,7 @@ public class Utils {
 	 * @param networkParameters
 	 * @param nodeStateContext
 	 */
-	private static void doUserContract(Wallet wallet, Transaction tx, NodeStateContext nodeStateContext) {
+	private static void doUserContract(Wallet wallet, Transaction tx, UniquidNodeStateContext nodeStateContext) {
 		
 //		List<Address> addresses = wallet.getIssuedReceiveAddresses();
 					
@@ -468,7 +468,7 @@ public class Utils {
 
 	}
 	
-	public static void makeProviderContract(final Wallet wallet, final Transaction tx, final NodeStateContext nodeStateContext) {
+	public static void makeProviderContract(final Wallet wallet, final Transaction tx, final UniquidNodeStateContext nodeStateContext) {
 		
 		LOGGER.info("Creating contract...");
 		
@@ -531,7 +531,7 @@ public class Utils {
 		
 	}
 	
-	private static void doProviderContract(Wallet wallet, Transaction tx, NodeStateContext nodeStateContext) {
+	private static void doProviderContract(Wallet wallet, Transaction tx, UniquidNodeStateContext nodeStateContext) {
 		
 //		List<Address> addresses = wallet.getIssuedReceiveAddresses();
 		
@@ -633,7 +633,7 @@ public class Utils {
 
 	}
 	
-	public static void makeImprintContract(final Transaction tx, final NodeStateContext nodeStateContext) throws Exception {
+	public static void makeImprintContract(final Transaction tx, final UniquidNodeStateContext nodeStateContext) throws Exception {
 		
 		// Transaction already confirmed
 		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
@@ -684,7 +684,7 @@ public class Utils {
 		
 	}
 	
-	private static void doImprint(Transaction tx, NodeStateContext nodeStateContext) throws Exception {
+	private static void doImprint(Transaction tx, UniquidNodeStateContext nodeStateContext) throws Exception {
 		
 		// Retrieve sender
 		String sender = tx.getInput(0).getFromAddress().toBase58();
@@ -701,7 +701,7 @@ public class Utils {
 				
 				ProviderChannel providerChannel = new ProviderChannel();
 				providerChannel.setUserAddress(sender);
-				providerChannel.setProviderAddress(nodeStateContext.getImprintingAddress().toBase58());
+				providerChannel.setProviderAddress(nodeStateContext.getImprintingAddress());
 				providerChannel.setBitmask(CONTRACT_FUNCTION);
 				providerChannel.setRevokeAddress("IMPRINTING");
 				providerChannel.setRevokeTxId(tx.getHashAsString());
@@ -710,7 +710,7 @@ public class Utils {
 				providerRegister.insertChannel(providerChannel);
 				
 				// We can move now to ReadyState
-				nodeStateContext.setNodeState(new ReadyState());
+				nodeStateContext.setUniquidNodeState(new ReadyState());
 				
 				// Send event to listeners
 				for (UniquidNodeEventListener listener : nodeStateContext.getUniquidNodeEventListeners()) {
@@ -728,7 +728,7 @@ public class Utils {
 		}
 	}
 	
-	public static void revokeContract(Wallet wallet, Transaction tx, NodeStateContext nodeStateContext) {
+	public static void revokeContract(Wallet wallet, Transaction tx, UniquidNodeStateContext nodeStateContext) {
 
 		// Retrieve sender
 		String sender = tx.getInput(0).getFromAddress().toBase58();
@@ -762,7 +762,7 @@ public class Utils {
 		
 	}
 	
-	public static boolean isValidImprintingTransaction(Transaction tx, NodeStateContext nodeStateContext) {
+	public static boolean isValidImprintingTransaction(Transaction tx, UniquidNodeStateContext nodeStateContext) {
 		// Retrieve sender
 		String sender = tx.getInput(0).getFromAddress().toBase58();
 		
@@ -778,7 +778,7 @@ public class Utils {
 		return false;
 	}
 	
-	public static boolean isValidRevokeContract(Transaction tx, NodeStateContext nodeStateContext) {
+	public static boolean isValidRevokeContract(Transaction tx, UniquidNodeStateContext nodeStateContext) {
 		
 		// Retrieve sender
 		String sender = tx.getInput(0).getFromAddress().toBase58();

@@ -5,13 +5,13 @@ import java.util.Date;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
 
 import com.uniquid.node.listeners.UniquidNodeEventListener;
-import com.uniquid.node.state.NodeStateContext;
+import com.uniquid.node.state.UniquidNodeStateContext;
 
 public class UniquidNodeDownloadProgressTracker extends DownloadProgressTracker {
 
-	private NodeStateContext nodeStateContext;
+	private UniquidNodeStateContext nodeStateContext;
 
-	public UniquidNodeDownloadProgressTracker(NodeStateContext nodeStateContext) {
+	public UniquidNodeDownloadProgressTracker(UniquidNodeStateContext nodeStateContext) {
 		super();
 
 		this.nodeStateContext = nodeStateContext;

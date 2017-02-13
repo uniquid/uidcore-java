@@ -2,19 +2,38 @@ package com.uniquid.node.state;
 
 import java.util.List;
 
-import org.bitcoinj.core.Address;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.wallet.Wallet;
 
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.register.RegisterFactory;
 
-public interface NodeStateContext {
+/**
+ * Interface that allow to decouple the State design pattern
+ * 
+ * @author Giuseppe Magnotta
+ *
+ */
+public interface UniquidNodeStateContext {
 	
-	public void setNodeState(NodeState nodeState);
+	/**
+	 * Change the internal state 
+
+	 * @param uniquidNodeState
+	 */
+	public void setUniquidNodeState(UniquidNodeState uniquidNodeState);
 	
+	/**
+	 * Return the {@link NetworkParameters} used by the UniquidNode
+	 * 
+	 */
 	public NetworkParameters getNetworkParameters();
-	public Address getImprintingAddress();
+	
+	/**
+	 * Return the imprinting address
+	 * @return
+	 */
+	public String getImprintingAddress();
 	public Wallet getProviderWallet();
 	public Wallet getUserWallet();
 	

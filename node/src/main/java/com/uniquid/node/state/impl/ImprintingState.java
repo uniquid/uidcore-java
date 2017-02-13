@@ -5,14 +5,14 @@ import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.node.state.NodeState;
-import com.uniquid.node.state.NodeStateContext;
+import com.uniquid.node.state.UniquidNodeState;
+import com.uniquid.node.state.UniquidNodeStateContext;
 
 /**
  * This class represent an Uniquid Node just created (empty) to imprint.
  * 
  */
-public class ImprintingState implements NodeState {
+public class ImprintingState implements UniquidNodeState {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImprintingState.class.getName());
 	
@@ -25,7 +25,7 @@ public class ImprintingState implements NodeState {
 	}
 	
 	@Override
-	public void onCoinsSent(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
+	public void onCoinsSent(UniquidNodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
 		
 		/*if (wallet.equals(nodeStateContext.getRevokeWallet())) {
 			
@@ -39,7 +39,7 @@ public class ImprintingState implements NodeState {
 	}
 
 	@Override
-	public void onCoinsReceived(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
+	public void onCoinsReceived(UniquidNodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
 		
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
 			
@@ -98,9 +98,9 @@ public class ImprintingState implements NodeState {
 	}
 
 	@Override
-	public State getState() {
+	public EnumState getState() {
 		
-		return State.IMPRINTING;
+		return EnumState.IMPRINTING;
 		
 	}
 

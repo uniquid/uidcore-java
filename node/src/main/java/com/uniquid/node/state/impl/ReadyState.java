@@ -5,8 +5,8 @@ import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.node.state.NodeState;
-import com.uniquid.node.state.NodeStateContext;
+import com.uniquid.node.state.UniquidNodeState;
+import com.uniquid.node.state.UniquidNodeStateContext;
 
 /**
  * This class represents an Uniquid Node imprinted and ready to receive/sign contracts.
@@ -14,12 +14,12 @@ import com.uniquid.node.state.NodeStateContext;
  * @author giuseppe
  *
  */
-public class ReadyState implements NodeState {
+public class ReadyState implements UniquidNodeState {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReadyState.class.getName());
     
 	@Override
-	public void onCoinsSent(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
+	public void onCoinsSent(UniquidNodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
 		
 		// We sent some coins. Probably we created a contract as Provider
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
@@ -57,7 +57,7 @@ public class ReadyState implements NodeState {
 	}
 
 	@Override
-	public void onCoinsReceived(NodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
+	public void onCoinsReceived(UniquidNodeStateContext nodeStateContext, Wallet wallet, Transaction tx) {
 
 		// Received a contract!!!
 		if (wallet.equals(nodeStateContext.getProviderWallet())) {
@@ -117,9 +117,9 @@ public class ReadyState implements NodeState {
 	}
 
 	@Override
-	public State getState() {
+	public EnumState getState() {
 		
-		return State.READY;
+		return EnumState.READY;
 		
 	}
 

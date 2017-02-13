@@ -34,9 +34,9 @@ import com.uniquid.node.event.NodeEventListener;
 import com.uniquid.node.event.UniquidNodeDownloadProgressTracker;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
-import com.uniquid.node.state.NodeState;
-import com.uniquid.node.state.NodeState.State;
-import com.uniquid.node.state.NodeStateContext;
+import com.uniquid.node.state.UniquidNodeState;
+import com.uniquid.node.state.UniquidNodeState.EnumState;
+import com.uniquid.node.state.UniquidNodeStateContext;
 import com.uniquid.node.state.impl.ImprintingState;
 import com.uniquid.node.state.impl.ReadyState;
 import com.uniquid.node.utils.NodeUtils;
@@ -50,7 +50,7 @@ import com.uniquid.register.provider.ProviderChannel;
  * @author giuseppe
  *
  */
-public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
+public class UniquidNodeImpl implements UniquidNodeStateContext, UniquidNode {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeImpl.class.getName());
 	
@@ -78,7 +78,7 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
     
     
     /** The current state of this Node */
-    private NodeState nodeState;
+    private UniquidNodeState nodeState;
 
 	private NetworkParameters networkParameters;
 	private File providerFile;
@@ -110,7 +110,7 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
 	}
 	
 	@Override
-	public synchronized void setNodeState(NodeState nodeState) {
+	public synchronized void setUniquidNodeState(UniquidNodeState nodeState) {
 		this.nodeState = nodeState;
 	}
 	
@@ -138,8 +138,8 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
 	 * @see com.uniquid.node.UniquidNode#getImprintingAddress()
 	 */
 	@Override
-	public Address getImprintingAddress() {
-		return imprintingAddress;
+	public String getImprintingAddress() {
+		return imprintingAddress.toBase58();
 	}
 	
 	@Override
@@ -159,7 +159,7 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
 	 * @see com.uniquid.node.UniquidNode#getMachineName()
 	 */
 	@Override
-	public String  getMachineName() {
+	public String  getNodeName() {
 		return machineName;
 	}
 	
@@ -223,12 +223,12 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
 			if (providerChannels.size() > 0) {
 	
 				// Jump to ready state
-				setNodeState(new ReadyState());
+				setUniquidNodeState(new ReadyState());
 	
 			} else {
 	
 				// Jump to initializing
-				setNodeState(new ImprintingState());
+				setUniquidNodeState(new ImprintingState());
 	
 			}
 			
@@ -326,7 +326,7 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
 	 * @see com.uniquid.node.UniquidNode#getNodeState()
 	 */
 	@Override
-	public synchronized State getNodeState() {
+	public synchronized EnumState getNodeState() {
 		
 		return nodeState.getState();
 		
@@ -451,6 +451,20 @@ public class UniquidNodeImpl implements NodeStateContext, UniquidNode {
 			return new UniquidNodeImpl(this);
 
 		}
+	}
+
+	@Override
+	public long getCreationTime() {
+
+		return providerWallet.getKeyChainSeed().getCreationTimeSeconds();
+
+	}
+
+	@Override
+	public String getSpendableBalance() {
+
+		return providerWallet.getBalance(Wallet.BalanceType.AVAILABLE_SPENDABLE).toFriendlyString();
+	
 	}
 
 }
