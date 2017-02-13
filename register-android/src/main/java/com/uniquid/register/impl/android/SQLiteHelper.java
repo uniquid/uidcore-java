@@ -19,21 +19,29 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     public static final String USER_CLM_PROVIDER_ADDRESS = "provider_address";
     public static final String USER_CLM_USER_ADDRESS = "user_address";
     public static final String USER_CLM_BITMASK = "bitmask";
+    public static final String USER_CLM_REVOKE_ADDRESS = "revoke_address";
+    public static final String USER_CLM_REVOKE_TX_ID = "revoke_tx_id";
     public static final String USER_CREATE = "create table " + TABLE_USER + "(" +
             USER_CLM_PROVIDER_NAME + " text not null unique, " +
             USER_CLM_PROVIDER_ADDRESS + " text not null, " +
             USER_CLM_USER_ADDRESS + " text not null, " +
-            USER_CLM_BITMASK + " text not null);";
+            USER_CLM_BITMASK + " text not null, " +
+            USER_CLM_REVOKE_ADDRESS + " text not null, " +
+            USER_CLM_REVOKE_TX_ID + " text not null);";
 
     //    PROVIDER
     public static final String TABLE_PROVIDER = "provider_channel";
     public static final String PROVIDER_CLM_PROVIDER_ADDRESS = "provider_address";
     public static final String PROVIDER_CLM_USER_ADDRESS = "user_address";
     public static final String PROVIDER_CLM_BITMASK = "bitmask";
+    public static final String PROVIDER_CLM_REVOKE_ADDRESS = "revoke_address";
+    public static final String PROVIDER_CLM_REVOKE_TX_ID = "revoke_tx_id";
     private static final String PROVIDER_CREATE = "create table " + TABLE_PROVIDER + "(" +
             PROVIDER_CLM_PROVIDER_ADDRESS + " text not null, " +
             PROVIDER_CLM_USER_ADDRESS + " text not null, " +
-            PROVIDER_CLM_BITMASK + " text not null, primary key (" +
+            PROVIDER_CLM_BITMASK + " text not null, " +
+            PROVIDER_CLM_REVOKE_ADDRESS + " text not null " + 
+            PROVIDER_CLM_REVOKE_TX_ID + " text not null primary key (" +
             PROVIDER_CLM_PROVIDER_ADDRESS + ", " +
             PROVIDER_CLM_USER_ADDRESS + "));";
 

@@ -37,6 +37,8 @@ public class Register implements UserRegister, ProviderRegister {
                 userChannel.setProviderAddress(cursor.getString(1));
                 userChannel.setUserAddress(cursor.getString(2));
                 userChannel.setBitmask(cursor.getString(3));
+                userChannel.setRevokeAddress(cursor.getString(4));
+				userChannel.setRevokeTxId(cursor.getString(5));
                 channels.add(userChannel);
             } while (cursor.moveToNext());
         }
@@ -60,6 +62,8 @@ public class Register implements UserRegister, ProviderRegister {
             userChannel.setProviderAddress(cursor.getString(1));
             userChannel.setUserAddress(cursor.getString(2));
             userChannel.setBitmask(cursor.getString(3));
+            userChannel.setRevokeAddress(cursor.getString(4));
+			userChannel.setRevokeTxId(cursor.getString(5));
             cursor.close();
         } else {
             throw new RegisterException("Doesn't exist any record with specified name");
@@ -78,6 +82,8 @@ public class Register implements UserRegister, ProviderRegister {
             userChannel.setProviderAddress(cursor.getString(1));
             userChannel.setUserAddress(cursor.getString(2));
             userChannel.setBitmask(cursor.getString(3));
+            userChannel.setRevokeAddress(cursor.getString(4));
+			userChannel.setRevokeTxId(cursor.getString(5));
             cursor.close();
         } else {
             throw new RegisterException("Doesn't exist any record with specified name");
@@ -97,6 +103,8 @@ public class Register implements UserRegister, ProviderRegister {
         values.put(SQLiteHelper.USER_CLM_PROVIDER_ADDRESS, userChannel.getProviderAddress());
         values.put(SQLiteHelper.USER_CLM_USER_ADDRESS, userChannel.getUserAddress());
         values.put(SQLiteHelper.USER_CLM_BITMASK, userChannel.getBitmask());
+        values.put(SQLiteHelper.USER_CLM_REVOKE_ADDRESS, userChannel.getRevokeAddress());
+        values.put(SQLiteHelper.USER_CLM_REVOKE_TX_ID, userChannel.getRevokeTxId());
         long db_index = db.insert(SQLiteHelper.TABLE_USER, null, values);
         if(db_index < 0)
             throw new RegisterException("Error inserting new channel");
@@ -131,6 +139,8 @@ public class Register implements UserRegister, ProviderRegister {
                 channel.setProviderAddress(cursor.getString(0));
                 channel.setUserAddress(cursor.getString(1));
                 channel.setBitmask(cursor.getString(2));
+                channel.setRevokeAddress(cursor.getString(3));
+                channel.setRevokeTxId(cursor.getString(4));
                 channels.add(channel);
             } while (cursor.moveToNext());
         }
@@ -155,6 +165,8 @@ public class Register implements UserRegister, ProviderRegister {
             providerChannel.setProviderAddress(cursor.getString(0));
             providerChannel.setUserAddress(cursor.getString(1));
             providerChannel.setBitmask(cursor.getString(2));
+            providerChannel.setRevokeAddress(cursor.getString(3));
+            providerChannel.setRevokeTxId(cursor.getString(4));
             cursor.close();
         } else {
             throw new RegisterException("Doesn't exist any record with specified name");
@@ -163,13 +175,43 @@ public class Register implements UserRegister, ProviderRegister {
     }
 
     @Override
-    public ProviderChannel getChannelByRevokeAddress(String s) throws RegisterException {
-        return null;
+    public ProviderChannel getChannelByRevokeAddress(String address) throws RegisterException {
+    		ProviderChannel providerChannel = new ProviderChannel();
+        db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from " + SQLiteHelper.TABLE_PROVIDER +
+                        " where " + SQLiteHelper.PROVIDER_CLM_REVOKE_ADDRESS + " = ?",
+                new String[]{address});
+        if(cursor.moveToFirst()){
+            providerChannel.setProviderAddress(cursor.getString(0));
+            providerChannel.setUserAddress(cursor.getString(1));
+            providerChannel.setBitmask(cursor.getString(2));
+            providerChannel.setRevokeAddress(cursor.getString(3));
+            providerChannel.setRevokeTxId(cursor.getString(4));
+            cursor.close();
+        } else {
+            throw new RegisterException("Doesn't exist any record with specified name");
+        }
+        return providerChannel;
     }
 
     @Override
-    public ProviderChannel getChannelByRevokeTxId(String s) throws RegisterException {
-        return null;
+    public ProviderChannel getChannelByRevokeTxId(String revokeTxId) throws RegisterException {
+    	ProviderChannel providerChannel = new ProviderChannel();
+        db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from " + SQLiteHelper.TABLE_PROVIDER +
+                        " where " + SQLiteHelper.PROVIDER_CLM_REVOKE_TX_ID + " = ?",
+                new String[]{revokeTxId});
+        if(cursor.moveToFirst()){
+            providerChannel.setProviderAddress(cursor.getString(0));
+            providerChannel.setUserAddress(cursor.getString(1));
+            providerChannel.setBitmask(cursor.getString(2));
+            providerChannel.setRevokeAddress(cursor.getString(3));
+            providerChannel.setRevokeTxId(cursor.getString(4));
+            cursor.close();
+        } else {
+            throw new RegisterException("Doesn't exist any record with specified name");
+        }
+        return providerChannel;
     }
 
     /**
@@ -183,6 +225,8 @@ public class Register implements UserRegister, ProviderRegister {
         values.put(SQLiteHelper.PROVIDER_CLM_PROVIDER_ADDRESS, providerChannel.getProviderAddress());
         values.put(SQLiteHelper.PROVIDER_CLM_USER_ADDRESS, providerChannel.getUserAddress());
         values.put(SQLiteHelper.PROVIDER_CLM_BITMASK, providerChannel.getBitmask());
+        values.put(SQLiteHelper.PROVIDER_CLM_REVOKE_ADDRESS, providerChannel.getRevokeAddress());
+        values.put(SQLiteHelper.PROVIDER_CLM_REVOKE_TX_ID, providerChannel.getRevokeTxId());
         long db_index = db.insert(SQLiteHelper.TABLE_PROVIDER, null, values);
         if(db_index < 0)
             throw new RegisterException("Error inserting new channel");
