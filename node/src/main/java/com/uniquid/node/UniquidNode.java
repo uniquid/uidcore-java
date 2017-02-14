@@ -68,7 +68,7 @@ public interface UniquidNode {
 	 * 
 	 * @return the description of the current state of this node
 	 */
-	public String getNodeState();
+	public UniquidNodeState getNodeState();
 
 	/**
 	 * Register an event listener

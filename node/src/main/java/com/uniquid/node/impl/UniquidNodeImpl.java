@@ -176,8 +176,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	@Override
-	public synchronized String getNodeState() {
-		return nodeState.toString();
+	public synchronized com.uniquid.node.UniquidNodeState getNodeState() {
+		return nodeState.getNodeState();
 	}
 
 	@Override
@@ -628,6 +628,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 					// Send event to listeners
 					for (UniquidNodeEventListener listener : eventListeners) {
 
+						listener.onNodeStateChange(com.uniquid.node.UniquidNodeState.READY);
+
 						listener.onProviderContractCreated(providerChannel);
 
 					}
@@ -900,6 +902,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		public void onCoinsSent(Wallet wallet, Transaction tx);
 
 		public void onCoinsReceived(Wallet wallet, Transaction tx);
+		
+		public com.uniquid.node.UniquidNodeState getNodeState();
 
 	}
 
@@ -980,6 +984,13 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			}
 
+		}
+
+		@Override
+		public com.uniquid.node.UniquidNodeState getNodeState() {
+			
+			return com.uniquid.node.UniquidNodeState.IMPRINTING;
+		
 		}
 
 	}
@@ -1103,6 +1114,13 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			}
 
+		}
+
+		@Override
+		public com.uniquid.node.UniquidNodeState getNodeState() {
+			
+			return com.uniquid.node.UniquidNodeState.READY;
+		
 		}
 
 	}

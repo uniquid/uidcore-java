@@ -60,5 +60,10 @@ public interface UniquidNodeEventListener {
 	 * 
 	 */
 	public void onSyncEnded();
+	
+	/**
+	 * Called when a state chane happens
+	 */
+	public void onNodeStateChange(com.uniquid.node.UniquidNodeState newState);
 
 }
