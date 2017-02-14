@@ -4,7 +4,7 @@ import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 
 /**
- * An Uniquid node is a network node that use the blockchain to create and use smart contracts and establish trust.
+ * An Uniquid node is a network node that use the blockchain to establish trust and creates and use smart contracts.
  * 
  * @author Giuseppe Magnotta
  */

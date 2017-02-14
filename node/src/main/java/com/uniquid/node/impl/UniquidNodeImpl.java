@@ -103,10 +103,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	/*
-	 * Begin of public info for implementing UniquidNode
+	 * 
+	 * Begin of public part for implementing UniquidNode
 	 *
 	 */
-
 	@Override
 	public String getImprintingAddress() {
 		return imprintingAddress.toBase58();
@@ -191,14 +191,13 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	/*
-	 * End of public info for implementing UniquidNode
+	 * End of public part for implementing UniquidNode
 	 *
 	 */
 
 	/*
-	 * Begin of some other util public method
+	 * Begin of some other useful public method
 	 */
-
 	public Wallet getProviderWallet() {
 		return providerWallet;
 	}
@@ -309,10 +308,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	/*
-	 * End of some other util public method
+	 * Begin of some other useful public method
 	 */
 
-	/*
+	/**
 	 * Change internal state
 	 */
 	private synchronized void setUniquidNodeState(UniquidNodeState nodeState) {
@@ -320,7 +319,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	/*
-	 * Initiliaze this node from a byte array
+	 * Initialiaze this node from a byte array
 	 */
 	private void initNode(byte[] bytes, long creationTime) throws NodeException {
 
@@ -661,43 +660,28 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		@Override
 		public void doRealContract(Transaction tx) throws Exception {
 
-			// List<Address> addresses = wallet.getIssuedReceiveAddresses();
+			List<TransactionOutput> transactionOutputs = tx.getOutputs();
 
-			// List<DeterministicKey> keys =
-			// wallet.getActiveKeyChain().getLeafKeys();
-			// List<Address> addresses2 = new ArrayList<>();
-			// for (ECKey key : keys) {
-			// addresses2.add(key.toAddress(networkParameters));
-			// }
-
-			List<TransactionOutput> to = tx.getOutputs();
-
-			if (to.size() != 4) {
+			if (transactionOutputs.size() != 4) {
 				LOGGER.error("Contract not valid! output size is not 4");
 				return;
 			}
 
 			Script script = tx.getInput(0).getScriptSig();
-			Address p_address = new Address(networkParameters,
+			Address providerAddress = new Address(networkParameters,
 					org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
 
-			// if (/*!addresses.contains(p_address) ||*/
-			// !addresses2.contains(p_address)) {
-			// LOGGER.error("Contract not valid! We are not the provider");
-			// return;
-			// }
-
-			if (!providerWallet.isPubKeyHashMine(p_address.getHash160())) {
+			if (!providerWallet.isPubKeyHashMine(providerAddress.getHash160())) {
 				LOGGER.error("Contract not valid! We are not the provider");
 				return;
 			}
 
-			List<TransactionOutput> ts = new ArrayList<>(to);
+			List<TransactionOutput> ts = new ArrayList<>(transactionOutputs);
 
-			Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
+			Address userAddress = ts.get(0).getAddressFromP2PKHScript(networkParameters);
 
 			// We are provider!!!
-			if (u_address == null) {
+			if (userAddress == null) {
 				LOGGER.error("Contract not valid! User address is null");
 				return;
 			}
@@ -719,8 +703,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			// Create provider channel
 			ProviderChannel providerChannel = new ProviderChannel();
-			providerChannel.setProviderAddress(p_address.toBase58());
-			providerChannel.setUserAddress(u_address.toBase58());
+			providerChannel.setProviderAddress(providerAddress.toBase58());
+			providerChannel.setUserAddress(userAddress.toBase58());
 			providerChannel.setRevokeAddress(revoke.toBase58());
 			providerChannel.setRevokeTxId(tx.getHashAsString());
 
@@ -755,7 +739,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			} catch (Exception e) {
 
-				LOGGER.error("Exception while inserting providerregister", e);
+				LOGGER.error("Exception while inserting provider register", e);
 
 				throw e;
 
@@ -778,10 +762,12 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			ProviderRegister providerRegister;
 			try {
+				
 				providerRegister = registerFactory.getProviderRegister();
 				ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
 
 				if (channel != null) {
+
 					LOGGER.info("Found a contract to revoke!");
 					// contract revoked
 					providerRegister.deleteChannel(channel);
@@ -794,9 +780,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 						listener.onProviderContractRevoked(channel);
 
 					}
+					
 				} else {
 
-					LOGGER.warn("No contract found to revoke");
+					LOGGER.warn("No contract found to revoke!");
 				}
 
 			} catch (Exception e) {
@@ -813,41 +800,22 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		@Override
 		public void doRealContract(Transaction tx) throws Exception {
 
-			// List<Address> addresses = wallet.getIssuedReceiveAddresses();
+			List<TransactionOutput> transactionOutputs = tx.getOutputs();
 
-			// List<DeterministicKey> keys =
-			// wallet.getActiveKeyChain().getLeafKeys();
-			// List<Address> addresses2 = new ArrayList<>();
-			// for (ECKey key : keys) {
-			// addresses2.add(key.toAddress(networkParameters));
-			// }
-
-			List<TransactionOutput> to = tx.getOutputs();
-
-			if (to.size() != 4) {
+			if (transactionOutputs.size() != 4) {
 				LOGGER.error("Contract not valid! size is not 4");
 				return;
 			}
 
 			Script script = tx.getInput(0).getScriptSig();
-			Address p_address = new Address(networkParameters,
+			Address providerAddress = new Address(networkParameters,
 					org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
 
-			List<TransactionOutput> ts = new ArrayList<>(to);
+			List<TransactionOutput> ts = new ArrayList<>(transactionOutputs);
 
-			Address u_address = ts.get(0).getAddressFromP2PKHScript(networkParameters);
+			Address userAddress = ts.get(0).getAddressFromP2PKHScript(networkParameters);
 
-			// if (u_address == null || !addresses2.contains(u_address)) {
-			// // is u_address one of our user addresses?
-			// LOGGER.error("Contract not valid! User address is null or we are
-			// not
-			// the user");
-			// return;
-			// }
-
-			// wallet.isPubKeyHashMine(ts.get(0).getScriptPubKey().getPubKeyHash());
-			if (u_address == null || !userWallet.isPubKeyHashMine(u_address.getHash160())) {
-				// is u_address one of our user addresses?
+			if (userAddress == null || !userWallet.isPubKeyHashMine(userAddress.getHash160())) {
 				LOGGER.error("Contract not valid! User address is null or we are not the user");
 				return;
 			}
@@ -867,15 +835,16 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				return;
 			}
 
-			String providerName = WalletUtils.retrieveNameFromProvider(p_address.toBase58());
+			String providerName = WalletUtils.retrieveNameFromProvider(providerAddress.toBase58());
 			if (providerName == null) {
 				LOGGER.error("Contract not valid! Provider name is null");
 				return;
 			}
 
+			// Create channel
 			UserChannel userChannel = new UserChannel();
-			userChannel.setProviderAddress(p_address.toBase58());
-			userChannel.setUserAddress(u_address.toBase58());
+			userChannel.setProviderAddress(providerAddress.toBase58());
+			userChannel.setUserAddress(userAddress.toBase58());
 			userChannel.setProviderName(providerName);
 			userChannel.setRevokeAddress(revoke.toBase58());
 			userChannel.setRevokeTxId(tx.getHashAsString());
