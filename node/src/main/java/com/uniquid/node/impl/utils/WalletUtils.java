@@ -1,4 +1,4 @@
-package com.uniquid.node.utils;
+package com.uniquid.node.impl.utils;
 
 import static com.google.common.base.Preconditions.checkState;
 

@@ -1,4 +1,4 @@
-package com.uniquid.node.utils;
+package com.uniquid.node.impl.utils;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;

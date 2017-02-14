@@ -2,11 +2,9 @@ package com.uniquid.node;
 
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
-import com.uniquid.node.state.UniquidNodeState;
-import com.uniquid.node.state.UniquidNodeState.EnumState;
 
 /**
- * An Uniquid node is a network node that use the blockchain to create and use smart contracts
+ * An Uniquid node is a network node that use the blockchain to create and use smart contracts and establish trust.
  * 
  * @author Giuseppe Magnotta
  */
@@ -66,11 +64,11 @@ public interface UniquidNode {
 	public void updateNode() throws NodeException;
 
 	/**
-	 * Returns the {@link UniquidNodeState} of this node.
+	 * Returns a description of the current state of this node.
 	 * 
-	 * @return the State of this node
+	 * @return the description of the current state of this node
 	 */
-	public EnumState getNodeState();
+	public String getNodeState();
 
 	/**
 	 * Register an event listener

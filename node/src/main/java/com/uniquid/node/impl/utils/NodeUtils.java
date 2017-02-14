@@ -1,4 +1,4 @@
-package com.uniquid.node.utils;
+package com.uniquid.node.impl.utils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -23,7 +23,6 @@ import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.net.discovery.DnsDiscovery;
-import org.bitcoinj.net.discovery.SeedPeers;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
@@ -35,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
-import com.uniquid.node.event.UniquidNodeDownloadProgressTracker;
 
 /**
  */
