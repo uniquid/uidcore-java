@@ -40,7 +40,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             PROVIDER_CLM_PROVIDER_ADDRESS + " text not null, " +
             PROVIDER_CLM_USER_ADDRESS + " text not null, " +
             PROVIDER_CLM_BITMASK + " text not null, " +
-            PROVIDER_CLM_REVOKE_ADDRESS + " text not null " + 
+            PROVIDER_CLM_REVOKE_ADDRESS + " text not null, " + 
             PROVIDER_CLM_REVOKE_TX_ID + " text not null primary key (" +
             PROVIDER_CLM_PROVIDER_ADDRESS + ", " +
             PROVIDER_CLM_USER_ADDRESS + "));";
