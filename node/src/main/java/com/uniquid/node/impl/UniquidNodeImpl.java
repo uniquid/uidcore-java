@@ -26,6 +26,7 @@ import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.crypto.MnemonicCode;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.wallet.DeterministicSeed;
@@ -325,14 +326,15 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		try {
 
+			DeterministicSeed detSeed = null;
+
 			if (providerFile.exists() && !providerFile.isDirectory() && userFile.exists() && !userFile.isDirectory()) {
 
 				// Wallets already present!
 				providerWallet = Wallet.loadFromFile(providerFile);
 				userWallet = Wallet.loadFromFile(userFile);
 
-				bytes = providerWallet.getKeyChainSeed().getSeedBytes();
-				creationTime = providerWallet.getKeyChainSeed().getCreationTimeSeconds();
+				detSeed = providerWallet.getKeyChainSeed();
 
 			} else {
 
@@ -342,17 +344,21 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				// UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER,
 				// UniquidNodeImpl.BIP44_ACCOUNT_USER);
 
-				providerWallet = Wallet.fromSeed(networkParameters, new DeterministicSeed(bytes, "", creationTime),
-						UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
+				detSeed = new DeterministicSeed("", bytes, "", creationTime);
+
+				providerWallet = Wallet.fromSeed(networkParameters, detSeed,	UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
+
+				providerWallet.saveToFile(providerFile);
 
 				// Create a new user wallet
-				userWallet = Wallet.fromSeed(networkParameters, new DeterministicSeed(bytes, "", creationTime),
-						UniquidNodeImpl.BIP44_ACCOUNT_USER);
+				userWallet = Wallet.fromSeed(networkParameters, detSeed,	UniquidNodeImpl.BIP44_ACCOUNT_USER);
+
+				userWallet.saveToFile(userFile);
 
 			}
 
 			// Calculate public info
-			calculatePublicInfo(bytes, creationTime);
+			calculatePublicInfo(detSeed);
 
 			// Retrieve contracts
 			List<ProviderChannel> providerChannels = registerFactory.getProviderRegister().getAllChannels();
@@ -391,18 +397,24 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	/*
 	 * Calculate some public info
 	 */
-	private void calculatePublicInfo(byte[] bytes, long creationTime) {
+	private void calculatePublicInfo(DeterministicSeed detSeed) {
 
-		LOGGER.info("HEX entropy " + HEX.encode(bytes) + "; creation time " + creationTime);
+		LOGGER.info("HEX entropy " + detSeed.toHexString() + "; creation time " + detSeed.getCreationTimeSeconds());
 
-		LOGGER.info("Mnemonics: " + Utils.join(new DeterministicSeed(bytes, "", creationTime).getMnemonicCode()));
+		try {
 
-		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(bytes);
+			LOGGER.info("Mnemonics: " + Utils.join(MnemonicCode.INSTANCE.toMnemonic(detSeed.getSeedBytes())));
 
-		// LOGGER.info("START_NODE tpriv: " +
-		// deterministicKey.serializePrivB58(networkParameters));
-		// LOGGER.info("START_NODE tpub: " +
-		// deterministicKey.serializePubB58(networkParameters));
+		} catch (Exception ex) {
+
+			LOGGER.error("Exception", ex);
+
+		}
+
+		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(detSeed.getSeedBytes());
+
+		//LOGGER.info("START_NODE tpriv: " + deterministicKey.serializePrivB58(networkParameters));
+		//LOGGER.info("START_NODE tpub: " + deterministicKey.serializePubB58(networkParameters));
 
 		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 
