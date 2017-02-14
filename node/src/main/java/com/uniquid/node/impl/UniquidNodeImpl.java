@@ -146,7 +146,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	@Override
-	public void initNodeFromHexEntropy(String hexEntropy, long creationTime) throws NodeException {
+	public void initNodeFromHexEntropy(final String hexEntropy, final long creationTime) throws NodeException {
 		byte[] bytes = HEX.decode(hexEntropy);
 
 		initNode(bytes, creationTime);
@@ -182,12 +182,12 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	@Override
-	public synchronized void addUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener) {
+	public synchronized void addUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
 		eventListeners.add(uniquidNodeEventListener);
 	}
 
 	@Override
-	public synchronized void removeUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener) {
+	public synchronized void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
 		eventListeners.remove(uniquidNodeEventListener);
 	}
 
@@ -207,8 +207,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		return userWallet;
 	}
 
-	public String signTransaction(String s_tx, String path) throws BlockStoreException, InterruptedException,
-			ExecutionException, InsufficientMoneyException, Exception {
+	public String signTransaction(final String s_tx, final String path) throws BlockStoreException,
+			InterruptedException, ExecutionException, InsufficientMoneyException, Exception {
 
 		Transaction originalTransaction = networkParameters.getDefaultSerializer().makeTransaction(Hex.decode(s_tx));
 
@@ -247,7 +247,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		return retValue;
 	}
-	
+
 	/**
 	 * Builder for UniquidNodeImpl
 	 *
@@ -315,14 +315,14 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	/**
 	 * Change internal state
 	 */
-	private synchronized void setUniquidNodeState(UniquidNodeState nodeState) {
+	private synchronized void setUniquidNodeState(final UniquidNodeState nodeState) {
 		this.nodeState = nodeState;
 	}
 
 	/*
 	 * Initialiaze this node from a byte array
 	 */
-	private void initNode(byte[] bytes, long creationTime) throws NodeException {
+	private void initNode(final byte[] bytes, final long creationTime) throws NodeException {
 
 		try {
 
@@ -346,12 +346,14 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 				detSeed = new DeterministicSeed("", bytes, "", creationTime);
 
-				providerWallet = Wallet.fromSeed(networkParameters, detSeed,	UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
+				providerWallet = Wallet.fromSeed(networkParameters, detSeed, UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
+				providerWallet.setDescription("provider");
 
 				providerWallet.saveToFile(providerFile);
 
 				// Create a new user wallet
-				userWallet = Wallet.fromSeed(networkParameters, detSeed,	UniquidNodeImpl.BIP44_ACCOUNT_USER);
+				userWallet = Wallet.fromSeed(networkParameters, detSeed, UniquidNodeImpl.BIP44_ACCOUNT_USER);
+				userWallet.setDescription("user");
 
 				userWallet.saveToFile(userFile);
 
@@ -397,7 +399,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	/*
 	 * Calculate some public info
 	 */
-	private void calculatePublicInfo(DeterministicSeed detSeed) {
+	private void calculatePublicInfo(final DeterministicSeed detSeed) {
 
 		LOGGER.info("HEX entropy " + detSeed.toHexString() + "; creation time " + detSeed.getCreationTimeSeconds());
 
@@ -413,8 +415,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(detSeed.getSeedBytes());
 
-		//LOGGER.info("START_NODE tpriv: " + deterministicKey.serializePrivB58(networkParameters));
-		//LOGGER.info("START_NODE tpub: " + deterministicKey.serializePubB58(networkParameters));
+		// LOGGER.info("START_NODE tpriv: " +
+		// deterministicKey.serializePrivB58(networkParameters));
+		// LOGGER.info("START_NODE tpub: " +
+		// deterministicKey.serializePubB58(networkParameters));
 
 		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 
@@ -438,14 +442,16 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	/*
 	 * callback to receive events from bitcoinj when coins are received
 	 */
-	public synchronized void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+	public synchronized void onCoinsReceived(final Wallet wallet, final Transaction tx, final Coin prevBalance,
+			final Coin newBalance) {
 		nodeState.onCoinsReceived(wallet, tx);
 	}
 
 	/*
 	 * callback to receive events from bitcoinj when coins are sent
 	 */
-	public synchronized void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+	public synchronized void onCoinsSent(final Wallet wallet, final Transaction tx, final Coin prevBalance,
+			final Coin newBalance) {
 		nodeState.onCoinsSent(wallet, tx);
 	}
 
@@ -458,9 +464,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		protected void startDownload(final int blocks) {
 
 			for (UniquidNodeEventListener listener : eventListeners) {
-				
+
 				listener.onSyncStarted(blocks);
-			
+
 			}
 
 		}
@@ -469,9 +475,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		protected void progress(final double pct, final int blocksSoFar, final Date date) {
 
 			for (UniquidNodeEventListener listener : eventListeners) {
-				
+
 				listener.onSyncProgress(pct, blocksSoFar, date);
-			
+
 			}
 
 		}
@@ -480,7 +486,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		public void doneDownload() {
 
 			for (UniquidNodeEventListener listener : eventListeners) {
-				
+
 				listener.onSyncEnded();
 
 			}
@@ -500,7 +506,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		 * @param tx
 		 * @throws Exception
 		 */
-		public void manageContractCreation(Transaction tx) throws Exception;
+		public void manageContractCreation(final Transaction tx) throws Exception;
 
 		/**
 		 * Defines the revocation of a contract
@@ -508,7 +514,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		 * @param tx
 		 * @throws Exception
 		 */
-		public void manageContractRevocation(Transaction tx) throws Exception;
+		public void manageContractRevocation(final Transaction tx) throws Exception;
 
 	}
 
@@ -544,7 +550,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 								tx.getConfidence().removeEventListener(this);
 
-								LOGGER.info("Imprinting Done!");
+								LOGGER.info("Contract Done!");
 
 							} else if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.DEAD)
 									&& reason.equals(ChangeReason.TYPE)) {
@@ -572,7 +578,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		}
 
 		@Override
-		public void manageContractRevocation(Transaction tx) throws Exception {
+		public void manageContractRevocation(final Transaction tx) throws Exception {
 
 			revokeRealContract(tx);
 
@@ -584,7 +590,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		 * @param tx
 		 * @throws Exception
 		 */
-		public abstract void doRealContract(Transaction tx) throws Exception;
+		public abstract void doRealContract(final Transaction tx) throws Exception;
 
 		/**
 		 * Delegate to subclass the real contract revocation
@@ -592,7 +598,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		 * @param tx
 		 * @throws Exception
 		 */
-		public abstract void revokeRealContract(Transaction tx) throws Exception;
+		public abstract void revokeRealContract(final Transaction tx) throws Exception;
 
 	}
 
@@ -607,7 +613,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		private static final String CONTRACT_FUNCTION = "000000400000000000000000000000000000";
 
 		@Override
-		public void doRealContract(Transaction tx) throws Exception {
+		public void doRealContract(final Transaction tx) throws Exception {
 
 			// Retrieve sender
 			String sender = tx.getInput(0).getFromAddress().toBase58();
@@ -657,7 +663,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		}
 
 		@Override
-		public void revokeRealContract(Transaction tx) throws Exception {
+		public void revokeRealContract(final Transaction tx) throws Exception {
 			// DO NOTHING
 		}
 
@@ -672,7 +678,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	private class ProviderContract extends AbstractContract {
 
 		@Override
-		public void doRealContract(Transaction tx) throws Exception {
+		public void doRealContract(final Transaction tx) throws Exception {
 
 			List<TransactionOutput> transactionOutputs = tx.getOutputs();
 
@@ -769,14 +775,14 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		}
 
 		@Override
-		public void revokeRealContract(Transaction tx) throws Exception {
+		public void revokeRealContract(final Transaction tx) throws Exception {
 
 			// Retrieve sender
 			String sender = tx.getInput(0).getFromAddress().toBase58();
 
 			ProviderRegister providerRegister;
 			try {
-				
+
 				providerRegister = registerFactory.getProviderRegister();
 				ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
 
@@ -794,7 +800,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 						listener.onProviderContractRevoked(channel);
 
 					}
-					
+
 				} else {
 
 					LOGGER.warn("No contract found to revoke!");
@@ -812,7 +818,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	private class UserContract extends AbstractContract {
 
 		@Override
-		public void doRealContract(Transaction tx) throws Exception {
+		public void doRealContract(final Transaction tx) throws Exception {
 
 			List<TransactionOutput> transactionOutputs = tx.getOutputs();
 
@@ -898,7 +904,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		}
 
 		@Override
-		public void revokeRealContract(Transaction tx) throws Exception {
+		public void revokeRealContract(final Transaction tx) throws Exception {
 			// DO NOTHIG
 		}
 
@@ -911,10 +917,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 */
 	private interface UniquidNodeState {
 
-		public void onCoinsSent(Wallet wallet, Transaction tx);
+		public void onCoinsSent(final Wallet wallet, final Transaction tx);
 
-		public void onCoinsReceived(Wallet wallet, Transaction tx);
-		
+		public void onCoinsReceived(final Wallet wallet, final Transaction tx);
+
 		public com.uniquid.node.UniquidNodeState getNodeState();
 
 	}
@@ -936,16 +942,16 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		}
 
 		@Override
-		public void onCoinsSent(Wallet wallet, Transaction tx) {
+		public void onCoinsSent(final Wallet wallet, final Transaction tx) {
 
 			LOGGER.info("We sent coins from a wallet that we don't expect!");
 
 		}
 
 		@Override
-		public void onCoinsReceived(Wallet wallet, Transaction tx) {
+		public void onCoinsReceived(final Wallet wallet, final Transaction tx) {
 
-			if (wallet.equals(providerWallet)) {
+			if (wallet.equals(providerWallet) || "provider".equalsIgnoreCase(wallet.getDescription())) {
 
 				LOGGER.info("Received coins on provider wallet");
 
@@ -975,7 +981,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 				}
 
-			} else if (wallet.equals(userWallet)) {
+			} else if (wallet.equals(userWallet) || "user".equalsIgnoreCase(wallet.getDescription())) {
 
 				LOGGER.info("Received coins on user wallet");
 
@@ -1000,9 +1006,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		@Override
 		public com.uniquid.node.UniquidNodeState getNodeState() {
-			
+
 			return com.uniquid.node.UniquidNodeState.IMPRINTING;
-		
+
 		}
 
 	}
@@ -1016,10 +1022,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	private class ReadyState implements UniquidNodeState {
 
 		@Override
-		public void onCoinsSent(Wallet wallet, Transaction tx) {
+		public void onCoinsSent(final Wallet wallet, final Transaction tx) {
 
 			// We sent some coins. Probably we created a contract as Provider
-			if (wallet.equals(providerWallet)) {
+			if (wallet.equals(providerWallet) || "provider".equalsIgnoreCase(wallet.getDescription())) {
 
 				LOGGER.info("Sent coins from provider wallet");
 
@@ -1035,7 +1041,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 				}
 
-			} else if (wallet.equals(userWallet)) {
+			} else if (wallet.equals(userWallet) || "user".equalsIgnoreCase(wallet.getDescription())) {
 
 				LOGGER.info("Sent coins from user wallet");
 
@@ -1062,51 +1068,42 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		}
 
 		@Override
-		public void onCoinsReceived(Wallet wallet, Transaction tx) {
+		public void onCoinsReceived(final Wallet wallet, final Transaction tx) {
 
 			// Received a contract!!!
-			if (wallet.equals(providerWallet)) {
+			if (wallet.equals(providerWallet) || "provider".equalsIgnoreCase(wallet.getDescription())) {
 
 				LOGGER.info("Received coins on provider wallet");
 
 				// If is imprinting transaction...
-				// if (UniquidNodeStateUtils.isValidImprintingTransaction(tx,
-				// nodeStateContext)) {
-				//
-				// // imprint!
-				// LOGGER.warn("Attention! Another machine tried to imprint US!
-				// Skip request!");
-				//
-				// } /*
-				// * else if
-				// * (com.uniquid.node.utils.Utils.isValidRevokeContract(tx,
-				// * networkParameters, nodeStateContext)) {
-				// *
-				// * LOGGER.info("Revoking contract!");
-				// * com.uniquid.node.utils.Utils.revokeContract(wallet, tx,
-				// * networkParameters, nodeStateContext);
-				// *
-				// * }
-				// */ else {
-				//
-				// LOGGER.info("Unknown contract");
-				//
-				// }
+				if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, networkParameters, imprintingAddress)) {
 
-			} else if (wallet.equals(userWallet)) {
+					// imprint!
+					LOGGER.warn("Attention! Another machine tried to imprint US! Skip request!");
+
+				} else if (UniquidNodeStateUtils.isValidRevokeContract(tx, registerFactory)) {
+
+					try {
+						// Revoking a contract will move coins from provider wallet to another provider address
+						LOGGER.info("Revoking contract!");
+
+						ContractStrategy contractStrategy = new ProviderContract();
+						contractStrategy.manageContractRevocation(tx);
+
+					} catch (Exception ex) {
+
+						LOGGER.error("Exception", ex);
+					}
+
+				} else {
+
+					LOGGER.info("Unknown contract");
+
+				}
+
+			} else if (wallet.equals(userWallet) || "user".equalsIgnoreCase(wallet.getDescription())) {
 
 				LOGGER.info("Received coins on user wallet");
-
-				/*
-				 * if (com.uniquid.node.utils.Utils.isValidRevokeContract(tx,
-				 * networkParameters, nodeStateContext)) {
-				 * 
-				 * LOGGER.info("Revoking contract!");
-				 * com.uniquid.node.utils.Utils.revokeContract(wallet, tx,
-				 * networkParameters, nodeStateContext);
-				 * 
-				 * } else {
-				 */
 
 				try {
 
@@ -1130,9 +1127,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		@Override
 		public com.uniquid.node.UniquidNodeState getNodeState() {
-			
+
 			return com.uniquid.node.UniquidNodeState.READY;
-		
+
 		}
 
 	}

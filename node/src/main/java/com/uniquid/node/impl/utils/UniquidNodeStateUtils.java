@@ -9,6 +9,10 @@ import org.bitcoinj.core.TransactionOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.uniquid.register.RegisterFactory;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.provider.ProviderRegister;
+
 public class UniquidNodeStateUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeStateUtils.class.getName());
@@ -29,28 +33,28 @@ public class UniquidNodeStateUtils {
 		return false;
 	}
 
-//	public static boolean isValidRevokeContract(Transaction tx, UniquidNodeStateContext nodeStateContext) {
-//
-//		// Retrieve sender
-//		String sender = tx.getInput(0).getFromAddress().toBase58();
-//
-//		ProviderRegister providerRegister;
-//		try {
-//			providerRegister = nodeStateContext.getRegisterFactory().getProviderRegister();
-//			ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
-//
-//			if (channel != null) {
-//				return true;
-//			}
-//
-//		} catch (Exception e) {
-//
-//			LOGGER.error("Exception", e);
-//
-//		}
-//
-//		return false;
-//
-//	}
+	public static boolean isValidRevokeContract(Transaction tx, RegisterFactory registerFactory) {
+
+		// Retrieve sender
+		String sender = tx.getInput(0).getFromAddress().toBase58();
+
+		ProviderRegister providerRegister;
+		try {
+			providerRegister = registerFactory.getProviderRegister();
+			ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
+
+			if (channel != null) {
+				return true;
+			}
+
+		} catch (Exception e) {
+
+			LOGGER.error("Exception", e);
+
+		}
+
+		return false;
+
+	}
 
 }

@@ -18,21 +18,21 @@ public interface UniquidNodeEventListener {
 	 * 
 	 * @param providerChannel the ProviderChannel created
 	 */
-	public void onProviderContractCreated(ProviderChannel providerChannel);
+	public void onProviderContractCreated(final ProviderChannel providerChannel);
 	
 	/**
 	 * Called when a provider channel is revoked
 	 * 
 	 * @param providerChannel the ProviderChannel revoked
 	 */
-	public void onProviderContractRevoked(ProviderChannel providerChannel);
+	public void onProviderContractRevoked(final ProviderChannel providerChannel);
 	
 	/**
 	 * Called when a user channel is created
 	 * 
 	 * @param userChannel the UserChannel created
 	 */
-	public void onUserContractCreated(UserChannel userChannel);
+	public void onUserContractCreated(final UserChannel userChannel);
 	
 	
 	/**
@@ -40,7 +40,7 @@ public interface UniquidNodeEventListener {
 	 * 
 	 * @param userChannel the UserChannel revoked
 	 */
-	public void onUserContractRevoked(UserChannel userChannel);
+	public void onUserContractRevoked(final UserChannel userChannel);
 	
 	/**
 	 * Called when a sync from blockchain starts
@@ -53,7 +53,7 @@ public interface UniquidNodeEventListener {
 	 * Called when a sync progress
 	 * 
 	 */
-	public void onSyncProgress(double pct, final int blocksSoFar, Date date);
+	public void onSyncProgress(double pct, final int blocksSoFar, final Date date);
 	
 	/**
 	 * Called when a sync from blockchain terminates
@@ -64,6 +64,6 @@ public interface UniquidNodeEventListener {
 	/**
 	 * Called when a state chane happens
 	 */
-	public void onNodeStateChange(com.uniquid.node.UniquidNodeState newState);
+	public void onNodeStateChange(final com.uniquid.node.UniquidNodeState newState);
 
 }

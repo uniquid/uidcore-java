@@ -56,7 +56,7 @@ public interface UniquidNode {
 	 * @param hexEntropy the entropy represented in hex format
 	 * @param creationTime the creation time in seconds
 	 */
-	public void initNodeFromHexEntropy(String hexEntropy, long creationTime) throws NodeException;
+	public void initNodeFromHexEntropy(final String hexEntropy, final long creationTime) throws NodeException;
 
 	/**
 	 * Synchronize the node against the blockchain.
@@ -75,13 +75,13 @@ public interface UniquidNode {
 	 * 
 	 * @param uniquidNodeEventListener the event listener that will receive callbacks
 	 */
-	public void addUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener);
+	public void addUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener);
 
 	/**
 	 * Unregister an event listener
 	 * 
 	 * @param uniquidNodeEventListener the event listener that will be removed
 	 */
-	public void removeUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener);
+	public void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener);
 
 }
