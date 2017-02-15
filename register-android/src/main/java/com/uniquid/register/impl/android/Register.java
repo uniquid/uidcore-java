@@ -189,7 +189,7 @@ public class Register implements UserRegister, ProviderRegister {
             providerChannel.setRevokeTxId(cursor.getString(4));
             cursor.close();
         } else {
-            throw new RegisterException("Doesn't exist any record with specified name");
+            return null;
         }
         return providerChannel;
     }
@@ -209,7 +209,7 @@ public class Register implements UserRegister, ProviderRegister {
             providerChannel.setRevokeTxId(cursor.getString(4));
             cursor.close();
         } else {
-            throw new RegisterException("Doesn't exist any record with specified name");
+            return null;
         }
         return providerChannel;
     }
