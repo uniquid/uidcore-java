@@ -39,6 +39,12 @@ public interface UniquidNode {
 	public long getCreationTime();
 	
 	/**
+	 * Returns the hex seed of this node
+	 * @return the hex seed of this node
+	 */
+	public String getHexSeed();
+	
+	/**
 	 * Return the spendable balance of this node
 	 * 
 	 * @return the spendable balance of this node
@@ -46,7 +52,7 @@ public interface UniquidNode {
 	public String getSpendableBalance();
 
 	/**
-	 * Initialize this node with some random byte entropy 
+	 * Initialize this node
 	 */
 	public void initNode() throws NodeException;
 	
@@ -75,5 +81,5 @@ public interface UniquidNode {
 	 * @param uniquidNodeEventListener the event listener that will be removed
 	 */
 	public void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener);
-
+	
 }

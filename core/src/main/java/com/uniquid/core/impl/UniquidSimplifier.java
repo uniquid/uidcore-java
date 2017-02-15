@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.uniquid.node.UniquidNode;
+import com.uniquid.node.UniquidNodeState;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.core.Core;
 import com.uniquid.core.InputMessage;
@@ -104,8 +105,13 @@ public class UniquidSimplifier extends Core {
 	 */
 	public void start() throws Exception {
 
-		// initialize node
-		getNode().initNode();
+		// initialize node if not yet initilized
+		if (UniquidNodeState.CREATED.equals(getNode().getNodeState())) {
+			
+			LOGGER.info("Initializing node");
+			getNode().initNode();
+		
+		}
 		
 		final Runnable walletSyncher = new Runnable() {
 			
@@ -127,8 +133,8 @@ public class UniquidSimplifier extends Core {
 		final ScheduledFuture<?> updaterThread = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 1,
 				TimeUnit.MINUTES);
 
-		// start connector
 		try {
+			// start connector
 			getConnector().start();
 		} catch (ConnectorException e) {
 			LOGGER.error("Exception", e);
@@ -151,6 +157,12 @@ public class UniquidSimplifier extends Core {
 						InputMessage<?> inputMessage = endPoint.getInputMessage();
 
 						OutputMessage<?> outputMessage = endPoint.getOutputMessage();
+						
+						if (!UniquidNodeState.READY.equals(getNode().getNodeState())) {
+							LOGGER.warn("Node is not yet READY! Skipping request");
+							
+							return;
+						}
 
 						LOGGER.info("Received input message from : " + inputMessage.getParameter(InputMessage.SENDER)
 								+ " asking method " + inputMessage.getParameter(InputMessage.RPC_METHOD));

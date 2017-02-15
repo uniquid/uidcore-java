@@ -85,12 +85,14 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	private String publicKey;
 	private String machineName;
 
-	private byte[] random;
+	private byte[] seed;
 	private long creationTime;
 
 	private RegisterFactory registerFactory;
 
 	private List<UniquidNodeEventListener> eventListeners;
+	
+	private DeterministicSeed detSeed;
 
 	private UniquidNodeImpl(Builder builder)
 			throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -103,8 +105,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		this.registerFactory = builder._registerFactory;
 		this.machineName = builder._machineName;
 		this.eventListeners = new ArrayList<UniquidNodeEventListener>();
-		this.random = builder._randomBytes;
+		this.seed = builder._seed;
 		this.creationTime = builder._creationTime;
+		
+		setUniquidNodeState(new CreatedState());
 
 	}
 
@@ -132,12 +136,87 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	public long getCreationTime() {
 		return providerWallet.getKeyChainSeed().getCreationTimeSeconds();
 	}
+	
+	@Override
+	public String getHexSeed() {
+		return detSeed.toHexString();
+	}
 
 	@Override
 	public String getSpendableBalance() {
 		return providerWallet.getBalance(Wallet.BalanceType.AVAILABLE_SPENDABLE).toFriendlyString();
 	}
 
+	@Override
+	public void initNode() throws NodeException {
+
+		try {
+
+			if (providerFile.exists() && !providerFile.isDirectory() && userFile.exists() && !userFile.isDirectory()) {
+
+				// Wallets already present!
+				providerWallet = Wallet.loadFromFile(providerFile);
+				userWallet = Wallet.loadFromFile(userFile);
+
+				detSeed = providerWallet.getKeyChainSeed();
+
+			} else {
+
+				// Create a new provider wallet
+				// providerWallet = Wallet.fromSeed(networkParameters,
+				// new DeterministicSeed(bytes, "", creationTime),
+				// UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER,
+				// UniquidNodeImpl.BIP44_ACCOUNT_USER);
+
+				detSeed = new DeterministicSeed("", seed, "", creationTime);
+
+				providerWallet = Wallet.fromSeed(networkParameters, detSeed, UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
+				providerWallet.setDescription("provider");
+
+				providerWallet.saveToFile(providerFile);
+
+				// Create a new user wallet
+				userWallet = Wallet.fromSeed(networkParameters, detSeed, UniquidNodeImpl.BIP44_ACCOUNT_USER);
+				userWallet.setDescription("user");
+
+				userWallet.saveToFile(userFile);
+
+			}
+
+			// Calculate public info
+			calculatePublicInfo(detSeed);
+
+			// Retrieve contracts
+			List<ProviderChannel> providerChannels = registerFactory.getProviderRegister().getAllChannels();
+
+			// If there is at least 1 contract, then we are ready
+			if (providerChannels.size() > 0) {
+
+				// Jump to ready state
+				setUniquidNodeState(new ReadyState());
+
+			} else {
+
+				// Jump to initializing
+				setUniquidNodeState(new ImprintingState());
+
+			}
+
+			// Add event listeners
+			providerWallet.addCoinsReceivedEventListener(this);
+			providerWallet.addCoinsSentEventListener(this);
+			userWallet.addCoinsReceivedEventListener(this);
+			userWallet.addCoinsSentEventListener(this);
+
+		} catch (Exception ex) {
+
+			throw new NodeException("Exception while initializating node", ex);
+
+		}
+
+		// DONE INITIALIZATION
+	}
+	
 	@Override
 	public void updateNode() throws NodeException {
 
@@ -246,7 +325,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		private File _userFile;
 		private File _chainFile;
 		private File _userChainFile;
-		private byte[] _randomBytes;
+		private byte[] _seed;
 		private long _creationTime;
 
 		private RegisterFactory _registerFactory;
@@ -292,18 +371,18 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
 			SecureRandom random = new SecureRandom();
-			_randomBytes = new byte[32];
-			random.nextBytes(_randomBytes);
+			_seed = new byte[32];
+			random.nextBytes(_seed);
 			_creationTime = System.currentTimeMillis() / 1000;
 
 			return new UniquidNodeImpl(this);
 
 		}
 
-		public UniquidNodeImpl buildFromHexEntropy(final String hexEntropy, final long creationTime)
+		public UniquidNodeImpl buildFromHexSeed(final String hexSeed, final long creationTime)
 				throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-			_randomBytes = HEX.decode(hexEntropy);
+			_seed = HEX.decode(hexSeed);
 
 			_creationTime = creationTime;
 
@@ -324,98 +403,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	/*
-	 * Initialiaze this node from a byte array
-	 */
-	public void initNode() throws NodeException {
-
-		try {
-
-			DeterministicSeed detSeed = null;
-
-			if (providerFile.exists() && !providerFile.isDirectory() && userFile.exists() && !userFile.isDirectory()) {
-
-				// Wallets already present!
-				providerWallet = Wallet.loadFromFile(providerFile);
-				userWallet = Wallet.loadFromFile(userFile);
-
-				detSeed = providerWallet.getKeyChainSeed();
-
-			} else {
-
-				// Create a new provider wallet
-				// providerWallet = Wallet.fromSeed(networkParameters,
-				// new DeterministicSeed(bytes, "", creationTime),
-				// UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER,
-				// UniquidNodeImpl.BIP44_ACCOUNT_USER);
-
-				detSeed = new DeterministicSeed("", random, "", creationTime);
-
-				providerWallet = Wallet.fromSeed(networkParameters, detSeed, UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
-				providerWallet.setDescription("provider");
-
-				providerWallet.saveToFile(providerFile);
-
-				// Create a new user wallet
-				userWallet = Wallet.fromSeed(networkParameters, detSeed, UniquidNodeImpl.BIP44_ACCOUNT_USER);
-				userWallet.setDescription("user");
-
-				userWallet.saveToFile(userFile);
-
-			}
-
-			// Calculate public info
-			calculatePublicInfo(detSeed);
-
-			// Retrieve contracts
-			List<ProviderChannel> providerChannels = registerFactory.getProviderRegister().getAllChannels();
-
-			// If there is at least 1 contract, then we are ready
-			if (providerChannels.size() > 0) {
-
-				// Jump to ready state
-				setUniquidNodeState(new ReadyState());
-
-			} else {
-
-				// Jump to initializing
-				setUniquidNodeState(new ImprintingState());
-
-			}
-
-			// Add event listeners
-			providerWallet.addCoinsReceivedEventListener(this);
-			providerWallet.addCoinsSentEventListener(this);
-			userWallet.addCoinsReceivedEventListener(this);
-			userWallet.addCoinsSentEventListener(this);
-
-			// start updating
-			updateNode();
-
-		} catch (Exception ex) {
-
-			throw new NodeException("Exception while initializating node", ex);
-
-		}
-
-		// DONE INITIALIZATION
-	}
-
-	/*
 	 * Calculate some public info
 	 */
 	private void calculatePublicInfo(final DeterministicSeed detSeed) {
-
-		LOGGER.info("HEX entropy " + detSeed.toHexString() + "; creation time " + detSeed.getCreationTimeSeconds());
-
-		try {
-
-			LOGGER.info("Mnemonics: " + Utils.join(MnemonicCode.INSTANCE.toMnemonic(detSeed.getSeedBytes())));
-
-		} catch (Exception ex) {
-
-			LOGGER.error("Exception", ex);
-
-		}
 
 		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(detSeed.getSeedBytes());
 
@@ -430,7 +420,6 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				new ChildNumber(0, true));
 
 		DeterministicKey imprintingKey = deterministicHierarchy.get(IMPRINTING_PATH, true, true);
-		LOGGER.info("Imprinting key tpub: " + imprintingKey.serializePubB58(networkParameters));
 
 		publicKey = imprintingKey.serializePubB58(networkParameters);
 
@@ -915,7 +904,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	/**
-	 * 
+	 * Implementation of State Design pattern
 	 * @author giuseppe
 	 *
 	 */
@@ -928,12 +917,33 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		public com.uniquid.node.UniquidNodeState getNodeState();
 
 	}
+	
+	/**
+	 * Fake state to be used when new instance is created
+	 */
+	private class CreatedState implements UniquidNodeState {
+
+		@Override
+		public void onCoinsSent(Wallet wallet, Transaction tx) {
+			throw new UnsupportedOperationException();
+			
+		}
+
+		@Override
+		public void onCoinsReceived(Wallet wallet, Transaction tx) {
+			throw new UnsupportedOperationException();
+			
+		}
+
+		@Override
+		public com.uniquid.node.UniquidNodeState getNodeState() {
+			return com.uniquid.node.UniquidNodeState.CREATED;
+		}
+		
+	}
 
 	/**
 	 * Implementation of State Design pattern
-	 * 
-	 * @author giuseppe
-	 *
 	 */
 	private class ImprintingState implements UniquidNodeState {
 
@@ -1020,8 +1030,6 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	/**
 	 * Class to represents the ready state
 	 * 
-	 * @author giuseppe
-	 *
 	 */
 	private class ReadyState implements UniquidNodeState {
 
