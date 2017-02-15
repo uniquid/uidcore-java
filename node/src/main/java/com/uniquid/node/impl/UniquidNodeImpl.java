@@ -236,6 +236,13 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 					
 					registerFactory.getUserRegister().deleteChannel(u);
 					
+					// Inform listeners
+					for (UniquidNodeEventListener listener : eventListeners) {
+
+						listener.onUserContractRevoked(u);
+
+					}
+
 				}
 				
 			}
