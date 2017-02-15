@@ -22,7 +22,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     public static final String USER_CLM_REVOKE_ADDRESS = "revoke_address";
     public static final String USER_CLM_REVOKE_TX_ID = "revoke_tx_id";
     public static final String USER_CREATE = "create table " + TABLE_USER + "(" +
-            USER_CLM_PROVIDER_NAME + " text not null unique, " +
+            USER_CLM_PROVIDER_NAME + " text not null, " +
             USER_CLM_PROVIDER_ADDRESS + " text not null, " +
             USER_CLM_USER_ADDRESS + " text not null, " +
             USER_CLM_BITMASK + " text not null, " +
