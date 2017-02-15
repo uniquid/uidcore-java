@@ -610,7 +610,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 */
 	private class ImprintingContract extends AbstractContract {
 
-		private static final String CONTRACT_FUNCTION = "000000400000000000000000000000000000";
+		private static final String CONTRACT_FUNCTION = "00000000400000000000000000000000000000";
 
 		@Override
 		public void doRealContract(final Transaction tx) throws Exception {
