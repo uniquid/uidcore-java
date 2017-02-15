@@ -82,6 +82,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 					providerChannel.setProviderAddress(rs.getString("provider_address"));
 					providerChannel.setUserAddress(rs.getString("user_address"));
 					providerChannel.setBitmask(rs.getString("bitmask"));
+					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
 					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
 
 					return providerChannel;
@@ -119,6 +120,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 					providerChannel.setProviderAddress(rs.getString("provider_address"));
 					providerChannel.setUserAddress(rs.getString("user_address"));
 					providerChannel.setBitmask(rs.getString("bitmask"));
+					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
 					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
 
 					return providerChannel;
@@ -156,6 +158,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 					providerChannel.setProviderAddress(rs.getString("provider_address"));
 					providerChannel.setUserAddress(rs.getString("user_address"));
 					providerChannel.setBitmask(rs.getString("bitmask"));
+					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
 					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
 
 					return providerChannel;
@@ -425,9 +428,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 					ProviderChannel providerChannel = new ProviderChannel();
 
 					providerChannel.setProviderAddress(rs.getString("provider_address"));
-					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
 					providerChannel.setUserAddress(rs.getString("user_address"));
 					providerChannel.setBitmask(rs.getString("bitmask"));
+					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
 					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
 
 					providerChannels.add(providerChannel);
