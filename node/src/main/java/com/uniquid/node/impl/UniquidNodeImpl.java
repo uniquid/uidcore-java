@@ -21,12 +21,10 @@ import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionConfidence;
 import org.bitcoinj.core.TransactionConfidence.Listener;
 import org.bitcoinj.core.TransactionOutput;
-import org.bitcoinj.core.Utils;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
-import org.bitcoinj.crypto.MnemonicCode;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.wallet.DeterministicSeed;
@@ -118,33 +116,33 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 *
 	 */
 	@Override
-	public String getImprintingAddress() {
-		return imprintingAddress.toBase58();
+	public synchronized String getImprintingAddress() {
+		return nodeState.getImprintingAddress();
 	}
 
 	@Override
-	public String getPublicKey() {
-		return publicKey;
+	public synchronized String getPublicKey() {
+		return nodeState.getPublicKey();
 	}
 
 	@Override
-	public String getNodeName() {
-		return machineName;
+	public synchronized String getNodeName() {
+		return nodeState.getNodeName();
 	}
 
 	@Override
-	public long getCreationTime() {
-		return providerWallet.getKeyChainSeed().getCreationTimeSeconds();
+	public synchronized long getCreationTime() {
+		return nodeState.getCreationTime();
 	}
 	
 	@Override
-	public String getHexSeed() {
-		return detSeed.toHexString();
+	public synchronized String getHexSeed() {
+		return nodeState.getHexSeed();
 	}
 
 	@Override
-	public String getSpendableBalance() {
-		return providerWallet.getBalance(Wallet.BalanceType.AVAILABLE_SPENDABLE).toFriendlyString();
+	public synchronized String getSpendableBalance() {
+		return nodeState.getSpendableBalance();
 	}
 
 	@Override
@@ -218,7 +216,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 	
 	@Override
-	public void updateNode() throws NodeException {
+	public synchronized void updateNode() throws NodeException {
 
 		// Provider wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, providerWallet, providerChainFile,
@@ -272,7 +270,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		return userWallet;
 	}
 
-	public String signTransaction(final String s_tx, final String path) throws BlockStoreException,
+	public synchronized String signTransaction(final String s_tx, final String path) throws BlockStoreException,
 			InterruptedException, ExecutionException, InsufficientMoneyException, Exception {
 
 		Transaction originalTransaction = networkParameters.getDefaultSerializer().makeTransaction(Hex.decode(s_tx));
@@ -904,8 +902,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	/**
-	 * Implementation of State Design pattern
-	 * @author giuseppe
+	 * Implementation of State Design pattern: most public methods will be delegated to current state
 	 *
 	 */
 	private interface UniquidNodeState {
@@ -915,6 +912,22 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		public void onCoinsReceived(final Wallet wallet, final Transaction tx);
 
 		public com.uniquid.node.UniquidNodeState getNodeState();
+		
+		public String getImprintingAddress();
+		
+		public String getPublicKey();
+		
+		public String getNodeName();
+		
+		public long getCreationTime();
+		
+		public String getHexSeed();
+		
+		public String getSpendableBalance();
+		
+		public Wallet getProviderWallet();
+		
+		public Wallet getUserWallet();
 
 	}
 	
@@ -925,19 +938,59 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		@Override
 		public void onCoinsSent(Wallet wallet, Transaction tx) {
-			throw new UnsupportedOperationException();
+			throw new IllegalStateException();
 			
 		}
 
 		@Override
 		public void onCoinsReceived(Wallet wallet, Transaction tx) {
-			throw new UnsupportedOperationException();
+			throw new IllegalStateException();
 			
 		}
 
 		@Override
 		public com.uniquid.node.UniquidNodeState getNodeState() {
 			return com.uniquid.node.UniquidNodeState.CREATED;
+		}
+
+		@Override
+		public String getImprintingAddress() {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public String getPublicKey() {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public String getNodeName() {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public long getCreationTime() {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public String getHexSeed() {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public String getSpendableBalance() {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public Wallet getProviderWallet() {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public Wallet getUserWallet() {
+			throw new IllegalStateException();
 		}
 		
 	}
@@ -1023,6 +1076,46 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			return com.uniquid.node.UniquidNodeState.IMPRINTING;
 
+		}
+
+		@Override
+		public String getImprintingAddress() {
+			return imprintingAddress.toBase58();
+		}
+
+		@Override
+		public String getPublicKey() {
+			return publicKey;
+		}
+
+		@Override
+		public String getNodeName() {
+			return machineName;
+		}
+
+		@Override
+		public long getCreationTime() {
+			return providerWallet.getKeyChainSeed().getCreationTimeSeconds();
+		}
+
+		@Override
+		public String getHexSeed() {
+			return detSeed.toHexString();
+		}
+
+		@Override
+		public String getSpendableBalance() {
+			return providerWallet.getBalance(Wallet.BalanceType.AVAILABLE_SPENDABLE).toFriendlyString();
+		}
+
+		@Override
+		public Wallet getProviderWallet() {
+			return providerWallet;
+		}
+
+		@Override
+		public Wallet getUserWallet() {
+			return userWallet;
 		}
 
 	}
@@ -1142,6 +1235,46 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			return com.uniquid.node.UniquidNodeState.READY;
 
+		}
+		
+		@Override
+		public String getImprintingAddress() {
+			return imprintingAddress.toBase58();
+		}
+
+		@Override
+		public String getPublicKey() {
+			return publicKey;
+		}
+
+		@Override
+		public String getNodeName() {
+			return machineName;
+		}
+
+		@Override
+		public long getCreationTime() {
+			return providerWallet.getKeyChainSeed().getCreationTimeSeconds();
+		}
+
+		@Override
+		public String getHexSeed() {
+			return detSeed.toHexString();
+		}
+
+		@Override
+		public String getSpendableBalance() {
+			return providerWallet.getBalance(Wallet.BalanceType.AVAILABLE_SPENDABLE).toFriendlyString();
+		}
+
+		@Override
+		public Wallet getProviderWallet() {
+			return providerWallet;
+		}
+
+		@Override
+		public Wallet getUserWallet() {
+			return userWallet;
 		}
 
 	}
