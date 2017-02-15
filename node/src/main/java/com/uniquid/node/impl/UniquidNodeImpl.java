@@ -971,7 +971,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 					} else {
 
-						LOGGER.info("Invalid imprinting contract");
+						LOGGER.info("Invalid contract");
 
 					}
 
