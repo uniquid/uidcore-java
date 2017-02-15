@@ -117,8 +117,9 @@ public class Register implements UserRegister, ProviderRegister {
      * */
     public void deleteChannel(UserChannel userChannel) throws RegisterException {
         db = dbHelper.getWritableDatabase();
-        int d = db.delete(SQLiteHelper.TABLE_USER, SQLiteHelper.USER_CLM_PROVIDER_NAME + " = ?",
-                new String[]{userChannel.getProviderName()});
+        int d = db.delete(SQLiteHelper.TABLE_USER, SQLiteHelper.USER_CLM_PROVIDER_NAME + " = ? " +
+        		SQLiteHelper.USER_CLM_PROVIDER_ADDRESS + " = ? " + SQLiteHelper.USER_CLM_USER_ADDRESS + " = ?" ,
+                new String[]{userChannel.getProviderName(), userChannel.getProviderAddress(), userChannel.getUserAddress()});
         if(d == 0)
             throw new RegisterException("Channel not present");
     }

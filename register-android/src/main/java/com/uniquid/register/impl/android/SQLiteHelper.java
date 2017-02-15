@@ -27,7 +27,10 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             USER_CLM_USER_ADDRESS + " text not null, " +
             USER_CLM_BITMASK + " text not null, " +
             USER_CLM_REVOKE_ADDRESS + " text not null, " +
-            USER_CLM_REVOKE_TX_ID + " text not null);";
+            USER_CLM_REVOKE_TX_ID + " text not null, primary key (" +
+            USER_CLM_PROVIDER_NAME + ", " +
+            USER_CLM_PROVIDER_ADDRESS + ", " +
+            USER_CLM_USER_ADDRESS + "));";
 
     //    PROVIDER
     public static final String TABLE_PROVIDER = "provider_channel";
