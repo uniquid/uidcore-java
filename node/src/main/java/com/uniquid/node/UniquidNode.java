@@ -51,14 +51,6 @@ public interface UniquidNode {
 	public void initNode() throws NodeException;
 	
 	/**
-	 * Initialize this node starting with specified byte array entropy and creation date
-	 * 
-	 * @param hexEntropy the entropy represented in hex format
-	 * @param creationTime the creation time in seconds
-	 */
-	public void initNodeFromHexEntropy(final String hexEntropy, final long creationTime) throws NodeException;
-
-	/**
 	 * Synchronize the node against the blockchain.
 	 */
 	public void updateNode() throws NodeException;

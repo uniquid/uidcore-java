@@ -85,6 +85,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	private String publicKey;
 	private String machineName;
 
+	private byte[] random;
+	private long creationTime;
+
 	private RegisterFactory registerFactory;
 
 	private List<UniquidNodeEventListener> eventListeners;
@@ -100,6 +103,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		this.registerFactory = builder._registerFactory;
 		this.machineName = builder._machineName;
 		this.eventListeners = new ArrayList<UniquidNodeEventListener>();
+		this.random = builder._randomBytes;
+		this.creationTime = builder._creationTime;
 
 	}
 
@@ -131,25 +136,6 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	@Override
 	public String getSpendableBalance() {
 		return providerWallet.getBalance(Wallet.BalanceType.AVAILABLE_SPENDABLE).toFriendlyString();
-	}
-
-	@Override
-	public void initNode() throws NodeException {
-		SecureRandom random = new SecureRandom();
-		// byte[] bytes = new byte[DeterministicSeed.DEFAULT_SEED_ENTROPY_BITS /
-		// 8];
-		byte[] bytes = new byte[32];
-		random.nextBytes(bytes);
-		long creationTime = System.currentTimeMillis() / 1000;
-
-		initNode(bytes, creationTime);
-	}
-
-	@Override
-	public void initNodeFromHexEntropy(final String hexEntropy, final long creationTime) throws NodeException {
-		byte[] bytes = HEX.decode(hexEntropy);
-
-		initNode(bytes, creationTime);
 	}
 
 	@Override
@@ -260,6 +246,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		private File _userFile;
 		private File _chainFile;
 		private File _userChainFile;
+		private byte[] _randomBytes;
+		private long _creationTime;
 
 		private RegisterFactory _registerFactory;
 
@@ -303,6 +291,22 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		public UniquidNodeImpl build()
 				throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
+			SecureRandom random = new SecureRandom();
+			_randomBytes = new byte[32];
+			random.nextBytes(_randomBytes);
+			_creationTime = System.currentTimeMillis() / 1000;
+
+			return new UniquidNodeImpl(this);
+
+		}
+
+		public UniquidNodeImpl buildFromHexEntropy(final String hexEntropy, final long creationTime)
+				throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+
+			_randomBytes = HEX.decode(hexEntropy);
+
+			_creationTime = creationTime;
+
 			return new UniquidNodeImpl(this);
 
 		}
@@ -322,7 +326,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	/*
 	 * Initialiaze this node from a byte array
 	 */
-	private void initNode(final byte[] bytes, final long creationTime) throws NodeException {
+	public void initNode() throws NodeException {
 
 		try {
 
@@ -344,7 +348,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				// UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER,
 				// UniquidNodeImpl.BIP44_ACCOUNT_USER);
 
-				detSeed = new DeterministicSeed("", bytes, "", creationTime);
+				detSeed = new DeterministicSeed("", random, "", creationTime);
 
 				providerWallet = Wallet.fromSeed(networkParameters, detSeed, UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
 				providerWallet.setDescription("provider");
