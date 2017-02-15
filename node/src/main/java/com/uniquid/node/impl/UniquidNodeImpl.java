@@ -900,6 +900,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				UserRegister userRegister = registerFactory.getUserRegister();
 
 				userRegister.insertChannel(userChannel);
+				
+				LOGGER.info("inserted user register: " + userRegister);
 
 			} catch (Exception e) {
 
