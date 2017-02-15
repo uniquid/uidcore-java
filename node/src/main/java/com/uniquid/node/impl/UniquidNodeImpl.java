@@ -221,6 +221,30 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		// Provider wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, providerWallet, providerChainFile,
 				new UniquidNodeDownloadProgressTracker());
+		
+		
+		// Check if user contracts are still valid
+		try {
+		
+			List<UserChannel> userChannels = registerFactory.getUserRegister().getAllUserChannels();
+			
+			for (UserChannel u : userChannels) {
+				
+				if (!WalletUtils.isUnspent(u.getRevokeTxId(), u.getProviderAddress()) ) {
+					
+					LOGGER.info("Revoking user channel: " + u);
+					
+					registerFactory.getUserRegister().deleteChannel(u);
+					
+				}
+				
+			}
+		
+		} catch (Exception ex) {
+			
+			LOGGER.error("Exception while accessing user channel", ex);
+			
+		}
 
 		// User wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, userWallet, userChainFile,
