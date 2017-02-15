@@ -158,10 +158,10 @@ public class UniquidSimplifier extends Core {
 						LOGGER.info("Checking sender...");
 
 						// Check if sender is authorized or throw exception
-						checkSender(inputMessage);
+						byte[] payload = checkSender(inputMessage);
 
 						LOGGER.info("Performing function...");
-						performProviderRequest(inputMessage, outputMessage);
+						performProviderRequest(inputMessage, outputMessage, payload);
 
 						endPoint.close();
 						

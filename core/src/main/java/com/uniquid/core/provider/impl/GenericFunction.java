@@ -47,7 +47,7 @@ public abstract class GenericFunction implements Function, FunctionConfig {
     }
 
 	@Override
-	public abstract void service(InputMessage inputMessage, OutputMessage outputMessage)
+	public abstract void service(InputMessage inputMessage, OutputMessage outputMessage, byte[] payload)
 			throws FunctionException, IOException;
 
 	@Override

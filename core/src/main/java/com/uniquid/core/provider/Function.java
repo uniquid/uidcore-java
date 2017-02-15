@@ -39,6 +39,6 @@ public interface Function {
 	 * @param response
 	 * @throws Exception
 	 */
-	public void service(InputMessage<?> inputMessage, OutputMessage<?> outputMessage) throws FunctionException, IOException;
+	public void service(InputMessage<?> inputMessage, OutputMessage<?> outputMessage, byte[] payload) throws FunctionException, IOException;
 	
 }

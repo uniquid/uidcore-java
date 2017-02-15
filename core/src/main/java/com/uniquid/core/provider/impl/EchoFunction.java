@@ -10,7 +10,7 @@ import com.uniquid.core.provider.exception.FunctionException;
 public class EchoFunction extends GenericFunction {
 
 	@Override
-	public void service(InputMessage inputMessage, OutputMessage outputMessage)
+	public void service(InputMessage inputMessage, OutputMessage outputMessage, byte[] payload)
 			throws FunctionException, IOException {
 		
 		PrintWriter printWriter = outputMessage.getWriter();

@@ -2,6 +2,7 @@ package com.uniquid.core;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.concurrent.TimeoutException;
 
@@ -86,7 +87,7 @@ public abstract class Core {
 	 *            object to fill with the execution result
 	 * @throws ClassNotFoundException
 	 */
-	protected final void performProviderRequest(InputMessage<?> inputMessage, OutputMessage<?> outputMessage) throws Exception {
+	protected final void performProviderRequest(InputMessage<?> inputMessage, OutputMessage<?> outputMessage, byte[] payload) throws Exception {
 
 		Function function = getFunction(inputMessage);
 
@@ -95,7 +96,7 @@ public abstract class Core {
 
 				try {
 
-					function.service(inputMessage, outputMessage);
+					function.service(inputMessage, outputMessage, payload);
 					outputMessage.setParameter(OutputMessage.ERROR, RESULT_OK);
 
 				} catch (Exception ex) {
@@ -155,7 +156,7 @@ public abstract class Core {
 	 * @return
 	 * @throws Exception
 	 */
-	protected final void checkSender(InputMessage inputMessage) throws Exception {
+	protected final byte[] checkSender(InputMessage inputMessage) throws Exception {
 
 		// Retrieve sender
 		String sender = inputMessage.getParameter(InputMessage.SENDER);
@@ -171,20 +172,46 @@ public abstract class Core {
 
 			// decode
 			byte[] b = Hex.decode(bitmask);
+			
+			// Check first byte:
+			if (b[0] == 0) {
+				
+				// first byte at 0 means original contract with bitmask
+				BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
 
-			BitSet bitset = BitSet.valueOf(b);
+				String method = inputMessage.getParameter(InputMessage.RPC_METHOD);
 
-			String method = inputMessage.getParameter(InputMessage.RPC_METHOD);
+				if (bitset.get(Integer.valueOf(method)) /*&& 
+						WalletUtils.isUnspent(providerChannel.getRevokeTxId(), providerChannel.getRevokeAddress())*/) {
 
-			if (bitset.get(Integer.valueOf(method)) /*&& 
-					WalletUtils.isUnspent(providerChannel.getRevokeTxId(), providerChannel.getRevokeAddress())*/) {
+					return b;
 
-				return;
+				} else {
 
+					throw new Exception("Sender not authorized!");
+
+				}
+				
+			} else if (b[0] == 1) {
+				
+				// first byte at 1 means new contract
+				
+				String method = inputMessage.getParameter(InputMessage.RPC_METHOD);
+				
+				if (Integer.valueOf(method) == b[1]) {
+					
+					return b;
+					
+				} else {
+
+					throw new Exception("Sender not authorized!");
+
+				}
+				
 			} else {
-
-				throw new Exception("Sender not authorized!");
-
+				
+				throw new Exception("Invalid contract version!");
+				
 			}
 
 		} else {
@@ -192,7 +219,7 @@ public abstract class Core {
 			throw new Exception("Sender not found in Provider register!");
 
 		}
-
+		
 	}
 	
 	/**
@@ -218,21 +245,42 @@ public abstract class Core {
 
 			// decode
 			byte[] b = Hex.decode(bitmask);
-
-			BitSet bitset = BitSet.valueOf(b);
-
-			Integer method = (Integer) outputMessage.getParameter(OutputMessage.RPC_METHOD);
-
-			if (bitset.get(method)) {
+			
+			// Check first byte:
+			if (b[0] == 0) {
+			
+				BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
+	
+				Integer method = (Integer) outputMessage.getParameter(OutputMessage.RPC_METHOD);
+	
+				if (bitset.get(method)) {
+					
+					outputMessage.setParameter(OutputMessage.RECEIVER_ADDRESS, userChannel.getProviderName());
+	
+					return;
+	
+				} else {
+	
+					throw new Exception("Sender not authorized!");
+	
+				}
 				
-				outputMessage.setParameter(OutputMessage.RECEIVER_ADDRESS, userChannel.getProviderName());
-
-				return;
-
-			} else {
-
-				throw new Exception("Sender not authorized!");
-
+			} else if (b[0] == 1) {
+				
+				Integer method = (Integer) outputMessage.getParameter(OutputMessage.RPC_METHOD);
+	
+				if (method.intValue() == b[1]) {
+					
+					outputMessage.setParameter(OutputMessage.RECEIVER_ADDRESS, userChannel.getProviderName());
+	
+					return;
+	
+				} else {
+	
+					throw new Exception("Sender not authorized!");
+	
+				}
+				
 			}
 
 		} else {

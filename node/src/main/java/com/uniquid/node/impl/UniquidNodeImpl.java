@@ -732,7 +732,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			byte[] op_to_byte = Hex.decode(opreturn);
 
-			byte[] bitmask = Arrays.copyOfRange(op_to_byte, 1, 19);
+			byte[] bitmask = Arrays.copyOfRange(op_to_byte, 0, 19);
 
 			// encode to be saved on db
 			String bitmaskToString = new String(Hex.encode(bitmask));
@@ -873,7 +873,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			byte[] op_to_byte = Hex.decode(opreturn);
 
-			byte[] bitmask = Arrays.copyOfRange(op_to_byte, 1, 19);
+			byte[] bitmask = Arrays.copyOfRange(op_to_byte, 0, 19);
 
 			// encode to be saved on db
 			String bitmaskToString = new String(Hex.encode(bitmask));
