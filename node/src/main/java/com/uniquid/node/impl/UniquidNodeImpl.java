@@ -349,11 +349,11 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		SendRequest send = SendRequest.forTx(originalTransaction);
 
-		// fix our tx
-		WalletUtils.newCompleteTransaction(send, providerWallet, networkParameters);
-
 		String retValue = "";
 		if (path.startsWith("0")) {
+			
+			// fix our tx
+			WalletUtils.newCompleteTransaction(send, providerWallet, networkParameters);
 
 			// delegate to walled the signing
 			providerWallet.signTransaction(send);
@@ -365,6 +365,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			retValue = NodeUtils.sendTransaction(networkParameters, providerWallet, providerChainFile, send);
 
 		} else if (path.startsWith("1")) {
+			
+			// fix our tx
+			WalletUtils.newCompleteTransaction(send, userWallet, networkParameters);
 
 			// delegate to walled the signing
 			userWallet.signTransaction(send);
@@ -373,7 +376,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			LOGGER.info("Serialized SIGNED transaction: " + sr);
 
-			retValue = NodeUtils.sendTransaction(networkParameters, userWallet, providerChainFile, send);
+			retValue = NodeUtils.sendTransaction(networkParameters, userWallet, userChainFile, send);
 
 		}
 
