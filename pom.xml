@@ -37,6 +37,11 @@
         <artifactId>register-spi</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.uniquid</groupId>
+        <artifactId>connector-mqtt</artifactId>
+        <version>${project.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <build>
@@ -90,6 +95,7 @@
   <modules>
     <module>node</module>
     <module>core</module>
+    <module>connector-mqtt</module>
     <module>register-spi</module>
     <module>register-android</module>
     <module>register-sqlite</module>
