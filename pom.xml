@@ -22,26 +22,6 @@
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j-version}</version>
       </dependency>
-      <dependency>
-        <groupId>com.uniquid</groupId>
-        <artifactId>node</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.uniquid</groupId>
-        <artifactId>core</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.uniquid</groupId>
-        <artifactId>register-spi</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.uniquid</groupId>
-        <artifactId>connector-mqtt</artifactId>
-        <version>${project.version}</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
   <build>
@@ -99,6 +79,8 @@
     <module>register-spi</module>
     <module>register-android</module>
     <module>register-sqlite</module>
+    <module>android-package</module>
+    <module>java-package</module>
   </modules>
 
 </project>

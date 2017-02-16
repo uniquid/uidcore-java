@@ -19,6 +19,7 @@
     <dependency>
       <groupId>com.uniquid</groupId>
       <artifactId>register-spi</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
   <build>

@@ -20,19 +20,16 @@
     <dependency>
       <groupId>com.uniquid</groupId>
       <artifactId>register-spi</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
         <groupId>org.bitcoinj</groupId>
         <artifactId>bitcoinj-core</artifactId>
     </dependency>
     <dependency>
-       <groupId>org.fusesource.mqtt-client</groupId>
-       <artifactId>mqtt-client</artifactId>
-       <version>1.12</version>
-    </dependency>
-    <dependency>
       <groupId>com.uniquid</groupId>
       <artifactId>node</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
   <build>
