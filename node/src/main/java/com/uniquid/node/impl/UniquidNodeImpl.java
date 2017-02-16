@@ -261,7 +261,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			
 			for (final UserChannel u : userChannels) {
 
-				if (!WalletUtils.isUnspent(u.getRevokeTxId(), u.getProviderAddress()) ) {
+				if (!WalletUtils.isUnspent(u.getRevokeTxId(), u.getRevokeAddress()) ) {
 					
 					LOGGER.info("Revoking user channel: " + u);
 					
@@ -945,12 +945,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			}
 
 			Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
-			if (revoke == null /*
-								 * ||
-								 * !WalletUtils.isUnspent(tx.getHashAsString(),
-								 * revoke.toBase58())
-								 */) {
-				LOGGER.error("Contract not valid! Revoke address is null");
+			if (revoke == null /*|| !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())*/) {
+				LOGGER.error("Contract not valid! Revoke address is null or contract revoked");
 				return;
 			}
 
