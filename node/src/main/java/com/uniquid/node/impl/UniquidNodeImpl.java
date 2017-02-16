@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
@@ -27,6 +29,8 @@ import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.store.BlockStoreException;
+import org.bitcoinj.utils.ListenerRegistration;
+import org.bitcoinj.utils.Threading;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
@@ -88,7 +92,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	private RegisterFactory registerFactory;
 
-	private List<UniquidNodeEventListener> eventListeners;
+	private CopyOnWriteArrayList<ListenerRegistration<UniquidNodeEventListener>> eventListeners;
 	
 	private DeterministicSeed detSeed;
 
@@ -102,7 +106,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		this.userChainFile = builder._userChainFile;
 		this.registerFactory = builder._registerFactory;
 		this.machineName = builder._machineName;
-		this.eventListeners = new ArrayList<UniquidNodeEventListener>();
+		this.eventListeners = new CopyOnWriteArrayList<ListenerRegistration<UniquidNodeEventListener>>();
 		this.seed = builder._seed;
 		this.creationTime = builder._creationTime;
 		
@@ -218,41 +222,23 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	@Override
 	public synchronized void updateNode() throws NodeException {
 
+		// Start node sync
+		for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
+
+			listener.executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                		listener.listener.onSyncNodeStart();
+                }
+            });
+
+		}
+		
 		// Provider wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, providerWallet, providerChainFile,
 				new UniquidNodeDownloadProgressTracker());
 		
 		
-		// Check if user contracts are still valid
-		try {
-		
-			List<UserChannel> userChannels = registerFactory.getUserRegister().getAllUserChannels();
-			
-			for (UserChannel u : userChannels) {
-				
-				if (!WalletUtils.isUnspent(u.getRevokeTxId(), u.getProviderAddress()) ) {
-					
-					LOGGER.info("Revoking user channel: " + u);
-					
-					registerFactory.getUserRegister().deleteChannel(u);
-					
-					// Inform listeners
-					for (UniquidNodeEventListener listener : eventListeners) {
-
-						listener.onUserContractRevoked(u);
-
-					}
-
-				}
-				
-			}
-		
-		} catch (Exception ex) {
-			
-			LOGGER.error("Exception while accessing user channel", ex);
-			
-		}
-
 		// User wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, userWallet, userChainFile,
 				new UniquidNodeDownloadProgressTracker());
@@ -267,7 +253,54 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			throw new NodeException("Exception while updating node", ex);
 
 		}
+		
+		// Check if user contracts are still valid
+		try {
+		
+			List<UserChannel> userChannels = registerFactory.getUserRegister().getAllUserChannels();
+			
+			for (final UserChannel u : userChannels) {
 
+				if (!WalletUtils.isUnspent(u.getRevokeTxId(), u.getProviderAddress()) ) {
+					
+					LOGGER.info("Revoking user channel: " + u);
+					
+					registerFactory.getUserRegister().deleteChannel(u);
+					
+					// Inform listeners
+					for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
+
+						listener.executor.execute(new Runnable() {
+			                @Override
+			                public void run() {
+			                		listener.listener.onUserContractRevoked(u);
+			                }
+			            });
+
+					}
+
+				}
+				
+			}
+		
+		} catch (Exception ex) {
+			
+			LOGGER.error("Exception while accessing user channel", ex);
+			
+		}
+		
+		// Start node sync
+		for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
+
+			listener.executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                		listener.listener.onSyncNodeEnd();
+                }
+            });
+
+		}
+		
 	}
 
 	@Override
@@ -277,8 +310,13 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	@Override
 	public synchronized void addUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
-		eventListeners.add(uniquidNodeEventListener);
+		addUniquidNodeEventListener(Threading.SAME_THREAD, uniquidNodeEventListener);
 	}
+
+	private void addUniquidNodeEventListener(Executor executor, UniquidNodeEventListener listener) {
+        // This is thread safe, so we don't need to take the lock.
+		eventListeners.add(new ListenerRegistration<UniquidNodeEventListener>(listener, executor));
+    }
 
 	@Override
 	public synchronized void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
@@ -485,9 +523,14 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		@Override
 		protected void startDownload(final int blocks) {
 
-			for (UniquidNodeEventListener listener : eventListeners) {
+			for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
 
-				listener.onSyncStarted(blocks);
+				listener.executor.execute(new Runnable() {
+	                @Override
+	                public void run() {
+	                		listener.listener.onSyncStarted(blocks);
+	                }
+	            });
 
 			}
 
@@ -496,9 +539,14 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		@Override
 		protected void progress(final double pct, final int blocksSoFar, final Date date) {
 
-			for (UniquidNodeEventListener listener : eventListeners) {
+			for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
 
-				listener.onSyncProgress(pct, blocksSoFar, date);
+				listener.executor.execute(new Runnable() {
+	                @Override
+	                public void run() {
+	                		listener.listener.onSyncProgress(pct, blocksSoFar, date);
+	                }
+	            });
 
 			}
 
@@ -507,9 +555,14 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		@Override
 		public void doneDownload() {
 
-			for (UniquidNodeEventListener listener : eventListeners) {
+			for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
 
-				listener.onSyncEnded();
+				listener.executor.execute(new Runnable() {
+	                @Override
+	                public void run() {
+	                		listener.listener.onSyncEnded();
+	                }
+	            });
 
 			}
 
@@ -652,7 +705,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 					ProviderRegister providerRegister = registerFactory.getProviderRegister();
 
 					// Create provider channel
-					ProviderChannel providerChannel = new ProviderChannel();
+					final ProviderChannel providerChannel = new ProviderChannel();
 					providerChannel.setUserAddress(sender);
 					providerChannel.setProviderAddress(imprintingAddress.toBase58());
 					providerChannel.setBitmask(CONTRACT_FUNCTION);
@@ -666,13 +719,28 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 					setUniquidNodeState(new ReadyState());
 
 					// Send event to listeners
-					for (UniquidNodeEventListener listener : eventListeners) {
+					for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
 
-						listener.onNodeStateChange(com.uniquid.node.UniquidNodeState.READY);
-
-						listener.onProviderContractCreated(providerChannel);
+						listener.executor.execute(new Runnable() {
+			                @Override
+			                public void run() {
+			                		listener.listener.onNodeStateChange(com.uniquid.node.UniquidNodeState.READY);
+			                }
+			            });
 
 					}
+					
+					for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
+
+						listener.executor.execute(new Runnable() {
+			                @Override
+			                public void run() {
+			                		listener.listener.onProviderContractCreated(providerChannel);
+			                }
+			            });
+
+					}
+					
 
 					LOGGER.info("Machine IMPRINTED!");
 
@@ -744,7 +812,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			}
 
 			// Create provider channel
-			ProviderChannel providerChannel = new ProviderChannel();
+			final ProviderChannel providerChannel = new ProviderChannel();
 			providerChannel.setProviderAddress(providerAddress.toBase58());
 			providerChannel.setUserAddress(userAddress.toBase58());
 			providerChannel.setRevokeAddress(revoke.toBase58());
@@ -788,9 +856,14 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			}
 
 			// Inform listeners
-			for (UniquidNodeEventListener listener : eventListeners) {
+			for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
 
-				listener.onProviderContractCreated(providerChannel);
+				listener.executor.execute(new Runnable() {
+	                @Override
+	                public void run() {
+	                		listener.listener.onProviderContractCreated(providerChannel);
+	                }
+	            });
 
 			}
 
@@ -806,7 +879,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			try {
 
 				providerRegister = registerFactory.getProviderRegister();
-				ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
+				final ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
 
 				if (channel != null) {
 
@@ -815,11 +888,15 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 					providerRegister.deleteChannel(channel);
 
 					LOGGER.info("Contract revoked! " + channel);
+					
+					for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
 
-					for (UniquidNodeEventListener listener : eventListeners) {
-
-						// send event to listeners
-						listener.onProviderContractRevoked(channel);
+						listener.executor.execute(new Runnable() {
+			                @Override
+			                public void run() {
+			                		listener.listener.onProviderContractRevoked(channel);
+			                }
+			            });
 
 					}
 
@@ -884,7 +961,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			}
 
 			// Create channel
-			UserChannel userChannel = new UserChannel();
+			final UserChannel userChannel = new UserChannel();
 			userChannel.setProviderAddress(providerAddress.toBase58());
 			userChannel.setUserAddress(userAddress.toBase58());
 			userChannel.setProviderName(providerName);
@@ -918,13 +995,17 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			}
 
-			// Inform listeners
-			for (UniquidNodeEventListener listener : eventListeners) {
+			for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
 
-				listener.onUserContractCreated(userChannel);
+				listener.executor.execute(new Runnable() {
+	                @Override
+	                public void run() {
+	                		listener.listener.onUserContractCreated(userChannel);
+	                }
+	            });
 
 			}
-
+			
 		}
 
 		@Override

@@ -34,13 +34,22 @@ public interface UniquidNodeEventListener {
 	 */
 	public void onUserContractCreated(final UserChannel userChannel);
 	
-	
 	/**
 	 * Called when a user channel is revoked
 	 * 
 	 * @param userChannel the UserChannel revoked
 	 */
 	public void onUserContractRevoked(final UserChannel userChannel);
+
+	/**
+	 * Called when the node start syncing
+	 */
+	public void onSyncNodeStart();
+	
+	/**
+	 * Called when the node end syncing
+	 */
+	public void onSyncNodeEnd();
 	
 	/**
 	 * Called when a sync from blockchain starts
