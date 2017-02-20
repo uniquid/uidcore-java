@@ -91,6 +91,48 @@ public class Register implements UserRegister, ProviderRegister {
         return userChannel;
     }
 
+    @Override
+	public UserChannel getUserChannelByRevokeTxId(String revokeTxId) throws RegisterException {
+        UserChannel userChannel = new UserChannel();
+        db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from " + SQLiteHelper.TABLE_USER +
+                        " where " + SQLiteHelper.USER_CLM_REVOKE_TX_ID + " = ?",
+                new String[]{revokeTxId});
+        if(cursor.moveToFirst()){
+            userChannel.setProviderName(cursor.getString(0));
+            userChannel.setProviderAddress(cursor.getString(1));
+            userChannel.setUserAddress(cursor.getString(2));
+            userChannel.setBitmask(cursor.getString(3));
+            userChannel.setRevokeAddress(cursor.getString(4));
+			userChannel.setRevokeTxId(cursor.getString(5));
+            cursor.close();
+        } else {
+            throw new RegisterException("Doesn't exist any record with specified name");
+        }
+        return userChannel;
+	}
+
+    @Override
+	public UserChannel getUserChannelByRevokeAddress(String revokeAddress) throws RegisterException {
+        UserChannel userChannel = new UserChannel();
+        db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from " + SQLiteHelper.TABLE_USER +
+                        " where " + SQLiteHelper.USER_CLM_REVOKE_ADDRESS + " = ?",
+                new String[]{revokeAddress});
+        if(cursor.moveToFirst()){
+            userChannel.setProviderName(cursor.getString(0));
+            userChannel.setProviderAddress(cursor.getString(1));
+            userChannel.setUserAddress(cursor.getString(2));
+            userChannel.setBitmask(cursor.getString(3));
+            userChannel.setRevokeAddress(cursor.getString(4));
+			userChannel.setRevokeTxId(cursor.getString(5));
+            cursor.close();
+        } else {
+            throw new RegisterException("Doesn't exist any record with specified name");
+        }
+        return userChannel;
+	}
+
     /**
      * Insert a new Channel in table
      * @param userChannel the channel to insert
