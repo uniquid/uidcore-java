@@ -208,7 +208,7 @@ public class MQTTConnector implements Connector<JSONMessage> {
 		
 	}
 	
-	private JSONMessage receiveMessage(String broker, String topic, long timeout) throws Exception, TimeoutException {
+	private JSONMessage receiveMessage(String broker, String topic, long timeoutInSeconds) throws Exception, TimeoutException {
 		
 		BlockingConnection connection = null;
 
@@ -226,7 +226,7 @@ public class MQTTConnector implements Connector<JSONMessage> {
 			/*byte[] qoses = */connection.subscribe(topics);
 
 			// blocks!!!
-			Message message = connection.receive(timeout, TimeUnit.SECONDS);
+			Message message = connection.receive(timeoutInSeconds, TimeUnit.SECONDS);
 			
 			if (message == null) {
 
@@ -332,6 +332,63 @@ public class MQTTConnector implements Connector<JSONMessage> {
 		
 	}
 	
+	private JSONMessage sendReceiveMessage(String broker, OutputMessage<JSONMessage> outputMessage, long timeoutInSeconds) throws Exception {
+		
+		BlockingConnection connection = null;
+
+		try {
+
+			MQTT mqtt = new MQTT();
+
+			mqtt.setHost(broker);
+
+			connection = mqtt.blockingConnection();
+			connection.connect();
+			
+			String destinationTopic = (String) outputMessage.getParameter(OutputMessage.RECEIVER_ADDRESS);
+			
+			String sender = (String) outputMessage.getParameter(OutputMessage.SENDER);
+
+			// to subscribe
+			Topic[] topics = { new Topic(sender, QoS.AT_LEAST_ONCE) };
+			/*byte[] qoses = */connection.subscribe(topics);
+
+			// consume
+			connection.publish(destinationTopic, outputMessage.getPayload().toJSON().getBytes(), QoS.AT_LEAST_ONCE, false);
+			
+			Message message = connection.receive(timeoutInSeconds, TimeUnit.SECONDS);
+			
+			if (message == null) {
+
+				throw new TimeoutException();
+
+			}
+
+			byte[] payload = message.getPayload();
+
+			//
+			message.ack();
+
+			// Create a JSON Message
+			return JSONMessage.fromJsonString(new String(payload));
+
+		} finally {
+
+			// disconnect
+			try {
+
+				connection.disconnect();
+
+			} catch (Exception ex) {
+
+				LOGGER.error("Catched Exception", ex);
+
+			}
+
+		}
+		
+	}
+	
 
 	public void sendResponse(OutputMessage<JSONMessage> messageResponse) {
 
@@ -357,12 +414,8 @@ public class MQTTConnector implements Connector<JSONMessage> {
 	public InputMessage<JSONMessage> sendOutputMessage(OutputMessage<JSONMessage> outputMessage, long timeout) throws ConnectorException {
 
 		try {
-
-			sendMessage(broker, outputMessage);
 			
-			String sender = (String) outputMessage.getParameter(OutputMessage.SENDER);
-			
-			JSONMessage jsonMessage = receiveMessage(broker, sender, timeout);
+			JSONMessage jsonMessage = sendReceiveMessage(broker, outputMessage, timeout);
 			
 			return new com.uniquid.core.connector.mqtt.user.MQTTMessageResponse(jsonMessage);
 			
