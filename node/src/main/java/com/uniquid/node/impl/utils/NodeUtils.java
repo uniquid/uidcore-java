@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,7 @@ import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
 
@@ -304,4 +306,12 @@ public class NodeUtils {
 		return wallet;
 		
 	}
+
+	public BitSet toBitset(String bitmask) {
+
+		byte[] bitset = Hex.decode(bitmask);
+		return BitSet.valueOf(Arrays.copyOfRange(bitset, 1, bitset.length));
+
+	}
+
 }
