@@ -24,6 +24,7 @@ import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.net.discovery.DnsDiscovery;
+import org.bitcoinj.net.discovery.SeedPeers;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
@@ -162,10 +163,8 @@ public class NodeUtils {
 			
 			final PeerGroup peerGroup = new PeerGroup(params, chain);
 			peerGroup.setUserAgent("UNIQUID", "0.1");
-			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
-			
-//			int[] appliance4Addr = new int[] { APPLIANCE4 };
-//			peerGroup.addPeerDiscovery(new SeedPeers(appliance4Addr, params));
+//			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
+			peerGroup.addPeerDiscovery(new SeedPeers(params.getAddrSeeds(), params));
 			
 			for (Wallet wallet : wallets) {
 			
@@ -226,7 +225,8 @@ public class NodeUtils {
 			BlockChain chain = new BlockChain(params, chainStore);
 			peerGroup = new PeerGroup(params, chain);
 			peerGroup.setUserAgent("UNQD", "0.1");
-			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
+//			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
+			peerGroup.addPeerDiscovery(new SeedPeers(params.getAddrSeeds(), params));
 			
 			chain.addWallet(wallet);
 			peerGroup.addWallet(wallet);
