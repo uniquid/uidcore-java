@@ -3,6 +3,7 @@ package com.uniquid.node.impl.utils;
 import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.CheckpointManager;
 import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.PeerAddress;
 import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Transaction;
@@ -24,6 +26,7 @@ import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.net.discovery.DnsDiscovery;
+import org.bitcoinj.params.RegTestParams;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
@@ -162,11 +165,18 @@ public class NodeUtils {
 			
 			final PeerGroup peerGroup = new PeerGroup(params, chain);
 			peerGroup.setUserAgent("UNIQUID", "0.1");
-			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
 			
 //			int[] appliance4Addr = new int[] { APPLIANCE4 };
 //			peerGroup.addPeerDiscovery(new SeedPeers(appliance4Addr, params));
-			
+
+                        // Manually setting a peer when in regtest mode.
+                        // Moving the addPeerDiscovery in the else fragment because of exceptions caused by regtest.
+                        if (params == RegTestParams.get()) {
+                          peerGroup.addAddress(new PeerAddress(params, InetAddress.getByName("52.225.217.168"), 19000));
+                        } else {
+                          peerGroup.addPeerDiscovery(new DnsDiscovery(params));
+                        }
+
 			for (Wallet wallet : wallets) {
 			
 				chain.addWallet(wallet);
