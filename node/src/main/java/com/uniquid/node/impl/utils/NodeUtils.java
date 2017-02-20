@@ -257,30 +257,30 @@ public class NodeUtils {
         return NodeUtils.class.getResourceAsStream("/" + params.getId() + ".uniquidcheckpoints.txt");
     }
 	
-	public static Wallet createOrLoadWallet(String seed, long creationTime, File walletFile,
-			NetworkParameters params, ImmutableList<ChildNumber> accountPath) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
-		
-		Wallet wallet;
-
-		if (walletFile.exists() && !walletFile.isDirectory()) {
-
-			wallet = Wallet.loadFromFile(walletFile);
-
-			LOGGER.info("Master Wallet loaded: " + wallet.currentReceiveAddress().toBase58());
-
-		} else {
-			
-			wallet = Wallet.fromBase58EncodedKey(params, seed, creationTime, accountPath);
-
-		}
-		
-		LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
-		LOGGER.info("WALLET curent change addr: " + wallet.currentChangeAddress().toBase58());
-		LOGGER.info("WALLET: " + wallet.toString());
-		
-		return wallet;
-		
-	}
+//	public static Wallet createOrLoadWallet(String seed, long creationTime, File walletFile,
+//			NetworkParameters params, ImmutableList<ChildNumber> accountPath) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+//		
+//		Wallet wallet;
+//
+//		if (walletFile.exists() && !walletFile.isDirectory()) {
+//
+//			wallet = Wallet.loadFromFile(walletFile);
+//
+//			LOGGER.info("Master Wallet loaded: " + wallet.currentReceiveAddress().toBase58());
+//
+//		} else {
+//			
+//			wallet = Wallet.fromBase58EncodedKey(params, seed, creationTime, accountPath);
+//
+//		}
+//		
+//		LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
+//		LOGGER.info("WALLET curent change addr: " + wallet.currentChangeAddress().toBase58());
+//		LOGGER.info("WALLET: " + wallet.toString());
+//		
+//		return wallet;
+//		
+//	}
 	
 	public static Wallet createOrLoadWallet(byte[] bytearray, long creationTime, File walletFile,
 			NetworkParameters params, ImmutableList<ChildNumber> accountPath) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
