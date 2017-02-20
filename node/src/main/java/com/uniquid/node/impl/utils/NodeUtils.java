@@ -307,7 +307,7 @@ public class NodeUtils {
 		
 	}
 
-	public BitSet toBitset(String bitmask) {
+	public static BitSet toBitset(String bitmask) {
 
 		byte[] bitset = Hex.decode(bitmask);
 		return BitSet.valueOf(Arrays.copyOfRange(bitset, 1, bitset.length));
