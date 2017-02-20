@@ -146,7 +146,7 @@ public class NodeUtils {
 					
 					} catch (Throwable t) {
 		
-						LOGGER.error("Exception catched ", t.getMessage());
+						LOGGER.error("Exception catched ", t);
 						LOGGER.error("Cannot use checkpoint!!!");
 		
 					}
@@ -184,7 +184,7 @@ public class NodeUtils {
 
 		} catch (Exception ex) {
 
-			LOGGER.error("Exception catched ", ex.getMessage());
+			LOGGER.error("Exception catched ", ex);
 
 		}
 	}
