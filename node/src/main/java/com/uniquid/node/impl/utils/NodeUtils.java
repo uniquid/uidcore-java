@@ -136,7 +136,7 @@ public class NodeUtils {
 			
 			for (Wallet wallet : wallets) {
 				
-				if (wallet.getLastBlockSeenHeight() == 0) {
+				if (wallet.getLastBlockSeenHeight() < 1) {
 					try {
 						
 						CheckpointManager.checkpoint(params, openStream(params), chainStore,
