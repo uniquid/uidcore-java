@@ -15,27 +15,27 @@
     <dependency>
       <groupId>com.uniquid</groupId>
       <artifactId>core</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>com.uniquid</groupId>
       <artifactId>connector-mqtt</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>com.uniquid</groupId>
       <artifactId>register-spi</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>com.uniquid</groupId>
       <artifactId>register-sqlite</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
     <dependency>
       <groupId>com.uniquid</groupId>
       <artifactId>node</artifactId>
-      <version>${project.version}</version>
+      <version>${project.parent.version}</version>
     </dependency>
   </dependencies>
   <build>
