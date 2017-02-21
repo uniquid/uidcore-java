@@ -138,6 +138,7 @@ public class NodeUtils {
 			for (Wallet wallet : wallets) {
 				
 				if (wallet.getLastBlockSeenHeight() < 1) {
+
 					try {
 						
 						CheckpointManager.checkpoint(params, openStream(params), chainStore,
@@ -149,8 +150,7 @@ public class NodeUtils {
 					
 					} catch (Throwable t) {
 		
-						LOGGER.error("Exception catched ", t);
-						LOGGER.error("Cannot use checkpoint!!!");
+						LOGGER.warn("Problem using checkpoints", t);
 		
 					}
 
