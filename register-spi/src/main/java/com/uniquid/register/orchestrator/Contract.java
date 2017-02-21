@@ -1,8 +1,5 @@
 package com.uniquid.register.orchestrator;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 public class Contract {
 	
 	private Context context;
@@ -125,9 +122,9 @@ public class Contract {
                 ",timestamp_expiration:" + timestamp_expiration +
                 ",recipe:" + recipe + ",txid:" + txid;
     }
-
-    public JSONObject getContractAsJson() throws JSONException {
-        return new JSONObject(getContractAsString());
-    }
+//
+//    public JSONObject getContractAsJson() throws JSONException {
+//        return new JSONObject(getContractAsString());
+//    }
 
 }
