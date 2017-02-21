@@ -170,7 +170,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				// UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER,
 				// UniquidNodeImpl.BIP44_ACCOUNT_USER);
 
-				detSeed = new DeterministicSeed("", seed, "", creationTime);
+				detSeed = NodeUtils.createDeterministicSeed(seed, creationTime);
 
 				providerWallet = Wallet.fromSeed(networkParameters, detSeed, UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
 				providerWallet.setDescription("provider");

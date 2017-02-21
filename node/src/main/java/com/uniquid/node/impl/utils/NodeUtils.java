@@ -23,7 +23,6 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
-import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.net.discovery.SeedPeers;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
@@ -49,8 +48,6 @@ public class NodeUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeUtils.class.getName());
 	
-	private static final int APPLIANCE4 = 1441170024;
-
 	/**
 	 * Generate a Deterministic Seed from a string
 	 * 
@@ -257,56 +254,6 @@ public class NodeUtils {
         return NodeUtils.class.getResourceAsStream("/" + params.getId() + ".uniquidcheckpoints.txt");
     }
 	
-//	public static Wallet createOrLoadWallet(String seed, long creationTime, File walletFile,
-//			NetworkParameters params, ImmutableList<ChildNumber> accountPath) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
-//		
-//		Wallet wallet;
-//
-//		if (walletFile.exists() && !walletFile.isDirectory()) {
-//
-//			wallet = Wallet.loadFromFile(walletFile);
-//
-//			LOGGER.info("Master Wallet loaded: " + wallet.currentReceiveAddress().toBase58());
-//
-//		} else {
-//			
-//			wallet = Wallet.fromBase58EncodedKey(params, seed, creationTime, accountPath);
-//
-//		}
-//		
-//		LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
-//		LOGGER.info("WALLET curent change addr: " + wallet.currentChangeAddress().toBase58());
-//		LOGGER.info("WALLET: " + wallet.toString());
-//		
-//		return wallet;
-//		
-//	}
-	
-	public static Wallet createOrLoadWallet(byte[] bytearray, long creationTime, File walletFile,
-			NetworkParameters params, ImmutableList<ChildNumber> accountPath) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
-		
-		Wallet wallet;
-
-		if (walletFile.exists() && !walletFile.isDirectory()) {
-
-			wallet = Wallet.loadFromFile(walletFile);
-
-			LOGGER.info("Master Wallet loaded: " + wallet.currentReceiveAddress().toBase58());
-
-		} else {
-			
-			wallet = Wallet.fromSeed(params, createDeterministicSeed(bytearray, creationTime), accountPath);
-
-		}
-		
-		LOGGER.info("WALLET created: " + wallet.currentReceiveAddress().toBase58());
-		LOGGER.info("WALLET curent change addr: " + wallet.currentChangeAddress().toBase58());
-		LOGGER.info("WALLET: " + wallet.toString());
-		
-		return wallet;
-		
-	}
-
 	public static BitSet toBitset(String bitmask) {
 
 		byte[] bitset = Hex.decode(bitmask);
