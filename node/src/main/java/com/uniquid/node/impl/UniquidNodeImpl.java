@@ -49,6 +49,7 @@ import com.uniquid.node.impl.utils.UniquidNodeStateUtils;
 import com.uniquid.node.impl.utils.WalletUtils;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.register.RegisterFactory;
+import com.uniquid.register.orchestrator.Context;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
@@ -507,6 +508,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 */
 	public synchronized void onCoinsReceived(final Wallet wallet, final Transaction tx, final Coin prevBalance,
 			final Coin newBalance) {
+
+		org.bitcoinj.core.Context currentContext = new org.bitcoinj.core.Context(networkParameters);
+		org.bitcoinj.core.Context.propagate(currentContext);
+
 		nodeState.onCoinsReceived(wallet, tx);
 	}
 
@@ -515,6 +520,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 */
 	public synchronized void onCoinsSent(final Wallet wallet, final Transaction tx, final Coin prevBalance,
 			final Coin newBalance) {
+
+		org.bitcoinj.core.Context currentContext = new org.bitcoinj.core.Context(networkParameters);
+		org.bitcoinj.core.Context.propagate(currentContext);
+
 		nodeState.onCoinsSent(wallet, tx);
 	}
 
