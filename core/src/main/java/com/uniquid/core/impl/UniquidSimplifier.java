@@ -34,11 +34,10 @@ public class UniquidSimplifier extends Core {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Core.class.getName());
 
-	private Thread thread;
-
 	private final Map<Integer, Function> functionsMap = new HashMap<>();
 	
 	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("scheduledExecutorService"));
+	private final ScheduledExecutorService receiverExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("receiverExecutorService"));
 
 	public UniquidSimplifier(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, UniquidNode node)
 			throws Exception {
@@ -142,7 +141,7 @@ public class UniquidSimplifier extends Core {
 		}
 
 		// Create a thread to wait for messages
-		thread = new Thread() {
+		final Runnable receiver = new Runnable() {
 
 			@Override
 			public void run() {
@@ -192,20 +191,20 @@ public class UniquidSimplifier extends Core {
 
 		};
 
-		// Start thread
-		thread.start();
+		// Start receiver
+		receiverExecutorService.execute(receiver);
 
 	}
 
 	public void shutdown() throws Exception {
 
-		thread.interrupt();
-
 		scheduledExecutorService.shutdown();
+		receiverExecutorService.shutdown();
 		
  		try {
 			
 			scheduledExecutorService.awaitTermination(20, TimeUnit.SECONDS);
+			receiverExecutorService.awaitTermination(20, TimeUnit.SECONDS);
 
 		} catch (InterruptedException e) {
 

@@ -23,6 +23,7 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
+import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.net.discovery.SeedPeers;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
@@ -221,7 +222,7 @@ public class NodeUtils {
 
 			BlockChain chain = new BlockChain(params, chainStore);
 			peerGroup = new PeerGroup(params, chain);
-			peerGroup.setUserAgent("UNQD", "0.1");
+			peerGroup.setUserAgent("UNIQUID", "0.1");
 //			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
 			peerGroup.addPeerDiscovery(new SeedPeers(params.getAddrSeeds(), params));
 			
@@ -232,7 +233,7 @@ public class NodeUtils {
 
 			peerGroup.start();
 
-			Transaction t = peerGroup.broadcastTransaction(sendRequest.tx).future().get(2, TimeUnit.MINUTES);
+			Transaction t = peerGroup.broadcastTransaction(sendRequest.tx, 2).future().get(2, TimeUnit.MINUTES);
 			
 			return t.getHashAsString();
 
