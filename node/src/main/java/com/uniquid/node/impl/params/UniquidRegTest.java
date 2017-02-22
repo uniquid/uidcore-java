@@ -43,8 +43,8 @@ public class UniquidRegTest extends RegTestParams {
         if (instance == null) {
             instance = new UniquidRegTest();
 
-            NetworkParameters.addNetworkParameter(ID_UNIQUIDREGTEST, instance);
-            NetworkParameters.addPaymentProtocol(ID_UNIQUIDREGTEST, instance);
+            NetworkParameters.addCustomNetworkParameter(ID_UNIQUIDREGTEST, instance);
+            NetworkParameters.addCustomPaymentProtocol(ID_UNIQUIDREGTEST, instance);
         }
         return instance;
     }
