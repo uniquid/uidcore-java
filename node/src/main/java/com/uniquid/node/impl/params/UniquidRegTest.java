@@ -3,6 +3,7 @@ package com.uniquid.node.impl.params;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.params.RegTestParams;
 import org.spongycastle.util.Arrays;
 
@@ -11,9 +12,13 @@ import org.spongycastle.util.Arrays;
  */
 public class UniquidRegTest extends RegTestParams {
 	
+	public static final String ID_UNIQUIDREGTEST = "com.uniquid.regtest";
+	public static final String PAYMENT_PROTOCOL_ID_UNIQUIDREGTEST = "uniquidregtest";
+
 	private UniquidRegTest() {
 		port = 19000;
-		
+		id = ID_UNIQUIDREGTEST;
+
 		try {
 			
 			InetAddress inetAddress1 = InetAddress.getByAddress(new byte[] {52, (byte) 225, (byte) 217, (byte) 168});
@@ -37,10 +42,18 @@ public class UniquidRegTest extends RegTestParams {
 	public static synchronized UniquidRegTest get() {
         if (instance == null) {
             instance = new UniquidRegTest();
+
+            NetworkParameters.addNetworkParameter(ID_UNIQUIDREGTEST, instance);
+            NetworkParameters.addPaymentProtocol(ID_UNIQUIDREGTEST, instance);
         }
         return instance;
     }
 	
+	@Override
+	public String getPaymentProtocolId() {
+		return PAYMENT_PROTOCOL_ID_UNIQUIDREGTEST;
+	}
+
 	private static InetAddress convertIntToInetAddress(int seed) throws UnknownHostException {
         byte[] v4addr = new byte[4];
         v4addr[0] = (byte) (0xFF & (seed));
