@@ -161,8 +161,16 @@ public class NodeUtils {
 			
 			final PeerGroup peerGroup = new PeerGroup(params, chain);
 			peerGroup.setUserAgent("UNIQUID", "0.1");
-//			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
-			peerGroup.addPeerDiscovery(new SeedPeers(params.getAddrSeeds(), params));
+
+			if (params.getDnsSeeds() != null &&
+					params.getDnsSeeds().length > 0) {
+				peerGroup.addPeerDiscovery(new DnsDiscovery(params));
+			} else if (params.getAddrSeeds() != null &&
+						params.getAddrSeeds().length > 0) {
+							peerGroup.addPeerDiscovery(new SeedPeers(params.getAddrSeeds(), params));
+			} else {
+				throw new Exception("Problem with Peers discovery!");
+			}
 			
 			for (Wallet wallet : wallets) {
 			
@@ -223,8 +231,16 @@ public class NodeUtils {
 			BlockChain chain = new BlockChain(params, chainStore);
 			peerGroup = new PeerGroup(params, chain);
 			peerGroup.setUserAgent("UNIQUID", "0.1");
-//			peerGroup.addPeerDiscovery(new DnsDiscovery(params));
-			peerGroup.addPeerDiscovery(new SeedPeers(params.getAddrSeeds(), params));
+
+			if (params.getDnsSeeds() != null &&
+					params.getDnsSeeds().length > 0) {
+				peerGroup.addPeerDiscovery(new DnsDiscovery(params));
+			} else if (params.getAddrSeeds() != null &&
+						params.getAddrSeeds().length > 0) {
+							peerGroup.addPeerDiscovery(new SeedPeers(params.getAddrSeeds(), params));
+			} else {
+				throw new Exception("Problem with Peers discovery!");
+			}
 			
 			chain.addWallet(wallet);
 			peerGroup.addWallet(wallet);
