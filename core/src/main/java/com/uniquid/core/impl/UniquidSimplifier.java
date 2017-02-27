@@ -134,8 +134,10 @@ public class UniquidSimplifier extends Core {
 				TimeUnit.MINUTES);
 
 		try {
+
 			// start connector
 			getConnector().start();
+
 		} catch (ConnectorException e) {
 			LOGGER.error("Exception", e);
 		}
@@ -161,7 +163,7 @@ public class UniquidSimplifier extends Core {
 						if (!UniquidNodeState.READY.equals(getNode().getNodeState())) {
 							LOGGER.warn("Node is not yet READY! Skipping request");
 							
-							return;
+							continue;
 						}
 
 						LOGGER.info("Received input message from : " + inputMessage.getParameter(InputMessage.SENDER)
@@ -203,8 +205,8 @@ public class UniquidSimplifier extends Core {
 		
  		try {
 			
-			scheduledExecutorService.awaitTermination(20, TimeUnit.SECONDS);
-			receiverExecutorService.awaitTermination(20, TimeUnit.SECONDS);
+			scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS);
+			receiverExecutorService.awaitTermination(5, TimeUnit.SECONDS);
 
 		} catch (InterruptedException e) {
 
