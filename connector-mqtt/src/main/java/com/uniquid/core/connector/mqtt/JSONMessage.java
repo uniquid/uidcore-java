@@ -56,7 +56,7 @@ public class JSONMessage {
 		this.body = body;
 	}
 
-	public String toJSON() {
+	public String toJSONString() {
 
 		// Create empty json object
 		JSONObject jsonObject = new JSONObject();
