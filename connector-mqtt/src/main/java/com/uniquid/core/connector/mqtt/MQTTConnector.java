@@ -38,8 +38,8 @@ public class MQTTConnector implements Connector<JSONMessage> {
 	private Queue<JSONMessage> inputQueue;
 	private Queue<OutputMessage<JSONMessage>> outputQueue;
 
-	private final ScheduledExecutorService senderExecutorService = Executors.newSingleThreadScheduledExecutor();
-	private final ScheduledExecutorService receiverExecutorService = Executors.newSingleThreadScheduledExecutor();
+	private ScheduledExecutorService senderExecutorService;
+	private ScheduledExecutorService receiverExecutorService;
 
 	private MQTTConnector(String topic, String broker) {
 
@@ -401,6 +401,10 @@ public class MQTTConnector implements Connector<JSONMessage> {
 
 	@Override
 	public void start() {
+
+		senderExecutorService = Executors.newSingleThreadScheduledExecutor();
+
+		receiverExecutorService = Executors.newSingleThreadScheduledExecutor();
 
 		final Runnable sender = new Runnable() {
 
