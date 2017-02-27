@@ -2,6 +2,8 @@ package com.uniquid.core.connector.mqtt;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -35,7 +37,9 @@ public class MQTTConnector implements Connector<JSONMessage> {
 	private String broker;
 	private Queue<JSONMessage> inputQueue;
 	private Queue<OutputMessage<JSONMessage>> outputQueue;
-	private Thread sendThread, receiveThread;
+
+	private final ScheduledExecutorService senderExecutorService = Executors.newSingleThreadScheduledExecutor();
+	private final ScheduledExecutorService receiverExecutorService = Executors.newSingleThreadScheduledExecutor();
 
 	private MQTTConnector(String topic, String broker) {
 
@@ -44,41 +48,6 @@ public class MQTTConnector implements Connector<JSONMessage> {
 		this.inputQueue = new LinkedList<JSONMessage>();
 		this.outputQueue = new LinkedList<OutputMessage<JSONMessage>>();
 		
-		
-		this.sendThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				try {
-					
-					while (!Thread.interrupted()) {
-					
-						sendProviderMessage();
-					
-					}
-				} catch (Throwable t) {
-					LOGGER.error("Catched throwable", t);
-				}
-			}
-		});
-		
-		this.receiveThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				try {
-					
-					while (!Thread.interrupted()) {
-					
-						receiveProviderMessage();
-					
-					}
-				} catch (Throwable t) {
-					LOGGER.error("Catched throwable", t);
-				}
-			}
-		});
-
 	}
 
 	public static class Builder {
@@ -432,18 +401,76 @@ public class MQTTConnector implements Connector<JSONMessage> {
 
 	@Override
 	public void start() {
-		
-		sendThread.start();
-		
-		receiveThread.start();
-		
+
+		final Runnable sender = new Runnable() {
+
+			@Override
+			public void run() {
+
+				try {
+
+					while (!Thread.currentThread().isInterrupted()) {
+
+						sendProviderMessage();
+
+					}
+
+				} catch (Throwable t) {
+
+					LOGGER.error("Catched throwable", t);
+
+				}
+			}
+
+		};
+
+		final Runnable receiver = new Runnable() {
+
+			@Override
+			public void run() {
+
+				try {
+
+					while (!Thread.currentThread().isInterrupted()) {
+
+						receiveProviderMessage();
+
+					}
+
+				} catch (Throwable t) {
+
+					LOGGER.error("Catched throwable", t);
+
+				}
+
+			}
+
+		};
+
+		// Start sender
+		senderExecutorService.execute(sender);
+
+		// Start receiver
+		receiverExecutorService.execute(receiver);
+
 	}
 
 	@Override
 	public void stop() {
-		
-		sendThread.interrupt();
-		receiveThread.interrupt();
+
+		senderExecutorService.shutdown();
+		receiverExecutorService.shutdown();
+
+		try {
+
+			senderExecutorService.awaitTermination(5, TimeUnit.SECONDS);
+			receiverExecutorService.awaitTermination(5, TimeUnit.SECONDS);
+
+		} catch (InterruptedException e) {
+
+			LOGGER.error("Exception while awaiting for termination", e);
+
+		}
 		
 	}
 
