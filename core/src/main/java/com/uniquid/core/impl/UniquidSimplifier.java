@@ -36,8 +36,8 @@ public class UniquidSimplifier extends Core {
 
 	private final Map<Integer, Function> functionsMap = new HashMap<>();
 	
-	private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("scheduledExecutorService"));
-	private final ScheduledExecutorService receiverExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("receiverExecutorService"));
+	private ScheduledExecutorService scheduledExecutorService;
+	private ScheduledExecutorService receiverExecutorService;
 
 	public UniquidSimplifier(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, UniquidNode node)
 			throws Exception {
@@ -104,6 +104,9 @@ public class UniquidSimplifier extends Core {
 	 * Initialize the library and start processing
 	 */
 	public void start() throws Exception {
+
+		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("scheduledExecutorService"));
+		receiverExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("receiverExecutorService"));
 
 		// initialize node if not yet initilized
 		if (UniquidNodeState.CREATED.equals(getNode().getNodeState())) {
