@@ -41,12 +41,15 @@ public class MQTTConnector implements Connector<JSONMessage> {
 	private ScheduledExecutorService senderExecutorService;
 	private ScheduledExecutorService receiverExecutorService;
 
+	private int lastId;
+
 	private MQTTConnector(String topic, String broker) {
 
 		this.providerTopic = topic;
 		this.broker = broker;
 		this.inputQueue = new LinkedList<JSONMessage>();
 		this.outputQueue = new LinkedList<OutputMessage<JSONMessage>>();
+		this.lastId = -1;
 		
 	}
 
@@ -111,10 +114,24 @@ public class MQTTConnector implements Connector<JSONMessage> {
 			// Create a JSON Message
 			JSONMessage jsonMessage = receiveMessage(broker, providerTopic);
 
-			synchronized (inputQueue) {
+			// if the message was already processed then skip (avoid duplicated messages)
+			int id = (int) jsonMessage.getBody().get("id");
 
-				inputQueue.add(jsonMessage);
-				inputQueue.notifyAll();
+			if (id == lastId) {
+
+				LOGGER.warn("Duplicated message! Skipping");
+
+			} else {
+
+				// save last id
+				lastId = id;
+
+				synchronized (inputQueue) {
+
+					inputQueue.add(jsonMessage);
+					inputQueue.notifyAll();
+
+				}
 
 			}
 
