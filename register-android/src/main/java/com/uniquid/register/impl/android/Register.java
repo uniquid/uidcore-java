@@ -25,6 +25,10 @@ public class Register implements UserRegister, ProviderRegister {
     public Register(android.content.Context context){
         dbHelper = new SQLiteHelper(context);
     }
+    
+    public Register(android.content.Context context, String name){
+        dbHelper = new SQLiteHelper(context, name);
+    }
 
     public List<UserChannel> getAllUserChannels(){
         db = dbHelper.getReadableDatabase();

@@ -53,6 +53,10 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     public SQLiteHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
+    
+    public SQLiteHelper(Context context, String name) {
+        super(context, name, null, DB_VERSION);
+    }
 
 
     @Override
