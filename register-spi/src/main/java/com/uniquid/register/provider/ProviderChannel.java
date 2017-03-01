@@ -17,6 +17,7 @@ public class ProviderChannel implements Serializable {
 	private String revokeAddress;
 	private String bitmask;
 	private String revokeTxId;
+	private long creationTime;
 
 	public ProviderChannel() {
 
@@ -68,9 +69,17 @@ public class ProviderChannel implements Serializable {
 		return revokeTxId;
 	}
 	
+	public long getCreationTime() {
+		return creationTime;
+	}
+
+	public void setCreationTime(long creationTime) {
+		this.creationTime = creationTime;
+	}
+
 	public String toString() {
 		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
-				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId;
+				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId + "; creationTime: " + creationTime;
 	}
 
 	@Override

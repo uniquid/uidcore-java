@@ -723,6 +723,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 					providerChannel.setBitmask(CONTRACT_FUNCTION);
 					providerChannel.setRevokeAddress("IMPRINTING");
 					providerChannel.setRevokeTxId(tx.getHashAsString());
+					providerChannel.setCreationTime(tx.getUpdateTime().getTime()/1000);
 
 					// persist channel
 					providerRegister.insertChannel(providerChannel);
@@ -829,6 +830,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			providerChannel.setUserAddress(userAddress.toBase58());
 			providerChannel.setRevokeAddress(revoke.toBase58());
 			providerChannel.setRevokeTxId(tx.getHashAsString());
+			providerChannel.setCreationTime(tx.getUpdateTime().getTime()/1000);
 
 			String opreturn = WalletUtils.getOpReturn(tx);
 

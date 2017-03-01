@@ -184,6 +184,7 @@ public class Register implements UserRegister, ProviderRegister {
                 channel.setBitmask(cursor.getString(2));
                 channel.setRevokeAddress(cursor.getString(3));
                 channel.setRevokeTxId(cursor.getString(4));
+                channel.setCreationTime(cursor.getInt(5));
                 channels.add(channel);
             } while (cursor.moveToNext());
         }
@@ -210,6 +211,7 @@ public class Register implements UserRegister, ProviderRegister {
             providerChannel.setBitmask(cursor.getString(2));
             providerChannel.setRevokeAddress(cursor.getString(3));
             providerChannel.setRevokeTxId(cursor.getString(4));
+            providerChannel.setCreationTime(cursor.getInt(5));
             cursor.close();
         } else {
             throw new RegisterException("Doesn't exist any record with specified name");
@@ -230,6 +232,7 @@ public class Register implements UserRegister, ProviderRegister {
             providerChannel.setBitmask(cursor.getString(2));
             providerChannel.setRevokeAddress(cursor.getString(3));
             providerChannel.setRevokeTxId(cursor.getString(4));
+            providerChannel.setCreationTime(cursor.getInt(5));
             cursor.close();
         } else {
             return null;
@@ -250,6 +253,7 @@ public class Register implements UserRegister, ProviderRegister {
             providerChannel.setBitmask(cursor.getString(2));
             providerChannel.setRevokeAddress(cursor.getString(3));
             providerChannel.setRevokeTxId(cursor.getString(4));
+            providerChannel.setCreationTime(cursor.getInt(5));
             cursor.close();
         } else {
             return null;
@@ -270,6 +274,7 @@ public class Register implements UserRegister, ProviderRegister {
         values.put(SQLiteHelper.PROVIDER_CLM_BITMASK, providerChannel.getBitmask());
         values.put(SQLiteHelper.PROVIDER_CLM_REVOKE_ADDRESS, providerChannel.getRevokeAddress());
         values.put(SQLiteHelper.PROVIDER_CLM_REVOKE_TX_ID, providerChannel.getRevokeTxId());
+        values.put(SQLiteHelper.PROVIDER_CLM_CREATION_TIME, providerChannel.getCreationTime());
         long db_index = db.insert(SQLiteHelper.TABLE_PROVIDER, null, values);
         if(db_index < 0)
             throw new RegisterException("Error inserting new channel");
