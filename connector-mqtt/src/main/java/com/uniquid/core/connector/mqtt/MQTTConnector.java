@@ -41,7 +41,7 @@ public class MQTTConnector implements Connector<JSONMessage> {
 	private ScheduledExecutorService senderExecutorService;
 	private ScheduledExecutorService receiverExecutorService;
 
-	private int lastId;
+	private long lastId;
 
 	private MQTTConnector(String topic, String broker) {
 
@@ -115,16 +115,38 @@ public class MQTTConnector implements Connector<JSONMessage> {
 			JSONMessage jsonMessage = receiveMessage(broker, providerTopic);
 
 			// if the message was already processed then skip (avoid duplicated messages)
-			int id = (int) jsonMessage.getBody().get("id");
+			long tmp = 0;
+			try {
 
-			if (id == lastId) {
+				tmp = (int) jsonMessage.getBody().get("id");
+
+				// it's int
+
+			} catch (ClassCastException ex) {
+
+				Object id = jsonMessage.getBody().get("id");
+
+				if (id instanceof String) {
+
+					tmp = Long.parseLong((String) id);
+
+				} else if (id instanceof Long) {
+
+					// should be long
+					tmp = (long) jsonMessage.getBody().get("id");
+
+				}
+
+			}
+
+			if (tmp == lastId) {
 
 				LOGGER.warn("Duplicated message! Skipping");
 
 			} else {
 
 				// save last id
-				lastId = id;
+				lastId = tmp;
 
 				synchronized (inputQueue) {
 
