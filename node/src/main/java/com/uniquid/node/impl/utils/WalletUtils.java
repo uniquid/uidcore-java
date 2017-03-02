@@ -29,7 +29,7 @@ public abstract class WalletUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WalletUtils.class.getName());
 	
 	private static String URL_REGISTRY = "http://104.130.230.85:8080/registry";
-    private static String URL_UTXO = "http://appliance3.uniquid.co:8080/insight-api/addr/%1&s/utxo";
+    private static String URL_UTXO = "http://52.167.211.151:3001/insight-api/addr/%1&s/utxo";
     private static String URL_PROVIDER = "http://appliance4.uniquid.co:8080/registry";
 
 	public static void newCompleteTransaction(SendRequest sendRequest, Wallet wallet, NetworkParameters params) throws Exception {
