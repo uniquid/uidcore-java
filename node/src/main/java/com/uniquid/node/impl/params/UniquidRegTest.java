@@ -23,11 +23,13 @@ public class UniquidRegTest extends RegTestParams {
 			
 			InetAddress inetAddress1 = InetAddress.getByAddress(new byte[] {52, (byte) 225, (byte) 217, (byte) 168});
 			InetAddress inetAddress2 = InetAddress.getByAddress(new byte[] {52, (byte) 167, (byte) 211, (byte) 151});
+			InetAddress inetAddress3 = InetAddress.getByAddress(new byte[] {52, (byte) 225, (byte) 218, (byte) 133});
 			
 			int int1 = covertInetAddressToInt(inetAddress1);
 			int int2 = covertInetAddressToInt(inetAddress2);
-			
-			addrSeeds = new int[] { int1, int2 };
+			int int3 = covertInetAddressToInt(inetAddress3);
+			 
+			addrSeeds = new int[] { int1, int2, int3 };
 			
 		} catch (UnknownHostException e) {
 			// IMPOSSIBLE
