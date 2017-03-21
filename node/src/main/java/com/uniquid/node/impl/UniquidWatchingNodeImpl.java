@@ -71,8 +71,6 @@ public class UniquidWatchingNodeImpl implements UniquidNode, WalletCoinsSentEven
     private String publicKey;
     private String machineName;
 
-    private String xpub;
-
     private long creationTime;
 
     private RegisterFactory registerFactory;
@@ -88,7 +86,7 @@ public class UniquidWatchingNodeImpl implements UniquidNode, WalletCoinsSentEven
         this.registerFactory = builder._registerFactory;
         this.machineName = builder._machineName;
         this.eventListeners = new CopyOnWriteArrayList<>();
-        this.xpub = builder._xpub;
+        this.publicKey = builder._xpub;
         this.creationTime = builder._creationTime;
 
         setUniquidNodeState(new CreatedState());
@@ -135,7 +133,7 @@ public class UniquidWatchingNodeImpl implements UniquidNode, WalletCoinsSentEven
             } else {
                 DeterministicKey key = DeterministicKey.deserializeB58(
                         null,
-                        xpub,
+                        publicKey,
                         networkParameters
                 );
                 LOGGER.info(key.toAddress(networkParameters).toBase58());

@@ -161,6 +161,8 @@ public class NodeUtils {
 			
 			final PeerGroup peerGroup = new PeerGroup(params, chain);
 			peerGroup.setUserAgent("UNIQUID", "0.1");
+			peerGroup.setMaxPeersToDiscoverCount(3);
+			peerGroup.setMaxConnections(2);
 
 			if (params.getDnsSeeds() != null &&
 					params.getDnsSeeds().length > 0) {
@@ -231,6 +233,8 @@ public class NodeUtils {
 			BlockChain chain = new BlockChain(params, chainStore);
 			peerGroup = new PeerGroup(params, chain);
 			peerGroup.setUserAgent("UNIQUID", "0.1");
+			peerGroup.setMaxPeersToDiscoverCount(3);
+			peerGroup.setMaxConnections(2);
 
 			if (params.getDnsSeeds() != null &&
 					params.getDnsSeeds().length > 0) {
