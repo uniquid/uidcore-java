@@ -35,7 +35,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	
 	private static final String PROVIDER_DELETE = "delete from provider_channel where provider_address = ? and user_address = ?;";
 	
-	public static final String PROVIDER_ALL_CHANNEL = "select provider_address, user_address, bitmask, revoke_address , revoke_tx_id from provider_channel;";
+	public static final String PROVIDER_ALL_CHANNEL = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time from provider_channel;";
 	
 	public static final String TABLE_USER = "user_channel";
 	
