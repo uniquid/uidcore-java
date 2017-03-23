@@ -173,13 +173,6 @@ public class NodeUtils {
 			} else {
 				throw new Exception("Problem with Peers discovery!");
 			}
-			
-			for (Wallet wallet : wallets) {
-			
-				chain.addWallet(wallet);
-				peerGroup.addWallet(wallet);
-			
-			}
 
 			LOGGER.info("BLOCKCHAIN Preparing to download blockchain...");
 
@@ -230,8 +223,7 @@ public class NodeUtils {
 
 		try {
 
-			BlockChain chain = new BlockChain(params, chainStore);
-			peerGroup = new PeerGroup(params, chain);
+			peerGroup = new PeerGroup(params);
 			peerGroup.setUserAgent("UNIQUID", "0.1");
 			peerGroup.setMaxPeersToDiscoverCount(3);
 			peerGroup.setMaxConnections(2);
@@ -246,9 +238,6 @@ public class NodeUtils {
 				throw new Exception("Problem with Peers discovery!");
 			}
 			
-			chain.addWallet(wallet);
-			peerGroup.addWallet(wallet);
-
 			LOGGER.info("BLOCKCHAIN Preparing to send TX...");
 
 			peerGroup.start();
@@ -266,8 +255,6 @@ public class NodeUtils {
 		} finally {
 
 			peerGroup.stop();
-			chainStore.close();
-
 		}
 	}
 
