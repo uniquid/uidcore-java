@@ -49,7 +49,6 @@ import com.uniquid.node.impl.utils.UniquidNodeStateUtils;
 import com.uniquid.node.impl.utils.WalletUtils;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.register.RegisterFactory;
-import com.uniquid.register.orchestrator.Context;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;

@@ -1,7 +1,7 @@
 package com.uniquid.core.connector;
 
-import com.uniquid.core.InputMessage;
-import com.uniquid.core.OutputMessage;
+import com.uniquid.core.ProviderRequest;
+import com.uniquid.core.ProviderResponse;
 
 /**
  * Represent a communication between a Provider and a User
@@ -9,23 +9,23 @@ import com.uniquid.core.OutputMessage;
  * @author giuseppe
  *
  */
-public interface EndPoint<T> {
+public interface EndPoint {
 	
 	/**
 	 * Returns the request performed by the User
 	 * @return
 	 */
-	public InputMessage<T> getInputMessage();
+	public ProviderRequest getInputMessage();
 
 	/**
 	 * Returns the response to be returned to the User
 	 * @return
 	 */
-	public OutputMessage<T> getOutputMessage();
+	public ProviderResponse getOutputMessage();
 	
 	/**
 	 * Close this EndPoint sending all the communication to the User.
 	 */
-	public void close();
+	public void flush() throws ConnectorException;
 
 }

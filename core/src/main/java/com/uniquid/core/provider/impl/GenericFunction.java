@@ -3,8 +3,8 @@ package com.uniquid.core.provider.impl;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import com.uniquid.core.InputMessage;
-import com.uniquid.core.OutputMessage;
+import com.uniquid.core.ProviderRequest;
+import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.FunctionConfig;
 import com.uniquid.core.provider.FunctionContext;
@@ -47,7 +47,7 @@ public abstract class GenericFunction implements Function, FunctionConfig {
     }
 
 	@Override
-	public abstract void service(InputMessage inputMessage, OutputMessage outputMessage, byte[] payload)
+	public abstract void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload)
 			throws FunctionException, IOException;
 
 	@Override

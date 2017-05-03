@@ -2,8 +2,8 @@ package com.uniquid.core.provider;
 
 import java.io.IOException;
 
-import com.uniquid.core.InputMessage;
-import com.uniquid.core.OutputMessage;
+import com.uniquid.core.ProviderRequest;
+import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.provider.exception.FunctionException;
 
 /**
@@ -39,6 +39,6 @@ public interface Function {
 	 * @param response
 	 * @throws Exception
 	 */
-	public void service(InputMessage<?> inputMessage, OutputMessage<?> outputMessage, byte[] payload) throws FunctionException, IOException;
+	public void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload) throws FunctionException, IOException;
 	
 }

@@ -1,31 +1,24 @@
 package com.uniquid.register.impl.android;
 
-import android.content.Context;
-
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserRegister;
 
-import java.util.Map;
+import android.content.Context;
 
 /**
  * @author Beatrice Formai on 02/10/2017
  *         for Uniquid Inc.
  */
-public class AndroidRegisterFactory extends RegisterFactory {
-
-    private static final String PREFIX = "AndroidRegisterFactory";
-    public static final String CONTEXT = PREFIX + ".context";
+public class AndroidRegisterFactory implements RegisterFactory {
 
     private Register instance;
 
-    public AndroidRegisterFactory(Map<String, Object> configuration) throws RegisterException {
-        super(configuration);
-
-        Context context = (Context) factoryConfiguration.get(CONTEXT);
+    public AndroidRegisterFactory(final Context context) throws RegisterException {
 
         instance = new Register(context);
+        
     }
 
 	@Override

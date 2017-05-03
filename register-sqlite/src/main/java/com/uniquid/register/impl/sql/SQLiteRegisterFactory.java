@@ -2,32 +2,24 @@ package com.uniquid.register.impl.sql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.Map;
 
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserRegister;
 
-public class SQLiteRegisterFactory extends RegisterFactory {
+public class SQLiteRegisterFactory implements RegisterFactory {
 
-	private static final String PREFIX = "SQLiteRegisterFactory";
-	public static final String JDBC_DRIVER = PREFIX + ".jdbc.driver";
-	public static final String JDBC_CONNECTION = PREFIX + ".jdbc.connection";
-	
 	private SQLiteRegister instance;
 
-	public SQLiteRegisterFactory(Map<String, Object> configuration) throws RegisterException {
+	public SQLiteRegisterFactory(final String connectionString) throws RegisterException {
 
-		// delegate to superclass
-		super(configuration);
-		
 		try {
 			
-			Class.forName((String) factoryConfiguration.get(JDBC_DRIVER));
+			Class.forName("org.sqlite.JDBC");
 
 			// create a database connection
-			Connection connection = DriverManager.getConnection((String) factoryConfiguration.get(JDBC_CONNECTION));
+			Connection connection = DriverManager.getConnection(connectionString);
 			
 			// Disable auto commit
 			if (!connection.getAutoCommit()) {

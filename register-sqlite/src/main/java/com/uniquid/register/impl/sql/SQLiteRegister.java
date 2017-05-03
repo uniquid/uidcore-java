@@ -23,8 +23,6 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	public static final String PROVIDER_CLM_USER_ADDRESS = "user_address";
 	public static final String PROVIDER_CLM_BITMASK = "bitmask";
 	
-	private static final String PROVIDER_CREATE_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, creation_time integer not null, primary key (provider_address, user_address));";
-
 	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time from provider_channel where user_address = ?";
 	
 	private static final String PROVIDER_CHANNEL_BY_REVOKE_ADDRESS = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time from provider_channel where revoke_address = ?";
@@ -39,7 +37,6 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	
 	public static final String TABLE_USER = "user_channel";
 	
-	public static final String USER_CREATE_TABLE = "create table user_channel (provider_name text not null, provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, primary key (provider_name, provider_address, user_address));";
 	
 	public static final String USER_ALL_CHANNEL = "select provider_name, provider_address, user_address, bitmask, revoke_address, revoke_tx_id from user_channel";
 	

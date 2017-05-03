@@ -4,6 +4,12 @@ import java.util.List;
 
 import com.uniquid.register.exception.RegisterException;
 
+/**
+ * Implementation of Data Access Object for {@code ProviderRegister} class.
+ * 
+ * {@code ProviderRegister} allow to separate low level data accessing API.
+ *
+ */
 public interface ProviderRegister {
 
 	public List<ProviderChannel> getAllChannels() throws RegisterException;

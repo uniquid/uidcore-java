@@ -5,7 +5,6 @@ import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
@@ -15,13 +14,9 @@ import org.fusesource.mqtt.client.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.core.InputMessage;
-import com.uniquid.core.OutputMessage;
 import com.uniquid.core.connector.Connector;
 import com.uniquid.core.connector.ConnectorException;
 import com.uniquid.core.connector.EndPoint;
-import com.uniquid.core.connector.mqtt.provider.MQTTMessageRequest;
-import com.uniquid.core.connector.mqtt.provider.MQTTMessageResponse;
 
 /**
  * This class implements a Connector that uses the MQTT protocol
@@ -29,27 +24,21 @@ import com.uniquid.core.connector.mqtt.provider.MQTTMessageResponse;
  * @author giuseppe
  *
  */
-public class MQTTConnector implements Connector<JSONMessage> {
+public class MQTTConnector implements Connector {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MQTTConnector.class.getName());
 
 	private String providerTopic;
 	private String broker;
-	private Queue<JSONMessage> inputQueue;
-	private Queue<OutputMessage<JSONMessage>> outputQueue;
+	private Queue<byte[]> inputQueue;
 
-	private ScheduledExecutorService senderExecutorService;
 	private ScheduledExecutorService receiverExecutorService;
-
-	private long lastId;
 
 	private MQTTConnector(String topic, String broker) {
 
 		this.providerTopic = topic;
 		this.broker = broker;
-		this.inputQueue = new LinkedList<JSONMessage>();
-		this.outputQueue = new LinkedList<OutputMessage<JSONMessage>>();
-		this.lastId = -1;
+		this.inputQueue = new LinkedList<byte[]>();
 		
 	}
 
@@ -87,15 +76,9 @@ public class MQTTConnector implements Connector<JSONMessage> {
 
 				}
 
-				JSONMessage jsonMessage = inputQueue.poll();
+				byte[] inputMessage = inputQueue.poll();
 
-				MQTTMessageRequest mqttMessageRequest = MQTTMessageRequest.fromJSONMessage(jsonMessage);
-				
-				MQTTMessageResponse mqttMessageResponse = new MQTTMessageResponse();
-
-				EndPoint endPoint = new MQTTEndPoint(this, mqttMessageRequest, mqttMessageResponse);
-
-				return endPoint;
+				return new MQTTEndPoint(inputMessage, broker);
 
 			}
 
@@ -107,391 +90,79 @@ public class MQTTConnector implements Connector<JSONMessage> {
 
 	}
 
-	private void receiveProviderMessage() throws ConnectorException, InterruptedException {
-
-		try {
-
-			// Create a JSON Message
-			JSONMessage jsonMessage = receiveMessage(broker, providerTopic);
-
-			// if the message was already processed then skip (avoid duplicated messages)
-			long tmp = 0;
-			try {
-
-				tmp = (int) jsonMessage.getBody().get("id");
-
-				// it's int
-
-			} catch (ClassCastException ex) {
-
-				Object id = jsonMessage.getBody().get("id");
-
-				if (id instanceof String) {
-
-					tmp = Long.parseLong((String) id);
-
-				} else if (id instanceof Long) {
-
-					// should be long
-					tmp = (long) jsonMessage.getBody().get("id");
-
-				}
-
-			}
-
-			if (tmp == lastId) {
-
-				LOGGER.warn("Duplicated message! Skipping");
-
-			} else {
-
-				// save last id
-				lastId = tmp;
-
-				synchronized (inputQueue) {
-
-					inputQueue.add(jsonMessage);
-					inputQueue.notifyAll();
-
-				}
-
-			}
-
-			// DONE!
-
-		} catch (Throwable t) {
-
-			LOGGER.error("Error", t);
-
-//				throw new ConnectorException("Catched exception", t);
-
-		}
-
-	}
-	
-	private JSONMessage receiveMessage(String broker, String topic) throws Exception {
-		
-		BlockingConnection connection = null;
-
-		try {
-
-			MQTT mqtt = new MQTT();
-
-			mqtt.setHost(broker);
-
-			connection = mqtt.blockingConnection();
-			connection.connect();
-
-			// subscribe
-			Topic[] topics = { new Topic(topic, QoS.AT_LEAST_ONCE) };
-			/*byte[] qoses = */connection.subscribe(topics);
-
-			// blocks!!!
-			Message message = connection.receive();
-
-			byte[] payload = message.getPayload();
-
-			//
-			message.ack();
-
-			// Create a JSON Message
-			return JSONMessage.fromJsonString(new String(payload));
-
-			// DONE!
-
-		} finally {
-
-			// disconnect
-			try {
-
-				connection.disconnect();
-
-			} catch (Exception ex) {
-
-				LOGGER.error("Catched Exception", ex);
-
-			}
-
-		}
-		
-	}
-	
-	private JSONMessage receiveMessage(String broker, String topic, long timeoutInSeconds) throws Exception, TimeoutException {
-		
-		BlockingConnection connection = null;
-
-		try {
-
-			MQTT mqtt = new MQTT();
-
-			mqtt.setHost(broker);
-
-			connection = mqtt.blockingConnection();
-			connection.connect();
-
-			// subscribe
-			Topic[] topics = { new Topic(topic, QoS.AT_LEAST_ONCE) };
-			/*byte[] qoses = */connection.subscribe(topics);
-
-			// blocks!!!
-			Message message = connection.receive(timeoutInSeconds, TimeUnit.SECONDS);
-			
-			if (message == null) {
-
-				throw new TimeoutException();
-
-			}
-
-			byte[] payload = message.getPayload();
-
-			//
-			message.ack();
-
-			// Create a JSON Message
-			return JSONMessage.fromJsonString(new String(payload));
-
-			// DONE!
-
-		} finally {
-
-			// disconnect
-			try {
-
-				connection.disconnect();
-
-			} catch (Exception ex) {
-
-				LOGGER.error("Catched Exception", ex);
-
-			}
-
-		}
-		
-	}
-
-	private void sendProviderMessage() throws ConnectorException, InterruptedException {
-
-		synchronized (outputQueue) {
-
-			while (outputQueue.isEmpty()) {
-
-				outputQueue.wait();
-
-			}
-			
-			OutputMessage<JSONMessage> outputMessage = outputQueue.poll();
-
-			try {
-
-				sendMessage(broker, outputMessage);
-
-			} catch (Throwable t) {
-
-				LOGGER.error("Error", t);
-				
-				// We should not loose this message!!! We put it again in the queue
-				
-				outputQueue.add(outputMessage);
-				
-				outputQueue.notifyAll();
-
-			}
-
-		}
-
-	}
-	
-	private void sendMessage(String broker, OutputMessage<JSONMessage> outputMessage) throws Exception {
-		
-		BlockingConnection connection = null;
-
-		try {
-
-			MQTT mqtt = new MQTT();
-
-			mqtt.setHost(broker);
-
-			connection = mqtt.blockingConnection();
-			connection.connect();
-			
-			String destinationTopic = (String) outputMessage.getParameter(OutputMessage.RECEIVER_ADDRESS);
-
-			// to subscribe
-			Topic[] topics = { new Topic(destinationTopic, QoS.AT_LEAST_ONCE) };
-			/*byte[] qoses = */connection.subscribe(topics);
-
-			// consume
-			connection.publish(destinationTopic, outputMessage.getPayload().toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
-
-		} finally {
-
-			// disconnect
-			try {
-
-				connection.disconnect();
-
-			} catch (Exception ex) {
-
-				LOGGER.error("Catched Exception", ex);
-
-			}
-
-		}
-		
-	}
-	
-	private JSONMessage sendReceiveMessage(String broker, OutputMessage<JSONMessage> outputMessage, long timeoutInSeconds) throws Exception {
-		
-		BlockingConnection connection = null;
-
-		try {
-
-			MQTT mqtt = new MQTT();
-
-			mqtt.setHost(broker);
-
-			connection = mqtt.blockingConnection();
-			connection.connect();
-			
-			String destinationTopic = (String) outputMessage.getParameter(OutputMessage.RECEIVER_ADDRESS);
-			
-			String sender = (String) outputMessage.getParameter(OutputMessage.SENDER);
-
-			// to subscribe
-			Topic[] topics = { new Topic(sender, QoS.AT_LEAST_ONCE) };
-			/*byte[] qoses = */connection.subscribe(topics);
-
-			// consume
-			connection.publish(destinationTopic, outputMessage.getPayload().toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
-			
-			Message message = connection.receive(timeoutInSeconds, TimeUnit.SECONDS);
-			
-			if (message == null) {
-
-				throw new TimeoutException();
-
-			}
-
-			byte[] payload = message.getPayload();
-
-			//
-			message.ack();
-
-			// Create a JSON Message
-			return JSONMessage.fromJsonString(new String(payload));
-
-		} finally {
-
-			// disconnect
-			try {
-
-				connection.disconnect();
-
-			} catch (Exception ex) {
-
-				LOGGER.error("Catched Exception", ex);
-
-			}
-
-		}
-		
-	}
-	
-
-	public void sendResponse(OutputMessage<JSONMessage> messageResponse) {
-
-		synchronized (outputQueue) {
-
-			outputQueue.add(messageResponse);
-			outputQueue.notifyAll();
-
-		}
-
-	}
-
-	@Override
-	public OutputMessage<JSONMessage> createOutputMessage() throws ConnectorException {
-		return new com.uniquid.core.connector.mqtt.user.MQTTMessageRequest();
-	}
-
-	/*
-	 * This method should send the message via MQTT and then wait for a
-	 * response.
-	 */
-	@Override
-	public InputMessage<JSONMessage> sendOutputMessage(OutputMessage<JSONMessage> outputMessage, long timeout) throws ConnectorException {
-
-		try {
-			
-			JSONMessage jsonMessage = sendReceiveMessage(broker, outputMessage, timeout);
-			
-			return new com.uniquid.core.connector.mqtt.user.MQTTMessageResponse(jsonMessage);
-			
-		} catch (TimeoutException ex) {
-			
-			throw new ConnectorException("Timeout while sendOutputMessage", ex);
-
-		} catch (Exception ex) {
-			
-			throw new ConnectorException("Exception while sendOutputMessage", ex);
-		}
-			
-	}
-
 	@Override
 	public void start() {
 
-		senderExecutorService = Executors.newSingleThreadScheduledExecutor();
-
 		receiverExecutorService = Executors.newSingleThreadScheduledExecutor();
-
-		final Runnable sender = new Runnable() {
-
-			@Override
-			public void run() {
-
-				try {
-
-					while (!Thread.currentThread().isInterrupted()) {
-
-						sendProviderMessage();
-
-					}
-
-				} catch (Throwable t) {
-
-					LOGGER.error("Catched throwable", t);
-
-				}
-			}
-
-		};
 
 		final Runnable receiver = new Runnable() {
 
 			@Override
 			public void run() {
 
-				try {
+				while (!Thread.currentThread().isInterrupted()) {
+					
+					try {
 
-					while (!Thread.currentThread().isInterrupted()) {
-
-						receiveProviderMessage();
-
+						BlockingConnection connection = null;
+	
+						try {
+	
+							MQTT mqtt = new MQTT();
+	
+							mqtt.setHost(broker);
+	
+							connection = mqtt.blockingConnection();
+							connection.connect();
+	
+							// subscribe
+							Topic[] topics = { new Topic(providerTopic, QoS.AT_LEAST_ONCE) };
+							/*byte[] qoses = */connection.subscribe(topics);
+	
+							// blocks!!!
+							Message message = connection.receive();
+							
+							byte[] payload = message.getPayload();
+	
+							//
+							message.ack();
+	
+							// Create a JSON Message
+							synchronized (inputQueue) {
+	
+								inputQueue.add(payload);
+								inputQueue.notifyAll();
+	
+							}
+	
+							// DONE!
+	
+						} finally {
+	
+							// disconnect
+							try {
+	
+								connection.disconnect();
+	
+							} catch (Exception ex) {
+	
+								LOGGER.error("Catched Exception", ex);
+	
+							}
+	
+						}
+					
+					} catch (Throwable t) {
+						
+						LOGGER.error("Catched Exception", t);
+						
 					}
-
-				} catch (Throwable t) {
-
-					LOGGER.error("Catched throwable", t);
 
 				}
 
 			}
 
 		};
-
-		// Start sender
-		senderExecutorService.execute(sender);
 
 		// Start receiver
 		receiverExecutorService.execute(receiver);
@@ -501,12 +172,10 @@ public class MQTTConnector implements Connector<JSONMessage> {
 	@Override
 	public void stop() {
 
-		senderExecutorService.shutdown();
 		receiverExecutorService.shutdown();
 
 		try {
 
-			senderExecutorService.awaitTermination(5, TimeUnit.SECONDS);
 			receiverExecutorService.awaitTermination(5, TimeUnit.SECONDS);
 
 		} catch (InterruptedException e) {

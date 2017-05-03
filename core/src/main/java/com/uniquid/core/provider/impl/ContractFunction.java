@@ -8,17 +8,17 @@ import org.json.JSONObject;
 
 import com.uniquid.node.impl.UniquidNodeImpl;
 import com.uniquid.core.Core;
-import com.uniquid.core.InputMessage;
-import com.uniquid.core.OutputMessage;
+import com.uniquid.core.ProviderRequest;
+import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.provider.exception.FunctionException;
 
 public class ContractFunction extends GenericFunction {
 
 	@Override
-	public void service(InputMessage inputMessage, OutputMessage outputMessage, byte[] payload)
+	public void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload)
 			throws FunctionException, IOException {
 		
-		String params = inputMessage.getParameter(InputMessage.PARAMS);
+		String params = inputMessage.getParams();
 		
 		JSONObject jsonMessage = new JSONObject(params);
 		
@@ -32,15 +32,11 @@ public class ContractFunction extends GenericFunction {
 		
 			String txid = spvNode.signTransaction(tx, paths.getString(0));
 			
-			PrintWriter printWriter = outputMessage.getWriter();
-			
-			printWriter.print("0 - " + txid);
+			outputMessage.setResult("0 - " + txid);
 		
 		} catch (Exception ex) {
 			
-			PrintWriter printWriter = outputMessage.getWriter();
-			
-			printWriter.print("-1 - " + ex.getMessage());
+			outputMessage.setResult("-1 - " + ex.getMessage());
 			
 		}
 		

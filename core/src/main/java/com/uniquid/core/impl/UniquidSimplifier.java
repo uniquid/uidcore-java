@@ -11,20 +11,20 @@ import org.bitcoinj.utils.ContextPropagatingThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.node.UniquidNode;
-import com.uniquid.node.UniquidNodeState;
-import com.uniquid.register.RegisterFactory;
 import com.uniquid.core.Core;
-import com.uniquid.core.InputMessage;
-import com.uniquid.core.OutputMessage;
+import com.uniquid.core.ProviderRequest;
+import com.uniquid.core.ProviderResponse;
+import com.uniquid.core.connector.Connector;
 import com.uniquid.core.connector.ConnectorException;
-import com.uniquid.core.connector.ConnectorFactory;
 import com.uniquid.core.connector.EndPoint;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.core.provider.impl.ContractFunction;
 import com.uniquid.core.provider.impl.EchoFunction;
 import com.uniquid.core.provider.impl.FunctionConfigImpl;
+import com.uniquid.node.UniquidNode;
+import com.uniquid.node.UniquidNodeState;
+import com.uniquid.register.RegisterFactory;
 
 /**
  * This is the core of Uniquid library. It contains all the functionalities
@@ -39,7 +39,7 @@ public class UniquidSimplifier extends Core {
 	private ScheduledExecutorService scheduledExecutorService;
 	private ScheduledExecutorService receiverExecutorService;
 
-	public UniquidSimplifier(RegisterFactory registerFactory, ConnectorFactory connectorServiceFactory, UniquidNode node)
+	public UniquidSimplifier(RegisterFactory registerFactory, Connector connectorServiceFactory, UniquidNode node)
 			throws Exception {
 
 		// Call superclass
@@ -56,11 +56,11 @@ public class UniquidSimplifier extends Core {
 		}
 	}
 	
-	protected Function getFunction(InputMessage<?> inputMessage) {
+	protected Function getFunction(ProviderRequest inputMessage) {
 
-		String rpcMethod = inputMessage.getParameter(InputMessage.RPC_METHOD);
+		int rpcMethod = inputMessage.getFunction();
 
-		return functionsMap.get(Integer.valueOf(rpcMethod).intValue());
+		return functionsMap.get(rpcMethod);
 
 	}
 
@@ -157,11 +157,11 @@ public class UniquidSimplifier extends Core {
 					try {
 
 						// this will block until a message is received
-						EndPoint<?> endPoint = getConnector().accept();
+						EndPoint endPoint = getConnector().accept();
 
-						InputMessage<?> inputMessage = endPoint.getInputMessage();
+						ProviderRequest inputMessage = endPoint.getInputMessage();
 
-						OutputMessage<?> outputMessage = endPoint.getOutputMessage();
+						ProviderResponse outputMessage = endPoint.getOutputMessage();
 						
 						if (!UniquidNodeState.READY.equals(getNode().getNodeState())) {
 							LOGGER.warn("Node is not yet READY! Skipping request");
@@ -169,8 +169,8 @@ public class UniquidSimplifier extends Core {
 							continue;
 						}
 
-						LOGGER.info("Received input message from : " + inputMessage.getParameter(InputMessage.SENDER)
-								+ " asking method " + inputMessage.getParameter(InputMessage.RPC_METHOD));
+						LOGGER.info("Received input message from : " + inputMessage.getSender()
+								+ " asking method " + inputMessage.getFunction());
 
 						LOGGER.info("Checking sender...");
 
@@ -180,7 +180,7 @@ public class UniquidSimplifier extends Core {
 						LOGGER.info("Performing function...");
 						performProviderRequest(inputMessage, outputMessage, payload);
 
-						endPoint.close();
+						endPoint.flush();
 						
 						LOGGER.info("Done!");
 
