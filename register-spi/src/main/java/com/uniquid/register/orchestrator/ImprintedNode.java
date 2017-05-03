@@ -1,5 +1,7 @@
 package com.uniquid.register.orchestrator;
 
+import java.util.Objects;
+
 public class ImprintedNode implements Comparable<ImprintedNode> {
 	
     private String xpub;
@@ -53,6 +55,31 @@ public class ImprintedNode implements Comparable<ImprintedNode> {
     @Override
     public int compareTo(ImprintedNode o) {
         return this.name.compareToIgnoreCase(o.getName());
+    }
+    
+    @Override
+    public boolean equals(Object object) {
+    
+    	if (!(object instanceof ImprintedNode))
+    		return false;
+
+    	if (this == object)
+    		return true;
+    	
+    	ImprintedNode imprintedNode = (ImprintedNode) object;
+    	
+    	return Objects.equals(xpub, imprintedNode.xpub) &&
+    			Objects.equals(name, imprintedNode.name) &&
+    			Objects.equals(owner, imprintedNode.owner) &&
+    			Objects.equals(txid, imprintedNode.txid);
+    	
+    }
+    
+    @Override
+    public int hashCode() {
+    	
+    	return Objects.hash(xpub, name, owner, txid);
+    	
     }
 
 }

@@ -1,5 +1,7 @@
 package com.uniquid.register.orchestrator;
 
+import java.util.Objects;
+
 public class Contract {
 	
 	private Context context;
@@ -126,5 +128,34 @@ public class Contract {
 //    public JSONObject getContractAsJson() throws JSONException {
 //        return new JSONObject(getContractAsString());
 //    }
+    
+    @Override
+    public boolean equals(Object object) {
+    
+    	if (!(object instanceof Contract))
+    		return false;
 
+    	if (this == object)
+    		return true;
+    	
+    	Contract contract = (Contract) object;
+    	
+    	return java.util.Objects.equals(context, contract.context) &&
+    			java.util.Objects.equals(user, contract.user) &&
+    			java.util.Objects.equals(provider, contract.provider) &&
+    			timestamp_born == contract.timestamp_born &&
+    			timestamp_expiration == contract.timestamp_expiration &&
+    			java.util.Objects.equals(recipe, contract.recipe) &&
+    			java.util.Objects.equals(txid, contract.txid) &&
+    			java.util.Objects.equals(annulment, contract.annulment) &&
+    			java.util.Objects.equals(revocated, contract.revocated);
+    }
+    
+    @Override
+    public int hashCode() {
+    	
+    	return Objects.hash(context, user, provider, timestamp_born, timestamp_expiration, recipe, txid, annulment, revocated);
+    	
+    }
+    
 }

@@ -1,6 +1,7 @@
 package com.uniquid.register.user;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class UserChannel implements Serializable, Comparable<Object> {
 
@@ -79,27 +80,30 @@ public class UserChannel implements Serializable, Comparable<Object> {
 				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId;
 	}
 
-	@Override
-	public boolean equals(Object object){
-        if(!(object instanceof UserChannel)) return false;
-
-        UserChannel userChannel = (UserChannel) object;
-        return (providerName.equals(userChannel.getProviderName()) &&
-                providerAddress.equals(userChannel.getProviderAddress()) &&
-                userAddress.equals(userChannel.getUserAddress())
-        );
-    }
-
     @Override
-    public int hashCode(){
-        int result = 7;
-        result = 31 * result + (providerName != null ? providerName.hashCode() : 0);
-        result = 31 * result + (providerAddress != null ? providerAddress.hashCode() : 0);
-        result = 31 * result + (userAddress != null ? userAddress.hashCode() : 0);
-        result = 31 * result + (bitmask != null ? bitmask.hashCode() : 0);
-        result = 31 * result + (revokeAddress != null ? revokeAddress.hashCode() : 0);
-        result = 31 * result + (revokeTxId != null ? revokeTxId.hashCode() : 0);
-        return result;
+    public boolean equals(Object object) {
+
+    	if (!(object instanceof UserChannel))
+    		return false;
+    	
+    	if (this == object)
+    		return true;
+    	
+    	UserChannel userChannel = (UserChannel) object;
+    	
+    	return Objects.equals(providerName, userChannel.providerName) &&
+    			Objects.equals(providerAddress, userChannel.providerAddress) &&
+    			Objects.equals(userAddress, userChannel.userAddress) &&
+    			Objects.equals(bitmask, userChannel.bitmask) &&
+    			Objects.equals(revokeAddress, userChannel.revokeAddress) &&
+    			Objects.equals(revokeTxId, userChannel.revokeTxId);
+    }
+    
+    @Override
+    public int hashCode() {
+    	
+    	return Objects.hash(providerName, providerAddress, userAddress, bitmask, revokeAddress, revokeTxId);
+    
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.uniquid.register.orchestrator;
 
+import java.util.Objects;
+
 public class Node implements Comparable<Node>{
 
 	private String name;
@@ -60,22 +62,29 @@ public class Node implements Comparable<Node>{
         return path;
     }
 
-
     @Override
-    public boolean equals(Object object){
-        if(object == null)
-                return false;
-        if(object == this)
-            return true;
-        if(!(object instanceof Node))
-            return false;
-        Node n = (Node) object;
-        return n.getXpub().equals(this.xpub);
+    public boolean equals(Object object) {
+    
+    	if (!(object instanceof Node))
+    		return false;
+
+    	if (this == object)
+    		return true;
+    	
+    	Node node = (Node) object;
+    	
+    	return Objects.equals(name, node.name) &&
+    			Objects.equals(xpub, node.xpub) &&
+    			timestamp == node.timestamp &&
+    			Objects.equals(recipe, node.recipe) &&
+    			Objects.equals(path, node.path);
     }
 
     @Override
     public int hashCode() {
-        return xpub.hashCode();
+    	
+        return Objects.hash(name, xpub, timestamp, recipe, path);
+    
     }
 
     @Override

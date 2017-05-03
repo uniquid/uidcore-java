@@ -1,6 +1,7 @@
 package com.uniquid.register.provider;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by Beatrice Formai on 03/01/17, for Uniquid Inc.
@@ -81,26 +82,31 @@ public class ProviderChannel implements Serializable {
 		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
 				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId + "; creationTime: " + creationTime;
 	}
-
+	
 	@Override
-	public boolean equals(Object object){
-		if(!(object instanceof ProviderChannel)) return false;
+    public boolean equals(Object object) {
 
-		ProviderChannel providerChannel = (ProviderChannel) object;
-		return (providerAddress.equals(providerChannel.getProviderAddress()) &&
-				userAddress.equals(providerChannel.getUserAddress())
-		);
-	}
-
-	@Override
-	public int hashCode(){
-		int result = 7;
-		result = 31 * result + (providerAddress != null ? providerAddress.hashCode() : 0);
-		result = 31 * result + (userAddress != null ? userAddress.hashCode() : 0);
-		result = 31 * result + (bitmask != null ? bitmask.hashCode() : 0);
-		result = 31 * result + (revokeAddress != null ? revokeAddress.hashCode() : 0);
-		result = 31 * result + (revokeTxId != null ? revokeTxId.hashCode() : 0);
-		return result;
-	}
+    	if (!(object instanceof ProviderChannel))
+    		return false;
+    	
+    	if (this == object)
+    		return true;
+    	
+    	ProviderChannel providerChannel = (ProviderChannel) object;
+    	
+    	return Objects.equals(providerAddress, providerChannel.providerAddress) &&
+    			Objects.equals(userAddress, providerChannel.userAddress) &&
+    			Objects.equals(revokeAddress, providerChannel.revokeAddress) &&
+    			Objects.equals(bitmask, providerChannel.bitmask) &&
+    			Objects.equals(revokeTxId, providerChannel.revokeTxId) &&
+    			creationTime == providerChannel.creationTime;
+    }
+    
+    @Override
+    public int hashCode() {
+    	
+    	return Objects.hash(providerAddress, userAddress, revokeAddress, bitmask, revokeTxId, creationTime);
+    
+    }
 
 }

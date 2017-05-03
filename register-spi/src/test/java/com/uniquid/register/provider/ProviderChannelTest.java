@@ -10,12 +10,28 @@ public class ProviderChannelTest {
 		
 		ProviderChannel providerChannel = new ProviderChannel();
 		
-		Assert.assertEquals(providerChannel.getProviderAddress(), null);
-		Assert.assertEquals(providerChannel.getUserAddress(), null);
-		Assert.assertEquals(providerChannel.getBitmask(), null);
-		Assert.assertEquals(providerChannel.getRevokeAddress(), null);
-		Assert.assertEquals(providerChannel.getRevokeTxId(), null);
+		Assert.assertEquals(null, providerChannel.getProviderAddress());
+		Assert.assertEquals(null, providerChannel.getUserAddress());
+		Assert.assertEquals(null, providerChannel.getBitmask());
+		Assert.assertEquals(null, providerChannel.getRevokeAddress());
+		Assert.assertEquals(null, providerChannel.getRevokeTxId());
 		
+	}
+	
+	@Test
+	public void testContructor() {
+		
+		String providerAddress = "providerAddress";
+		String userAddress = "userAddress";
+		String bitmask = "bitmask";
+		
+		ProviderChannel providerChannel = new ProviderChannel(providerAddress, userAddress, bitmask);
+		
+		Assert.assertEquals(providerAddress, providerChannel.getProviderAddress());
+		Assert.assertEquals(userAddress, providerChannel.getUserAddress());
+		Assert.assertEquals(bitmask, providerChannel.getBitmask());
+		Assert.assertEquals(null, providerChannel.getRevokeAddress());
+		Assert.assertEquals(null, providerChannel.getRevokeTxId());
 	}
 	
 	@Test
@@ -23,11 +39,13 @@ public class ProviderChannelTest {
 		
 		ProviderChannel providerChannel = new ProviderChannel();
 		
-		String test = "test";
+		Assert.assertEquals(null, providerChannel.getProviderAddress());
 		
-		providerChannel.setProviderAddress(test);
+		String providerAddress = "providerAddress";
 		
-		Assert.assertEquals(test, providerChannel.getProviderAddress());
+		providerChannel.setProviderAddress(providerAddress);
+		
+		Assert.assertEquals(providerAddress, providerChannel.getProviderAddress());
 		
 	}
 	
@@ -36,11 +54,13 @@ public class ProviderChannelTest {
 		
 		ProviderChannel providerChannel = new ProviderChannel();
 		
-		String test = "test";
+		Assert.assertEquals(null, providerChannel.getUserAddress());
 		
-		providerChannel.setUserAddress(test);
+		String userAddress = "userAddress";
 		
-		Assert.assertEquals(test, providerChannel.getUserAddress());
+		providerChannel.setUserAddress(userAddress);
+		
+		Assert.assertEquals(userAddress, providerChannel.getUserAddress());
 		
 	}
 	
@@ -49,11 +69,13 @@ public class ProviderChannelTest {
 		
 		ProviderChannel providerChannel = new ProviderChannel();
 		
-		String test = "test";
+		Assert.assertEquals(null, providerChannel.getBitmask());
 		
-		providerChannel.setBitmask(test);
+		String bitmask = "bitmask";
 		
-		Assert.assertEquals(test, providerChannel.getBitmask());
+		providerChannel.setBitmask(bitmask);
+		
+		Assert.assertEquals(bitmask, providerChannel.getBitmask());
 		
 	}
 	
@@ -62,11 +84,13 @@ public class ProviderChannelTest {
 		
 		ProviderChannel providerChannel = new ProviderChannel();
 		
-		String test = "test";
+		Assert.assertEquals(null, providerChannel.getRevokeAddress());
 		
-		providerChannel.setRevokeAddress(test);
+		String revokeAddress = "revokeAddress";
 		
-		Assert.assertEquals(test, providerChannel.getRevokeAddress());
+		providerChannel.setRevokeAddress(revokeAddress);
+		
+		Assert.assertEquals(revokeAddress, providerChannel.getRevokeAddress());
 		
 	}
 	
@@ -75,21 +99,43 @@ public class ProviderChannelTest {
 		
 		ProviderChannel providerChannel = new ProviderChannel();
 		
-		String test = "test";
+		Assert.assertEquals(null, providerChannel.getRevokeTxId());
 		
-		providerChannel.setRevokeTxId(test);
+		String revokeTxid = "revokeTxid";
 		
-		Assert.assertEquals(test, providerChannel.getRevokeTxId());
+		providerChannel.setRevokeTxId(revokeTxid);
+		
+		Assert.assertEquals(revokeTxid, providerChannel.getRevokeTxId());
 		
 	}
 	
+	@Test
+	public void testCreationTime() {
+		
+		ProviderChannel providerChannel = new ProviderChannel();
+		
+		long creationTime = System.currentTimeMillis();
+		
+		Assert.assertEquals(0, providerChannel.getCreationTime());
+		
+		providerChannel.setCreationTime(creationTime);
+		
+		Assert.assertEquals(creationTime, providerChannel.getCreationTime());
+		
+	}
+	
+	@Test
 	public void testEquals() {
 		
 		ProviderChannel providerChannel1 = new ProviderChannel();
 		
 		ProviderChannel providerChannel2 = new ProviderChannel();
 		
-		Assert.assertEquals(providerChannel1, providerChannel2);
+		Assert.assertEquals(true, providerChannel1.equals(providerChannel2));
+		
+		providerChannel2.setUserAddress("123");
+		
+		Assert.assertEquals(false, providerChannel1.equals(providerChannel2));
 		
 	}
 

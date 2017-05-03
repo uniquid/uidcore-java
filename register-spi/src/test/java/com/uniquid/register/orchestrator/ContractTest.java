@@ -80,5 +80,34 @@ public class ContractTest {
 		Assert.assertEquals(true, contract.isRevocated());
 		
 	}
+	
+	@Test
+	public void testEquals() {
+		
+		Context context = new Context();
+		
+		Node user = new Node();
+		
+		Node provider = new Node();
+		
+		long born = System.currentTimeMillis();
+		
+		long expire = System.currentTimeMillis() + 1000;
+		
+		String recipe = "recipe";
+		
+		Contract contract = new Contract(context, user, provider, born, expire, recipe, recipe, recipe);
+
+		Assert.assertEquals(true, contract.equals(contract));
+		
+		Contract contract2 = new Contract(context, user, provider, born, expire, recipe, recipe, recipe);
+		
+		Assert.assertEquals(true, contract.equals(contract2));
+		
+		Contract contract3 = new Contract(context, user, provider, born, expire, "other", recipe, recipe);
+		
+		Assert.assertEquals(false, contract.equals(contract3));
+		
+	}
 
 }

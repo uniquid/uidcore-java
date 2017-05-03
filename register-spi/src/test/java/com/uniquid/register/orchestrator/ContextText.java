@@ -18,36 +18,63 @@ public class ContextText {
 	@Test
 	public void testConstructor() {
 		
-		String test = "";
+		String name = "name";
+		String xpub = "xpub";
 		
-		Context context = new Context(test, test);
+		Context context = new Context(name, xpub);
 		
-		Assert.assertEquals(context.getName(), test);
-		Assert.assertEquals(context.getXpub(), test);
+		Assert.assertEquals(name, context.getName());
+		Assert.assertEquals(xpub, context.getXpub());
 		
 	}
 	
+	@Test
 	public void testName() {
 		
-		String test = "";
+		String name = "name";
 		
 		Context context = new Context();
 		
-		context.setName(test);
+		Assert.assertEquals(null, context.getName());
 		
-		Assert.assertEquals(context.getName(), test);
+		context.setName(name);
+		
+		Assert.assertEquals(name, context.getName());
 		
 	}
 
+	@Test
 	public void testXpub() {
 		
-		String test = "";
+		String xpub = "xpub";
 		
 		Context context = new Context();
 		
-		context.setXpub(test);
+		Assert.assertEquals(null, context.getXpub());
 		
-		Assert.assertEquals(context.getXpub(), test);
+		context.setXpub(xpub);
+		
+		Assert.assertEquals(xpub, context.getXpub());
+		
+	}
+	
+	@Test
+	public void testEquals() {
+		
+		String name = "name";
+		String xpub = "xpub";
+		
+		Context context = new Context(name, xpub);
+		
+		Assert.assertEquals(true, context.equals(context));
+		
+		Context context2 = new Context(name, xpub);
+		
+		Assert.assertEquals(true, context.equals(context2));
+		
+		Context context3 = new Context("other", xpub);
+		
+		Assert.assertEquals(false, context.equals(context3));
 		
 	}
 

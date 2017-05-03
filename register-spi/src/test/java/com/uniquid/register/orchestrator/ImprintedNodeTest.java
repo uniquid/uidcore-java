@@ -20,14 +20,17 @@ public class ImprintedNodeTest {
 	@Test
 	public void testConstructor() {
 		
-		String test = "test";
+		String xpub = "xpub";
+		String name = "name";
+		String owner = "owner";
+		String txid = "txid";
 		
-		ImprintedNode imprintedNode = new ImprintedNode(test, test, test, test);
+		ImprintedNode imprintedNode = new ImprintedNode(xpub, name, owner, txid);
 		
-		Assert.assertEquals(test, imprintedNode.getXpub());
-		Assert.assertEquals(test, imprintedNode.getName());
-		Assert.assertEquals(test, imprintedNode.getOwner());
-		Assert.assertEquals(test, imprintedNode.getTxid());
+		Assert.assertEquals(xpub, imprintedNode.getXpub());
+		Assert.assertEquals(name, imprintedNode.getName());
+		Assert.assertEquals(owner, imprintedNode.getOwner());
+		Assert.assertEquals(txid, imprintedNode.getTxid());
 		
 	}
 	
@@ -38,11 +41,11 @@ public class ImprintedNodeTest {
 		
 		Assert.assertEquals(null, imprintedNode.getXpub());
 		
-		String test = "test";
+		String xpub = "xpub";
 		
-		imprintedNode.setXpub(test);
+		imprintedNode.setXpub(xpub);
 		
-		Assert.assertEquals(test, imprintedNode.getXpub());
+		Assert.assertEquals(xpub, imprintedNode.getXpub());
 		
 	}
 	
@@ -53,11 +56,11 @@ public class ImprintedNodeTest {
 		
 		Assert.assertEquals(null, imprintedNode.getName());
 		
-		String test = "test";
+		String name = "name";
 		
-		imprintedNode.setName(test);
+		imprintedNode.setName(name);
 		
-		Assert.assertEquals(test, imprintedNode.getName());
+		Assert.assertEquals(name, imprintedNode.getName());
 		
 	}
 	
@@ -68,11 +71,11 @@ public class ImprintedNodeTest {
 		
 		Assert.assertEquals(null, imprintedNode.getOwner());
 		
-		String test = "test";
+		String owner = "owner";
 		
-		imprintedNode.setOwner(test);
+		imprintedNode.setOwner(owner);
 		
-		Assert.assertEquals(test, imprintedNode.getOwner());
+		Assert.assertEquals(owner, imprintedNode.getOwner());
 		
 	}
 	
@@ -83,11 +86,33 @@ public class ImprintedNodeTest {
 		
 		Assert.assertEquals(null, imprintedNode.getTxid());
 		
-		String test = "test";
+		String txid = "txid";
 		
-		imprintedNode.setTxid(test);
+		imprintedNode.setTxid(txid);
 		
-		Assert.assertEquals(test, imprintedNode.getTxid());
+		Assert.assertEquals(txid, imprintedNode.getTxid());
+		
+	}
+
+	@Test
+	public void testEquals() {
+		
+		String xpub = "xpub";
+		String name = "name";
+		String owner = "owner";
+		String txid = "txid";
+		
+		ImprintedNode imprintedNode = new ImprintedNode(xpub, name, owner, txid);
+		
+		Assert.assertEquals(true, imprintedNode.equals(imprintedNode));
+		
+		ImprintedNode imprintedNode2 = new ImprintedNode(xpub, name, owner, txid);
+		
+		Assert.assertEquals(true, imprintedNode.equals(imprintedNode2));
+		
+		ImprintedNode imprintedNode3 = new ImprintedNode(xpub, "other", owner, txid);
+		
+		Assert.assertEquals(false, imprintedNode.equals(imprintedNode3));
 		
 	}
 
