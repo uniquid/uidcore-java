@@ -13,7 +13,7 @@ import org.junit.Test;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.user.UserChannel;
 
-public class TestSQLiteRegister {
+public class SQLiteRegisterTest {
 	
 public static String CREATE_PROVIDER_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, creation_time integer not null, primary key (provider_address, user_address));";
 	
@@ -60,19 +60,19 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 			
 		Assert.assertEquals(channels.size(), 1);
 		
-		Assert.assertEquals(providerChannel, channels.get(0));
+		Assert.assertEquals(true, providerChannel.equals(channels.get(0)));
 		
 		ProviderChannel provider2 = factory.getProviderRegister().getChannelByUserAddress("mkw5u34vDegrah5GasD5gKCJQ1NhNGG8tJ");
 		
-		Assert.assertEquals(providerChannel, provider2);
+		Assert.assertEquals(true, providerChannel.equals(provider2));
 		
 		provider2 = factory.getProviderRegister().getChannelByRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
 		
-		Assert.assertEquals(providerChannel, provider2);
+		Assert.assertEquals(true, providerChannel.equals(provider2));
 		
 		provider2 = factory.getProviderRegister().getChannelByRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 		
-		Assert.assertEquals(providerChannel, provider2);
+		Assert.assertEquals(true, providerChannel.equals(provider2));
 		
 		factory.getProviderRegister().deleteChannel(providerChannel);
 		
@@ -103,23 +103,23 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 			
 		Assert.assertEquals(channels.size(), 1);
 		
-		Assert.assertEquals(userChannel, channels.get(0));
+		Assert.assertEquals(true, userChannel.equals(channels.get(0)));
 		
 		UserChannel provider2 = factory.getUserRegister().getChannelByName("Test");
 		
-		Assert.assertEquals(userChannel, provider2);
+		Assert.assertEquals(true, userChannel.equals(provider2));
 		
 		provider2 = factory.getUserRegister().getChannelByProviderAddress("mfuta5iXJNe7yzCaPtmm4W2saiqTbTfxNG");
 		
-		Assert.assertEquals(userChannel, provider2);
+		Assert.assertEquals(true, userChannel.equals(provider2));
 		
 		provider2 = factory.getUserRegister().getUserChannelByRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 		
-		Assert.assertEquals(userChannel, provider2);
+		Assert.assertEquals(true, userChannel.equals(provider2));
 		
 		provider2 = factory.getUserRegister().getUserChannelByRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
 		
-		Assert.assertEquals(userChannel, provider2);
+		Assert.assertEquals(true, userChannel.equals(provider2));
 		
 		factory.getUserRegister().deleteChannel(userChannel);
 		

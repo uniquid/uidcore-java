@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserRegister;
 
-public class TestSQLiteRegisterFactory {
+public class SQLiteRegisterFactoryTest {
 	
 	public static String CREATE_PROVIDER_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, creation_time integer not null, primary key (provider_address, user_address));";
 	
@@ -79,7 +79,7 @@ public class TestSQLiteRegisterFactory {
 		
 		UserRegister userRegister = factory.getUserRegister();
 		
-		Assert.assertEquals(providerRegister, userRegister);
+		Assert.assertEquals(true, providerRegister == userRegister);
 		
 	}
 
