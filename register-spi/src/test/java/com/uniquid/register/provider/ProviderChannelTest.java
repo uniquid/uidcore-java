@@ -137,6 +137,8 @@ public class ProviderChannelTest {
 		
 		Assert.assertEquals(false, providerChannel1.equals(providerChannel2));
 		
+		Assert.assertEquals(false, providerChannel1.equals(null));
+		
 	}
 
 }

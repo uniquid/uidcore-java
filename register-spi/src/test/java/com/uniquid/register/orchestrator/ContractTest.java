@@ -1,8 +1,7 @@
 package com.uniquid.register.orchestrator;
 
-import org.junit.Test;
-
 import org.junit.Assert;
+import org.junit.Test;
 
 public class ContractTest {
 	
@@ -107,6 +106,8 @@ public class ContractTest {
 		Contract contract3 = new Contract(context, user, provider, born, expire, "other", recipe, recipe);
 		
 		Assert.assertEquals(false, contract.equals(contract3));
+		
+		Assert.assertEquals(false, contract.equals(null));
 		
 	}
 

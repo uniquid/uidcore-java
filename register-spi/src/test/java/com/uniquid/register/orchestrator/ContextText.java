@@ -76,6 +76,7 @@ public class ContextText {
 		
 		Assert.assertEquals(false, context.equals(context3));
 		
+		Assert.assertEquals(false, context.equals(null));
 	}
 
 }

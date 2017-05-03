@@ -114,6 +114,8 @@ public class ImprintedNodeTest {
 		
 		Assert.assertEquals(false, imprintedNode.equals(imprintedNode3));
 		
+		Assert.assertEquals(false, imprintedNode.equals(null));
+		
 	}
 
 }

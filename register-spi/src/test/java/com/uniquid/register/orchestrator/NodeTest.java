@@ -135,6 +135,8 @@ public class NodeTest {
 		
 		Assert.assertEquals(false, node.equals(node3));
 		
+		Assert.assertEquals(false, node.equals(null));
+		
 	}
 
 }

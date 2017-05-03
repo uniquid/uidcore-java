@@ -141,6 +141,8 @@ public class UserChannelTest {
 		
 		Assert.assertEquals(false, userChannel1.equals(userChannel2));
 		
+		Assert.assertEquals(false, userChannel1.equals(null));
+		
 	}
 
 }
