@@ -1,44 +1,49 @@
 package com.uniquid.register.impl.sql;
 
-import org.junit.Test;
-
 import java.io.File;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.user.UserRegister;
 
 public class TestSQLiteRegisterFactory {
+	
+	public static String CREATE_PROVIDER_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, creation_time integer not null, primary key (provider_address, user_address));";
+	
+	public static String CREATE_USER_TABLE = "create table user_channel (provider_name text not null, provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, primary key (provider_name, provider_address, user_address));";
 
-	@Before
-	public void createNewDatabase() throws Exception {
+	private static SQLiteRegisterFactory factory;
+	private static String url;
+	
+	@BeforeClass
+	public static void createNewDatabase() throws Exception {
 		
 		Class.forName("org.sqlite.JDBC");
 
-		String url = "jdbc:sqlite:" + File.createTempFile("test", ".db");
+		url = "jdbc:sqlite:" + File.createTempFile("test", ".db");
 
-		try (Connection conn = DriverManager.getConnection(url)) {
-			if (conn != null) {
-				DatabaseMetaData meta = conn.getMetaData();
-				System.out.println("The driver name is " + meta.getDriverName());
-				System.out.println("A new database has been created.");
-			}
-
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
+		Connection conn = DriverManager.getConnection(url);
+			
+		Statement statement = conn.createStatement();
+			
+		statement.executeUpdate(CREATE_PROVIDER_TABLE);
+			
+		statement.executeUpdate(CREATE_USER_TABLE);
+		
 	}
 
 	@Test
 	public void testSQLiteRegisterFactory() {
 
 		try {
-
-			SQLiteRegisterFactory factory = new SQLiteRegisterFactory(
-					"jdbc:sqlite:/home/giuseppe/dev/oauthserver/oauth.db");
+			
+			factory = new SQLiteRegisterFactory(url);
 
 			Assert.assertNotNull(factory);
 
@@ -47,6 +52,35 @@ public class TestSQLiteRegisterFactory {
 			Assert.fail("unexpected");
 
 		}
+		
+	}
+	
+	@Test
+	public void testGetProviderRegister() throws Exception {
+		
+		ProviderRegister providerRegister = factory.getProviderRegister();
+		
+		Assert.assertNotNull(providerRegister);
+	
+	}
+	
+	@Test
+	public void testGetUserRegister() throws Exception {
+		
+		UserRegister userRegister = factory.getUserRegister();
+		
+		Assert.assertNotNull(userRegister);
+		
+	}
+	
+	public void testInstance() throws Exception {
+		
+		ProviderRegister providerRegister = factory.getProviderRegister();
+		
+		UserRegister userRegister = factory.getUserRegister();
+		
+		Assert.assertEquals(providerRegister, userRegister);
+		
 	}
 
 }
