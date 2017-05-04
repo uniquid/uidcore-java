@@ -29,8 +29,7 @@ private String broker;
 			// Retrieve message
 			rpcProviderRequest = RPCProviderRequest.fromJSONString(inputstring);
 			
-			rpcProviderResponse = new RPCProviderResponse();
-			rpcProviderResponse.setId(rpcProviderRequest.getId());
+			rpcProviderResponse = new RPCProviderResponse.Builder().buildFromId(rpcProviderRequest.getId());
 		
 		} catch (Exception ex) {
 			

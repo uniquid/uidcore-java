@@ -11,7 +11,7 @@ public class RPCProviderResponse implements ProviderResponse {
 	private int error;
 	private long id;
 	
-	public RPCProviderResponse() {
+	private RPCProviderResponse() {
 	}
 	
 	public String getSender() {
@@ -42,7 +42,7 @@ public class RPCProviderResponse implements ProviderResponse {
 		return id;
 	}
 
-	public void setId(final long id) {
+	private void setId(final long id) {
 		this.id = id;
 	}
 
@@ -92,6 +92,39 @@ public class RPCProviderResponse implements ProviderResponse {
 		}
 
 		throw new Exception("Received invalid message: " + jsonString);
+		
+	}
+	
+	public static class Builder {
+		private String _sender;
+		private String _result;
+		private int _error;
+		
+		public Builder set_sender(String _sender) {
+			this._sender = _sender;
+			return this;
+		}
+		
+		public Builder set_result(String _result) {
+			this._result = _result;
+			return this;
+		}
+		
+		public Builder set_error(int _error) {
+			this._error = _error;
+			return this;
+		}
+		
+		public RPCProviderResponse buildFromId(long _id) {
+			
+			RPCProviderResponse rpcProviderResponse = new RPCProviderResponse();
+			rpcProviderResponse.setSender(_sender);
+			rpcProviderResponse.setResult(_result);
+			rpcProviderResponse.setError(_error);
+			rpcProviderResponse.setId(_id);
+			
+			return rpcProviderResponse;
+		}
 		
 	}
 	
