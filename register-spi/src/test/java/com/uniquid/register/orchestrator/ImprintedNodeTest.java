@@ -117,5 +117,29 @@ public class ImprintedNodeTest {
 		Assert.assertEquals(false, imprintedNode.equals(null));
 		
 	}
+	
+	@Test
+	public void testCompareTo() {
+		
+		String xpub = "xpub";
+		String name = "name0";
+		String owner = "owner";
+		String txid = "txid";
+		
+		ImprintedNode imprintedNode = new ImprintedNode(xpub, name, owner, txid);
+		
+		String xpub2 = "xpub";
+		String name2 = "name2";
+		String owner2 = "owner";
+		String txid2 = "txid";
+		
+		ImprintedNode imprintedNode2 = new ImprintedNode(xpub2, name2, owner2, txid2);
+		
+		Assert.assertTrue(imprintedNode.compareTo(imprintedNode2) < 0);
+		
+		Assert.assertTrue(imprintedNode.compareTo(imprintedNode) == 0);
+		
+		Assert.assertTrue(imprintedNode2.compareTo(imprintedNode) > 0);
+	}
 
 }

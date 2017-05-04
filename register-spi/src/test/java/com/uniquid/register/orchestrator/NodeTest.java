@@ -138,5 +138,30 @@ public class NodeTest {
 		Assert.assertEquals(false, node.equals(null));
 		
 	}
+	
+	@Test
+	public void testCompareTo() {
+		
+		String name = "name";
+		String xpub = "xpub";
+		String recipe = "recipe";
+		String path = "path";
+		
+		Node node = new Node(name, xpub, 0, recipe, path);
+		
+		String name2 = "name2";
+		String xpub2 = "xpub2";
+		String recipe2 = "recipe2";
+		String path2 = "path2";
+		
+		Node node2 = new Node(name2, xpub2, 0, recipe2, path2);
+		
+		Assert.assertTrue(node.compareTo(node2) < 0);
+		
+		Assert.assertTrue(node.compareTo(node) == 0);
+		
+		Assert.assertTrue(node2.compareTo(node) > 0);
+		
+	}
 
 }

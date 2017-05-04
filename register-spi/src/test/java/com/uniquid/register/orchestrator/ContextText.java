@@ -78,5 +78,26 @@ public class ContextText {
 		
 		Assert.assertEquals(false, context.equals(null));
 	}
+	
+	@Test
+	public void testCompareTo() {
+		
+		String name0 = "name0";
+		String xpub0 = "xpub0";
+		
+		Context context = new Context(name0, xpub0);
+		
+		String name1 = "name1";
+		String xpub1 = "xpub1";
+		
+		Context context2 = new Context(name1, xpub1);
+		
+		Assert.assertTrue(context.compareTo(context2) < 0);
+		
+		Assert.assertTrue(context.compareTo(context) == 0);
+		
+		Assert.assertTrue(context2.compareTo(context) > 0);
+		
+	}
 
 }
