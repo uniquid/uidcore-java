@@ -131,12 +131,12 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	@Override
 	public synchronized String getNodeName() {
-		return nodeState.getNodeName();
+		return machineName;
 	}
 
 	@Override
 	public synchronized long getCreationTime() {
-		return nodeState.getCreationTime();
+		return creationTime;
 	}
 	
 	@Override
@@ -406,35 +406,63 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			this._params = _params;
 			return this;
 		}
+		
+		public NetworkParameters getParams() {
+			return _params;
+		}
 
 		public Builder set_providerFile(File _providerFile) {
 			this._providerFile = _providerFile;
 			return this;
+		}
+		
+		public File getProviderFile() {
+			return _providerFile;
 		}
 
 		public Builder set_userFile(File _userFile) {
 			this._userFile = _userFile;
 			return this;
 		}
+		
+		public File getUserFile() {
+			return _userFile;
+		}
 
 		public Builder set_chainFile(File _chainFile) {
 			this._chainFile = _chainFile;
 			return this;
+		}
+		
+		public File getChainFile() {
+			return _chainFile;
 		}
 
 		public Builder set_userChainFile(File _userChainFile) {
 			this._userChainFile = _userChainFile;
 			return this;
 		}
+		
+		public File getUserChainFile() {
+			return _userChainFile;
+		}
 
 		public Builder set_registerFactory(RegisterFactory _registerFactory) {
 			this._registerFactory = _registerFactory;
 			return this;
 		}
+		
+		public RegisterFactory getRegisterFactory() {
+			return _registerFactory;
+		}
 
 		public Builder set_machine_name(String _machineName) {
 			this._machineName = _machineName;
 			return this;
+		}
+		
+		public String getMachineName() {
+			return _machineName;
 		}
 
 		public UniquidNodeImpl build()
@@ -1040,10 +1068,6 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		
 		public String getPublicKey();
 		
-		public String getNodeName();
-		
-		public long getCreationTime();
-		
 		public String getHexSeed();
 		
 		public String getSpendableBalance();
@@ -1083,16 +1107,6 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		@Override
 		public String getPublicKey() {
-			throw new IllegalStateException();
-		}
-
-		@Override
-		public String getNodeName() {
-			throw new IllegalStateException();
-		}
-
-		@Override
-		public long getCreationTime() {
 			throw new IllegalStateException();
 		}
 
@@ -1209,16 +1223,6 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		@Override
 		public String getPublicKey() {
 			return publicKey;
-		}
-
-		@Override
-		public String getNodeName() {
-			return machineName;
-		}
-
-		@Override
-		public long getCreationTime() {
-			return providerWallet.getKeyChainSeed().getCreationTimeSeconds();
 		}
 
 		@Override
@@ -1368,16 +1372,6 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		@Override
 		public String getPublicKey() {
 			return publicKey;
-		}
-
-		@Override
-		public String getNodeName() {
-			return machineName;
-		}
-
-		@Override
-		public long getCreationTime() {
-			return providerWallet.getKeyChainSeed().getCreationTimeSeconds();
 		}
 
 		@Override
