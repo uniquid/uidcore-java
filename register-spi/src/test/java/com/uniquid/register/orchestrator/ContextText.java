@@ -10,8 +10,8 @@ public class ContextText {
 		
 		Context context = new Context();
 		
-		Assert.assertEquals(context.getName(), null);
-		Assert.assertEquals(context.getXpub(), null);
+		Assert.assertEquals(null, context.getName());
+		Assert.assertEquals(null, context.getXpub());
 		
 	}
 	
