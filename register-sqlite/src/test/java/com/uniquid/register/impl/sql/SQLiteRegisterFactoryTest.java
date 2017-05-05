@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserRegister;
 
@@ -40,6 +41,18 @@ public class SQLiteRegisterFactoryTest {
 
 	@Test
 	public void testSQLiteRegisterFactory() {
+		
+		try {
+		
+			new SQLiteRegisterFactory(null);
+			
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			//
+			
+		}
 
 		try {
 			

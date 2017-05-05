@@ -183,6 +183,8 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	public void insertChannel(ProviderChannel providerChannel) throws RegisterException {
 		
+		if (providerChannel == null) throw new RegisterException("userchannel is null!");
+		
 		try {
 			PreparedStatement statement = connection.prepareStatement(PROVIDER_INSERT);
 
@@ -363,6 +365,8 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	@Override
 	public void insertChannel(UserChannel userChannel) throws RegisterException {
+		
+		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(INSERT_USER_CHANNEL);

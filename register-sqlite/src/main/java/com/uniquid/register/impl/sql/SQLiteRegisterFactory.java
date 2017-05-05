@@ -14,6 +14,8 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 
 	public SQLiteRegisterFactory(final String connectionString) throws RegisterException {
 
+		if (connectionString == null) throw new RegisterException("connectionString is null!");
+		
 		try {
 			
 			Class.forName("org.sqlite.JDBC");

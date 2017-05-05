@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.user.UserChannel;
 
@@ -45,6 +46,7 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 		
 		List<ProviderChannel> channels = factory.getProviderRegister().getAllChannels();
 		
+		Assert.assertNotNull(channels);
 		Assert.assertEquals(channels.size(), 0);
 		
 		ProviderChannel providerChannel = new ProviderChannel();
@@ -53,6 +55,15 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 		providerChannel.setRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
 		providerChannel.setRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 		providerChannel.setBitmask("00000");
+		
+		try {
+		
+			factory.getProviderRegister().insertChannel(null);
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			//
+		}
 		
 		factory.getProviderRegister().insertChannel(providerChannel);
 		
@@ -87,6 +98,7 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 		
 		List<UserChannel> channels = factory.getUserRegister().getAllUserChannels();
 		
+		Assert.assertNotNull(channels);
 		Assert.assertEquals(channels.size(), 0);
 		
 		UserChannel userChannel = new UserChannel();
@@ -96,6 +108,15 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 		userChannel.setRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 		userChannel.setBitmask("00000");
 		userChannel.setProviderName("Test");
+		
+		try {
+			
+			factory.getUserRegister().insertChannel(null);
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			//
+		}
 		
 		factory.getUserRegister().insertChannel(userChannel);
 		
