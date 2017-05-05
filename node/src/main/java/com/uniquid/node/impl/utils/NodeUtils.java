@@ -218,7 +218,6 @@ public class NodeUtils {
 	public static String sendTransaction(NetworkParameters params, final Wallet wallet, final File chainFile,
 			final SendRequest sendRequest) throws BlockStoreException, InterruptedException, ExecutionException {
 
-		SPVBlockStore chainStore = new SPVBlockStore(params, chainFile);
 		PeerGroup peerGroup = null;
 
 		try {
@@ -254,7 +253,10 @@ public class NodeUtils {
 			
 		} finally {
 
-			peerGroup.stop();
+			if (peerGroup != null) {
+				peerGroup.stop();
+			}
+			
 		}
 	}
 
