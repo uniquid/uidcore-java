@@ -38,7 +38,6 @@ public class MQTTConnectorTest {
 		
 		Assert.assertNotNull(mqttConnector);
 		
-		System.out.println("start");
 		mqttConnector.start();
 		
 		new Thread(new Runnable() {
@@ -50,14 +49,12 @@ public class MQTTConnectorTest {
 				} catch (Throwable t) {
 					System.out.println("sleep exception");
 				}
-				System.out.println("start mock");
 				startMQTTClientMock();
 			}
 		}).start();
 		
 		
 		try {
-			System.out.println("endpoint");
 			EndPoint endPoint = mqttConnector.accept();
 			Assert.assertEquals("hola!", endPoint.getInputMessage().getParams());
 		} catch (ConnectorException e) {
@@ -78,7 +75,6 @@ public class MQTTConnectorTest {
 				.build();
 		
 		String request = rpcProviderRequest.toJSONString();
-		System.out.println(request);
 		
 		String sender = "sender";
 		Topic[] topics = {new Topic(sender, QoS.AT_LEAST_ONCE)};
