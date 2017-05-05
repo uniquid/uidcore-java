@@ -1,16 +1,16 @@
 package com.uniquid.core.provider.impl;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.uniquid.node.impl.UniquidNodeImpl;
 import com.uniquid.core.Core;
 import com.uniquid.core.ProviderRequest;
 import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.provider.exception.FunctionException;
+import com.uniquid.node.UniquidNode;
 
 public class ContractFunction extends GenericFunction {
 
@@ -18,19 +18,31 @@ public class ContractFunction extends GenericFunction {
 	public void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload)
 			throws FunctionException, IOException {
 		
-		String params = inputMessage.getParams();
-		
-		JSONObject jsonMessage = new JSONObject(params);
-		
-		String tx = jsonMessage.getString("tx");
 
-		JSONArray paths = jsonMessage.getJSONArray("paths");
+		String params = inputMessage.getParams();
+		String tx, path;
 		
 		try {
-			
-			UniquidNodeImpl spvNode = (UniquidNodeImpl) getFunctionContext().getAttribute(Core.NODE_ATTRIBUTE);
 		
-			String txid = spvNode.signTransaction(tx, paths.getString(0));
+			JSONObject jsonMessage = new JSONObject(params);
+			
+			tx = jsonMessage.getString("tx");
+			
+			JSONArray paths = jsonMessage.getJSONArray("paths");
+			
+			path = paths.getString(0);
+			
+		} catch (JSONException ex) {
+			
+			throw new FunctionException("Problem with input JSON", ex);
+			
+		}
+			
+		try {
+			
+			UniquidNode spvNode = (UniquidNode) getFunctionContext().getAttribute(Core.NODE_ATTRIBUTE);
+		
+			String txid = spvNode.signTransaction(tx, path);
 			
 			outputMessage.setResult("0 - " + txid);
 		

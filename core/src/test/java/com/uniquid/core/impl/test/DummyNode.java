@@ -73,4 +73,11 @@ public class DummyNode implements UniquidNode {
 
 	}
 
+	@Override
+	public String signTransaction(String s_tx, String path) throws NodeException {
+		
+		return s_tx;
+		
+	}
+
 }

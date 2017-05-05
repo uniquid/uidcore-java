@@ -1,5 +1,10 @@
 package com.uniquid.node;
 
+import java.util.concurrent.ExecutionException;
+
+import org.bitcoinj.core.InsufficientMoneyException;
+import org.bitcoinj.store.BlockStoreException;
+
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 
@@ -81,5 +86,14 @@ public interface UniquidNode {
 	 * @param uniquidNodeEventListener the event listener that will be removed
 	 */
 	public void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener);
+	
+	/**
+	 * Sign transaction
+	 * @param s_tx
+	 * @param path
+	 * @return
+	 * @throws NodeException
+	 */
+	public String signTransaction(final String s_tx, final String path) throws NodeException;
 	
 }

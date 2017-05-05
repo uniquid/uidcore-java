@@ -28,6 +28,8 @@ public class ApplicationContext implements FunctionContext {
 
 	@Override
 	public Object getAttribute(String name) {
+		if (name == null) return null;
+		
 		return attributes.get(name);
 	}
 

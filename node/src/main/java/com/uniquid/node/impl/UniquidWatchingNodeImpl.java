@@ -1239,5 +1239,12 @@ public class UniquidWatchingNodeImpl implements UniquidNode, WalletCoinsSentEven
         }
 
     }
+
+	@Override
+	public String signTransaction(String s_tx, String path) throws NodeException {
+		
+		throw new NodeException("This node can't sign a transaction");
+		
+	}
     
 }

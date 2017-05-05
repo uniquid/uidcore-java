@@ -339,48 +339,54 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		return userWallet;
 	}
 
-	public synchronized String signTransaction(final String s_tx, final String path) throws BlockStoreException,
-			InterruptedException, ExecutionException, InsufficientMoneyException, Exception {
+	@Override
+	public synchronized String signTransaction(final String s_tx, final String path) throws NodeException {
 
-		Transaction originalTransaction = networkParameters.getDefaultSerializer().makeTransaction(Hex.decode(s_tx));
-
-		String transactionToString = Hex.toHexString(originalTransaction.bitcoinSerialize());
-		LOGGER.info("Serialized unsigned transaction: " + transactionToString);
-
-		SendRequest send = SendRequest.forTx(originalTransaction);
-
-		String retValue = "";
-		if (path.startsWith("0")) {
+		try {
+			Transaction originalTransaction = networkParameters.getDefaultSerializer().makeTransaction(Hex.decode(s_tx));
+	
+			String transactionToString = Hex.toHexString(originalTransaction.bitcoinSerialize());
+			LOGGER.info("Serialized unsigned transaction: " + transactionToString);
+	
+			SendRequest send = SendRequest.forTx(originalTransaction);
+	
+			String retValue = "";
+			if (path.startsWith("0")) {
+				
+				// fix our tx
+				WalletUtils.newCompleteTransaction(send, providerWallet, networkParameters);
+	
+				// delegate to walled the signing
+				providerWallet.signTransaction(send);
+	
+				String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
+	
+				LOGGER.info("Serialized SIGNED transaction: " + sr);
+	
+				retValue = NodeUtils.sendTransaction(networkParameters, providerWallet, providerChainFile, send);
+	
+			} else if (path.startsWith("1")) {
+				
+				// fix our tx
+				WalletUtils.newCompleteTransaction(send, userWallet, networkParameters);
+	
+				// delegate to walled the signing
+				userWallet.signTransaction(send);
+	
+				String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
+	
+				LOGGER.info("Serialized SIGNED transaction: " + sr);
+	
+				retValue = NodeUtils.sendTransaction(networkParameters, userWallet, userChainFile, send);
+	
+			}
+	
+			return retValue;
+		
+		} catch (Exception ex) {
 			
-			// fix our tx
-			WalletUtils.newCompleteTransaction(send, providerWallet, networkParameters);
-
-			// delegate to walled the signing
-			providerWallet.signTransaction(send);
-
-			String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
-
-			LOGGER.info("Serialized SIGNED transaction: " + sr);
-
-			retValue = NodeUtils.sendTransaction(networkParameters, providerWallet, providerChainFile, send);
-
-		} else if (path.startsWith("1")) {
-			
-			// fix our tx
-			WalletUtils.newCompleteTransaction(send, userWallet, networkParameters);
-
-			// delegate to walled the signing
-			userWallet.signTransaction(send);
-
-			String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
-
-			LOGGER.info("Serialized SIGNED transaction: " + sr);
-
-			retValue = NodeUtils.sendTransaction(networkParameters, userWallet, userChainFile, send);
-
+			throw new NodeException("Exception while signing", ex);
 		}
-
-		return retValue;
 	}
 
 	/**
