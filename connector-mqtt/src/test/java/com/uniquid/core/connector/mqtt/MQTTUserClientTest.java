@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.uniquid.core.ProviderRequest;
+import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.connector.ConnectorException;
 
 public class MQTTUserClientTest {
@@ -37,7 +38,7 @@ public class MQTTUserClientTest {
 		
 		String broker = "tcp://appliance4.uniquid.co:1883"; 
 		String destination = "test";
-		int timeout = 20;
+		int timeout = 10;
 		
 		final MQTTUserClient mqttUserClient = new MQTTUserClient(broker, destination, timeout);
 		Assert.assertNotNull(mqttUserClient);
@@ -51,7 +52,11 @@ public class MQTTUserClientTest {
 		}).start();
 
 		try {
-			mqttUserClient.sendOutputMessage(providerRequest);
+			RPCProviderResponse providerResponse = (RPCProviderResponse) mqttUserClient.sendOutputMessage(providerRequest);
+			Assert.assertNotNull(providerResponse);
+			
+			RPCProviderRequest rpcProviderRequest = (RPCProviderRequest) providerRequest;
+			Assert.assertEquals(rpcProviderRequest.getId(), providerResponse.getId());
 		} catch (ConnectorException e) {
 			System.out.println(e.getMessage());
 		}				
