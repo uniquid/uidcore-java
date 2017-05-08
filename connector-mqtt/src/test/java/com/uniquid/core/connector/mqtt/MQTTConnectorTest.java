@@ -7,7 +7,6 @@ import org.fusesource.mqtt.client.Topic;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.uniquid.core.ProviderRequest;
 import com.uniquid.core.connector.ConnectorException;
 import com.uniquid.core.connector.EndPoint;
 
