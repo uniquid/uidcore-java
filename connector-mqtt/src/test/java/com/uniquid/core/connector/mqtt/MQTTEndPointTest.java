@@ -108,7 +108,6 @@ public class MQTTEndPointTest {
 			
 			connection.disconnect();
 			
-			
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
