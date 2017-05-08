@@ -9,23 +9,22 @@ import com.uniquid.register.user.UserRegister;
  * 
  * Is used to delegate to an implementor class the creation of DAO concrete objects that
  * manage data toward a data source.
- *
  */
 public interface RegisterFactory {
 
 	/**
-	 * Returns a Provider Register
+	 * Returns a ProviderRegister instance
 	 * 
-	 * @return
-	 * @throws RegisterException
+	 * @return a ProviderRegister instance
+	 * @throws RegisterException in case of problem occurs
 	 */
 	public ProviderRegister getProviderRegister() throws RegisterException;
 
 	/**
-	 * Returns an User Register
+	 * Returns a UserRegister instance
 	 * 
-	 * @return
-	 * @throws RegisterException
+	 * @return a UserRegister instance
+	 * @throws RegisterException in case of problem occurs
 	 */
 	public UserRegister getUserRegister() throws RegisterException;
 

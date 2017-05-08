@@ -16,13 +16,12 @@ import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
+/**
+ * Data Access Object concrete class implementation of {@code ProviderRegister} and {@code UserRegister} that uses
+ * SQLite as data store.
+ */
 public class SQLiteRegister implements ProviderRegister, UserRegister {
 
-	public static final String TABLE_PROVIDER = "provider_channel";
-	public static final String PROVIDER_CLM_PROVIDER_ADDRESS = "provider_address";
-	public static final String PROVIDER_CLM_USER_ADDRESS = "user_address";
-	public static final String PROVIDER_CLM_BITMASK = "bitmask";
-	
 	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time from provider_channel where user_address = ?";
 	
 	private static final String PROVIDER_CHANNEL_BY_REVOKE_ADDRESS = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time from provider_channel where revoke_address = ?";
@@ -56,15 +55,20 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	private Connection connection;
 
-	public SQLiteRegister(Connection connection) {
+	/**
+	 * Creates an instance from the connection
+	 * @param connection the connection to use
+	 */
+	SQLiteRegister(Connection connection) {
 
 		this.connection = connection;
 
 	}
 
 	/**
-	 * Retrieve Channel information
+	 * {@inheritDoc}
 	 */
+	@Override
 	public ProviderChannel getChannelByUserAddress(String address) throws RegisterException {
 
 		try {
@@ -103,6 +107,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ProviderChannel getChannelByRevokeAddress(String revokeAddress) throws RegisterException {
 		
@@ -142,6 +149,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public ProviderChannel getChannelByRevokeTxId(String revokeTxId) throws RegisterException {
 		
@@ -181,6 +191,10 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void insertChannel(ProviderChannel providerChannel) throws RegisterException {
 		
 		if (providerChannel == null) throw new RegisterException("userchannel is null!");
@@ -211,6 +225,10 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void deleteChannel(ProviderChannel providerChannel) throws RegisterException {
 		
 		try {
@@ -234,19 +252,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		}
 	}
 
-	protected void finalize() throws Throwable {
-
-		try {
-
-			connection.close();
-
-		} catch (Throwable ex) {
-			/* do nothing */}
-
-		super.finalize();
-
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<UserChannel> getAllUserChannels() throws RegisterException {
 		
@@ -285,6 +293,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		return userChannels;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public UserChannel getChannelByName(String name) throws RegisterException {
 		
@@ -324,6 +335,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		return null;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public UserChannel getChannelByProviderAddress(String name) throws RegisterException {
 		
@@ -363,6 +377,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void insertChannel(UserChannel userChannel) throws RegisterException {
 		
@@ -394,6 +411,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void deleteChannel(UserChannel userChannel) throws RegisterException {
 		
@@ -420,6 +440,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public UserChannel getUserChannelByRevokeTxId(String revokeTxId) throws RegisterException {
 
@@ -459,6 +482,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public UserChannel getUserChannelByRevokeAddress(String revokeAddress) throws RegisterException {
 
@@ -497,6 +523,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<ProviderChannel> getAllChannels() throws RegisterException {
 		
@@ -533,6 +562,24 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		}
 		
 		return providerChannels;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void finalize() throws Throwable {
+
+		try {
+
+			connection.close();
+
+		} catch (Throwable ex) {
+			/* do nothing */
+		}
+
+		super.finalize();
+
 	}
 
 }

@@ -3,11 +3,13 @@ package com.uniquid.register.user;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Represents an user contract fetched from the blockchain.
+ * An user contract is composed by a provider name, a provider address, an user address, a bitmask, a revoke address and
+ * a revoke tx id
+ */
 public class UserChannel implements Serializable, Comparable<Object> {
 
-    /**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private String providerName;
     private String providerAddress;
@@ -16,10 +18,21 @@ public class UserChannel implements Serializable, Comparable<Object> {
     private String revokeAddress;
     private String revokeTxId;
 
-    public UserChannel(){
-
+    /**
+     * Creates an empty instance
+     */
+    public UserChannel() {
+    	// DO NOTHING
     }
 
+    /**
+     * Creates an instance from provider name, provider address, user address and bitmask.
+     * 
+     * @param providerName the name of the provider
+     * @param providerAddress the address of the provider
+     * @param userAddress the address of the user
+     * @param bitmask the string representing the bitmask
+     */
     public UserChannel(String providerName, String providerAddress, String userAddress, String bitmask){
         this.providerName = providerName;
         this.providerAddress = providerAddress;
@@ -27,54 +40,103 @@ public class UserChannel implements Serializable, Comparable<Object> {
         this.bitmask = bitmask;
     }
 
+    /**
+     * Set the provider name
+     * @param providerName the provider name
+     */
     public void setProviderName(String providerName) {
         this.providerName = providerName;
     }
 
+    /**
+     * Retrieve the provider name
+     * @return the provider name
+     */
     public String getProviderName() {
         return providerName;
     }
 
+    /**
+     * Set the provider address
+     * @param providerAddress the provider address
+     */
     public void setProviderAddress(String providerAddress) {
         this.providerAddress = providerAddress;
     }
 
+    /**
+     * Retrieve the provider address
+     * @return the provider address
+     */
     public String getProviderAddress() {
         return providerAddress;
     }
 
+    /**
+     * Set the user address
+     * @param userAddress the user address
+     */
     public void setUserAddress(String userAddress) {
         this.userAddress = userAddress;
     }
 
+    /**
+     * Retrieve the user address
+     * @return the user address
+     */
     public String getUserAddress() {
         return userAddress;
     }
 
+    /**
+     * Retrieve the bitmask
+     * @return the bitmask
+     */
     public String getBitmask() {
         return bitmask;
     }
 
+    /**
+     * Set the bitmask
+     * @param bitmask the bitmask
+     */
     public void setBitmask(String bitmask) {
         this.bitmask = bitmask;
     }
     
+    /**
+     * Retrieve the revoke address
+     * @return the revoke address
+     */
     public String getRevokeAddress() {
 		return revokeAddress;
 	}
 
+    /**
+     * Set the revoke address
+     * @param revokeAddress the revoke address
+     */
 	public void setRevokeAddress(String revokeAddress) {
 		this.revokeAddress = revokeAddress;
 	}
 	
+	/**
+	 * Set the revoke transaction id
+	 * @param revokeTxId the revoke transaction id
+	 */
 	public void setRevokeTxId(String revokeTxId) {
 		this.revokeTxId = revokeTxId;
 	}
 	
+	/**
+	 * Retrieve the revoke transaction id
+	 * @return the revoke transaction id
+	 */
 	public String getRevokeTxId() {
 		return revokeTxId;
 	}
     
+	@Override
     public String toString() {
 		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
 				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId;
