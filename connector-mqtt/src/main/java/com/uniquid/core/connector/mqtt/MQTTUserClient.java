@@ -66,7 +66,6 @@ public class MQTTUserClient implements UserClient {
 
 			byte[] payload = message.getPayload();
 
-			//
 			message.ack();
 
 			// Create a JSON Message
