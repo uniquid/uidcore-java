@@ -116,9 +116,33 @@ public class RPCProviderResponseTest {
 			Assert.assertEquals(error, rpcProviderResponse.getError());
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	@Test(expected = Exception.class)
+	public void testFromJSONStringException() throws Exception {
+		String sender = "sender";
+		String result = "result";
+		long id = 0;
+		int error = 1;
+		
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("sender", sender);
+		JSONObject body = new JSONObject();
+		body.put("result", result);
+		body.put("id", id);
+		body.put("error", error);
+		
+		jsonObject.put("body", body);
+		
+		String response = jsonObject.toString();
+		
+		RPCProviderResponse rpcProviderResponse = RPCProviderResponse.fromJSONString(response.toString());
+		Assert.assertEquals(sender, rpcProviderResponse.getSender());
+		Assert.assertEquals(result, rpcProviderResponse.getResult());
+		Assert.assertEquals(id, rpcProviderResponse.getId());
+		Assert.assertEquals(error, rpcProviderResponse.getError());
+			
+	}
 }

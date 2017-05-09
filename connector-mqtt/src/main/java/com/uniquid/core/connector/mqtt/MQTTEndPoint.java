@@ -53,8 +53,6 @@ private String broker;
 		
 		BlockingConnection connection = null;
 
-		try {
-
 			try {
 	
 				MQTT mqtt = new MQTT();
@@ -68,11 +66,15 @@ private String broker;
 				
 				// to subscribe
 				Topic[] topics = { new Topic(destinationTopic, QoS.AT_LEAST_ONCE) };
-				/*byte[] qoses = */connection.subscribe(topics);
+				connection.subscribe(topics);
 	
 				// consume
 				connection.publish(destinationTopic, rpcProviderResponse.toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
 	
+			} catch (Exception ex) {
+				
+				throw new ConnectorException(ex);
+				
 			} finally {
 	
 				// disconnect
@@ -88,12 +90,6 @@ private String broker;
 	
 			}
 
-		} catch (Exception ex) {
-			
-			throw new ConnectorException(ex);
-		
-		}
-		
 	}
 
 }

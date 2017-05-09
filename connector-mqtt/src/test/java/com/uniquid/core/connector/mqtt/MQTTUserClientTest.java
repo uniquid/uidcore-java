@@ -15,7 +15,7 @@ import com.uniquid.core.connector.ConnectorException;
 public class MQTTUserClientTest {
 
 	@Test
-	public void constructorTest() {
+	public void testConstructor() {
 		String broker = "tcp://appliance4.uniquid.co:1883"; 
 		String destination = "test";
 		int timeout = 10;
@@ -25,7 +25,7 @@ public class MQTTUserClientTest {
 	}
 	
 	@Test
-	public void sendOutputMessageTest() {
+	public void testSendOutputMessage() {
 		String sender = "sender";
 		int method = 5;
 		String params = "params";
@@ -102,4 +102,80 @@ public class MQTTUserClientTest {
 			t.printStackTrace();
 		}
 	}
+	
+	@Test(expected = ConnectorException.class)
+	public void testSendOutputMessageException() throws ConnectorException{
+		String sender = "sender";
+		int method = 5;
+		String params = "params";
+		
+		final ProviderRequest providerRequest = new RPCProviderRequest.Builder()
+				.set_sender(sender)
+				.set_rpcMethod(method)
+				.set_params(params)
+				.build();
+		
+		String broker = "tcp://appliance4.uniquid.co:1883"; 
+		String destination = "test";
+		int timeout = 10;
+		
+		final MQTTUserClient mqttUserClient = new MQTTUserClient(broker, destination, timeout);
+		Assert.assertNotNull(mqttUserClient);
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {				
+				startMqttServerMockException();				
+			}
+		}).start();
+
+		RPCProviderResponse providerResponse = (RPCProviderResponse) mqttUserClient.sendOutputMessage(providerRequest);
+		Assert.assertNotNull(providerResponse);
+		
+		RPCProviderRequest rpcProviderRequest = (RPCProviderRequest) providerRequest;
+		Assert.assertEquals(rpcProviderRequest.getId(), providerResponse.getId());
+	
+	}
+	
+private void startMqttServerMockException() {
+		
+		String broker = "tcp://appliance4.uniquid.co:1883";
+		String topic = "test";
+		Topic[] topics = {new Topic(topic, QoS.AT_LEAST_ONCE)};
+		BlockingConnection connection = null;
+		
+		try{
+			MQTT mqtt = new MQTT();
+			mqtt.setHost(broker);
+			connection = mqtt.blockingConnection();
+			connection.connect();
+			connection.subscribe(topics);
+			// blocks!!!
+			Message message = connection.receive();
+			
+			byte[] payload = message.getPayload();
+
+			message.ack();
+			
+			Assert.assertNotNull(message);
+						
+			String request = new String(payload);
+			RPCProviderRequest rpcProviderRequest = RPCProviderRequest.fromJSONString(request);
+			Assert.assertNotNull(rpcProviderRequest);
+			
+			RPCProviderResponse rpcProviderResponse = new RPCProviderResponse.Builder().buildFromId(rpcProviderRequest.getId());
+			rpcProviderResponse.setSender("sender");
+			rpcProviderResponse.setResult("result");
+			rpcProviderResponse.setError(0);
+			String response = rpcProviderResponse.toJSONString();
+//			connection.publish(rpcProviderRequest.getSender(), response.getBytes(), QoS.AT_LEAST_ONCE, false);
+			
+			connection.disconnect();			
+			
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+	}
+	
 }

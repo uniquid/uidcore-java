@@ -12,16 +12,16 @@ public class RPCProviderRequestTest {
 		RPCProviderRequest rpcProviderRequest = new RPCProviderRequest.Builder()	
 				.build();
 		
-		Assert.assertEquals(rpcProviderRequest.getSender(), null);
-		Assert.assertEquals(rpcProviderRequest.getParams(), null);
-		Assert.assertEquals(rpcProviderRequest.getFunction(), 0);
+		Assert.assertNull(rpcProviderRequest.getSender());
+		Assert.assertNull(rpcProviderRequest.getParams());
+		Assert.assertEquals(0, rpcProviderRequest.getFunction());
 		Assert.assertNotEquals(0, rpcProviderRequest.getId());
 		
 	}
 	
 	@Test
 	public void testBuild() {
-		String sender = "bea";
+		String sender = "sender";
 		int method = 4;
 		String params = "params";
 		
@@ -89,4 +89,29 @@ public class RPCProviderRequestTest {
 		}
 		
 	}
+	
+	@Test(expected = Exception.class)
+	public void testFromJSONStringException() throws Exception {
+		String sender = "sender";
+		int method = 0;
+		String params = "params";
+		long id = 123456789;
+		
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put("sender", sender);
+		JSONObject body = new JSONObject();
+		body.put("method", method);
+		body.put("params", params);
+		body.put("id", id);
+		jsonObject.put("body", body);
+		
+		String request = jsonObject.toString();
+		
+		RPCProviderRequest rpcProviderRequest = RPCProviderRequest.fromJSONString(request);
+		Assert.assertEquals(sender, rpcProviderRequest.getSender());
+		Assert.assertEquals(method, rpcProviderRequest.getFunction());
+		Assert.assertEquals(params, rpcProviderRequest.getParams());
+		Assert.assertNotEquals(0, rpcProviderRequest.getId());
+	}
+	
  }

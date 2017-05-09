@@ -92,4 +92,64 @@ public class MQTTConnectorTest {
 				
 	}
 	
+	@Test(expected = ConnectorException.class)
+	public void testAcceptException() throws ConnectorException {
+		String broker = "tcp://appliance4.uniquid.co:1883";
+		String topic = "test";
+		final MQTTConnector mqttConnector = new MQTTConnector.Builder()
+			.set_broker(broker)
+			.set_topic(topic)
+			.build();
+		
+		Assert.assertNotNull(mqttConnector);
+		
+		mqttConnector.start();
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try{
+					Thread.sleep(3000);
+				} catch (Throwable t) {
+					System.out.println("sleep exception");
+				}
+				startMQTTClientMockException();
+			}
+		}).start();
+			
+		EndPoint endPoint = mqttConnector.accept();
+		Assert.assertEquals("hola!", endPoint.getInputMessage().getParams());
+		
+	}
+	
+	private void startMQTTClientMockException() {
+		String broker = "tcp://appliance4.uniquid.co:1883";
+		String topic = "test";
+		
+		RPCProviderRequest rpcProviderRequest = new RPCProviderRequest
+				.Builder()
+				.set_sender("sender")
+				.set_rpcMethod(33)
+				.build();
+		
+		String request = rpcProviderRequest.toJSONString();
+		
+		String sender = "sender";
+		Topic[] topics = {new Topic(sender, QoS.AT_LEAST_ONCE)};
+		BlockingConnection connection = null;
+		
+		try{
+			MQTT mqtt = new MQTT();
+			mqtt.setHost(broker);
+			connection = mqtt.blockingConnection();
+			connection.connect();
+			connection.subscribe(topics);
+			connection.publish(topic, request.getBytes(), QoS.AT_LEAST_ONCE, false);
+		} catch (Throwable t) {
+			// do nothing
+		}
+				
+	}
+	
 }
