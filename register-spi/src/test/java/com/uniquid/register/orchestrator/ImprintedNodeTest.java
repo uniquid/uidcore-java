@@ -116,6 +116,8 @@ public class ImprintedNodeTest {
 		
 		Assert.assertEquals(false, imprintedNode.equals(null));
 		
+		Assert.assertEquals(391503859, imprintedNode.hashCode());
+		
 	}
 	
 	@Test

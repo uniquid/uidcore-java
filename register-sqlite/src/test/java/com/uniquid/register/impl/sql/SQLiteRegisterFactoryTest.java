@@ -25,6 +25,17 @@ public class SQLiteRegisterFactoryTest {
 	@BeforeClass
 	public static void createNewDatabase() throws Exception {
 		
+		try {
+			
+			new SQLiteRegisterFactory("notNullString");
+			Assert.fail();
+			
+		} catch (RegisterException ex) {
+			
+			//
+			
+		}
+		
 		Class.forName("org.sqlite.JDBC");
 
 		url = "jdbc:sqlite:" + File.createTempFile("test", ".db");
@@ -86,11 +97,16 @@ public class SQLiteRegisterFactoryTest {
 		
 	}
 	
+	@Test
 	public void testInstance() throws Exception {
 		
 		ProviderRegister providerRegister = factory.getProviderRegister();
 		
+		Assert.assertNotNull(providerRegister);
+		
 		UserRegister userRegister = factory.getUserRegister();
+		
+		Assert.assertNotNull(userRegister);
 		
 		Assert.assertEquals(true, providerRegister == userRegister);
 		

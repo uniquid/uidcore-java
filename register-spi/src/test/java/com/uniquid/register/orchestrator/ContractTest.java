@@ -20,6 +20,44 @@ public class ContractTest {
 		Assert.assertEquals(null, contract.getAnnulment());
 		Assert.assertEquals(false, contract.isRevocated());
 		
+		Context context = new Context();
+		contract.setContext(context);
+		Assert.assertEquals(context, contract.getContext());
+		
+		Node user = new Node();
+		contract.setUser(user);
+		Assert.assertEquals(user, contract.getUser());
+		
+		Node provider = new Node();
+		contract.setProvider(provider);
+		Assert.assertEquals(provider, contract.getProvider());
+		
+		long born = 1234;
+		contract.setTimestamp_born(born);
+		Assert.assertEquals(born, contract.getTimestamp_born());
+		
+		long expiration = 12345;
+		contract.setTimestamp_expiration(expiration);
+		Assert.assertEquals(expiration, contract.getTimestamp_expiration());
+		
+		String recipe = "test";
+		contract.setRecipe(recipe);
+		Assert.assertEquals(recipe, contract.getRecipe());
+		
+		String txid = "txid";
+		contract.setTxid(txid);
+		Assert.assertEquals(txid, contract.getTxid());
+		
+		String annulment = "annulment";
+		contract.setAnnulment(annulment);
+		Assert.assertEquals(annulment, contract.getAnnulment());
+		
+		contract.setRevocated(true);
+		Assert.assertEquals(true, contract.isRevocated());
+		
+		Assert.assertEquals("context_name:null,user_name:nullmachine_name:null,timestamp_born:1234,timestamp_expiration:12345,recipe:test,txid:txid", contract.toString());
+		
+		Assert.assertEquals(-1404089107, contract.hashCode());
 	}
 	
 	@Test
@@ -83,11 +121,11 @@ public class ContractTest {
 	@Test
 	public void testEquals() {
 		
-		Context context = new Context();
+		Context context = new Context("aaa", "bbb");
 		
-		Node user = new Node();
+		Node user = new Node("name0", "1234", 123, "test", "path");
 		
-		Node provider = new Node();
+		Node provider = new Node("name1", "5678", 4567, "test2", "path2");
 		
 		long born = System.currentTimeMillis();
 		
