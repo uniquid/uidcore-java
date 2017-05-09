@@ -169,7 +169,6 @@ private void startMqttServerMockException() {
 			rpcProviderResponse.setResult("result");
 			rpcProviderResponse.setError(0);
 			String response = rpcProviderResponse.toJSONString();
-//			connection.publish(rpcProviderRequest.getSender(), response.getBytes(), QoS.AT_LEAST_ONCE, false);
 			
 			connection.disconnect();			
 			
