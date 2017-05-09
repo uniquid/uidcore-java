@@ -32,6 +32,10 @@ public class ProviderChannelTest {
 		Assert.assertEquals(bitmask, providerChannel.getBitmask());
 		Assert.assertEquals(null, providerChannel.getRevokeAddress());
 		Assert.assertEquals(null, providerChannel.getRevokeTxId());
+		
+		Assert.assertEquals("provider address: providerAddress; user address: userAddress; bitmask: bitmask; revoke address: null; revokeTxId: null; creationTime: 0", providerChannel.toString());
+		
+		Assert.assertEquals(-974312256, providerChannel.hashCode());
 	}
 	
 	@Test
@@ -130,6 +134,8 @@ public class ProviderChannelTest {
 		ProviderChannel providerChannel1 = new ProviderChannel();
 		
 		ProviderChannel providerChannel2 = new ProviderChannel();
+		
+		Assert.assertEquals(true, providerChannel1.equals(providerChannel1));
 		
 		Assert.assertEquals(true, providerChannel1.equals(providerChannel2));
 		

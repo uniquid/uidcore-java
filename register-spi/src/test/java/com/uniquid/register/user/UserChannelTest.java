@@ -36,6 +36,9 @@ public class UserChannelTest {
 		Assert.assertEquals(null, userChannel.getRevokeAddress());
 		Assert.assertEquals(null, userChannel.getRevokeTxId());
 		
+		Assert.assertEquals("provider address: providerAddress; user address: userAddress; bitmask: bitmask; revoke address: null; revokeTxId: null", userChannel.toString());
+		Assert.assertEquals(-763790120, userChannel.hashCode());
+		
 	}
 	
 	@Test
@@ -143,6 +146,21 @@ public class UserChannelTest {
 		
 		Assert.assertEquals(false, userChannel1.equals(null));
 		
+		Assert.assertEquals(true, userChannel1.equals(userChannel1));
+		
 	}
-
+	
+	@Test
+	public void testCompareTo() {
+		
+		UserChannel userChannel1 = new UserChannel();
+		
+		UserChannel userChannel2 = new UserChannel();
+		
+		Assert.assertEquals(0, userChannel1.compareTo(userChannel1));
+		
+		Assert.assertEquals(0, userChannel1.compareTo(userChannel2));
+		
+	}
+	
 }
