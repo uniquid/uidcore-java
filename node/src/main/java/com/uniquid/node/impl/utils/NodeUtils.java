@@ -2,9 +2,6 @@ package com.uniquid.node.impl.utils;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
@@ -19,14 +16,11 @@ import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
-import org.bitcoinj.crypto.ChildNumber;
-import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.net.discovery.SeedPeers;
 import org.bitcoinj.store.BlockStore;
-import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
@@ -36,96 +30,59 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import com.google.common.collect.ImmutableList;
-
 /**
+ * NodeUtils contains some static useful methods
  */
 public class NodeUtils {
 	
-	private static ImmutableList<ChildNumber> IMPRINTING = ImmutableList.of(
-            new ChildNumber(44, true),
-            new ChildNumber(0, true)
-    );
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeUtils.class.getName());
 	
 	/**
-	 * Generate a Deterministic Seed from a string
+	 * Generate a {@code DeterministicSeed} from a byte array and  a creatiom time
 	 * 
-	 * @param seed
-	 * @return new deterministic seed
-	 * @throws NoSuchAlgorithmException 
-	 * @throws UnsupportedEncodingException 
+	 * @param seed byte array representing seed
+	 * @param creationTime creation time of seed
+	 * @return returns an instance of {@code DeterministicSeed}
 	 */
-	public static DeterministicSeed createDeterministicSeed(String seed) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
-
-		return createDeterministicSeed(seed, System.currentTimeMillis() / 1000);
-
-	}
-	
-	/**
-	 * Generate a Deterministic Seed from a string
-	 * 
-	 * @param seed
-	 * @return new deterministic seed
-	 * @throws NoSuchAlgorithmException 
-	 * @throws UnsupportedEncodingException 
-	 */
-	public static DeterministicSeed createDeterministicSeed(String seed, long creationTime) throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-
-		md.update(seed.getBytes("UTF-8"));
-		byte[] hash = md.digest();
-		
-		return createDeterministicSeed(hash, creationTime);
-	}
-	
-	/**
-	 * Generate a Deterministic Seed from a byte array
-	 * 
-	 * @param seed
-	 * @return new deterministic seed
-	 */
-	public static DeterministicSeed createDeterministicSeed(byte[] seed, long creationTime) throws UnreadableWalletException {
+	public static DeterministicSeed createDeterministicSeed(final byte[] seed, final long creationTime) throws UnreadableWalletException {
 		return new DeterministicSeed("", seed, "", creationTime);
 	}
 	
+//	/**
+//	 * Create from brain wallet
+//	 * @param string
+//	 * @return
+//	 * @throws NoSuchAlgorithmException
+//	 * @throws UnsupportedEncodingException
+//	 */
+//	public static DeterministicKey createDeterministicKeyFromBrainWallet(String string)
+//			throws NoSuchAlgorithmException, UnsupportedEncodingException {
+//		MessageDigest md = MessageDigest.getInstance("SHA-256");
+//
+//		md.update(string.getBytes("UTF-8"));
+//		byte[] hash = md.digest();
+//
+//		return HDKeyDerivation.createMasterPrivateKey(hash);
+//
+//	}
+	
 	/**
-	 * Create from brain wallet
-	 * @param string
-	 * @return
-	 * @throws NoSuchAlgorithmException
-	 * @throws UnsupportedEncodingException
+	 * Generates a {@code DeterministicKey} from a byte array seed
+	 * 
+	 * @param seed the seed represented as byte array
+	 * @return returns an instance of {@code DeterministicKey}
 	 */
-	public static DeterministicKey createDeterministicKeyFromBrainWallet(String string)
-			throws NoSuchAlgorithmException, UnsupportedEncodingException {
-		MessageDigest md = MessageDigest.getInstance("SHA-256");
-
-		md.update(string.getBytes("UTF-8"));
-		byte[] hash = md.digest();
-
-		return HDKeyDerivation.createMasterPrivateKey(hash);
-
+	public static DeterministicKey createDeterministicKeyFromByteArray(byte[] seed) {
+		return HDKeyDerivation.createMasterPrivateKey(seed);
 	}
 	
-	public static DeterministicKey createDeterministicKeyFromByteArray(byte[] array) {
-		return HDKeyDerivation.createMasterPrivateKey(array);
-	}
-	
-	public static DeterministicKey createImprintingKey(DeterministicKey deterministicKey) {
-		
-		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
-		
-		return deterministicHierarchy.get(IMPRINTING, true, true);
-
-	}
-
 	/**
-	 * Synchronize a list of wallets against blockchain
-	 * @param params
-	 * @param wallets
-	 * @param chainFile
-	 * @param creationTime
+	 * Synchronize a list of {@code Wallet} against the BlockChain.
+	 * 
+	 * @param params the NetworkParameters to use
+	 * @param wallets the list of Wallet
+	 * @param chainFile the chain file to use
+	 * @param listener the listener to inform for status changes
 	 */
 	public static void syncBlockChain(NetworkParameters params, final List<Wallet> wallets, final File chainFile, final DownloadProgressTracker listener) {
 		
@@ -192,11 +149,12 @@ public class NodeUtils {
 	}
 	
 	/**
-	 * Sycnhronize a single wallet against the blockchain
-	 * @param params
-	 * @param wallet
-	 * @param chainFile
-	 * @param creationTime
+	 * Synchronize a single of {@code Wallet} against the BlockChain.
+	 * 
+	 * @param params the NetworkParameters to use
+	 * @param wallet the Wallet to synchronize
+	 * @param chainFile the chain file to use
+	 * @param listener the listener to inform for status changes
 	 */
 	public static void syncBlockChain(NetworkParameters params, final Wallet wallet, final File chainFile, final DownloadProgressTracker listener) {
 
@@ -205,18 +163,15 @@ public class NodeUtils {
 	}
 	
 	/**
-	 * Send the transaction to the peers
-	 * @param params
-	 * @param wallet
-	 * @param chainFile
-	 * @param sendRequest
-	 * @return
-	 * @throws BlockStoreException
-	 * @throws InterruptedException
-	 * @throws ExecutionException
+	 * Broadcast a transaction to the peer to peer network and return the txid
+	 * 
+	 * @param params the NetworkParameters to use
+	 * @param sendRequest the transaction to broadcast
+	 * @return a string representation of the txid
+	 * @throws ExecutionException in case a problem occurs
 	 */
-	public static String sendTransaction(NetworkParameters params, final Wallet wallet, final File chainFile,
-			final SendRequest sendRequest) throws BlockStoreException, InterruptedException, ExecutionException {
+	public static String sendTransaction(NetworkParameters params, final SendRequest sendRequest)
+			throws ExecutionException {
 
 		PeerGroup peerGroup = null;
 
@@ -260,10 +215,15 @@ public class NodeUtils {
 		}
 	}
 
-	public static InputStream openStream(NetworkParameters params) {
+	private static InputStream openStream(NetworkParameters params) {
         return NodeUtils.class.getResourceAsStream("/" + params.getId() + ".uniquidcheckpoints.txt");
     }
 	
+	/**
+	 * Returns a {@code BitSet} representing the bitmask parameter
+	 * @param bitmask the bitmask to transform
+	 * @return a {@code BitSet} representing the bitmask parameter
+	 */
 	public static BitSet toBitset(String bitmask) {
 
 		byte[] bitset = Hex.decode(bitmask);

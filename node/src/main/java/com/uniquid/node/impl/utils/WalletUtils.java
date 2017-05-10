@@ -11,7 +11,6 @@ import java.net.URL;
 import java.util.List;
 
 import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.TransactionOutput;
@@ -74,8 +73,13 @@ public abstract class WalletUtils {
 		
 	}
 	
-	
-	private static TransactionOutput cloneTx(TransactionOutput t, NetworkParameters params) {
+	/**
+	 * Return a copy of the transaction output
+	 * @param t transaction output to clone
+	 * @param params the {@link NetworkParameters} to use
+	 * @return a clone of the transaction output
+	 */
+	public static TransactionOutput cloneTx(TransactionOutput t, NetworkParameters params) {
 		
 		Transaction original = t.getParentTransaction();
 		
@@ -89,35 +93,44 @@ public abstract class WalletUtils {
 	    
 	}
 	
-	public static boolean hasTransaction(String txid, Wallet wallet) {
-		// NativeSecp256k1.schnorrSign();
-		return wallet.getTransaction(Sha256Hash.of(txid.getBytes())) != null;
-	}
+//	public static boolean hasTransaction(String txid, Wallet wallet) {
+//		// NativeSecp256k1.schnorrSign();
+//		return wallet.getTransaction(Sha256Hash.of(txid.getBytes())) != null;
+//	}
 	
 	/**
      * Check if a Transaction have a valid (Uniquid) OP_RETURN
      * */
 	public static boolean isValidOpReturn(Transaction tx){
         String op_return = getOpReturn(tx);
-        return Hex.decode(op_return).length == 80;
+        
+        if (op_return != null) {
+
+        	return Hex.decode(op_return).length == 80;
+
+        } else {
+        	
+        	return false;
+        
+        }
     }
 	
-    public static boolean isUnspent(String txid, String address){
-        String result = httpGet(URL_UTXO, address);
-
-        if(result == null)
-            return false;
-
-        JSONArray jArray = new JSONArray(result);
-
-        for(int i = 0; i < jArray.length(); i++){
-            JSONObject jsonObject = jArray.getJSONObject(i);
-            if(jsonObject.getString("txid").equals(txid) && jsonObject.getInt("vout") == 2)
-                return true;
-        }
-
-        return false;
-    }
+//    public static boolean isUnspent(String txid, String address){
+//        String result = httpGet(URL_UTXO, address);
+//
+//        if(result == null)
+//            return false;
+//
+//        JSONArray jArray = new JSONArray(result);
+//
+//        for(int i = 0; i < jArray.length(); i++){
+//            JSONObject jsonObject = jArray.getJSONObject(i);
+//            if(jsonObject.getString("txid").equals(txid) && jsonObject.getInt("vout") == 2)
+//                return true;
+//        }
+//
+//        return false;
+//    }
     
     public static String retrieveNameFromProvider(String provider){
         String result = httpGet(URL_REGISTRY, null);

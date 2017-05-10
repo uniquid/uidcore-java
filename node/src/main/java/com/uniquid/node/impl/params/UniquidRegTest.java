@@ -8,7 +8,7 @@ import org.bitcoinj.params.RegTestParams;
 import org.spongycastle.util.Arrays;
 
 /**
- * Parameters for Uniquid Internal RegTestNet
+ * Network parameters for Uniquid Internal RegTestNet
  */
 public class UniquidRegTest extends RegTestParams {
 	

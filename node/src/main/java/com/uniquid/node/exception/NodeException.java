@@ -1,10 +1,7 @@
 package com.uniquid.node.exception;
 
 /**
- * A NodeException represents an Exception related to a problem of the Uniquid Node
- * 
- * @author Giuseppe Magnotta
- *
+ * Signal that a problem inside the Uniquid Node occurred 
  */
 public class NodeException extends Exception {
 

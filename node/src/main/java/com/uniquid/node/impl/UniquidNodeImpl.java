@@ -363,7 +363,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	
 				LOGGER.info("Serialized SIGNED transaction: " + sr);
 	
-				retValue = NodeUtils.sendTransaction(networkParameters, providerWallet, providerChainFile, send);
+				retValue = NodeUtils.sendTransaction(networkParameters, send);
 	
 			} else if (path.startsWith("1")) {
 				
@@ -377,7 +377,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	
 				LOGGER.info("Serialized SIGNED transaction: " + sr);
 	
-				retValue = NodeUtils.sendTransaction(networkParameters, userWallet, userChainFile, send);
+				retValue = NodeUtils.sendTransaction(networkParameters, send);
 	
 			}
 	

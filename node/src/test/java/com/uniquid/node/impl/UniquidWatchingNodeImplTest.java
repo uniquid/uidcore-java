@@ -11,6 +11,8 @@ import org.junit.Test;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.impl.UniquidWatchingNodeImpl.Builder;
 import com.uniquid.node.impl.params.UniquidRegTest;
+import com.uniquid.node.impl.utils.DummyProviderRegister;
+import com.uniquid.node.impl.utils.DummyUserRegister;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
@@ -109,9 +111,9 @@ public class UniquidWatchingNodeImplTest {
 		File userChainFile = File.createTempFile("userchain", ".chain");
 		userChainFile.delete();
 		
-		final ProviderRegister dummyProvider = createDummyProviderRegister();
+		final ProviderRegister dummyProvider = new DummyProviderRegister();
 		
-		final UserRegister dummyUser = createDummyUserRegister();
+		final UserRegister dummyUser = new DummyUserRegister();
 		
 		RegisterFactory dummyFactory = new RegisterFactory() {
 					
@@ -174,7 +176,7 @@ public class UniquidWatchingNodeImplTest {
 		File userChainFile = File.createTempFile("userchain", ".chain");
 		userChainFile.delete();
 		
-		final ProviderRegister dummyProvider = createDummyProviderRegister();
+		final ProviderRegister dummyProvider = new DummyProviderRegister();
 		
 		String providerAddress = "providerAddress";
 		String userAddress = "userAddress";
@@ -190,7 +192,7 @@ public class UniquidWatchingNodeImplTest {
 		
 		dummyProvider.insertChannel(providerChannel);
 		
-		final UserRegister dummyUser = createDummyUserRegister();
+		final UserRegister dummyUser = new DummyUserRegister();
 		
 		RegisterFactory dummyFactory = new RegisterFactory() {
 					
@@ -253,9 +255,9 @@ public class UniquidWatchingNodeImplTest {
 		File userChainFile = File.createTempFile("userchain", ".chain");
 		userChainFile.delete();
 		
-		final ProviderRegister dummyProvider = createDummyProviderRegister();
+		final ProviderRegister dummyProvider = new DummyProviderRegister();
 		
-		final UserRegister dummyUser = createDummyUserRegister();
+		final UserRegister dummyUser = new DummyUserRegister();
 		
 		RegisterFactory dummyFactory = new RegisterFactory() {
 					
@@ -310,156 +312,18 @@ public class UniquidWatchingNodeImplTest {
 		Assert.assertEquals(UniquidNodeState.READY, uniquidNode.getNodeState());
 		
 		Assert.assertEquals("0.00 BTC", uniquidNode.getSpendableBalance());
-	}
-	
-	private ProviderRegister createDummyProviderRegister() {
-	
-		return new ProviderRegister() {
-			
-			private ArrayList<ProviderChannel> channels = new ArrayList<ProviderChannel>();
-			
-			@Override
-			public void insertChannel(ProviderChannel providerChannel) throws RegisterException {
-				channels.add(providerChannel);
-			}
-			
-			@Override
-			public ProviderChannel getChannelByUserAddress(String address) throws RegisterException {
-				
-				for (ProviderChannel p : channels) {
-					
-					if (p.getUserAddress().equals(address)) {
-						return p;
-					}
-					
-				}
-					
-				return null;
-			}
-			
-			@Override
-			public ProviderChannel getChannelByRevokeTxId(String revokeTxId) throws RegisterException {
-
-				for (ProviderChannel p : channels) {
-					
-					if (p.getRevokeTxId().equals(revokeTxId)) {
-						return p;
-					}
-					
-				}
-				
-				return null;
-			}
-			
-			@Override
-			public ProviderChannel getChannelByRevokeAddress(String revokeAddress) throws RegisterException {
-			
-				for (ProviderChannel p : channels) {
-					
-					if (p.getRevokeAddress().equals(revokeAddress)) {
-						return p;
-					}
-					
-				}
-				
-				return null;
-			}
-			
-			@Override
-			public List<ProviderChannel> getAllChannels() throws RegisterException {
-				return channels;
-			}
-			
-			@Override
-			public void deleteChannel(ProviderChannel providerChannel) throws RegisterException {
-				channels.remove(providerChannel);
-				
-			}
-			
-		};
 		
-	}
-	
-	private UserRegister createDummyUserRegister() {
+		UniquidWatchingNodeImpl uniquidNodeReloaded = builder.buildFromXpub("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", 1487159470);
 		
-		return new UserRegister() {
-			
-			private ArrayList<UserChannel> channels = new ArrayList<UserChannel>();
-			
-			@Override
-			public void insertChannel(UserChannel userChannel) throws RegisterException {
-				channels.add(userChannel);
-				
-			}
-			
-			@Override
-			public UserChannel getUserChannelByRevokeTxId(String revokeTxId) throws RegisterException {
-
-				for (UserChannel p : channels) {
-					
-					if (p.getRevokeTxId().equals(revokeTxId)) {
-						return p;
-					}
-					
-				}
-					
-				return null;
-			}
-			
-			@Override
-			public UserChannel getUserChannelByRevokeAddress(String revokeTxId) throws RegisterException {
-				
-				for (UserChannel p : channels) {
-					
-					if (p.getRevokeAddress().equals(revokeTxId)) {
-						return p;
-					}
-					
-				}
-					
-				return null;
-			}
-			
-			@Override
-			public UserChannel getChannelByProviderAddress(String name) throws RegisterException {
-
-				for (UserChannel p : channels) {
-					
-					if (p.getProviderAddress().equals(name)) {
-						return p;
-					}
-					
-				}
-					
-				return null;
-			}
-			
-			@Override
-			public UserChannel getChannelByName(String name) throws RegisterException {
-
-				for (UserChannel p : channels) {
-					
-					if (p.getProviderName().equals(name)) {
-						return p;
-					}
-					
-				}
-					
-				return null;
-			}
-			
-			@Override
-			public List<UserChannel> getAllUserChannels() throws RegisterException {
-				return channels;
-			}
-			
-			@Override
-			public void deleteChannel(UserChannel userChannel) throws RegisterException {
-				channels.remove(userChannel);
-			}
-			
-		};
+		Assert.assertNotNull(uniquidNodeReloaded);
 		
+		uniquidNodeReloaded.initNode();
+		
+		Assert.assertEquals(2, dummyProvider.getAllChannels().size());
+		
+		Assert.assertEquals(UniquidNodeState.READY, uniquidNodeReloaded.getNodeState());
+		
+		Assert.assertEquals("0.00 BTC", uniquidNodeReloaded.getSpendableBalance());
 	}
 	
 }

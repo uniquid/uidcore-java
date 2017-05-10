@@ -13,10 +13,21 @@ import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 
+/**
+ * UniquidNodeStateUtils contains some useful methods used by UniquidNodeState class
+ */
 public class UniquidNodeStateUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeStateUtils.class.getName());
 
+	/**
+	 * Return true if the transaction in input is a valid imprinting transaction and contains the specified address in
+	 * one of its output, otherwise false.
+	 * @param tx the transaction to check if is valid imprinting
+	 * @param networkParameters the {@link NetworkParameters}
+	 * @param imprintingAddress the address to check for
+	 * @return true if it's an imprinting transaction otherwise false
+	 */
 	public static boolean isValidImprintingTransaction(Transaction tx, NetworkParameters networkParameters, Address imprintingAddress) {
 		// Retrieve sender
 		String sender = tx.getInput(0).getFromAddress().toBase58();
@@ -33,6 +44,12 @@ public class UniquidNodeStateUtils {
 		return false;
 	}
 
+	/**
+	 * Returns true if the transaction is a valid revoke transaction
+	 * @param tx the transaction to check
+	 * @param registerFactory the {@link RegisterFactory} to use to access the data store
+	 * @return true if the revoke address is present in the data store
+	 */
 	public static boolean isValidRevokeContract(Transaction tx, RegisterFactory registerFactory) {
 
 		// Retrieve sender
