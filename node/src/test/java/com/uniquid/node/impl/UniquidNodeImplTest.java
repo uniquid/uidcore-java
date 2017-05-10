@@ -317,6 +317,18 @@ public class UniquidNodeImplTest {
 		Assert.assertEquals(UniquidNodeState.READY, uniquidNode.getNodeState());
 		
 		Assert.assertEquals("2.00 BTC", uniquidNode.getSpendableBalance());
+
+		UniquidNodeImpl uniquidNodeReloaded = builder.buildFromHexSeed("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", 1487159470);
+		
+		Assert.assertNotNull(uniquidNodeReloaded);
+		
+		uniquidNodeReloaded.initNode();
+		
+		Assert.assertEquals(1, dummyProvider.getAllChannels().size());
+		
+		Assert.assertEquals(UniquidNodeState.READY, uniquidNodeReloaded.getNodeState());
+		
+		Assert.assertEquals("2.00 BTC", uniquidNodeReloaded.getSpendableBalance());
 	}
 	
 	private ProviderRegister createDummyProviderRegister() {
