@@ -161,6 +161,26 @@ public class UserChannelTest {
 		
 		Assert.assertEquals(0, userChannel1.compareTo(userChannel2));
 		
+		UserChannel userChannel3 = new UserChannel("address0", "provider", "user", "bitmask");
+		
+		UserChannel userChannel4 = new UserChannel("address0", "provider", "user", "bitmask");
+		
+		UserChannel userChannel5 = new UserChannel("address1", "provider", "user", "bitmask");
+		
+		Assert.assertEquals(0, userChannel3.compareTo(userChannel3));
+		
+		Assert.assertEquals(0, userChannel3.compareTo(userChannel4));
+		
+		Assert.assertEquals(0, userChannel4.compareTo(userChannel3));
+		
+		Assert.assertEquals(1, userChannel3.compareTo(userChannel1));
+		
+		Assert.assertEquals(-1, userChannel1.compareTo(userChannel3));
+		
+		Assert.assertEquals(-1, userChannel4.compareTo(userChannel5));
+		
+		Assert.assertEquals(1, userChannel5.compareTo(userChannel4));
+		
 	}
 	
 }

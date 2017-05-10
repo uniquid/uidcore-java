@@ -170,15 +170,34 @@ public class UserChannel implements Serializable, Comparable<Object> {
 
     @Override
     public int compareTo(Object object) {
-        final int BEFORE = -1;
-        final int EQUAL = 0;
-        final int AFTER = 1;
 
         UserChannel userChannel = (UserChannel) object;
-        if(this.providerName == null && userChannel.getProviderName() == null) return EQUAL;
-        else if(this.providerName != null && userChannel.getProviderName() == null) return AFTER;
-        else if(this.providerName == null && userChannel.getProviderName() != null) return  BEFORE;
-        else return this.providerName.compareToIgnoreCase(userChannel.getProviderName());
+        
+        return compareStrings(providerName, userChannel.getProviderName());
+    }
+    
+    private static int compareStrings(String first, String second) {
+    	final int BEFORE = -1;
+        final int EQUALS = 0;
+        final int AFTER = 1;
+    	
+    	if (first == null && second == null) {
+    		
+    		return EQUALS;
+    	
+    	} else if (first == null && second != null) {
+    		
+    		return BEFORE;
+    				
+    	} else if (first != null && second != null) {
+    		
+    		return first.compareTo(second);
+    	
+    	} else /* if (first != null && second == null) */ {
+    		
+    		return AFTER;
+    	}
+    	
     }
 
 }
