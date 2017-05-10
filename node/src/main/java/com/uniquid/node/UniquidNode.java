@@ -1,17 +1,15 @@
 package com.uniquid.node;
 
-import java.util.concurrent.ExecutionException;
-
-import org.bitcoinj.core.InsufficientMoneyException;
-import org.bitcoinj.store.BlockStoreException;
-
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 
 /**
- * An Uniquid node is a network node that use the blockchain to establish trust and creates and use smart contracts.
- * 
- * @author Giuseppe Magnotta
+ * Represents an entity that owns an ID-based cryptography that uses the BlockChain to manage trust relationship with
+ * other entities. It is capable to open a connection to the peer to peer network of the BlockChain and:
+ * <ul>
+ *  <li>synchronize/update the local BlockChain files</li>
+ *  <li>listen, verify and re-broadcast valid Transactions inside the peer to peer network</li>
+ * </ul>
  */
 public interface UniquidNode {
 
@@ -47,6 +45,7 @@ public interface UniquidNode {
 	 * Returns the hex seed of this node
 	 * @return the hex seed of this node
 	 */
+	@Deprecated
 	public String getHexSeed();
 	
 	/**
@@ -62,14 +61,14 @@ public interface UniquidNode {
 	public void initNode() throws NodeException;
 	
 	/**
-	 * Synchronize the node against the blockchain.
+	 * Synchronize the node against the BlockChain.
 	 */
 	public void updateNode() throws NodeException;
 
 	/**
-	 * Returns a description of the current state of this node.
+	 * Returns the current state of this node.
 	 * 
-	 * @return the description of the current state of this node
+	 * @return the {@code UniquidNodeState} representing the current state of this node.
 	 */
 	public UniquidNodeState getNodeState();
 
@@ -88,12 +87,13 @@ public interface UniquidNode {
 	public void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener);
 	
 	/**
-	 * Sign transaction
-	 * @param s_tx
-	 * @param path
-	 * @return
-	 * @throws NodeException
+	 * Allow to sign an unsigned serialized blockchain transaction.
+	 * 
+	 * @param serializedTx the unsigned serialized transaction to sign
+	 * @param path the bip32 path to use to sign
+	 * @return the serialized signed transaction
+	 * @throws NodeException in case a problem occurs.
 	 */
-	public String signTransaction(final String s_tx, final String path) throws NodeException;
+	public String signTransaction(final String serializedTx, final String path) throws NodeException;
 	
 }

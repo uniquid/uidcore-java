@@ -2,14 +2,12 @@ package com.uniquid.node.listeners;
 
 import java.util.Date;
 
+import com.uniquid.node.UniquidNodeState;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.user.UserChannel;
 
 /**
- * UniquidNodeEventListener allow to listen for events from Uniquid network
- * 
- * @author Giuseppe Magnotta
- *
+ * UniquidNodeEventListener allows to receive callbacks from Uniquid Node when something happens.
  */
 public interface UniquidNodeEventListener {
 	
@@ -42,37 +40,41 @@ public interface UniquidNodeEventListener {
 	public void onUserContractRevoked(final UserChannel userChannel);
 
 	/**
-	 * Called when the node start syncing
+	 * Called when the node start synchronization with the BlockChain
 	 */
 	public void onSyncNodeStart();
 	
 	/**
-	 * Called when the node end syncing
+	 * Called when the node end synchronization with the BlockChain
 	 */
 	public void onSyncNodeEnd();
 	
 	/**
-	 * Called when a sync from blockchain starts
+	 * Called when the node start synchronization with the BlockChain
 	 * 
-	 * @param blocks the numer of blocks to download
+	 *  @param blocks the number of blocks to download, estimated
 	 */
 	public void onSyncStarted(final int blocks);
 	
 	/**
-	 * Called when a sync progress
+	 * Called when download progress is made.
 	 * 
+	 * @param pct  the percentage of chain downloaded, estimated
+     * @param date the date of the last block downloaded
 	 */
 	public void onSyncProgress(double pct, final int blocksSoFar, final Date date);
 	
 	/**
-	 * Called when a sync from blockchain terminates
+	 * Called when a sync from blockchain terminates.
 	 * 
 	 */
 	public void onSyncEnded();
 	
 	/**
-	 * Called when a state chane happens
+	 * Called when a Node's internal state changes.
+	 * 
+	 * @param newState the new state of the Node.
 	 */
-	public void onNodeStateChange(final com.uniquid.node.UniquidNodeState newState);
+	public void onNodeStateChange(final UniquidNodeState newState);
 
 }
