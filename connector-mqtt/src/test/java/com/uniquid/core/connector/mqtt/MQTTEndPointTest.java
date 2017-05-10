@@ -13,7 +13,7 @@ import com.uniquid.core.connector.ConnectorException;
 public class MQTTEndPointTest {
 	
 	@Test
-	public void constructorTest() {
+	public void testConstructor() {
 		String broker = "tcp://appliance4.uniquid.co:1883";
 		
 		RPCProviderRequest rpcProviderRequest = new RPCProviderRequest
@@ -42,7 +42,7 @@ public class MQTTEndPointTest {
 	}
 	
 	@Test
-	public void flushTest() {
+	public void testFlush() {
 		
 		final String broker = "tcp://appliance4.uniquid.co:1883";
 		
@@ -62,7 +62,6 @@ public class MQTTEndPointTest {
 		}).start();
 		
 		String request = rpcProviderRequest.toJSONString();
-		System.out.println(request);
 		
 		final byte[] mqttMessageRequest = request.getBytes();
 		
@@ -111,6 +110,30 @@ public class MQTTEndPointTest {
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
+	}
+	
+	@Test(expected = ConnectorException.class)
+	public void testFlushException() throws ConnectorException {
+		final String broker = "tcp://appliance4.uniquid.co:1883";
+		
+		final RPCProviderRequest rpcProviderRequest = new RPCProviderRequest
+				.Builder()
+				.set_sender("sender")
+				.set_rpcMethod(33)
+				.set_params("hola!")
+				.build();
+		
+		String request = rpcProviderRequest.toJSONString();
+		System.out.println(request);
+		
+		final byte[] mqttMessageRequest = request.getBytes();
+		
+		MQTTEndPoint mqttEndPoint = new MQTTEndPoint(mqttMessageRequest, null);
+		mqttEndPoint.getOutputMessage().setError(0);
+		mqttEndPoint.getOutputMessage().setSender("sender");
+		mqttEndPoint.getOutputMessage().setResult("result");
+		mqttEndPoint.flush();
+		
 	}
 
 }
