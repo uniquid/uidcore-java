@@ -275,7 +275,7 @@ public class UniquidWatchingNodeImpl implements UniquidNode, WalletCoinsSentEven
 
     @Override
     public void removeUniquidNodeEventListener(UniquidNodeEventListener uniquidNodeEventListener) {
-        eventListeners.remove(uniquidNodeEventListener);
+        // do nothing for now
     }
 
 

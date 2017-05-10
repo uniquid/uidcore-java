@@ -320,7 +320,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	@Override
 	public synchronized void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
-		eventListeners.remove(uniquidNodeEventListener);
+		// do nothing for now
 	}
 
 	/*
