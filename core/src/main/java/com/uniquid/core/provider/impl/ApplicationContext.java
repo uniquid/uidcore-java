@@ -9,6 +9,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.uniquid.core.provider.FunctionContext;
 
+/**
+ * Implementation of {@link FunctionContext}
+ */
 public class ApplicationContext implements FunctionContext {
 
 	/**

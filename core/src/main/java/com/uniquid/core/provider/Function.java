@@ -8,7 +8,6 @@ import com.uniquid.core.provider.exception.FunctionException;
 
 /**
  * Defines methods that all functions must implement.
- *
  */
 public interface Function {
 

@@ -9,8 +9,9 @@ import com.uniquid.core.provider.FunctionConfig;
 import com.uniquid.core.provider.FunctionContext;
 import com.uniquid.core.provider.exception.FunctionException;
 
-/*
+/**
  * Defines a generic, protocol-independent function.
+ * Designed to be subclassed by real {@link Function} implementation
  */
 public abstract class GenericFunction implements Function, FunctionConfig {
 	
@@ -41,6 +42,11 @@ public abstract class GenericFunction implements Function, FunctionConfig {
 		this.init();
 	}
 	
+	/**
+	 * Designed to be extended by subclasses.
+	 * 
+	 * @throws FunctionException in case a problem occurs.
+	 */
 	public void init() throws FunctionException {
         // NOOP by default
     }

@@ -27,8 +27,7 @@ import com.uniquid.node.UniquidNodeState;
 import com.uniquid.register.RegisterFactory;
 
 /**
- * This is the core of Uniquid library. It contains all the functionalities
- * needed by the machines to send and receive request.
+ * Uniquid reference implementation of {@link Core}.
  */
 public class UniquidSimplifier extends Core {
 
@@ -39,6 +38,13 @@ public class UniquidSimplifier extends Core {
 	private ScheduledExecutorService scheduledExecutorService;
 	private ScheduledExecutorService receiverExecutorService;
 
+	/**
+	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
+	 * @param registerFactory the {@link RegisterFactory} to use
+	 * @param connector the {@link Connector} to use
+	 * @param node the {@link UniquidNode} to use
+	 * @throws Exception in case an error occurs
+	 */
 	public UniquidSimplifier(RegisterFactory registerFactory, Connector connectorServiceFactory, UniquidNode node)
 			throws Exception {
 
@@ -56,6 +62,7 @@ public class UniquidSimplifier extends Core {
 		}
 	}
 	
+	@Override
 	protected Function getFunction(ProviderRequest inputMessage) {
 
 		int rpcMethod = inputMessage.getFunction();
@@ -64,15 +71,21 @@ public class UniquidSimplifier extends Core {
 
 	}
 
-	public void addFunction(Function function, int value) throws FunctionException {
+	/**
+	 * Register a {@link Function} inside the library with the specified number.
+	 * @param function the {@link Function} to register inside the library.
+	 * @param functionNumber the number to assign to the {@link Function}
+	 * @throws FunctionException in case a problem occurs.
+	 */
+	public void addFunction(Function function, int functionNumber) throws FunctionException {
 
-		if (value >= 32) {
+		if (functionNumber >= 32) {
 
 			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(getFunctionContext());
 
 			function.init(functionConfigImpl);
 
-			functionsMap.put(value, function);
+			functionsMap.put(functionNumber, function);
 
 		} else {
 
@@ -82,6 +95,9 @@ public class UniquidSimplifier extends Core {
 
 	}
 
+	/*
+	 * Register an internal Function
+	 */
 	private void addUniquidFunction(Function function, int value) throws FunctionException {
 
 		if (value >= 0 && value <= 31) {
@@ -101,7 +117,10 @@ public class UniquidSimplifier extends Core {
 	}
 
 	/**
-	 * Initialize the library and start processing
+	 * 
+	 * Initialize the library and start the processing
+	 * 
+	 * @throws Exception in case a problem occurs.
 	 */
 	public void start() throws Exception {
 
@@ -201,6 +220,11 @@ public class UniquidSimplifier extends Core {
 
 	}
 
+	/**
+	 * Stop the library and stop the processing
+	 * 
+	 * @throws Exception in case a problem occurs
+	 */
 	public void shutdown() throws Exception {
 
 		scheduledExecutorService.shutdown();

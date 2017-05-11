@@ -8,6 +8,10 @@ import java.util.Enumeration;
  */
 public interface FunctionContext {
 
+	/**
+	 * Returns information about the Function container
+	 * @return information about the Function container
+	 */
 	public String getServerInfo();
 	
 	/**

@@ -9,15 +9,18 @@ import org.json.JSONObject;
 import com.uniquid.core.Core;
 import com.uniquid.core.ProviderRequest;
 import com.uniquid.core.ProviderResponse;
+import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.node.UniquidNode;
 
+/**
+ * {@link Function} designed to manage Contract signing from Orchestrator 
+ */
 public class ContractFunction extends GenericFunction {
 
 	@Override
 	public void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload)
 			throws FunctionException, IOException {
-		
 
 		String params = inputMessage.getParams();
 		String tx, path;
