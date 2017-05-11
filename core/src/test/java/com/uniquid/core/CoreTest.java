@@ -327,6 +327,62 @@ public class CoreTest {
 	}
 	
 	@Test
+	public void testCheckSenderNotAuthorized1() throws Exception {
+		
+		final ProviderRegister dummyProvider = new DummyProviderRegister();
+		
+		byte[] b = {1,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		
+		String bitmaskToString = new String(Hex.encode(b));
+		
+		ProviderChannel providerChannel = new ProviderChannel("providerAddress", "userAddress", bitmaskToString);
+		
+		dummyProvider.insertChannel(providerChannel);
+		
+		final UserRegister dummyUser = new DummyUserRegister();
+		
+		RegisterFactory dummyFactory = new RegisterFactory() {
+			
+			@Override
+			public UserRegister getUserRegister() throws RegisterException {
+				return dummyUser;
+			}
+			
+			@Override
+			public ProviderRegister getProviderRegister() throws RegisterException {
+				return dummyProvider;
+			}
+			
+		};
+		
+		final Connector connector = createDummyConnector();
+		
+		final UniquidNode node = new DummyNode();
+		
+		Core core = new Core(dummyFactory, connector, node) {
+			
+			@Override
+			protected Function getFunction(ProviderRequest inputMessage) {
+				return null;
+			}
+		};
+		
+		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 31, "params");
+		
+		try {
+			
+			core.checkSender(providerRequest);
+			Assert.fail();
+		
+		} catch (Exception ex) {
+			
+			Assert.assertEquals("Sender not authorized!", ex.getMessage());
+			
+		}
+		
+	}
+	
+	@Test
 	public void testCheckSenderAuthorized() throws Exception {
 		
 		byte[] b2 = {0, 0, 0, 0, 64};
@@ -370,6 +426,61 @@ public class CoreTest {
 		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 30, "params");
 		Assert.assertNotNull(core.checkSender(providerRequest));
 		Assert.assertTrue(Arrays.equals(b2, core.checkSender(providerRequest)));
+		
+	}
+	
+	@Test
+	public void testCheckSenderAuthorized1() throws Exception {
+		
+		final ProviderRegister dummyProvider = new DummyProviderRegister();
+		
+		byte[] b = {1,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		
+		String bitmaskToString = new String(Hex.encode(b));
+		
+		ProviderChannel providerChannel = new ProviderChannel("providerAddress", "userAddress", bitmaskToString);
+		
+		dummyProvider.insertChannel(providerChannel);
+		
+		final UserRegister dummyUser = new DummyUserRegister();
+		
+		RegisterFactory dummyFactory = new RegisterFactory() {
+			
+			@Override
+			public UserRegister getUserRegister() throws RegisterException {
+				return dummyUser;
+			}
+			
+			@Override
+			public ProviderRegister getProviderRegister() throws RegisterException {
+				return dummyProvider;
+			}
+			
+		};
+		
+		final Connector connector = createDummyConnector();
+		
+		final UniquidNode node = new DummyNode();
+		
+		Core core = new Core(dummyFactory, connector, node) {
+			
+			@Override
+			protected Function getFunction(ProviderRequest inputMessage) {
+				return null;
+			}
+		};
+		
+		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 30, "params");
+		
+		try {
+			
+			Assert.assertTrue(Arrays.equals(b, core.checkSender(providerRequest)));
+		
+		} catch (Exception ex) {
+			
+			Assert.fail();
+			
+		}
 		
 	}
 	
