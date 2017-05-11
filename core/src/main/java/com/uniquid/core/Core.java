@@ -9,6 +9,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.core.connector.Connector;
 import com.uniquid.core.provider.Function;
+import com.uniquid.core.provider.FunctionContext;
 import com.uniquid.core.provider.impl.ApplicationContext;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.register.RegisterFactory;
@@ -17,17 +18,12 @@ import com.uniquid.register.provider.ProviderRegister;
 
 /**
  * This is the core of Uniquid library. It contains a collection of functionalities
- * needed by the machines to send, receive, decode request.
+ * needed by the Uniquid Node to send, receive and decode requests.
  */
 public abstract class Core {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Core.class.getName());
 
-	public static final int RESULT_OK = 0;
-	public static final int RESULT_NO_PERMISSION = 2;
-	public static final int RESULT_FUNCTION_NOT_AVAILABLE = 3;
-	public static final int RESULT_ERROR = 4;
-	
 	public static final String NODE_ATTRIBUTE = com.uniquid.node.UniquidNode.class.getName();
 	public static final String REGISTER_FACTORY_ATTRIBUTE = com.uniquid.register.RegisterFactory.class.getName();
 	public static final String CONNECTOR_ATTRIBUTE = com.uniquid.core.connector.Connector.class.getName();
@@ -37,11 +33,18 @@ public abstract class Core {
 	private ApplicationContext applicationContext;
 	private UniquidNode uniquidNode;
 
-	public Core(RegisterFactory registerFactory, Connector connectorServiceFactory, UniquidNode node)
+	/**
+	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
+	 * @param registerFactory the {@link RegisterFactory} to use
+	 * @param connector the {@link Connector} to use
+	 * @param node the {@link UniquidNode} to use
+	 * @throws Exception in case an error occurs
+	 */
+	public Core(RegisterFactory registerFactory, Connector connector, UniquidNode node)
 			throws Exception {
 
 		this.registerFactory = registerFactory;
-		this.connector = connectorServiceFactory;
+		this.connector = connector;
 		this.uniquidNode = node;
 
 		applicationContext = new ApplicationContext();
@@ -54,87 +57,109 @@ public abstract class Core {
 
 	}
 	
+	/**
+	 * Retrieve the {@link UniquidNode} instance in use.
+	 * @return the {@link UniquidNode} instance in use.
+	 */
 	public UniquidNode getNode() {
 		return uniquidNode;
 	}
 	
+	/**
+	 * Retrieve the {@link RegisterFactory} instance in use.
+	 * @return the {@link RegisterFactory} instance in use.
+	 */
 	public RegisterFactory getRegisterFactory() {
 		return registerFactory;
 	}
 	
+	/**
+	 * Retrieve the {@link Connector} instance in use.
+	 * @return the {@link Connector} instance in use.
+	 */
 	public Connector getConnector() {
 		return connector;
 	}
 	
-	public ApplicationContext getApplicationContext() {
+	/**
+	 * Retrieve the {@link FunctionContext} instance in use.
+	 * @return the {@link FunctionContext} instance in use.
+	 */
+	public FunctionContext getFunctionContext() {
 		return applicationContext;
 	}
 
-	protected abstract Function getFunction(ProviderRequest inputMessage);
+	/**
+	 * Retrieve the {@link Function} related to the {@link ProviderRequest} parameter.
+	 * @param providerRequest the {@link ProviderRequest} to fetch the function number from.
+	 * @return the {@link Function} related to the {@link ProviderRequest} parameter.
+	 */
+	protected abstract Function getFunction(ProviderRequest providerRequest);
 
 	/**
-	 * Execute a command in range 0-31
+	 * Perform the execution of a {@link Function} related to the {@link ProviderRequest} received.
 	 * 
-	 * @param inputMessage
-	 *            message parsed in {@link #parseReqMessage}
-	 * @param outputMessage
-	 *            object to fill with the execution result
-	 * @throws ClassNotFoundException
+	 * @param providerRequest the {@link ProviderRequest} received from the User
+	 * @param providerResponse the {@link ProviderResponse} the response to provide to the User
+	 * 
+	 * @throws Exception in case a problem occurs.
 	 */
-	protected final void performProviderRequest(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload) throws Exception {
+	protected final void performProviderRequest(final ProviderRequest providerRequest, final ProviderResponse providerResponse, final byte[] payload) throws Exception {
 
-		Function function = getFunction(inputMessage);
+		Function function = getFunction(providerRequest);
 
 		try {
+
 			if (function != null) {
 
 				try {
 
-					function.service(inputMessage, outputMessage, payload);
-					outputMessage.setError(RESULT_OK);
+					function.service(providerRequest, providerResponse, payload);
+					providerResponse.setError(ProviderResponse.RESULT_OK);
 
 				} catch (Exception ex) {
 
-					LOGGER.error("Exception", ex);
-					outputMessage.setError(RESULT_ERROR);
+					LOGGER.error("Error while executing function", ex);
+					providerResponse.setError(ProviderResponse.RESULT_ERROR);
 
-					outputMessage.setResult("Error while executing function: " + ex.getMessage());
+					providerResponse.setResult("Error while executing function: " + ex.getMessage());
 				}
 
 			} else {
 
-				outputMessage.setError(RESULT_FUNCTION_NOT_AVAILABLE);
+				providerResponse.setError(ProviderResponse.RESULT_FUNCTION_NOT_AVAILABLE);
 				
-				outputMessage.setResult("Function not available");
+				providerResponse.setResult("Function not available");
 
 			}
 
 		} finally {
 
 			// Populate all missing parameters...
-			String sender = inputMessage.getSender();
+			String sender = providerRequest.getSender();
 
 			ProviderRegister providerRegister = registerFactory.getProviderRegister();
 
 			ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
 			
-			outputMessage.setSender(providerChannel.getProviderAddress());
+			providerResponse.setSender(providerChannel.getProviderAddress());
 
 		}
 
 	}
 
 	/**
-	 * Check if sender is authorized
+	 * Check if sender is authorized and return the byte array present in the Smart Contract
 	 * 
-	 * @param sender
-	 * @return
-	 * @throws Exception
+	 * @param providerRequest coming from User.
+	 * @return byte array containing the Smart Contract.
+	 * 
+	 * @throws Exception in case an error occurs.
 	 */
-	protected final byte[] checkSender(ProviderRequest inputMessage) throws Exception {
+	protected final byte[] checkSender(ProviderRequest providerRequest) throws Exception {
 
 		// Retrieve sender
-		String sender = inputMessage.getSender();
+		String sender = providerRequest.getSender();
 
 		ProviderRegister providerRegister = registerFactory.getProviderRegister();
 
@@ -154,7 +179,7 @@ public abstract class Core {
 				// first byte at 0 means original contract with bitmask
 				BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
 
-				int method = inputMessage.getFunction();
+				int method = providerRequest.getFunction();
 
 				if (bitset.get(method) /*&& 
 						WalletUtils.isUnspent(providerChannel.getRevokeTxId(), providerChannel.getRevokeAddress())*/) {
@@ -171,7 +196,7 @@ public abstract class Core {
 				
 				// first byte at 1 means new contract
 				
-				int method = inputMessage.getFunction();
+				int method = providerRequest.getFunction();
 				
 				if (method == b[1]) {
 					

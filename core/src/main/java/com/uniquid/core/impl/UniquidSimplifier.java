@@ -68,7 +68,7 @@ public class UniquidSimplifier extends Core {
 
 		if (value >= 32) {
 
-			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(getApplicationContext());
+			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(getFunctionContext());
 
 			function.init(functionConfigImpl);
 
@@ -86,7 +86,7 @@ public class UniquidSimplifier extends Core {
 
 		if (value >= 0 && value <= 31) {
 
-			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(getApplicationContext());
+			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(getFunctionContext());
 
 			function.init(functionConfigImpl);
 

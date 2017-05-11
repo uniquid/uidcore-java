@@ -65,7 +65,7 @@ public class CoreTest {
 		Assert.assertEquals(dummyFactory, core.getRegisterFactory());
 		Assert.assertEquals(connector, core.getConnector());
 		Assert.assertEquals(node, core.getNode());
-		Assert.assertNotNull(core.getApplicationContext());
+		Assert.assertNotNull(core.getFunctionContext());
 		Assert.assertNull(core.getFunction(null));
 		
 	}
@@ -113,7 +113,7 @@ public class CoreTest {
 		
 		core.performProviderRequest(providerRequest, providerResponse, null);
 		
-		Assert.assertEquals(Core.RESULT_OK, providerResponse.getError());
+		Assert.assertEquals(ProviderResponse.RESULT_OK, providerResponse.getError());
 		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getSender());
 		
 	}
@@ -169,7 +169,7 @@ public class CoreTest {
 		
 		core.performProviderRequest(providerRequest, providerResponse, null);
 		
-		Assert.assertEquals(Core.RESULT_ERROR, providerResponse.getError());
+		Assert.assertEquals(ProviderResponse.RESULT_ERROR, providerResponse.getError());
 		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getSender());
 		
 	}
@@ -217,7 +217,7 @@ public class CoreTest {
 		
 		core.performProviderRequest(providerRequest, providerResponse, null);
 		
-		Assert.assertEquals(Core.RESULT_FUNCTION_NOT_AVAILABLE, providerResponse.getError());
+		Assert.assertEquals(ProviderResponse.RESULT_FUNCTION_NOT_AVAILABLE, providerResponse.getError());
 		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getSender());
 		
 	}

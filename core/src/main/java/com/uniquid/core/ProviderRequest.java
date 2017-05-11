@@ -1,9 +1,7 @@
 package com.uniquid.core;
 
 /**
- * This interface represents an input RPC message 
- *
- * @param <T>
+ * Represents a message request coming from an User and directed to a Provider 
  */
 public interface ProviderRequest {
 	

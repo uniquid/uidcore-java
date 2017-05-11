@@ -1,29 +1,27 @@
 package com.uniquid.core;
 
 /**
- * This interface represents a response RPC message
- *
- * @param <T>
+ * Represents a message response coming from a Provider and directed to an User 
  */
 public interface ProviderResponse {
 	
 	/**
-	 * Code used when everything is ok
+	 * Integer code used when everything is ok
 	 */
 	public static final int RESULT_OK = 0;
 	
 	/**
-	 * Error code used to signal the the user doesn't have permission to execute the requested function.
+	 * Integer code used to signal the the user doesn't have permission to execute the requested function.
 	 */
 	public static final int RESULT_NO_PERMISSION = 2;
 	
 	/**
-	 * Error code used to signal that the user asked to execute a function that is not available in the environment.
+	 * Integer code used to signal that the user asked to execute a function that is not available in the environment.
 	 */
 	public static final int RESULT_FUNCTION_NOT_AVAILABLE = 3;
 	
 	/**
-	 * Error code used to signal a generic error.
+	 * Integer code used to signal a generic error.
 	 */
 	public static final int RESULT_ERROR = 4;
 	
@@ -63,7 +61,7 @@ public interface ProviderResponse {
 	public int getError();
 
 	/**
-	 * Set the error code of the previously execute function.
+	 * Set the error code of the previously executed function.
 	 * 
 	 * @param error the int representing the error code of the previously executed function.
 	 */
