@@ -1,12 +1,13 @@
 package com.uniquid.register.impl.sql;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -68,28 +69,14 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		this.connection = connection;
 
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ProviderChannel getChannelByUserAddress(String address) throws RegisterException {
+	
+	private ResultSetHandler<ProviderChannel> createProviderProviderChannel() {
 		
-		if (!StringUtils.isNotBlank(address)) {
+		return new ResultSetHandler<ProviderChannel>() {
 			
-			throw new RegisterException("address is not valid");
-		
-		}
-
-		try {
-			PreparedStatement statement = connection.prepareStatement(PROVIDER_CHANNEL_BY_USER);
-
-			try {
-
-				statement.setString(1, address);
-
-				ResultSet rs = statement.executeQuery();
-
+			@Override
+			public ProviderChannel handle(ResultSet rs) throws SQLException {
+				
 				if (rs.next()) {
 
 					ProviderChannel providerChannel = new ProviderChannel();
@@ -103,17 +90,38 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 					return providerChannel;
 				}
-
-			} finally {
-
-				statement.close();
-
+				
+				return null;
 			}
-		} catch (SQLException ex) {
-			throw new RegisterException("Exception while getChannelByUserAddress()", ex);
+		};
+		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ProviderChannel getChannelByUserAddress(String address) throws RegisterException {
+		
+		if (!StringUtils.isNotBlank(address)) {
+			
+			throw new RegisterException("address is not valid");
+		
 		}
 		
-		return null;
+		ResultSetHandler<ProviderChannel> handler = createProviderProviderChannel();
+		
+		QueryRunner run = new QueryRunner();
+		
+		try {
+			
+			return run.query(connection, PROVIDER_CHANNEL_BY_USER, handler, address);
+		
+		} catch (SQLException ex) {
+
+			throw new RegisterException("Exception while getChannelByUserAddress()", ex);
+			
+		}
 
 	}
 	
@@ -129,39 +137,19 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		}
 		
-		try {
-			PreparedStatement statement = connection.prepareStatement(PROVIDER_CHANNEL_BY_REVOKE_ADDRESS);
-
-			try {
-
-				statement.setString(1, revokeAddress);
-
-				ResultSet rs = statement.executeQuery();
-
-				if (rs.next()) {
-
-					ProviderChannel providerChannel = new ProviderChannel();
-
-					providerChannel.setProviderAddress(rs.getString("provider_address"));
-					providerChannel.setUserAddress(rs.getString("user_address"));
-					providerChannel.setBitmask(rs.getString("bitmask"));
-					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
-					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
-					providerChannel.setCreationTime(rs.getInt("creation_time"));
-
-					return providerChannel;
-				}
-
-			} finally {
-
-				statement.close();
-
-			}
-		} catch (SQLException ex) {
-			throw new RegisterException("Exception while getChannelByUserAddress()", ex);
-		}
+		ResultSetHandler<ProviderChannel> handler = createProviderProviderChannel();
 		
-		return null;
+		QueryRunner run = new QueryRunner();
+		
+		try {
+			
+			return run.query(connection, PROVIDER_CHANNEL_BY_REVOKE_ADDRESS, handler, revokeAddress);
+		
+		} catch (SQLException ex) {
+
+			throw new RegisterException("Exception while getChannelByRevokeAddress()", ex);
+			
+		}
 		
 	}
 	
@@ -177,39 +165,19 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		}
 		
-		try {
-			PreparedStatement statement = connection.prepareStatement(PROVIDER_CHANNEL_BY_REVOKE_TXID);
-
-			try {
-
-				statement.setString(1, revokeTxId);
-
-				ResultSet rs = statement.executeQuery();
-
-				if (rs.next()) {
-
-					ProviderChannel providerChannel = new ProviderChannel();
-
-					providerChannel.setProviderAddress(rs.getString("provider_address"));
-					providerChannel.setUserAddress(rs.getString("user_address"));
-					providerChannel.setBitmask(rs.getString("bitmask"));
-					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
-					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
-					providerChannel.setCreationTime(rs.getInt("creation_time"));
-
-					return providerChannel;
-				}
-
-			} finally {
-
-				statement.close();
-
-			}
-		} catch (SQLException ex) {
-			throw new RegisterException("Exception while getChannelByUserAddress()", ex);
-		}
+		ResultSetHandler<ProviderChannel> handler = createProviderProviderChannel();
 		
-		return null;
+		QueryRunner run = new QueryRunner();
+		
+		try {
+			
+			return run.query(connection, PROVIDER_CHANNEL_BY_REVOKE_TXID, handler, revokeTxId);
+		
+		} catch (SQLException ex) {
+
+			throw new RegisterException("Exception while getChannelByRevokeTxId()", ex);
+			
+		}
 		
 	}
 
@@ -221,28 +189,18 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
+		QueryRunner run = new QueryRunner();
+		
 		try {
-			PreparedStatement statement = connection.prepareStatement(PROVIDER_INSERT);
-
-			try {
-
-				statement.setString(1, providerChannel.getProviderAddress());
-				statement.setString(2, providerChannel.getUserAddress());
-				statement.setString(3, providerChannel.getBitmask());
-				statement.setString(4, providerChannel.getRevokeAddress());
-				statement.setString(5, providerChannel.getRevokeTxId());
-				statement.setLong(6, providerChannel.getCreationTime());
-
-				int rs = statement.executeUpdate();
-
-			} finally {
-
-				statement.close();
-
-			}
 			
+			run.update(connection, PROVIDER_INSERT, providerChannel.getProviderAddress(),
+					providerChannel.getUserAddress(), providerChannel.getBitmask(), providerChannel.getRevokeAddress(),
+					providerChannel.getRevokeTxId(), providerChannel.getCreationTime());
+		
 		} catch (SQLException ex) {
+
 			throw new RegisterException("Exception while insertChannel()", ex);
+			
 		}
 		
 	}
@@ -255,25 +213,19 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
+		QueryRunner run = new QueryRunner();
+		
 		try {
-			PreparedStatement statement = connection.prepareStatement(PROVIDER_DELETE);
-
-			try {
-
-				statement.setString(1, providerChannel.getProviderAddress());
-				statement.setString(2, providerChannel.getUserAddress());
-
-				int rs = statement.executeUpdate();
-
-			} finally {
-
-				statement.close();
-
-			}
 			
+			run.update(connection, PROVIDER_DELETE, providerChannel.getProviderAddress(),
+					providerChannel.getUserAddress());
+		
 		} catch (SQLException ex) {
+
 			throw new RegisterException("Exception while deleteChannel()", ex);
+			
 		}
+		
 	}
 
 	/**
@@ -282,15 +234,13 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	@Override
 	public List<UserChannel> getAllUserChannels() throws RegisterException {
 		
-		List<UserChannel> userChannels = new ArrayList<UserChannel>();
-		
-		try {
-			PreparedStatement statement = connection.prepareStatement(USER_ALL_CHANNEL);
-
-			try {
-
-				ResultSet rs = statement.executeQuery();
-
+		ResultSetHandler<List<UserChannel>> handler = new ResultSetHandler<List<UserChannel>>() {
+			
+			List<UserChannel> userChannels = new ArrayList<UserChannel>();
+			
+			@Override
+			public List<UserChannel> handle(ResultSet rs) throws SQLException {
+				
 				while (rs.next()) {
 
 					UserChannel userChannel = new UserChannel();
@@ -304,17 +254,51 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 					userChannels.add(userChannel);
 				}
-
-			} finally {
-
-				statement.close();
-
+				
+				return userChannels;
+				
 			}
+		};
+		
+		QueryRunner run = new QueryRunner();
+		
+		try {
+			
+			return run.query(connection, USER_ALL_CHANNEL, handler);
+		
 		} catch (SQLException ex) {
+
 			throw new RegisterException("Exception while getChannelByUserAddress()", ex);
+			
 		}
 		
-		return userChannels;
+	}
+	
+	private ResultSetHandler<UserChannel> createUserResultSetHandler() {
+		
+		return new ResultSetHandler<UserChannel>() {
+			
+			@Override
+			public UserChannel handle(ResultSet rs) throws SQLException {
+				
+				if (rs.next()) {
+
+					UserChannel userChannel = new UserChannel();
+
+					userChannel.setProviderName(rs.getString("provider_name"));
+					userChannel.setProviderAddress(rs.getString("provider_address"));
+					userChannel.setUserAddress(rs.getString("user_address"));
+					userChannel.setBitmask(rs.getString("bitmask"));
+					userChannel.setRevokeAddress(rs.getString("revoke_address"));
+					userChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
+
+					return userChannel;
+					
+				}
+				
+				return null;
+			}
+		};
 	}
 
 	/**
@@ -329,40 +313,20 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		}
 		
+		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
+		
+		QueryRunner run = new QueryRunner();
+		
 		try {
-			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_BY_NAME);
-
-			try {
-				
-				statement.setString(1, name);
-
-				ResultSet rs = statement.executeQuery();
-
-				if (rs.next()) {
-
-					UserChannel userChannel = new UserChannel();
-
-					userChannel.setProviderName(rs.getString("provider_name"));
-					userChannel.setProviderAddress(rs.getString("provider_address"));
-					userChannel.setUserAddress(rs.getString("user_address"));
-					userChannel.setBitmask(rs.getString("bitmask"));
-					userChannel.setRevokeAddress(rs.getString("revoke_address"));
-					userChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
-
-					return userChannel;
-					
-				}
-
-			} finally {
-
-				statement.close();
-
-			}
+			
+			return run.query(connection, USER_CHANNEL_BY_NAME, handler, name);
+		
 		} catch (SQLException ex) {
+
 			throw new RegisterException("Exception while getChannelByName()", ex);
+			
 		}
 		
-		return null;
 	}
 	
 	/**
@@ -377,40 +341,20 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		}
 		
+		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
+		
+		QueryRunner run = new QueryRunner();
+		
 		try {
-			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_BY_ADDRESS);
-
-			try {
-				
-				statement.setString(1, name);
-
-				ResultSet rs = statement.executeQuery();
-
-				if (rs.next()) {
-
-					UserChannel userChannel = new UserChannel();
-
-					userChannel.setProviderName(rs.getString("provider_name"));
-					userChannel.setProviderAddress(rs.getString("provider_address"));
-					userChannel.setUserAddress(rs.getString("user_address"));
-					userChannel.setBitmask(rs.getString("bitmask"));
-					userChannel.setRevokeAddress(rs.getString("revoke_address"));
-					userChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
-
-					return userChannel;
-					
-				}
-
-			} finally {
-
-				statement.close();
-
-			}
+			
+			return run.query(connection, USER_CHANNEL_BY_ADDRESS, handler, name);
+		
 		} catch (SQLException ex) {
-			throw new RegisterException("Exception while getChannelByName()", ex);
+
+			throw new RegisterException("Exception while getChannelByProviderAddress()", ex);
+			
 		}
 		
-		return null;
 	}
 
 	/**
@@ -421,28 +365,18 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
+		QueryRunner run = new QueryRunner();
+		
 		try {
-			PreparedStatement statement = connection.prepareStatement(INSERT_USER_CHANNEL);
-
-			try {
-
-				statement.setString(1, userChannel.getProviderName());
-				statement.setString(2, userChannel.getProviderAddress());
-				statement.setString(3, userChannel.getUserAddress());
-				statement.setString(4, userChannel.getBitmask());
-				statement.setString(5, userChannel.getRevokeAddress());
-				statement.setString(6, userChannel.getRevokeTxId());
-
-				int rs = statement.executeUpdate();
-
-			} finally {
-
-				statement.close();
-
-			}
 			
+			run.update(connection, INSERT_USER_CHANNEL, userChannel.getProviderName(), userChannel.getProviderAddress(),
+					userChannel.getUserAddress(), userChannel.getBitmask(), userChannel.getRevokeAddress(),
+					userChannel.getRevokeTxId() );
+		
 		} catch (SQLException ex) {
+
 			throw new RegisterException("Exception while insertChannel()", ex);
+			
 		}
 		
 	}
@@ -455,25 +389,17 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
+		QueryRunner run = new QueryRunner();
+		
 		try {
-			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_DELETE);
-
-			try {
-
-				statement.setString(1, userChannel.getProviderName());
-				statement.setString(2, userChannel.getProviderAddress());
-				statement.setString(3, userChannel.getUserAddress());
-
-				int rs = statement.executeUpdate();
-
-			} finally {
-
-				statement.close();
-
-			}
 			
+			run.update(connection, USER_CHANNEL_DELETE, userChannel.getProviderName(),
+					userChannel.getProviderAddress(), userChannel.getUserAddress() );
+		
 		} catch (SQLException ex) {
+
 			throw new RegisterException("Exception while deleteChannel()", ex);
+			
 		}
 		
 	}
@@ -489,40 +415,20 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			throw new RegisterException("revokeTxId is not valid");
 		
 		}
-
+		
+		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
+		
+		QueryRunner run = new QueryRunner();
+		
 		try {
-			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_BY_REVOKE_TXID);
-
-			try {
-
-				statement.setString(1, revokeTxId);
-
-				ResultSet rs = statement.executeQuery();
-
-				if (rs.next()) {
-
-					UserChannel userChannel = new UserChannel();
-
-					userChannel.setProviderName(rs.getString("provider_name"));
-					userChannel.setProviderAddress(rs.getString("provider_address"));
-					userChannel.setUserAddress(rs.getString("user_address"));
-					userChannel.setBitmask(rs.getString("bitmask"));
-					userChannel.setRevokeAddress(rs.getString("revoke_address"));
-					userChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
-
-					return userChannel;
-				}
-
-			} finally {
-
-				statement.close();
-
-			}
+			
+			return run.query(connection, USER_CHANNEL_BY_REVOKE_TXID, handler, revokeTxId);
+		
 		} catch (SQLException ex) {
-			throw new RegisterException("Exception while getChannelByUserAddress()", ex);
-		}
 
-		return null;
+			throw new RegisterException("Exception while getUserChannelByRevokeTxId()", ex);
+			
+		}
 
 	}
 
@@ -537,40 +443,21 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			throw new RegisterException("revokeAddress is not valid");
 		
 		}
-
+		
+		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
+		
+		QueryRunner run = new QueryRunner();
+		
 		try {
-			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_BY_REVOKE_ADDRESS);
-
-			try {
-
-				statement.setString(1, revokeAddress);
-
-				ResultSet rs = statement.executeQuery();
-
-				if (rs.next()) {
-
-					UserChannel userChannel = new UserChannel();
-
-					userChannel.setProviderName(rs.getString("provider_name"));
-					userChannel.setProviderAddress(rs.getString("provider_address"));
-					userChannel.setUserAddress(rs.getString("user_address"));
-					userChannel.setBitmask(rs.getString("bitmask"));
-					userChannel.setRevokeAddress(rs.getString("revoke_address"));
-					userChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
-
-					return userChannel;
-				}
-
-			} finally {
-
-				statement.close();
-
-			}
+			
+			return run.query(connection, USER_CHANNEL_BY_REVOKE_ADDRESS, handler, revokeAddress);
+		
 		} catch (SQLException ex) {
-			throw new RegisterException("Exception while getChannelByUserAddress()", ex);
+
+			throw new RegisterException("Exception while getUserChannelByRevokeAddress()", ex);
+			
 		}
 
-		return null;
 	}
 
 	/**
@@ -579,15 +466,12 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	@Override
 	public List<ProviderChannel> getAllChannels() throws RegisterException {
 		
-		List<ProviderChannel> providerChannels = new ArrayList<ProviderChannel>();
-		
-		try {
-			PreparedStatement statement = connection.prepareStatement(PROVIDER_ALL_CHANNEL);
-
-			try {
-
-				ResultSet rs = statement.executeQuery();
-
+		ResultSetHandler<List<ProviderChannel>> handler = new ResultSetHandler<List<ProviderChannel>>() {
+			
+			@Override
+			public List<ProviderChannel> handle(ResultSet rs) throws SQLException {
+				List<ProviderChannel> providerChannels = new ArrayList<ProviderChannel>();
+				
 				while (rs.next()) {
 
 					ProviderChannel providerChannel = new ProviderChannel();
@@ -601,17 +485,23 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 					providerChannels.add(providerChannel);
 				}
-
-			} finally {
-
-				statement.close();
-
+				
+				return providerChannels;
 			}
+		};
+		
+		QueryRunner run = new QueryRunner();
+		
+		try {
+		
+			return run.query(connection, PROVIDER_ALL_CHANNEL, handler);
+		
 		} catch (SQLException ex) {
+			
 			throw new RegisterException("Exception while getAllChannels()", ex);
+			
 		}
 		
-		return providerChannels;
 	}
 	
 	/**
