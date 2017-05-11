@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +62,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	 * @param connection the connection to use
 	 */
 	SQLiteRegister(Connection connection) {
-
+		
+		Validate.notNull(connection);
+		
 		this.connection = connection;
 
 	}
@@ -70,6 +74,12 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	 */
 	@Override
 	public ProviderChannel getChannelByUserAddress(String address) throws RegisterException {
+		
+		if (!StringUtils.isNotBlank(address)) {
+			
+			throw new RegisterException("address is not valid");
+		
+		}
 
 		try {
 			PreparedStatement statement = connection.prepareStatement(PROVIDER_CHANNEL_BY_USER);
@@ -113,6 +123,12 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	@Override
 	public ProviderChannel getChannelByRevokeAddress(String revokeAddress) throws RegisterException {
 		
+		if (!StringUtils.isNotBlank(revokeAddress)) {
+			
+			throw new RegisterException("revokeAddress is not valid");
+		
+		}
+		
 		try {
 			PreparedStatement statement = connection.prepareStatement(PROVIDER_CHANNEL_BY_REVOKE_ADDRESS);
 
@@ -154,6 +170,12 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	 */
 	@Override
 	public ProviderChannel getChannelByRevokeTxId(String revokeTxId) throws RegisterException {
+		
+		if (!StringUtils.isNotBlank(revokeTxId)) {
+			
+			throw new RegisterException("revokeTxId is not valid");
+		
+		}
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(PROVIDER_CHANNEL_BY_REVOKE_TXID);
@@ -197,7 +219,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	@Override
 	public void insertChannel(ProviderChannel providerChannel) throws RegisterException {
 		
-		if (providerChannel == null) throw new RegisterException("userchannel is null!");
+		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(PROVIDER_INSERT);
@@ -230,6 +252,8 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	 */
 	@Override
 	public void deleteChannel(ProviderChannel providerChannel) throws RegisterException {
+		
+		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(PROVIDER_DELETE);
@@ -299,6 +323,12 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	@Override
 	public UserChannel getChannelByName(String name) throws RegisterException {
 		
+		if (!StringUtils.isNotBlank(name)) {
+			
+			throw new RegisterException("name is not valid");
+		
+		}
+		
 		try {
 			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_BY_NAME);
 
@@ -340,6 +370,12 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	 */
 	@Override
 	public UserChannel getChannelByProviderAddress(String name) throws RegisterException {
+		
+		if (!StringUtils.isNotBlank(name)) {
+			
+			throw new RegisterException("name is not valid");
+		
+		}
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_BY_ADDRESS);
@@ -417,6 +453,8 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	@Override
 	public void deleteChannel(UserChannel userChannel) throws RegisterException {
 		
+		if (userChannel == null) throw new RegisterException("userchannel is null!");
+		
 		try {
 			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_DELETE);
 
@@ -445,6 +483,12 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	 */
 	@Override
 	public UserChannel getUserChannelByRevokeTxId(String revokeTxId) throws RegisterException {
+		
+		if (!StringUtils.isNotBlank(revokeTxId)) {
+			
+			throw new RegisterException("revokeTxId is not valid");
+		
+		}
 
 		try {
 			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_BY_REVOKE_TXID);
@@ -487,6 +531,12 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	 */
 	@Override
 	public UserChannel getUserChannelByRevokeAddress(String revokeAddress) throws RegisterException {
+		
+		if (!StringUtils.isNotBlank(revokeAddress)) {
+			
+			throw new RegisterException("revokeAddress is not valid");
+		
+		}
 
 		try {
 			PreparedStatement statement = connection.prepareStatement(USER_CHANNEL_BY_REVOKE_ADDRESS);

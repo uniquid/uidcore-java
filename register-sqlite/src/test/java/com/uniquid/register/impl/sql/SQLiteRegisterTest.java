@@ -62,7 +62,9 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 			Assert.fail();
 		
 		} catch (RegisterException ex) {
-			//
+			
+			Assert.assertEquals("providerChannel is null!", ex.getLocalizedMessage());
+			
 		}
 		
 		factory.getProviderRegister().insertChannel(providerChannel);
@@ -73,17 +75,93 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 		
 		Assert.assertEquals(true, providerChannel.equals(channels.get(0)));
 		
+		Assert.assertNull(factory.getProviderRegister().getChannelByUserAddress("none"));
+		
+		try {
+		
+			factory.getProviderRegister().getChannelByUserAddress(null);
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("address is not valid", ex.getLocalizedMessage());
+		}
+		
+		try {
+			
+			factory.getProviderRegister().getChannelByUserAddress("");
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("address is not valid", ex.getLocalizedMessage());
+		}
+		
 		ProviderChannel provider2 = factory.getProviderRegister().getChannelByUserAddress("mkw5u34vDegrah5GasD5gKCJQ1NhNGG8tJ");
 		
 		Assert.assertEquals(true, providerChannel.equals(provider2));
+		
+		Assert.assertNull(factory.getProviderRegister().getChannelByRevokeAddress("none"));
+		
+		try {
+			
+			factory.getProviderRegister().getChannelByRevokeAddress(null);
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
+		}
+		
+		try {
+			
+			factory.getProviderRegister().getChannelByRevokeAddress("");
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
+		}
 		
 		provider2 = factory.getProviderRegister().getChannelByRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
 		
 		Assert.assertEquals(true, providerChannel.equals(provider2));
 		
+		try {
+			
+			factory.getProviderRegister().getChannelByRevokeTxId(null);
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
+		}
+		
+		try {
+			
+			factory.getProviderRegister().getChannelByRevokeTxId("");
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
+		}
+		
+		Assert.assertNull(factory.getProviderRegister().getChannelByRevokeTxId("none"));
+		
 		provider2 = factory.getProviderRegister().getChannelByRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 		
 		Assert.assertEquals(true, providerChannel.equals(provider2));
+		
+		try {
+			
+			factory.getProviderRegister().deleteChannel(null);
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("providerChannel is null!", ex.getLocalizedMessage());
+		}
 		
 		factory.getProviderRegister().deleteChannel(providerChannel);
 		
@@ -115,7 +193,9 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 			Assert.fail();
 		
 		} catch (RegisterException ex) {
-			//
+			
+			Assert.assertEquals("userchannel is null!", ex.getLocalizedMessage());
+			
 		}
 		
 		factory.getUserRegister().insertChannel(userChannel);
@@ -126,21 +206,122 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 		
 		Assert.assertEquals(true, userChannel.equals(channels.get(0)));
 		
+		try {
+		
+			factory.getUserRegister().getChannelByName(null);
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
+		}
+		
+		try {
+			
+			factory.getUserRegister().getChannelByName("");
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
+		}
+		
+		
+		Assert.assertNull(factory.getUserRegister().getChannelByName("aaa"));
+		
 		UserChannel provider2 = factory.getUserRegister().getChannelByName("Test");
 		
 		Assert.assertEquals(true, userChannel.equals(provider2));
+		
+		try {
+			
+			factory.getUserRegister().getChannelByProviderAddress(null);
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
+		}
+		
+		try {
+			
+			factory.getUserRegister().getChannelByProviderAddress("");
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
+		}
+		
+		Assert.assertNull(factory.getUserRegister().getChannelByProviderAddress("aaa"));
 		
 		provider2 = factory.getUserRegister().getChannelByProviderAddress("mfuta5iXJNe7yzCaPtmm4W2saiqTbTfxNG");
 		
 		Assert.assertEquals(true, userChannel.equals(provider2));
 		
+		try {
+			
+			factory.getUserRegister().getUserChannelByRevokeTxId(null);
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
+		}
+		
+		try {
+			
+			factory.getUserRegister().getUserChannelByRevokeTxId("");
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
+		}
+		
+		Assert.assertNull(factory.getUserRegister().getUserChannelByRevokeTxId("aaa"));
+		
 		provider2 = factory.getUserRegister().getUserChannelByRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 		
 		Assert.assertEquals(true, userChannel.equals(provider2));
 		
+		try {
+			
+			factory.getUserRegister().getUserChannelByRevokeAddress(null);
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
+		}
+		
+		try {
+			
+			factory.getUserRegister().getUserChannelByRevokeAddress("");
+			Assert.fail();
+		
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
+		}
+		
+		Assert.assertNull(factory.getUserRegister().getUserChannelByRevokeAddress("aaa"));
+		
+		
 		provider2 = factory.getUserRegister().getUserChannelByRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
 		
 		Assert.assertEquals(true, userChannel.equals(provider2));
+		
+		try {
+			
+			factory.getUserRegister().deleteChannel(null);
+			Assert.fail();
+			
+		} catch (RegisterException ex) {
+			
+			Assert.assertEquals("userchannel is null!", ex.getLocalizedMessage());
+		
+		}
 		
 		factory.getUserRegister().deleteChannel(userChannel);
 		
