@@ -48,6 +48,10 @@ public class SQLiteRegisterFactoryTest {
 			
 		statement.executeUpdate(CREATE_USER_TABLE);
 		
+		statement.close();
+		
+		conn.close();
+		
 	}
 
 	@Test
