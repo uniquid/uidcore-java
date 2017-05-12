@@ -58,7 +58,7 @@ public class MQTTUserClientTest {
 			RPCProviderRequest rpcProviderRequest = (RPCProviderRequest) providerRequest;
 			Assert.assertEquals(rpcProviderRequest.getId(), providerResponse.getId());
 		} catch (ConnectorException e) {
-			System.out.println(e.getMessage());
+			Assert.fail();
 		}				
 
 	}
@@ -99,7 +99,7 @@ public class MQTTUserClientTest {
 			connection.disconnect();			
 			
 		} catch (Throwable t) {
-			t.printStackTrace();
+			Assert.fail();
 		}
 	}
 	
@@ -173,7 +173,7 @@ private void startMqttServerMockException() {
 			connection.disconnect();			
 			
 		} catch (Throwable t) {
-			t.printStackTrace();
+			Assert.fail();
 		}
 	}
 	

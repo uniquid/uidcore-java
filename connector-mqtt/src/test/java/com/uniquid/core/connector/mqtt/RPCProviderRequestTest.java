@@ -84,8 +84,7 @@ public class RPCProviderRequestTest {
 			Assert.assertEquals(params, rpcProviderRequest.getParams());
 			Assert.assertNotEquals(0, rpcProviderRequest.getId());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Assert.fail();
 		}
 		
 	}

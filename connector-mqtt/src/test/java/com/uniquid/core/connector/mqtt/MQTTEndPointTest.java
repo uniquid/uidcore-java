@@ -36,7 +36,7 @@ public class MQTTEndPointTest {
 			Assert.assertNotNull(mqttEndPoint.getOutputMessage());
 			
 		} catch (ConnectorException e) {
-			e.printStackTrace();
+			Assert.fail();
 		}
 				
 	}
@@ -72,7 +72,7 @@ public class MQTTEndPointTest {
 			mqttEndPoint.getOutputMessage().setResult("result");
 			mqttEndPoint.flush();
 		} catch (ConnectorException e) {
-			e.printStackTrace();
+			Assert.fail();
 		}
 		
 	}
@@ -108,7 +108,7 @@ public class MQTTEndPointTest {
 			connection.disconnect();
 			
 		} catch (Throwable t) {
-			t.printStackTrace();
+			Assert.fail();
 		}
 	}
 	

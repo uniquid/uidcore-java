@@ -116,7 +116,7 @@ public class RPCProviderResponseTest {
 			Assert.assertEquals(error, rpcProviderResponse.getError());
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			Assert.fail();
 		}
 	}
 

@@ -57,7 +57,7 @@ public class MQTTConnectorTest {
 			EndPoint endPoint = mqttConnector.accept();
 			Assert.assertEquals("hola!", endPoint.getInputMessage().getParams());
 		} catch (ConnectorException e) {
-			System.out.println(e.getMessage());
+			Assert.fail();
 		}
 		
 	}
@@ -87,7 +87,7 @@ public class MQTTConnectorTest {
 			connection.subscribe(topics);
 			connection.publish(topic, request.getBytes(), QoS.AT_LEAST_ONCE, false);
 		} catch (Throwable t) {
-			// do nothing
+			Assert.fail();
 		}
 				
 	}
@@ -147,7 +147,7 @@ public class MQTTConnectorTest {
 			connection.subscribe(topics);
 			connection.publish(topic, request.getBytes(), QoS.AT_LEAST_ONCE, false);
 		} catch (Throwable t) {
-			// do nothing
+			Assert.fail();
 		}
 				
 	}
