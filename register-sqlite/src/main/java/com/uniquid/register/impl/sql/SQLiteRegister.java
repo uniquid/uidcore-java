@@ -508,13 +508,4 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	protected void close() throws SQLException {
-		
-		dataSource.close();
-		
-	}
-
 }

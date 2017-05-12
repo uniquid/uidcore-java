@@ -3,6 +3,7 @@ package com.uniquid.register.impl.sql;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
@@ -330,5 +331,5 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 		Assert.assertEquals(channels.size(), 0);
 		
 	}
-
+	
 }

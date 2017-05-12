@@ -12,7 +12,7 @@ import com.uniquid.register.user.UserRegister;
  */
 public class SQLiteRegisterFactory implements RegisterFactory {
 
-	private SQLiteRegister instance;
+	private BasicDataSource dataSource;
 
 	/**
 	 * Creates an instance from the connection string
@@ -26,15 +26,13 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 		
 		try {
 
-			BasicDataSource dataSource = new BasicDataSource();
+			dataSource = new BasicDataSource();
 
 			dataSource.setDriverClassName("org.sqlite.JDBC");
 
 			dataSource.setUrl(connectionString);
 
 			dataSource.getConnection();
-
-			instance = new SQLiteRegister(dataSource);
 
 		} catch (Exception ex) {
 			
@@ -48,7 +46,11 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 	 */
 	@Override
 	public ProviderRegister getProviderRegister() throws RegisterException {
-		return instance;
+		
+		if (dataSource == null) throw new RegisterException("Datasource is null");
+		
+		return new SQLiteRegister(dataSource);
+	
 	}
 
 	/**
@@ -56,7 +58,30 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 	 */
 	@Override
 	public UserRegister getUserRegister() throws RegisterException {
-		return instance;
+		
+		if (dataSource == null) throw new RegisterException("Datasource is null");
+		
+		return new SQLiteRegister(dataSource);
+		
+	}
+	
+	/**
+	 * Destroy the data source
+	 */
+	public void destroy() throws RegisterException {
+		
+		try {
+		
+			dataSource.close();
+			
+			dataSource = null;
+		
+		} catch (Exception ex) {
+			
+			throw new RegisterException("Exception while closing dataSource", ex);
+			
+		}
+		
 	}
 
 }
