@@ -1,7 +1,6 @@
 package com.uniquid.register.impl.sql;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
+import org.apache.commons.dbcp2.BasicDataSource;
 
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
@@ -26,17 +25,17 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 		if (connectionString == null) throw new RegisterException("connectionString is null!");
 		
 		try {
-			
-			Class.forName("org.sqlite.JDBC");
 
-			// create a database connection
-			Connection connection = DriverManager.getConnection(connectionString);
-			
-			// Disable auto commit
-			connection.setAutoCommit(true);
+			BasicDataSource dataSource = new BasicDataSource();
 
-			instance = new SQLiteRegister(connection);
-		
+			dataSource.setDriverClassName("org.sqlite.JDBC");
+
+			dataSource.setUrl(connectionString);
+
+			dataSource.getConnection();
+
+			instance = new SQLiteRegister(dataSource);
+
 		} catch (Exception ex) {
 			
 			throw new RegisterException("Exception while creating register", ex);

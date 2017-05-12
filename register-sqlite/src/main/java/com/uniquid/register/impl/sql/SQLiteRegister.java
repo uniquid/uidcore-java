@@ -1,11 +1,11 @@
 package com.uniquid.register.impl.sql;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang.StringUtils;
@@ -37,8 +37,6 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	
 	public static final String PROVIDER_ALL_CHANNEL = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time from provider_channel;";
 	
-	public static final String TABLE_USER = "user_channel";
-	
 	
 	public static final String USER_ALL_CHANNEL = "select provider_name, provider_address, user_address, bitmask, revoke_address, revoke_tx_id from user_channel";
 	
@@ -56,17 +54,17 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SQLiteRegister.class.getName());
 
-	private Connection connection;
+	private BasicDataSource dataSource;
 
 	/**
 	 * Creates an instance from the connection
-	 * @param connection the connection to use
+	 * @param dataSource the connection to use
 	 */
-	SQLiteRegister(Connection connection) {
+	SQLiteRegister(BasicDataSource dataSource) {
 		
-		Validate.notNull(connection);
+		Validate.notNull(dataSource);
 		
-		this.connection = connection;
+		this.dataSource = dataSource;
 
 	}
 	
@@ -130,11 +128,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			}
 		};
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 		
-			return run.query(connection, PROVIDER_ALL_CHANNEL, handler);
+			return run.query(PROVIDER_ALL_CHANNEL, handler);
 		
 		} catch (SQLException ex) {
 			
@@ -158,11 +156,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			return run.query(connection, PROVIDER_CHANNEL_BY_USER, handler, address);
+			return run.query(PROVIDER_CHANNEL_BY_USER, handler, address);
 		
 		} catch (SQLException ex) {
 
@@ -186,11 +184,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			return run.query(connection, PROVIDER_CHANNEL_BY_REVOKE_ADDRESS, handler, revokeAddress);
+			return run.query(PROVIDER_CHANNEL_BY_REVOKE_ADDRESS, handler, revokeAddress);
 		
 		} catch (SQLException ex) {
 
@@ -214,11 +212,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			return run.query(connection, PROVIDER_CHANNEL_BY_REVOKE_TXID, handler, revokeTxId);
+			return run.query(PROVIDER_CHANNEL_BY_REVOKE_TXID, handler, revokeTxId);
 		
 		} catch (SQLException ex) {
 
@@ -236,11 +234,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			run.update(connection, PROVIDER_INSERT, providerChannel.getProviderAddress(),
+			run.update(PROVIDER_INSERT, providerChannel.getProviderAddress(),
 					providerChannel.getUserAddress(), providerChannel.getBitmask(), providerChannel.getRevokeAddress(),
 					providerChannel.getRevokeTxId(), providerChannel.getCreationTime());
 		
@@ -260,11 +258,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			run.update(connection, PROVIDER_DELETE, providerChannel.getProviderAddress(),
+			run.update(PROVIDER_DELETE, providerChannel.getProviderAddress(),
 					providerChannel.getUserAddress());
 		
 		} catch (SQLException ex) {
@@ -337,11 +335,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			}
 		};
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			return run.query(connection, USER_ALL_CHANNEL, handler);
+			return run.query(USER_ALL_CHANNEL, handler);
 		
 		} catch (SQLException ex) {
 
@@ -365,11 +363,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			return run.query(connection, USER_CHANNEL_BY_NAME, handler, name);
+			return run.query(USER_CHANNEL_BY_NAME, handler, name);
 		
 		} catch (SQLException ex) {
 
@@ -393,11 +391,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			return run.query(connection, USER_CHANNEL_BY_ADDRESS, handler, name);
+			return run.query(USER_CHANNEL_BY_ADDRESS, handler, name);
 		
 		} catch (SQLException ex) {
 
@@ -415,11 +413,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			run.update(connection, INSERT_USER_CHANNEL, userChannel.getProviderName(), userChannel.getProviderAddress(),
+			run.update(INSERT_USER_CHANNEL, userChannel.getProviderName(), userChannel.getProviderAddress(),
 					userChannel.getUserAddress(), userChannel.getBitmask(), userChannel.getRevokeAddress(),
 					userChannel.getRevokeTxId() );
 		
@@ -439,11 +437,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			run.update(connection, USER_CHANNEL_DELETE, userChannel.getProviderName(),
+			run.update(USER_CHANNEL_DELETE, userChannel.getProviderName(),
 					userChannel.getProviderAddress(), userChannel.getUserAddress() );
 		
 		} catch (SQLException ex) {
@@ -468,11 +466,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			return run.query(connection, USER_CHANNEL_BY_REVOKE_TXID, handler, revokeTxId);
+			return run.query(USER_CHANNEL_BY_REVOKE_TXID, handler, revokeTxId);
 		
 		} catch (SQLException ex) {
 
@@ -496,11 +494,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = new QueryRunner();
+		QueryRunner run = new QueryRunner(dataSource);
 		
 		try {
 			
-			return run.query(connection, USER_CHANNEL_BY_REVOKE_ADDRESS, handler, revokeAddress);
+			return run.query(USER_CHANNEL_BY_REVOKE_ADDRESS, handler, revokeAddress);
 		
 		} catch (SQLException ex) {
 
@@ -513,19 +511,10 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	protected void finalize() throws Throwable {
-
-		try {
-
-			connection.close();
-
-		} catch (Throwable ex) {
-			/* do nothing */
-		}
-
-		super.finalize();
-
+	protected void close() throws SQLException {
+		
+		dataSource.close();
+		
 	}
 
 }
