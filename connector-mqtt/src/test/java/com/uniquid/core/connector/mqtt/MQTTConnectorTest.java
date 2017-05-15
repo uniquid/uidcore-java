@@ -86,6 +86,7 @@ public class MQTTConnectorTest {
 			connection.connect();
 			connection.subscribe(topics);
 			connection.publish(topic, request.getBytes(), QoS.AT_LEAST_ONCE, false);
+			connection.disconnect();
 		} catch (Throwable t) {
 			Assert.fail();
 		}
@@ -146,6 +147,7 @@ public class MQTTConnectorTest {
 			connection.connect();
 			connection.subscribe(topics);
 			connection.publish(topic, request.getBytes(), QoS.AT_LEAST_ONCE, false);
+			connection.disconnect();
 		} catch (Throwable t) {
 			Assert.fail();
 		}
