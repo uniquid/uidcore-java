@@ -54,7 +54,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SQLiteRegister.class.getName());
 
-	private BasicDataSource dataSource;
+	protected BasicDataSource dataSource;
 
 	/**
 	 * Creates an instance from the connection

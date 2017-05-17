@@ -12,7 +12,7 @@ import com.uniquid.register.user.UserRegister;
  */
 public class SQLiteRegisterFactory implements RegisterFactory {
 
-	private BasicDataSource dataSource;
+	protected BasicDataSource dataSource;
 
 	/**
 	 * Creates an instance from the connection string
