@@ -68,6 +68,27 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	}
 	
+	/**
+	 * Helper method
+	 * @param rs
+	 * @return
+	 * @throws SQLException
+	 */
+	private ProviderChannel providerChannelFromResultSet(ResultSet rs) throws SQLException {
+		
+		ProviderChannel providerChannel = new ProviderChannel();
+
+		providerChannel.setProviderAddress(rs.getString("provider_address"));
+		providerChannel.setUserAddress(rs.getString("user_address"));
+		providerChannel.setBitmask(rs.getString("bitmask"));
+		providerChannel.setRevokeAddress(rs.getString("revoke_address"));
+		providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
+		providerChannel.setCreationTime(rs.getInt("creation_time"));
+
+		return providerChannel;
+		
+	}
+	
 	/*
 	 * Helper method
 	 */
@@ -80,16 +101,8 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 				
 				if (rs.next()) {
 
-					ProviderChannel providerChannel = new ProviderChannel();
-
-					providerChannel.setProviderAddress(rs.getString("provider_address"));
-					providerChannel.setUserAddress(rs.getString("user_address"));
-					providerChannel.setBitmask(rs.getString("bitmask"));
-					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
-					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
-					providerChannel.setCreationTime(rs.getInt("creation_time"));
-
-					return providerChannel;
+					return providerChannelFromResultSet(rs);
+					
 				}
 				
 				return null;
@@ -112,16 +125,10 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 				
 				while (rs.next()) {
 
-					ProviderChannel providerChannel = new ProviderChannel();
-
-					providerChannel.setProviderAddress(rs.getString("provider_address"));
-					providerChannel.setUserAddress(rs.getString("user_address"));
-					providerChannel.setBitmask(rs.getString("bitmask"));
-					providerChannel.setRevokeAddress(rs.getString("revoke_address"));
-					providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
-					providerChannel.setCreationTime(rs.getInt("creation_time"));
+					ProviderChannel providerChannel = providerChannelFromResultSet(rs);
 
 					providerChannels.add(providerChannel);
+
 				}
 				
 				return providerChannels;
@@ -273,6 +280,27 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 	}
 	
+	/**
+	 * Helper method
+	 * @param rs
+	 * @return
+	 * @throws SQLException
+	 */
+	private UserChannel userChannelFromResultSet(ResultSet rs) throws SQLException {
+		
+		UserChannel userChannel = new UserChannel();
+
+		userChannel.setProviderName(rs.getString("provider_name"));
+		userChannel.setProviderAddress(rs.getString("provider_address"));
+		userChannel.setUserAddress(rs.getString("user_address"));
+		userChannel.setBitmask(rs.getString("bitmask"));
+		userChannel.setRevokeAddress(rs.getString("revoke_address"));
+		userChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
+
+		return userChannel;
+		
+	}
+	
 	/*
 	 * Helper method
 	 */
@@ -285,16 +313,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 				
 				if (rs.next()) {
 
-					UserChannel userChannel = new UserChannel();
-
-					userChannel.setProviderName(rs.getString("provider_name"));
-					userChannel.setProviderAddress(rs.getString("provider_address"));
-					userChannel.setUserAddress(rs.getString("user_address"));
-					userChannel.setBitmask(rs.getString("bitmask"));
-					userChannel.setRevokeAddress(rs.getString("revoke_address"));
-					userChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
-
-					return userChannel;
+					return userChannelFromResultSet(rs);
 					
 				}
 				
@@ -318,16 +337,10 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 				
 				while (rs.next()) {
 
-					UserChannel userChannel = new UserChannel();
-
-					userChannel.setProviderName(rs.getString("provider_name"));
-					userChannel.setProviderAddress(rs.getString("provider_address"));
-					userChannel.setUserAddress(rs.getString("user_address"));
-					userChannel.setBitmask(rs.getString("bitmask"));
-					userChannel.setRevokeAddress(rs.getString("revoke_address"));
-					userChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
+					UserChannel userChannel = userChannelFromResultSet(rs);
 
 					userChannels.add(userChannel);
+
 				}
 				
 				return userChannels;
