@@ -29,6 +29,8 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 			dataSource = new BasicDataSource();
 
 			dataSource.setDriverClassName("org.sqlite.JDBC");
+			
+			dataSource.addConnectionProperty("foreign_keys", "true");
 
 			dataSource.setUrl(connectionString);
 
