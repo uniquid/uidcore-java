@@ -16,10 +16,6 @@ import com.uniquid.register.user.UserRegister;
 
 public class SQLiteRegisterFactoryTest {
 	
-	public static String CREATE_PROVIDER_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, creation_time integer not null, primary key (provider_address, user_address));";
-	
-	public static String CREATE_USER_TABLE = "create table user_channel (provider_name text not null, provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, primary key (provider_name, provider_address, user_address));";
-
 	private static SQLiteRegisterFactory factory;
 	private static String url;
 	
@@ -45,9 +41,9 @@ public class SQLiteRegisterFactoryTest {
 			
 		Statement statement = conn.createStatement();
 			
-		statement.executeUpdate(CREATE_PROVIDER_TABLE);
+		statement.executeUpdate(SQLiteRegister.CREATE_PROVIDER_TABLE);
 			
-		statement.executeUpdate(CREATE_USER_TABLE);
+		statement.executeUpdate(SQLiteRegister.CREATE_USER_TABLE);
 		
 		statement.close();
 		

@@ -3,7 +3,6 @@ package com.uniquid.register.impl.sql;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
@@ -16,10 +15,6 @@ import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.user.UserChannel;
 
 public class SQLiteRegisterTest {
-	
-public static String CREATE_PROVIDER_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, creation_time integer not null, primary key (provider_address, user_address));";
-	
-	public static String CREATE_USER_TABLE = "create table user_channel (provider_name text not null, provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, primary key (provider_name, provider_address, user_address));";
 	
 	private static SQLiteRegisterFactory factory;
 	
@@ -34,9 +29,9 @@ public static String CREATE_PROVIDER_TABLE = "create table provider_channel (pro
 			
 		Statement statement = conn.createStatement();
 			
-		statement.executeUpdate(CREATE_PROVIDER_TABLE);
+		statement.executeUpdate(SQLiteRegister.CREATE_PROVIDER_TABLE);
 			
-		statement.executeUpdate(CREATE_USER_TABLE);
+		statement.executeUpdate(SQLiteRegister.CREATE_USER_TABLE);
 		
 		factory = new SQLiteRegisterFactory(url);
 		
