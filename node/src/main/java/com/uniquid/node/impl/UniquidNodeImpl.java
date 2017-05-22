@@ -1,7 +1,5 @@
 package com.uniquid.node.impl;
 
-import static org.bitcoinj.core.Utils.HEX;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -12,12 +10,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.InsufficientMoneyException;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionConfidence;
@@ -28,7 +24,6 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
-import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.utils.ListenerRegistration;
 import org.bitcoinj.utils.Threading;
 import org.bitcoinj.wallet.DeterministicSeed;
@@ -75,7 +70,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	/** The current state of this Node */
 	private UniquidNodeState nodeState;
 
-	private NetworkParameters networkParameters;
+	protected NetworkParameters networkParameters;
 	private File providerFile;
 	private Wallet providerWallet;
 	private File providerChainFile;
@@ -90,28 +85,40 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	private byte[] seed;
 	private long creationTime;
 
-	private RegisterFactory registerFactory;
+	protected RegisterFactory registerFactory;
 
 	private CopyOnWriteArrayList<ListenerRegistration<UniquidNodeEventListener>> eventListeners;
 	
 	private DeterministicSeed detSeed;
 
-	private UniquidNodeImpl(Builder builder)
+	protected UniquidNodeImpl(Builder builder)
 			throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-		this.networkParameters = builder._params;
-		this.providerFile = builder._providerFile;
-		this.providerChainFile = builder._chainFile;
-		this.userFile = builder._userFile;
-		this.userChainFile = builder._userChainFile;
-		this.registerFactory = builder._registerFactory;
-		this.machineName = builder._machineName;
+		this.networkParameters = builder.getParams();
+		this.providerFile = builder.getProviderFile();
+		this.providerChainFile = builder.getChainFile();
+		this.userFile = builder.getUserFile();
+		this.userChainFile = builder.getUserChainFile();
+		this.registerFactory = builder.getRegisterFactory();
+		this.machineName = builder.getMachineName();
 		this.eventListeners = new CopyOnWriteArrayList<ListenerRegistration<UniquidNodeEventListener>>();
-		this.seed = builder._seed;
-		this.creationTime = builder._creationTime;
+		this.seed = builder.getSeed();
+		this.creationTime = builder.getCreationTime();
 		
-		setUniquidNodeState(new CreatedState());
+		setUniquidNodeState(getCreatedState());
 
+	}
+
+	protected UniquidNodeState getCreatedState() {
+		return new CreatedState();
+	}
+
+	protected UniquidNodeState getReadyState() {
+		return new ReadyState();
+	}
+
+	protected UniquidNodeState getImprintingState() {
+		return new ImprintingState();
 	}
 
 	/*
@@ -195,12 +202,12 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			if (providerChannels.size() > 0) {
 
 				// Jump to ready state
-				setUniquidNodeState(new ReadyState());
+				setUniquidNodeState(getReadyState());
 
 			} else {
 
 				// Jump to initializing
-				setUniquidNodeState(new ImprintingState());
+				setUniquidNodeState(getImprintingState());
 
 			}
 
@@ -401,8 +408,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		private File _userFile;
 		private File _chainFile;
 		private File _userChainFile;
-		private byte[] _seed;
-		private long _creationTime;
+		protected byte[] _seed;
+		protected long _creationTime;
 
 		private RegisterFactory _registerFactory;
 
@@ -471,6 +478,14 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			return _machineName;
 		}
 
+		public byte[] getSeed() {
+			return _seed;
+		}
+
+		public long getCreationTime() {
+			return _creationTime;
+		}
+
 		public UniquidNodeImpl build()
 				throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
@@ -486,7 +501,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		public UniquidNodeImpl buildFromHexSeed(final String hexSeed, final long creationTime)
 				throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-			_seed = HEX.decode(hexSeed);
+			_seed = org.bitcoinj.core.Utils.HEX.decode(hexSeed);
 
 			_creationTime = creationTime;
 
@@ -762,7 +777,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 					providerRegister.insertChannel(providerChannel);
 
 					// We can move now to ReadyState
-					setUniquidNodeState(new ReadyState());
+					setUniquidNodeState(getReadyState());
 
 					// Send event to listeners
 					for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
@@ -1062,7 +1077,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 * Implementation of State Design pattern: most public methods will be delegated to current state
 	 *
 	 */
-	private interface UniquidNodeState {
+	protected interface UniquidNodeState {
 
 		public void onCoinsSent(final Wallet wallet, final Transaction tx);
 
@@ -1087,7 +1102,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	/**
 	 * Fake state to be used when new instance is created
 	 */
-	private class CreatedState implements UniquidNodeState {
+	protected class CreatedState implements UniquidNodeState {
+
+		public CreatedState() {
+		}
 
 		@Override
 		public void onCoinsSent(Wallet wallet, Transaction tx) {
@@ -1141,7 +1159,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	/**
 	 * Implementation of State Design pattern
 	 */
-	private class ImprintingState implements UniquidNodeState {
+	protected class ImprintingState implements UniquidNodeState {
 
 		private boolean alreadyImprinted;
 
@@ -1257,7 +1275,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 * Class to represents the ready state
 	 * 
 	 */
-	private class ReadyState implements UniquidNodeState {
+	protected class ReadyState implements UniquidNodeState {
+
+		public ReadyState() {
+		}
 
 		@Override
 		public void onCoinsSent(final Wallet wallet, final Transaction tx) {
