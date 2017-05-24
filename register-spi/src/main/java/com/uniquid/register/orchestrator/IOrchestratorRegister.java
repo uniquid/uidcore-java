@@ -189,7 +189,6 @@ public interface IOrchestratorRegister {
 	 * Returns a list of {@code Contract} from their context name or null if no element is found.
 	 * @param context_name the name of the context
 	 * @return a list of {@code Contract} from its context name or null if no element is found.
-	 * @throws RegisterException in case a problem occurs.
 	 */
     public List<Contract> getContractsByContextName(String context_name);
     
@@ -199,7 +198,7 @@ public interface IOrchestratorRegister {
 	 * @return a {@code Contract} from from transaction id or null if no element is found.
 	 * @throws RegisterException in case a problem occurs.
 	 */
-    public Contract getContractByTxid(String txid);
+    public Contract getContractByTxid(String txid) throws RegisterException;
     
     /**
 	 * Updates a {@code Contract} by changing its content in the data store.
