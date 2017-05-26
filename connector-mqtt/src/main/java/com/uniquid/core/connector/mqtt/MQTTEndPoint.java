@@ -12,6 +12,9 @@ import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.connector.ConnectorException;
 import com.uniquid.core.connector.EndPoint;
 
+/**
+ * Implementation of a {@link EndPoint} used by {@link MQTTConnector}
+ */
 public class MQTTEndPoint implements EndPoint {
 	
 private String broker;
@@ -19,7 +22,13 @@ private String broker;
 	private final RPCProviderRequest rpcProviderRequest;
 	private final RPCProviderResponse rpcProviderResponse;
 	
-	public MQTTEndPoint(final byte[] mqttMessageRequest, final String broker) throws ConnectorException {
+	/**
+	 * Creates a new instance from the byte array message and broker
+	 * @param mqttMessageRequest the message received
+	 * @param broker the broker to use
+	 * @throws ConnectorException in case a problem occurs.
+	 */
+	MQTTEndPoint(final byte[] mqttMessageRequest, final String broker) throws ConnectorException {
 		
 		this.broker = broker;
 
