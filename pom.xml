@@ -88,9 +88,7 @@
     <module>core</module>
     <module>connector-mqtt</module>
     <module>register-spi</module>
-    <module>register-android</module>
     <module>register-sqlite</module>
-    <module>android-package</module>
     <module>java-package</module>
   </modules>
 
