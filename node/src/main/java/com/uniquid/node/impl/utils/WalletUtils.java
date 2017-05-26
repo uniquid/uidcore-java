@@ -24,6 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+/**
+ * Utility class that contains useful methods for managing wallets
+ */
 public abstract class WalletUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WalletUtils.class.getName());
 	
@@ -31,6 +34,13 @@ public abstract class WalletUtils {
     private static String URL_UTXO = "http://52.167.211.151:3001/insight-api/addr/%1&s/utxo";
     private static String URL_PROVIDER = "http://appliance4.uniquid.co:8080/registry";
 
+    /**
+     * Allow to complete a deserialized transaction from content fetched from the wallet
+     * @param sendRequest
+     * @param wallet
+     * @param params
+     * @throws Exception
+     */
 	public static void newCompleteTransaction(SendRequest sendRequest, Wallet wallet, NetworkParameters params) throws Exception {
 
 		Transaction tx = sendRequest.tx;
