@@ -1,7 +1,7 @@
 package com.uniquid.core.connector;
 
 /**
- * Connector interface allow to support a custom transport protocol and enables the library to works independently from
+ * Connector interface hides the specifics of a communication protocol and allows the library to works independently from
  * a particular implementation.
  */
 public interface Connector {

@@ -16,6 +16,9 @@ import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.connector.ConnectorException;
 import com.uniquid.core.connector.UserClient;
 
+/**
+ * Implementation of {@link UserClient} that uses MQTT protocol
+ */
 public class MQTTUserClient implements UserClient {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(MQTTUserClient.class);
@@ -24,39 +27,45 @@ public class MQTTUserClient implements UserClient {
 	private int timeoutInSeconds;
 	private String destination;
 	
-	public MQTTUserClient(String broker, String destination, int timeoutInSeconds) {
+	/**
+	 * Creates an instance from broker, destination topic and timeout
+	 * @param broker the broker to use
+	 * @param destinationTopic the topic that will receive the message
+	 * @param timeoutInSeconds the timeout in seconds to wait for a response
+	 */
+	public MQTTUserClient(final String broker, final String destinationTopic, final int timeoutInSeconds) {
 		this.broker = broker;
-		this.destination = destination;
+		this.destination = destinationTopic;
 		this.timeoutInSeconds = timeoutInSeconds;
 	}
 
 	@Override
-	public ProviderResponse sendOutputMessage(ProviderRequest providerRequest) throws ConnectorException {
+	public ProviderResponse sendOutputMessage(final ProviderRequest providerRequest) throws ConnectorException {
 		
 		RPCProviderRequest request = (RPCProviderRequest) providerRequest;
 		
 		BlockingConnection connection = null;
 		
 		try {
-			MQTT mqtt = new MQTT();
+			final MQTT mqtt = new MQTT();
 			
 			mqtt.setHost(broker);
 			
 			connection = mqtt.blockingConnection();
 			connection.connect();
 			
-			String destinationTopic = destination;
+			final String destinationTopic = destination;
 			
-			String sender = providerRequest.getSender();
+			final String sender = providerRequest.getSender();
 			
 			// to subscribe
-			Topic[] topics = { new Topic(sender, QoS.AT_LEAST_ONCE) };
+			final Topic[] topics = { new Topic(sender, QoS.AT_LEAST_ONCE) };
 			/*byte[] qoses = */connection.subscribe(topics);
 
 			// consume
 			connection.publish(destinationTopic, request.toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
 			
-			Message message = connection.receive(timeoutInSeconds, TimeUnit.SECONDS);
+			final Message message = connection.receive(timeoutInSeconds, TimeUnit.SECONDS);
 			
 			if (message == null) {
 
@@ -80,7 +89,8 @@ public class MQTTUserClient implements UserClient {
 			// disconnect
 			try {
 
-				connection.disconnect();
+				if (connection != null)
+					connection.disconnect();
 
 			} catch (Exception ex) {
 

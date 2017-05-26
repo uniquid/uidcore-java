@@ -19,10 +19,7 @@ import com.uniquid.core.connector.ConnectorException;
 import com.uniquid.core.connector.EndPoint;
 
 /**
- * This class implements a Connector that uses the MQTT protocol
- * 
- * @author giuseppe
- *
+ * Implementation of a {@link Connector} that uses the MQTT protocol.
  */
 public class MQTTConnector implements Connector {
 
@@ -34,7 +31,12 @@ public class MQTTConnector implements Connector {
 
 	private ScheduledExecutorService receiverExecutorService;
 
-	private MQTTConnector(String topic, String broker) {
+	/**
+	 * Creates a MQTTConnector that listen on the specified receiving topic and on the specified broker.  
+	 * @param topic the topic to listen to
+	 * @param broker the MQTT broker to use 
+	 */
+	private MQTTConnector(final String topic, final String broker) {
 
 		this.providerTopic = topic;
 		this.broker = broker;
@@ -42,20 +44,37 @@ public class MQTTConnector implements Connector {
 		
 	}
 
+	/**
+	 * Builder for {@link MQTTConnector}
+	 */
 	public static class Builder {
 		private String _topic;
 		private String _broker;
 
+		/**
+		 * Set the listening topic
+		 * @param _topic the topic to listen to
+		 * @return the Builder
+		 */
 		public Builder set_topic(String _topic) {
 			this._topic = _topic;
 			return this;
 		}
 
+		/**
+		 * Set the broker to use
+		 * @param _broker the broker to use
+		 * @return the Builder
+		 */
 		public Builder set_broker(String _broker) {
 			this._broker = _broker;
 			return this;
 		}
 
+		/**
+		 * Returns an instance of a {@link MQTTConnector}
+		 * @return an instance of a {@link MQTTConnector}
+		 */
 		public MQTTConnector build() {
 
 			return new MQTTConnector(_topic, _broker);
