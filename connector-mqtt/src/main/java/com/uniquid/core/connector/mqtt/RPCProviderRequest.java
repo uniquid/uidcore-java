@@ -75,8 +75,8 @@ public class RPCProviderRequest implements ProviderRequest {
 	}
 	
 	/**
-	 * Returns a JSON String representation of this {@linke ProviderRequest}
-	 * @return a JSON String representation of this {@linke ProviderRequest}
+	 * Returns a JSON String representation of this {@link ProviderRequest}
+	 * @return a JSON String representation of this {@link ProviderRequest}
 	 */
 	public String toJSONString() {
 		

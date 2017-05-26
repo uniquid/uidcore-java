@@ -13,7 +13,7 @@ public interface ProviderRegister {
 
 	/**
 	 * Returns a List containing all the {@code ProviderChannel} present in the data store.
-	 * In case no {@code ProviderChannel is present an empty list is returned.
+	 * In case no {@code ProviderChannel} is present an empty list is returned.
 	 * @return a List containing all the {@code ProviderChannel} present in the data store or an empty List.
 	 * @throws RegisterException in case a problem occurs.
 	 */

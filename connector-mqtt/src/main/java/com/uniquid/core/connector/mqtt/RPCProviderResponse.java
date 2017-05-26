@@ -65,8 +65,8 @@ public class RPCProviderResponse implements ProviderResponse {
 	}
 
 	/**
-	 * Returns a JSON String representation of this {@linke ProviderResponse}
-	 * @return a JSON String representation of this {@linke ProviderResponse}
+	 * Returns a JSON String representation of this {@link ProviderResponse}
+	 * @return a JSON String representation of this {@link ProviderResponse}
 	 */
 	public String toJSONString() {
 		

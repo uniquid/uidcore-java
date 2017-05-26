@@ -13,7 +13,7 @@ public interface UserRegister {
 
 	/**
 	 * Returns a List containing all the {@code UserChannel} present in the data store.
-	 * In case no {@code UserChannel is present an empty list is returned.
+	 * In case no {@code UserChannel} is present an empty list is returned.
 	 * @return a List containing all the {@code UserChannel} present in the data store or an empty List.
 	 * @throws RegisterException in case a problem occurs.
 	 */

@@ -34,9 +34,11 @@ public interface Function {
 	/**
 	 * Request to execute the function
 	 * 
-	 * @param request
-	 * @param response
-	 * @throws Exception
+	 * @param inputMessage message coming from user
+	 * @param outputMessage message coming from provider
+	 * @param payload payload from contract
+	 * @throws FunctionException in case a problem occurs during executing the function
+	 * @throws IOException
 	 */
 	public void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload) throws FunctionException, IOException;
 	
