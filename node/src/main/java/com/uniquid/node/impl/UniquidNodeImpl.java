@@ -542,12 +542,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		publicKey = imprintingKey.serializePubB58(networkParameters);
 
-		ImmutableList<ChildNumber> PROVIDER_IMPRINTING_ADDRESS = ImmutableList.of(new ChildNumber(44, true),
-				new ChildNumber(0, true), new ChildNumber(0, false), new ChildNumber(0, false),
-				new ChildNumber(0, false), new ChildNumber(0, false));
-
-		DeterministicKey imprintingProviderKey = deterministicHierarchy.get(PROVIDER_IMPRINTING_ADDRESS, true, true);
-		imprintingAddress = imprintingProviderKey.toAddress(networkParameters);
+		imprintingAddress = NodeUtils.calculateImprintAddress(imprintingKey, networkParameters);
 
 	}
 

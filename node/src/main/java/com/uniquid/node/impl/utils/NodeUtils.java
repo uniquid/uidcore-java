@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.bitcoinj.core.Address;
 import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.CheckpointManager;
 import org.bitcoinj.core.NetworkParameters;
@@ -16,6 +17,8 @@ import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
+import org.bitcoinj.crypto.ChildNumber;
+import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.net.discovery.DnsDiscovery;
@@ -29,6 +32,8 @@ import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * NodeUtils contains some static useful methods
@@ -228,6 +233,52 @@ public class NodeUtils {
 
 		byte[] bitset = Hex.decode(bitmask);
 		return BitSet.valueOf(Arrays.copyOfRange(bitset, 1, bitset.length));
+
+	}
+
+	/**
+	 * Calculates the imprint address from a node's public key
+	 * 
+	 * @param xpub the node's public key 
+	 * @param networkParameters the network parameters to use
+	 * @return the imprint address of the node
+	 */
+	public static Address calculateImprintAddress(final String xpub, final NetworkParameters networkParameters) {
+
+		final DeterministicKey deterministicKey = DeterministicKey.deserializeB58(xpub, networkParameters);
+
+		return calculateImprintAddress(deterministicKey, networkParameters);
+
+	}
+
+	/**
+	 * Calculates the imprint address from a node's deterministic key
+	 * 
+	 * @param deterministicKey the node's deterministicKey key 
+	 * @param networkParameters the network parameters to use
+	 * @return the imprint address of the node
+	 */
+	public static Address calculateImprintAddress(final DeterministicKey deterministicKey, final NetworkParameters networkParameters) {
+
+		final DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
+
+		List<ChildNumber> imprintingChild = null;
+		if (deterministicKey.getDepth() == 2) {
+
+			/* M/44'/0' node tpub */
+
+			imprintingChild = ImmutableList.of(new ChildNumber(0, false), new ChildNumber(0, false),
+					new ChildNumber(0, false), new ChildNumber(0, false));
+
+		} else if (deterministicKey.getDepth() == 3) {
+
+			/* M/44'/0'/X context tpub */
+			imprintingChild = ImmutableList.of(new ChildNumber(0, false), new ChildNumber(0, false),
+					new ChildNumber(0, false));
+		}
+
+		DeterministicKey imprintingKey = deterministicHierarchy.get(imprintingChild, true, true);
+		return imprintingKey.toAddress(networkParameters);
 
 	}
 

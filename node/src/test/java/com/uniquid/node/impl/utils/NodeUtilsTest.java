@@ -1,14 +1,16 @@
 package com.uniquid.node.impl.utils;
 
+import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.wallet.SendRequest;
+import org.junit.Assert;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.node.impl.params.UniquidRegTest;
 
+
 public class NodeUtilsTest {
-	
 	
 	public void testSendTransaction() throws Exception {
 		
@@ -23,6 +25,25 @@ public class NodeUtilsTest {
 		
 		NodeUtils.sendTransaction(UniquidRegTest.get(), sendRequest);
 		
+	}
+
+	@Test
+	public void calculateImprintAddressNodeTest() throws Exception {
+
+		String tpub = "tpubDBKYnCCudkHGmnLfM5FK7r1PE8uPsrWwsL4hn6phPJz3Y6TSkLXEavQMuQiEWVxyYTKcrp4e5q1ujLfJQWEsLpvV1mswvY6dQXsMatv4NxY";
+
+		String expectedImprintAddress = "mvMD34qjTuMSoaHifCmjtjiPLXgfFNtCiV";
+
+		Address address = NodeUtils.calculateImprintAddress(tpub, UniquidRegTest.get());
+
+		Assert.assertEquals(expectedImprintAddress, address.toBase58());
+
+		String tpubWithContext = "tpubDDt3WNcECJE3964xRwj8kYe13vrjgbd2SAyqbmJyErz5F1g2p2xj6QFGkr2oHg2tTTipzfA3wxAxs72LaA3qBnCTmmvYBRGsfyTZxuhoVzL";
+
+		address = NodeUtils.calculateImprintAddress(tpubWithContext, UniquidRegTest.get());
+
+		Assert.assertEquals(expectedImprintAddress, address.toBase58());
+
 	}
 
 }
