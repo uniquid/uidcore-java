@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executor;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
@@ -24,8 +22,6 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
-import org.bitcoinj.utils.ListenerRegistration;
-import org.bitcoinj.utils.Threading;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
@@ -87,9 +83,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	protected RegisterFactory registerFactory;
 
-	private CopyOnWriteArrayList<ListenerRegistration<UniquidNodeEventListener>> eventListeners;
-	
 	private DeterministicSeed detSeed;
+
+	private UniquidNodeEventService uniquidNodeEventService;
 
 	protected UniquidNodeImpl(Builder builder)
 			throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
@@ -101,9 +97,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		this.userChainFile = builder.getUserChainFile();
 		this.registerFactory = builder.getRegisterFactory();
 		this.machineName = builder.getMachineName();
-		this.eventListeners = new CopyOnWriteArrayList<ListenerRegistration<UniquidNodeEventListener>>();
 		this.seed = builder.getSeed();
 		this.creationTime = builder.getCreationTime();
+		this.uniquidNodeEventService = new UniquidNodeEventService();
 		
 		setUniquidNodeState(getCreatedState());
 
@@ -230,22 +226,12 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	public synchronized void updateNode() throws NodeException {
 
 		// Start node sync
-		for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
+		uniquidNodeEventService.onSyncNodeStart();
 
-			listener.executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                		listener.listener.onSyncNodeStart();
-                }
-            });
-
-		}
-		
 		// Provider wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, providerWallet, providerChainFile,
 				new UniquidNodeDownloadProgressTracker());
-		
-		
+
 		// User wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, userWallet, userChainFile,
 				new UniquidNodeDownloadProgressTracker());
@@ -297,16 +283,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 //		}
 		
 		// Start node sync
-		for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
-
-			listener.executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                		listener.listener.onSyncNodeEnd();
-                }
-            });
-
-		}
+		uniquidNodeEventService.onSyncNodeEnd();
 		
 	}
 
@@ -317,17 +294,12 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	@Override
 	public synchronized void addUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
-		addUniquidNodeEventListener(Threading.SAME_THREAD, uniquidNodeEventListener);
+		uniquidNodeEventService.addUniquidNodeEventListener(uniquidNodeEventListener);
 	}
-
-	private void addUniquidNodeEventListener(Executor executor, UniquidNodeEventListener listener) {
-        // This is thread safe, so we don't need to take the lock.
-		eventListeners.add(new ListenerRegistration<UniquidNodeEventListener>(listener, executor));
-    }
 
 	@Override
 	public synchronized void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
-		// do nothing for now
+		uniquidNodeEventService.removeUniquidNodeEventListener(uniquidNodeEventListener);
 	}
 
 	/*
@@ -578,48 +550,21 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		@Override
 		protected void startDownload(final int blocks) {
 
-			for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
-
-				listener.executor.execute(new Runnable() {
-	                @Override
-	                public void run() {
-	                		listener.listener.onSyncStarted(blocks);
-	                }
-	            });
-
-			}
+			uniquidNodeEventService.onSyncStarted(blocks);
 
 		}
 
 		@Override
 		protected void progress(final double pct, final int blocksSoFar, final Date date) {
 
-			for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
-
-				listener.executor.execute(new Runnable() {
-	                @Override
-	                public void run() {
-	                		listener.listener.onSyncProgress(pct, blocksSoFar, date);
-	                }
-	            });
-
-			}
+			uniquidNodeEventService.onSyncProgress(pct, blocksSoFar, date);
 
 		}
 
 		@Override
 		public void doneDownload() {
 
-			for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
-
-				listener.executor.execute(new Runnable() {
-	                @Override
-	                public void run() {
-	                		listener.listener.onSyncEnded();
-	                }
-	            });
-
-			}
+			uniquidNodeEventService.onSyncEnded();
 
 		}
 
@@ -775,29 +720,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 					setUniquidNodeState(getReadyState());
 
 					// Send event to listeners
-					for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
-
-						listener.executor.execute(new Runnable() {
-			                @Override
-			                public void run() {
-			                		listener.listener.onNodeStateChange(com.uniquid.node.UniquidNodeState.READY);
-			                }
-			            });
-
-					}
+					uniquidNodeEventService.onNodeStateChange(com.uniquid.node.UniquidNodeState.READY);
 					
-					for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
-
-						listener.executor.execute(new Runnable() {
-			                @Override
-			                public void run() {
-			                		listener.listener.onProviderContractCreated(providerChannel);
-			                }
-			            });
-
-					}
+					uniquidNodeEventService.onProviderContractCreated(providerChannel);
 					
-
 					LOGGER.info("Machine IMPRINTED!");
 
 					break;
@@ -913,16 +839,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			}
 
 			// Inform listeners
-			for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
-
-				listener.executor.execute(new Runnable() {
-	                @Override
-	                public void run() {
-	                		listener.listener.onProviderContractCreated(providerChannel);
-	                }
-	            });
-
-			}
+			uniquidNodeEventService.onProviderContractCreated(providerChannel);
 
 		}
 
@@ -946,16 +863,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 					LOGGER.info("Contract revoked! " + channel);
 					
-					for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
-
-						listener.executor.execute(new Runnable() {
-			                @Override
-			                public void run() {
-			                		listener.listener.onProviderContractRevoked(channel);
-			                }
-			            });
-
-					}
+					// Inform listeners
+					uniquidNodeEventService.onProviderContractRevoked(channel);
 
 				} else {
 
@@ -1047,18 +956,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				throw e;
 
 			}
-
-			for (final ListenerRegistration<UniquidNodeEventListener> listener : eventListeners) {
-
-				listener.executor.execute(new Runnable() {
-	                @Override
-	                public void run() {
-	                		listener.listener.onUserContractCreated(userChannel);
-	                }
-	            });
-
-			}
 			
+			// Inform listeners
+			uniquidNodeEventService.onUserContractCreated(userChannel);
+
 		}
 
 		@Override
