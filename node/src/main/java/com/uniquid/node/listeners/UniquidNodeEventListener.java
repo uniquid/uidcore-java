@@ -62,7 +62,7 @@ public interface UniquidNodeEventListener {
 	 * @param pct  the percentage of chain downloaded, estimated
      * @param date the date of the last block downloaded
 	 */
-	public void onSyncProgress(double pct, final int blocksSoFar, final Date date);
+	public void onSyncProgress(final double pct, final int blocksSoFar, final Date date);
 	
 	/**
 	 * Called when a sync from blockchain terminates.
