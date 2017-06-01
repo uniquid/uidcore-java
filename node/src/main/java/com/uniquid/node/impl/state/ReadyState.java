@@ -1,6 +1,5 @@
 package com.uniquid.node.impl.state;
 
-import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ public class ReadyState implements UniquidNodeState {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReadyState.class);
 
-	private UniquidNodeStateContext uniquidNodeStateContext;
+	protected UniquidNodeStateContext uniquidNodeStateContext;
 
 	public ReadyState(final UniquidNodeStateContext uniquidNodeStateContext) {
 
