@@ -100,7 +100,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	protected UniquidNodeState getCreatedState() {
+
 		return new CreatedState();
+
 	}
 
 	protected UniquidNodeState getReadyState() {
@@ -380,7 +382,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 * Builder for UniquidNodeImpl
 	 *
 	 */
-	public static class Builder {
+	public static class Builder<T extends Builder> {
 
 		private NetworkParameters _params;
 
@@ -397,7 +399,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		public Builder set_params(NetworkParameters _params) {
 			this._params = _params;
-			return this;
+			return (T) this;
 		}
 		
 		public NetworkParameters getParams() {
@@ -406,7 +408,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		public Builder set_providerFile(File _providerFile) {
 			this._providerFile = _providerFile;
-			return this;
+			return (T) this;
 		}
 		
 		public File getProviderFile() {
@@ -415,7 +417,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		public Builder set_userFile(File _userFile) {
 			this._userFile = _userFile;
-			return this;
+			return (T) this;
 		}
 		
 		public File getUserFile() {
@@ -424,7 +426,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		public Builder set_chainFile(File _chainFile) {
 			this._chainFile = _chainFile;
-			return this;
+			return (T) this;
 		}
 		
 		public File getChainFile() {
@@ -433,7 +435,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		public Builder set_userChainFile(File _userChainFile) {
 			this._userChainFile = _userChainFile;
-			return this;
+			return (T) this;
 		}
 		
 		public File getUserChainFile() {
@@ -442,7 +444,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		public Builder set_registerFactory(RegisterFactory _registerFactory) {
 			this._registerFactory = _registerFactory;
-			return this;
+			return (T) this;
 		}
 		
 		public RegisterFactory getRegisterFactory() {
@@ -451,7 +453,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		public Builder set_machine_name(String _machineName) {
 			this._machineName = _machineName;
-			return this;
+			return (T) this;
 		}
 		
 		public String getMachineName() {
