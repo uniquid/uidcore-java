@@ -1,8 +1,6 @@
 package com.uniquid.node.impl;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.bitcoinj.core.NetworkParameters;
 import org.junit.Assert;
@@ -17,7 +15,6 @@ import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
-import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
 public class UniquidNodeImplTest {
