@@ -1,10 +1,8 @@
 # FAQ
 
-## How I can use an already generated seed?
+## I've received a lot of seeds already imprinted and orchestrated. How I can use? There is an example that I can use?
 
-Q. I've received a lot of seeds already imprinted and orchestrated. How I can use? There is an example that I can use?
-
-R. In order to create an Uniquid Node from a known seed you can use the following example:
+In order to create an Uniquid Node from a known seed you can use the following example:
 
 ```java
 // Create new Uniquid Node from a known seed
@@ -21,11 +19,9 @@ UniquidNode uniquidNode = new UniquidNodeImpl.Builder().
 
 Basically, you have to use the buildFromHexSeed method from the Builder: the first parameter is the hex seed and the second is the node's creation time.
 
-## Provide a better custom function
+## Please, can you provide a better custom function example?
 
-Q. The code snippet to register a custom function is clear but could be that a complete example can help to improve custom functions. Where the function goes? I can write this function in a random class or need to be placed in a specific place?
-
-R. The function registration mechanism allows an user of the library to register a piece of code that will be executed by the system when somebody with the correct permission will ask for it.
+The function registration mechanism allows an user of the library to register a piece of code that will be executed by the system when somebody with the correct permission will ask for it.
 
 Basically, a function can be any kind of object but the only requirement is that the object implements the com.uniquid.core.provider.Function interface.
 
