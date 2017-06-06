@@ -61,19 +61,19 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	private UniquidNodeState nodeState;
 
 	protected NetworkParameters networkParameters;
-	private File providerFile;
-	private Wallet providerWallet;
+	protected File providerFile;
+	protected Wallet providerWallet;
 	private File providerChainFile;
-	private File userFile;
-	private Wallet userWallet;
+	protected File userFile;
+	protected Wallet userWallet;
 	private File userChainFile;
 
-	private Address imprintingAddress;
-	private String publicKey;
+	protected Address imprintingAddress;
+	protected String publicKey;
 	private String machineName;
 
 	private byte[] seed;
-	private long creationTime;
+	protected long creationTime;
 
 	protected RegisterFactory registerFactory;
 
