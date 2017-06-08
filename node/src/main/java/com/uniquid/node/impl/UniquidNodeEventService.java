@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +26,24 @@ public class UniquidNodeEventService {
 	
 	private ExecutorService executorService;
 	
+	private ThreadGroup threadGroup;
+
 	/**
 	 * Return a new UniquidNodeEventService instance 
 	 */
 	public UniquidNodeEventService() {
-		
-		observers = new CopyOnWriteArrayList<UniquidNodeEventListener>();
-		executorService = Executors.newCachedThreadPool();
+
+		this.threadGroup = new ThreadGroup("UniquidNodeEventService");
+		this.observers = new CopyOnWriteArrayList<UniquidNodeEventListener>();
+		this.executorService = Executors.newCachedThreadPool(new ThreadFactory() {
+
+			@Override
+			public Thread newThread(Runnable runnable) {
+
+				return new Thread(threadGroup, runnable);
+
+			}
+		});
 	
 	}
 	
