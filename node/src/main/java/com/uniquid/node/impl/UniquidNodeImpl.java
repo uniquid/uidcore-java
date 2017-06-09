@@ -40,9 +40,7 @@ import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 
 /**
- * Implementation of an Uniquid Node
- * 
- * @author Giuseppe Magnotta
+ * Implementation of an Uniquid Node with BitcoinJ library
  */
 public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListener, WalletCoinsReceivedEventListener, UniquidNodeStateContext {
 
@@ -59,20 +57,20 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	/** The current state of this Node */
 	private UniquidNodeState nodeState;
+	private File providerChainFile;
+	private File userChainFile;
+	private String nodeName;
+	private byte[] seed;
 
 	protected NetworkParameters networkParameters;
 	protected File providerFile;
 	protected Wallet providerWallet;
-	private File providerChainFile;
 	protected File userFile;
 	protected Wallet userWallet;
-	private File userChainFile;
 
 	protected Address imprintingAddress;
 	protected String publicKey;
-	private String machineName;
 
-	private byte[] seed;
 	protected long creationTime;
 
 	protected RegisterFactory registerFactory;
@@ -81,16 +79,23 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	private UniquidNodeEventService uniquidNodeEventService;
 
+	/**
+	 * Creates a new instance from {@code Builder}
+	 * @param builder
+	 * @throws UnreadableWalletException
+	 * @throws NoSuchAlgorithmException
+	 * @throws UnsupportedEncodingException
+	 */
 	protected UniquidNodeImpl(Builder builder)
 			throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
-		this.networkParameters = builder.getParams();
+		this.networkParameters = builder.getNetworkParameters();
 		this.providerFile = builder.getProviderFile();
 		this.providerChainFile = builder.getChainFile();
 		this.userFile = builder.getUserFile();
 		this.userChainFile = builder.getUserChainFile();
 		this.registerFactory = builder.getRegisterFactory();
-		this.machineName = builder.getMachineName();
+		this.nodeName = builder.getNodeName();
 		this.seed = builder.getSeed();
 		this.creationTime = builder.getCreationTime();
 		this.uniquidNodeEventService = new UniquidNodeEventService();
@@ -99,18 +104,30 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	}
 
+	/**
+	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the {@link com.uniquid.node.UniquidNodeState.CREATED}
+	 * @return
+	 */
 	protected UniquidNodeState getCreatedState() {
 
 		return new CreatedState();
 
 	}
 
+	/**
+	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the {@link com.uniquid.node.UniquidNodeState.READY}
+	 * @return
+	 */
 	protected UniquidNodeState getReadyState() {
 		
 		return new ReadyState(this);
 	
 	}
 
+	/**
+	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the {@link com.uniquid.node.UniquidNodeState.IMPRINTING}
+	 * @return
+	 */
 	protected UniquidNodeState getImprintingState() {
 		
 		return new ImprintingState(this);
@@ -144,7 +161,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	@Override
 	public synchronized String getNodeName() {
-		return machineName;
+		return nodeName;
 	}
 
 	@Override
@@ -397,16 +414,16 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		private String _machineName;
 
-		public Builder set_params(NetworkParameters _params) {
+		public Builder setNetworkParameters(NetworkParameters _params) {
 			this._params = _params;
 			return (T) this;
 		}
 		
-		public NetworkParameters getParams() {
+		public NetworkParameters getNetworkParameters() {
 			return _params;
 		}
 
-		public Builder set_providerFile(File _providerFile) {
+		public Builder setProviderFile(File _providerFile) {
 			this._providerFile = _providerFile;
 			return (T) this;
 		}
@@ -415,7 +432,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			return _providerFile;
 		}
 
-		public Builder set_userFile(File _userFile) {
+		public Builder setUserFile(File _userFile) {
 			this._userFile = _userFile;
 			return (T) this;
 		}
@@ -424,7 +441,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			return _userFile;
 		}
 
-		public Builder set_chainFile(File _chainFile) {
+		public Builder setChainFile(File _chainFile) {
 			this._chainFile = _chainFile;
 			return (T) this;
 		}
@@ -433,7 +450,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			return _chainFile;
 		}
 
-		public Builder set_userChainFile(File _userChainFile) {
+		public Builder setUserChainFile(File _userChainFile) {
 			this._userChainFile = _userChainFile;
 			return (T) this;
 		}
@@ -442,7 +459,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			return _userChainFile;
 		}
 
-		public Builder set_registerFactory(RegisterFactory _registerFactory) {
+		public Builder setRegisterFactory(RegisterFactory _registerFactory) {
 			this._registerFactory = _registerFactory;
 			return (T) this;
 		}
@@ -451,12 +468,12 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			return _registerFactory;
 		}
 
-		public Builder set_machine_name(String _machineName) {
+		public Builder setNodename(String _machineName) {
 			this._machineName = _machineName;
 			return (T) this;
 		}
 		
-		public String getMachineName() {
+		public String getNodeName() {
 			return _machineName;
 		}
 
