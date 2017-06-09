@@ -12,7 +12,7 @@ import com.uniquid.node.impl.contract.UserContract;
 import com.uniquid.node.impl.utils.UniquidNodeStateUtils;
 
 /**
- * Implementation of State Design pattern
+ * State that represents a node in Imprinting State: it is ready to receive coins.
  */
 public class ImprintingState implements UniquidNodeState {
 	

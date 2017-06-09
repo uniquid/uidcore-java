@@ -12,8 +12,7 @@ import com.uniquid.node.impl.contract.UserContract;
 import com.uniquid.node.impl.utils.UniquidNodeStateUtils;
 
 /**
- * Class to represents the ready state
- * 
+ * State that represents a Node ready to work.
  */
 public class ReadyState implements UniquidNodeState {
 

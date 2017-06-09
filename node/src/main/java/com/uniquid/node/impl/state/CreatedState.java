@@ -4,7 +4,7 @@ import org.bitcoinj.core.Transaction;
 import org.bitcoinj.wallet.Wallet;
 
 /**
- * Dummy state to be used when new instance is created
+ * Dummy state to be used when new node is created.
  */
 public class CreatedState implements UniquidNodeState {
 
