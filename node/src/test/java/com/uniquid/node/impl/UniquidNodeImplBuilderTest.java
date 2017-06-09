@@ -22,13 +22,13 @@ public class UniquidNodeImplBuilderTest {
 		
 		Assert.assertNotNull(builder);
 		
-		Assert.assertNull(builder.getParams());
+		Assert.assertNull(builder.getNetworkParameters());
 		Assert.assertNull(builder.getProviderFile());
 		Assert.assertNull(builder.getUserFile());
 		Assert.assertNull(builder.getChainFile());
 		Assert.assertNull(builder.getUserChainFile());
 		Assert.assertNull(builder.getRegisterFactory());
-		Assert.assertNull(builder.getMachineName());
+		Assert.assertNull(builder.getNodeName());
 		
 	}
 	
@@ -37,13 +37,13 @@ public class UniquidNodeImplBuilderTest {
 		
 		UniquidNodeImpl.Builder builder = new Builder();
 		
-		Assert.assertNull(builder.getParams());
+		Assert.assertNull(builder.getNetworkParameters());
 		
 		NetworkParameters parameters = UniquidRegTest.get();
 		
-		builder.set_params(parameters);
+		builder.setNetworkParameters(parameters);
 		
-		Assert.assertEquals(parameters, builder.getParams());
+		Assert.assertEquals(parameters, builder.getNetworkParameters());
 		
 	}
 	
@@ -56,7 +56,7 @@ public class UniquidNodeImplBuilderTest {
 		
 		File file = File.createTempFile("provider", ".wallet");
 		
-		builder.set_providerFile(file);
+		builder.setProviderFile(file);
 		
 		Assert.assertEquals(file, builder.getProviderFile());
 		
@@ -71,7 +71,7 @@ public class UniquidNodeImplBuilderTest {
 		
 		File file = File.createTempFile("user", ".wallet");
 		
-		builder.set_userFile(file);
+		builder.setUserFile(file);
 		
 		Assert.assertEquals(file, builder.getUserFile());
 		
@@ -86,7 +86,7 @@ public class UniquidNodeImplBuilderTest {
 		
 		File file = File.createTempFile("chain", ".chain");
 		
-		builder.set_chainFile(file);
+		builder.setChainFile(file);
 		
 		Assert.assertEquals(file, builder.getChainFile());
 		
@@ -101,7 +101,7 @@ public class UniquidNodeImplBuilderTest {
 		
 		File file = File.createTempFile("userchain", ".chain");
 		
-		builder.set_userChainFile(file);
+		builder.setUserChainFile(file);
 		
 		Assert.assertEquals(file, builder.getUserChainFile());
 		
@@ -128,7 +128,7 @@ public class UniquidNodeImplBuilderTest {
 			
 		};
 		
-		builder.set_registerFactory(dummy);
+		builder.setRegisterFactory(dummy);
 		
 		Assert.assertEquals(dummy, builder.getRegisterFactory());
 		
@@ -139,13 +139,13 @@ public class UniquidNodeImplBuilderTest {
 		
 		UniquidNodeImpl.Builder builder = new Builder();
 		
-		Assert.assertNull(builder.getMachineName());
+		Assert.assertNull(builder.getNodeName());
 		
 		String machineName = "machineName";
 		
-		builder.set_machine_name(machineName);
+		builder.setNodeName(machineName);
 		
-		Assert.assertEquals(machineName, builder.getMachineName());
+		Assert.assertEquals(machineName, builder.getNodeName());
 		
 	}
 	
@@ -174,13 +174,13 @@ public class UniquidNodeImplBuilderTest {
 				};
 		String machineName = "machineName";
 
-		builder.set_params(parameters);
-		builder.set_providerFile(providerFile);
-		builder.set_userFile(userFile);
-		builder.set_chainFile(chainFile);
-		builder.set_userChainFile(userChainFile);
-		builder.set_registerFactory(dummyRegister);
-		builder.set_machine_name(machineName);
+		builder.setNetworkParameters(parameters);
+		builder.setProviderFile(providerFile);
+		builder.setUserFile(userFile);
+		builder.setChainFile(chainFile);
+		builder.setUserChainFile(userChainFile);
+		builder.setRegisterFactory(dummyRegister);
+		builder.setNodeName(machineName);
 		
 		UniquidNodeImpl uniquidNode = builder.build();
 		

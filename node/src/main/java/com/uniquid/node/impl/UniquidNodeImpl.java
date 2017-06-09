@@ -468,7 +468,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			return _registerFactory;
 		}
 
-		public Builder setNodename(String _machineName) {
+		public Builder setNodeName(String _machineName) {
 			this._machineName = _machineName;
 			return (T) this;
 		}

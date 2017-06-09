@@ -44,13 +44,13 @@ public class UniquidNodeImplTest {
 				};
 		String machineName = "machineName";
 
-		builder.set_params(parameters);
-		builder.set_providerFile(providerFile);
-		builder.set_userFile(userFile);
-		builder.set_chainFile(chainFile);
-		builder.set_userChainFile(userChainFile);
-		builder.set_registerFactory(dummyRegister);
-		builder.set_machine_name(machineName);
+		builder.setNetworkParameters(parameters);
+		builder.setProviderFile(providerFile);
+		builder.setUserFile(userFile);
+		builder.setChainFile(chainFile);
+		builder.setUserChainFile(userChainFile);
+		builder.setRegisterFactory(dummyRegister);
+		builder.setNodeName(machineName);
 		
 		UniquidNodeImpl uniquidNode = builder.buildFromHexSeed("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", 1487159470);
 		
@@ -135,13 +135,13 @@ public class UniquidNodeImplTest {
 				
 		String machineName = "machineName";
 
-		builder.set_params(parameters);
-		builder.set_providerFile(providerFile);
-		builder.set_userFile(userFile);
-		builder.set_chainFile(chainFile);
-		builder.set_userChainFile(userChainFile);
-		builder.set_registerFactory(dummyFactory);
-		builder.set_machine_name(machineName);
+		builder.setNetworkParameters(parameters);
+		builder.setProviderFile(providerFile);
+		builder.setUserFile(userFile);
+		builder.setChainFile(chainFile);
+		builder.setUserChainFile(userChainFile);
+		builder.setRegisterFactory(dummyFactory);
+		builder.setNodeName(machineName);
 		
 		UniquidNodeImpl uniquidNode = builder.buildFromHexSeed("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", 1487159470);
 		
@@ -214,13 +214,13 @@ public class UniquidNodeImplTest {
 				
 		String machineName = "machineName";
 
-		builder.set_params(parameters);
-		builder.set_providerFile(providerFile);
-		builder.set_userFile(userFile);
-		builder.set_chainFile(chainFile);
-		builder.set_userChainFile(userChainFile);
-		builder.set_registerFactory(dummyFactory);
-		builder.set_machine_name(machineName);
+		builder.setNetworkParameters(parameters);
+		builder.setProviderFile(providerFile);
+		builder.setUserFile(userFile);
+		builder.setChainFile(chainFile);
+		builder.setUserChainFile(userChainFile);
+		builder.setRegisterFactory(dummyFactory);
+		builder.setNodeName(machineName);
 		
 		UniquidNodeImpl uniquidNode = builder.buildFromHexSeed("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", 1487159470);
 		
@@ -279,13 +279,13 @@ public class UniquidNodeImplTest {
 				
 		String machineName = "machineName";
 
-		builder.set_params(parameters);
-		builder.set_providerFile(providerFile);
-		builder.set_userFile(userFile);
-		builder.set_chainFile(chainFile);
-		builder.set_userChainFile(userChainFile);
-		builder.set_registerFactory(dummyFactory);
-		builder.set_machine_name(machineName);
+		builder.setNetworkParameters(parameters);
+		builder.setProviderFile(providerFile);
+		builder.setUserFile(userFile);
+		builder.setChainFile(chainFile);
+		builder.setUserChainFile(userChainFile);
+		builder.setRegisterFactory(dummyFactory);
+		builder.setNodeName(machineName);
 		
 		UniquidNodeImpl uniquidNode = builder.buildFromHexSeed("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", 1487159470);
 		

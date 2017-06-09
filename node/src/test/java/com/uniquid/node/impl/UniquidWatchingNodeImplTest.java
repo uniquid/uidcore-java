@@ -47,13 +47,13 @@ public class UniquidWatchingNodeImplTest {
 				};
 		String machineName = "machineName";
 
-		builder.set_params(parameters);
-		builder.set_providerFile(providerFile);
-		builder.set_userFile(userFile);
-		builder.set_chainFile(chainFile);
-		builder.set_userChainFile(userChainFile);
-		builder.set_registerFactory(dummyRegister);
-		builder.set_machine_name(machineName);
+		builder.setNetworkParameters(parameters);
+		builder.setProviderFile(providerFile);
+		builder.setUserFile(userFile);
+		builder.setChainFile(chainFile);
+		builder.setUserChainFile(userChainFile);
+		builder.setRegisterFactory(dummyRegister);
+		builder.setNodeName(machineName);
 		
 		UniquidWatchingNodeImpl uniquidNode = builder.buildFromXpub("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", 1487159470);
 		
@@ -131,13 +131,13 @@ public class UniquidWatchingNodeImplTest {
 				
 		String machineName = "machineName";
 
-		builder.set_params(parameters);
-		builder.set_providerFile(providerFile);
-		builder.set_userFile(userFile);
-		builder.set_chainFile(chainFile);
-		builder.set_userChainFile(userChainFile);
-		builder.set_registerFactory(dummyFactory);
-		builder.set_machine_name(machineName);
+		builder.setNetworkParameters(parameters);
+		builder.setProviderFile(providerFile);
+		builder.setUserFile(userFile);
+		builder.setChainFile(chainFile);
+		builder.setUserChainFile(userChainFile);
+		builder.setRegisterFactory(dummyFactory);
+		builder.setNodeName(machineName);
 		
 		UniquidWatchingNodeImpl uniquidNode = builder.buildFromXpub("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", 1487159470);
 		
@@ -210,13 +210,13 @@ public class UniquidWatchingNodeImplTest {
 				
 		String machineName = "machineName";
 
-		builder.set_params(parameters);
-		builder.set_providerFile(providerFile);
-		builder.set_userFile(userFile);
-		builder.set_chainFile(chainFile);
-		builder.set_userChainFile(userChainFile);
-		builder.set_registerFactory(dummyFactory);
-		builder.set_machine_name(machineName);
+		builder.setNetworkParameters(parameters);
+		builder.setProviderFile(providerFile);
+		builder.setUserFile(userFile);
+		builder.setChainFile(chainFile);
+		builder.setUserChainFile(userChainFile);
+		builder.setRegisterFactory(dummyFactory);
+		builder.setNodeName(machineName);
 		
 		UniquidWatchingNodeImpl uniquidNode = builder.buildFromXpub("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", 1487159470);
 		
@@ -275,13 +275,13 @@ public class UniquidWatchingNodeImplTest {
 				
 		String machineName = "machineName";
 
-		builder.set_params(parameters);
-		builder.set_providerFile(providerFile);
-		builder.set_userFile(userFile);
-		builder.set_chainFile(chainFile);
-		builder.set_userChainFile(userChainFile);
-		builder.set_registerFactory(dummyFactory);
-		builder.set_machine_name(machineName);
+		builder.setNetworkParameters(parameters);
+		builder.setProviderFile(providerFile);
+		builder.setUserFile(userFile);
+		builder.setChainFile(chainFile);
+		builder.setUserChainFile(userChainFile);
+		builder.setRegisterFactory(dummyFactory);
+		builder.setNodeName(machineName);
 		
 		UniquidWatchingNodeImpl uniquidNode = builder.buildFromXpub("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", 1487159470);
 		
