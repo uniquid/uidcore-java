@@ -16,6 +16,7 @@ import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.crypto.MnemonicCode;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
@@ -60,7 +61,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	private File providerChainFile;
 	private File userChainFile;
 	private String nodeName;
+	private byte[] entropy;
 	private byte[] seed;
+	private String mnemonic;
 
 	protected NetworkParameters networkParameters;
 	protected File providerFile;
@@ -96,7 +99,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		this.userChainFile = builder.getUserChainFile();
 		this.registerFactory = builder.getRegisterFactory();
 		this.nodeName = builder.getNodeName();
+		this.entropy = builder.getEntropy();
 		this.seed = builder.getSeed();
+		this.mnemonic = builder.getMnemonic();
 		this.creationTime = builder.getCreationTime();
 		this.uniquidNodeEventService = new UniquidNodeEventService();
 		
@@ -194,14 +199,21 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			} else {
 
+				if (entropy != null) {
+
+					detSeed = new DeterministicSeed(entropy, "", creationTime);
+				
+				} else if (seed != null) {
+					
+					detSeed = new DeterministicSeed("", seed, "", creationTime);
+					
+				} else if (mnemonic != null) {
+					
+					detSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
+					
+				}
+
 				// Create a new provider wallet
-				// providerWallet = Wallet.fromSeed(networkParameters,
-				// new DeterministicSeed(bytes, "", creationTime),
-				// UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER,
-				// UniquidNodeImpl.BIP44_ACCOUNT_USER);
-
-				detSeed = NodeUtils.createDeterministicSeed(seed, creationTime);
-
 				providerWallet = Wallet.fromSeed(networkParameters, detSeed, UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
 				providerWallet.setDescription("provider");
 
@@ -407,8 +419,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 		private File _userFile;
 		private File _chainFile;
 		private File _userChainFile;
+		protected byte[] _entropy;
 		protected byte[] _seed;
 		protected long _creationTime;
+		protected String _mnemonic;
 
 		private RegisterFactory _registerFactory;
 
@@ -477,8 +491,16 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			return _machineName;
 		}
 
+		public byte[] getEntropy() {
+			return _entropy;
+		}
+
 		public byte[] getSeed() {
 			return _seed;
+		}
+
+		public String getMnemonic() {
+			return _mnemonic;
 		}
 
 		public long getCreationTime() {
@@ -489,8 +511,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
 			SecureRandom random = new SecureRandom();
-			_seed = new byte[32];
-			random.nextBytes(_seed);
+			_entropy = new byte[32];
+			random.nextBytes(_entropy);
 			_creationTime = System.currentTimeMillis() / 1000;
 
 			return new UniquidNodeImpl(this);
@@ -501,6 +523,17 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
 
 			_seed = org.bitcoinj.core.Utils.HEX.decode(hexSeed);
+
+			_creationTime = creationTime;
+
+			return new UniquidNodeImpl(this);
+
+		}
+
+		public UniquidNodeImpl buildFromMnemonic(final String mnemonic, final long creationTime)
+				throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+
+			_mnemonic = mnemonic;
 
 			_creationTime = creationTime;
 
