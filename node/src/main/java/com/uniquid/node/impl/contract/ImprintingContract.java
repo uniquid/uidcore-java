@@ -23,9 +23,9 @@ import com.uniquid.register.provider.ProviderRegister;
  */
 public class ImprintingContract extends AbstractContract {
 	
+	public static final String CONTRACT_FUNCTION = "00000000400000000000000000000000000000";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImprintingContract.class);
-	
-	private static final String CONTRACT_FUNCTION = "00000000400000000000000000000000000000";
 
 	private Address imprintingAddress;
 	
