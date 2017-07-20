@@ -96,4 +96,12 @@ public interface UniquidNode {
 	 */
 	public String signTransaction(final String serializedTx, final String path) throws NodeException;
 	
+	/**
+	 * Allow to propagate a serialized Tx on the peer2peer network
+	 * @param serializedTx
+	 * @return
+	 * @throws NodeException
+	 */
+	public String broadCastTransaction(final String serializedTx) throws NodeException;
+	
 }

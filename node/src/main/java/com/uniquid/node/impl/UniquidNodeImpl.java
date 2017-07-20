@@ -368,7 +368,6 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	
 			SendRequest send = SendRequest.forTx(originalTransaction);
 	
-			String retValue = "";
 			if (path.startsWith("0")) {
 				
 				// fix our tx
@@ -377,11 +376,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				// delegate to walled the signing
 				providerWallet.signTransaction(send);
 	
-				String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
-	
-				LOGGER.info("Serialized SIGNED transaction: " + sr);
-	
-				retValue = NodeUtils.sendTransaction(networkParameters, send);
+				return Hex.toHexString(originalTransaction.bitcoinSerialize());
 	
 			} else if (path.startsWith("1")) {
 				
@@ -391,20 +386,37 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 				// delegate to walled the signing
 				userWallet.signTransaction(send);
 	
-				String sr = Hex.toHexString(originalTransaction.bitcoinSerialize());
+				return Hex.toHexString(originalTransaction.bitcoinSerialize());
 	
-				LOGGER.info("Serialized SIGNED transaction: " + sr);
-	
-				retValue = NodeUtils.sendTransaction(networkParameters, send);
-	
+			} else {
+
+				throw new NodeException("Unknown path");
+				
 			}
 	
-			return retValue;
-		
 		} catch (Exception ex) {
 			
 			throw new NodeException("Exception while signing", ex);
 		}
+	}
+	
+	@Override
+	public String broadCastTransaction(String serializedTx) throws NodeException {
+		
+		try {
+
+			Transaction originalTransaction = networkParameters.getDefaultSerializer().makeTransaction(Hex.decode(serializedTx));
+			
+			SendRequest send = SendRequest.forTx(originalTransaction);
+			
+			return NodeUtils.sendTransaction(networkParameters, send);
+		
+		} catch (Throwable t) {
+			
+			throw new NodeException("Exception while broadcasting transaction", t);
+			
+		}
+
 	}
 
 	/**

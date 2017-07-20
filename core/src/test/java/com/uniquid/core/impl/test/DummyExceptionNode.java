@@ -80,4 +80,10 @@ public class DummyExceptionNode implements UniquidNode {
 		
 	}
 
+	@Override
+	public String broadCastTransaction(String serializedTx) throws NodeException {
+		
+		throw new NodeException("Exception");
+	}
+
 }

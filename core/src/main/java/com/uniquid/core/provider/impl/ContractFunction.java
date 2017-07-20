@@ -45,7 +45,9 @@ public class ContractFunction extends GenericFunction {
 			
 			UniquidNode spvNode = (UniquidNode) getFunctionContext().getAttribute(Core.NODE_ATTRIBUTE);
 		
-			String txid = spvNode.signTransaction(tx, path);
+			String signedTx = spvNode.signTransaction(tx, path);
+			
+			String txid = spvNode.broadCastTransaction(signedTx);
 			
 			outputMessage.setResult("0 - " + txid);
 		
