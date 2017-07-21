@@ -1,10 +1,13 @@
 package com.uniquid.register.impl.sql;
 
+import java.sql.Connection;
+
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
 
 /**
@@ -13,6 +16,7 @@ import com.uniquid.register.user.UserRegister;
 public class SQLiteRegisterFactory implements RegisterFactory {
 
 	protected BasicDataSource dataSource;
+	protected TransactionManagerImpl transactionManager;
 
 	/**
 	 * Creates an instance from the connection string
@@ -31,10 +35,16 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 			dataSource.setDriverClassName("org.sqlite.JDBC");
 			
 			dataSource.addConnectionProperty("foreign_keys", "true");
+			
+			dataSource.setDefaultTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+			
+			dataSource.setDefaultAutoCommit(true);
 
 			dataSource.setUrl(connectionString);
 
 			dataSource.getConnection();
+			
+			transactionManager = new TransactionManagerImpl(dataSource);
 
 		} catch (Exception ex) {
 			
@@ -51,7 +61,7 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 		
 		if (dataSource == null) throw new RegisterException("Datasource is null");
 		
-		return new SQLiteRegister(dataSource);
+		return new SQLiteRegister(dataSource, transactionManager);
 	
 	}
 
@@ -63,7 +73,7 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 		
 		if (dataSource == null) throw new RegisterException("Datasource is null");
 		
-		return new SQLiteRegister(dataSource);
+		return new SQLiteRegister(dataSource, transactionManager);
 		
 	}
 	
@@ -83,6 +93,13 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 			throw new RegisterException("Exception while closing dataSource", ex);
 			
 		}
+		
+	}
+
+	@Override
+	public TransactionManager getTransactionManager() throws RegisterException {
+		
+		return transactionManager;
 		
 	}
 
