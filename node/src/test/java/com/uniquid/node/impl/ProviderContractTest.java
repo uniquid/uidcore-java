@@ -14,6 +14,7 @@ import com.uniquid.node.impl.utils.DummyUserRegister;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
 
 public class ProviderContractTest {
@@ -37,6 +38,11 @@ public class ProviderContractTest {
 			@Override
 			public ProviderRegister getProviderRegister() throws RegisterException {
 				return dummyProvider;
+			}
+			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
 			}
 			
 		};

@@ -24,6 +24,7 @@ import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
 
 public class CoreTest {
@@ -45,6 +46,11 @@ public class CoreTest {
 			@Override
 			public ProviderRegister getProviderRegister() throws RegisterException {
 				return dummyProvider;
+			}
+			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
 			}
 			
 		};
@@ -93,6 +99,11 @@ public class CoreTest {
 				return dummyProvider;
 			}
 			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
+			}
+			
 		};
 		
 		final Connector connector = createDummyConnector();
@@ -139,6 +150,11 @@ public class CoreTest {
 			@Override
 			public ProviderRegister getProviderRegister() throws RegisterException {
 				return dummyProvider;
+			}
+			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
 			}
 			
 		};
@@ -197,6 +213,11 @@ public class CoreTest {
 				return dummyProvider;
 			}
 			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
+			}
+			
 		};
 		
 		final Connector connector = createDummyConnector();
@@ -239,6 +260,11 @@ public class CoreTest {
 			@Override
 			public ProviderRegister getProviderRegister() throws RegisterException {
 				return dummyProvider;
+			}
+			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
 			}
 			
 		};
@@ -297,6 +323,11 @@ public class CoreTest {
 				return dummyProvider;
 			}
 			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
+			}
+			
 		};
 		
 		final Connector connector = createDummyConnector();
@@ -351,6 +382,11 @@ public class CoreTest {
 			@Override
 			public ProviderRegister getProviderRegister() throws RegisterException {
 				return dummyProvider;
+			}
+			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
 			}
 			
 		};
@@ -409,6 +445,11 @@ public class CoreTest {
 				return dummyProvider;
 			}
 			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
+			}
+			
 		};
 		
 		final Connector connector = createDummyConnector();
@@ -454,6 +495,11 @@ public class CoreTest {
 			@Override
 			public ProviderRegister getProviderRegister() throws RegisterException {
 				return dummyProvider;
+			}
+			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
 			}
 			
 		};
@@ -509,6 +555,11 @@ public class CoreTest {
 			@Override
 			public ProviderRegister getProviderRegister() throws RegisterException {
 				return dummyProvider;
+			}
+			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
 			}
 			
 		};

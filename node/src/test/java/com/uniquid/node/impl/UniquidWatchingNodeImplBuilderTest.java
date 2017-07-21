@@ -11,6 +11,7 @@ import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
 
 public class UniquidWatchingNodeImplBuilderTest {
@@ -126,6 +127,11 @@ public class UniquidWatchingNodeImplBuilderTest {
 				return null;
 			}
 			
+			@Override
+			public TransactionManager getTransactionManager() throws RegisterException {
+				return null;
+			}
+			
 		};
 		
 		builder.setRegisterFactory(dummy);
@@ -168,6 +174,11 @@ public class UniquidWatchingNodeImplBuilderTest {
 					
 					@Override
 					public ProviderRegister getProviderRegister() throws RegisterException {
+						return null;
+					}
+					
+					@Override
+					public TransactionManager getTransactionManager() throws RegisterException {
 						return null;
 					}
 					
