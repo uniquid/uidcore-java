@@ -8,4 +8,6 @@ public interface TransactionManager {
 	
 	public void rollbackTransaction() throws TransactionException;
 	
+	public boolean isInsideTransaction();
+	
 }
