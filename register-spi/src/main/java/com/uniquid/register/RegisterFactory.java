@@ -2,6 +2,7 @@ package com.uniquid.register;
 
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
 
 /**
@@ -27,5 +28,12 @@ public interface RegisterFactory {
 	 * @throws RegisterException in case of problem occurs
 	 */
 	public UserRegister getUserRegister() throws RegisterException;
+	
+	/**
+	 * Return a transaction manager
+	 * @return
+	 * @throws RegisterException
+	 */
+	public TransactionManager getTransactionManager() throws RegisterException;
 
 }
