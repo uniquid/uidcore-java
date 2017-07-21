@@ -144,7 +144,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			}
 		};
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 		
@@ -172,7 +172,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -200,7 +200,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -228,7 +228,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -250,7 +250,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -274,7 +274,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -357,7 +357,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			}
 		};
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -385,7 +385,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -413,7 +413,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -435,7 +435,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -459,7 +459,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -488,7 +488,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -516,7 +516,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = new TransactionableQueryRunner(dataSource, connectionGenerator);
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -528,6 +528,15 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			
 		}
 
+	}
+	
+	/**
+	 * Returns QueryRunner to use for interact with DB
+	 */
+	protected QueryRunner getQueryRunner() {
+		
+		return new TransactionableQueryRunner(dataSource, connectionGenerator);
+		
 	}
 
 }
