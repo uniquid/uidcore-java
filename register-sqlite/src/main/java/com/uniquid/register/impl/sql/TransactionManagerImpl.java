@@ -63,6 +63,8 @@ public class TransactionManagerImpl implements TransactionManager, ConnectionGen
 			connection.commit();
 
 			connection.setAutoCommit(true);
+			
+			context.remove();
 
 		} catch (Exception ex) {
 
@@ -79,8 +81,6 @@ public class TransactionManagerImpl implements TransactionManager, ConnectionGen
 				LOGGER.error("Exception closing connection", e);
 				
 			}
-			
-			context.remove();
 			
 		}
 		
@@ -99,6 +99,8 @@ public class TransactionManagerImpl implements TransactionManager, ConnectionGen
 
 			connection.setAutoCommit(true);
 
+			context.remove();
+
 		} catch (Exception ex) {
 
 			throw new TransactionException("Exception", ex);
@@ -114,8 +116,6 @@ public class TransactionManagerImpl implements TransactionManager, ConnectionGen
 				LOGGER.error("Exception closing connection", e);
 				
 			}
-			
-			context.remove();
 			
 		}
 
