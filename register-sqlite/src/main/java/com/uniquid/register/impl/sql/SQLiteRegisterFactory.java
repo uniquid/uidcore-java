@@ -2,8 +2,6 @@ package com.uniquid.register.impl.sql;
 
 import java.sql.Connection;
 
-import org.apache.commons.dbcp2.BasicDataSource;
-
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
@@ -15,8 +13,7 @@ import com.uniquid.register.user.UserRegister;
  */
 public class SQLiteRegisterFactory implements RegisterFactory {
 
-	protected BasicDataSource dataSource;
-	protected TransactionManagerImpl transactionManager;
+	protected TransactionAwareBasicDataSource dataSource;
 
 	/**
 	 * Creates an instance from the connection string
@@ -30,7 +27,7 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 		
 		try {
 
-			dataSource = new BasicDataSource();
+			dataSource = new TransactionAwareBasicDataSource();
 
 			dataSource.setDriverClassName("org.sqlite.JDBC");
 			
@@ -44,8 +41,6 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 
 			dataSource.getConnection();
 			
-			transactionManager = new TransactionManagerImpl(dataSource);
-
 		} catch (Exception ex) {
 			
 			throw new RegisterException("Exception while creating register", ex);
@@ -61,7 +56,7 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 		
 		if (dataSource == null) throw new RegisterException("Datasource is null");
 		
-		return new SQLiteRegister(dataSource, transactionManager);
+		return new SQLiteRegister(dataSource);
 	
 	}
 
@@ -73,7 +68,7 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 		
 		if (dataSource == null) throw new RegisterException("Datasource is null");
 		
-		return new SQLiteRegister(dataSource, transactionManager);
+		return new SQLiteRegister(dataSource);
 		
 	}
 	
@@ -99,7 +94,7 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 	@Override
 	public TransactionManager getTransactionManager() throws RegisterException {
 		
-		return transactionManager;
+		return dataSource;
 		
 	}
 

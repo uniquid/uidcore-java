@@ -7,21 +7,14 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.register.transaction.ConnectionGenerator;
 import com.uniquid.register.transaction.TransactionException;
 import com.uniquid.register.transaction.TransactionManager;
 
-public class TransactionManagerImpl implements TransactionManager, ConnectionGenerator {
+public class TransactionAwareBasicDataSource extends BasicDataSource implements TransactionManager {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
-
-	private static final ThreadLocal<Connection> context = new ThreadLocal<Connection>();
-
-	private BasicDataSource dataSource;
-
-	public TransactionManagerImpl(BasicDataSource dataSource) {
-		this.dataSource = dataSource;
-	}
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionAwareBasicDataSource.class);
+	
+	private static final ThreadLocal<TransactionAwareConnection> context = new ThreadLocal<TransactionAwareConnection>();
 
 	@Override
 	public void startTransaction() throws TransactionException {
@@ -34,29 +27,31 @@ public class TransactionManagerImpl implements TransactionManager, ConnectionGen
 			
 			if (connection != null) {
 				
+				connection.rollback();
+				
 				throw new TransactionException("Transaction already in progress");
 				
 			}
 
-			connection = dataSource.getConnection();
+			connection = super.getConnection();
 			connection.setAutoCommit(false);
 
-			context.set(connection);
+			context.set(new TransactionAwareConnection(connection, Thread.currentThread()));
 
 		} catch (Exception ex) {
 
 			throw new TransactionException("Exception", ex);
 
 		}
-
+		
 	}
 
 	@Override
 	public void commitTransaction() throws TransactionException {
-		
+
 		LOGGER.info("Committing transaction " + Thread.currentThread().getName());
 
-		Connection connection = context.get();
+		TransactionAwareConnection connection = context.get();
 
 		try {
 			
@@ -91,7 +86,7 @@ public class TransactionManagerImpl implements TransactionManager, ConnectionGen
 		
 		LOGGER.info("Rollbacking transaction " + Thread.currentThread().getName());
 
-		Connection connection = context.get();
+		TransactionAwareConnection connection = context.get();
 
 		try {
 			
@@ -118,21 +113,22 @@ public class TransactionManagerImpl implements TransactionManager, ConnectionGen
 			}
 			
 		}
-
-	}
-
-	@Override
-	public Connection getConnection() {
-
-		return context.get();
-
-	}
-
-	@Override
-	public boolean isInsideTransaction() {
-		
-		return context.get() != null;
 		
 	}
 
+	@Override
+    public Connection getConnection() throws SQLException {
+		
+		Connection connection = context.get();
+		
+		if (connection == null) {
+			
+			connection = super.getConnection();
+			
+		}
+		
+		return connection;
+		
+	}
+	
 }

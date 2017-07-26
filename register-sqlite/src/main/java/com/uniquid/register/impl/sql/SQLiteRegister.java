@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
-import com.uniquid.register.transaction.ConnectionGenerator;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
@@ -60,20 +60,16 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
 	protected BasicDataSource dataSource;
 	
-	protected ConnectionGenerator connectionGenerator;
-
 	/**
 	 * Creates an instance from the connection
 	 * @param dataSource the connection to use
 	 */
-	SQLiteRegister(BasicDataSource dataSource, ConnectionGenerator connectionGenerator) {
+	SQLiteRegister(BasicDataSource dataSource) {
 		
 		Validate.notNull(dataSource);
 		
 		this.dataSource = dataSource;
 		
-		this.connectionGenerator = connectionGenerator;
-
 	}
 	
 	/**
@@ -143,7 +139,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			}
 		};
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 		
@@ -171,7 +167,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -199,7 +195,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -227,7 +223,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -249,7 +245,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -273,7 +269,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -356,7 +352,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			}
 		};
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -384,7 +380,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -412,7 +408,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -434,7 +430,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -458,7 +454,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -487,7 +483,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -515,7 +511,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		TransactionAwareQueryRunner run = getQueryRunner();
+		QueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -532,9 +528,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	/**
 	 * Returns QueryRunner to use for interact with DB
 	 */
-	protected TransactionAwareQueryRunner getQueryRunner() {
+	protected QueryRunner getQueryRunner() {
 		
-		return new TransactionAwareQueryRunner(dataSource, connectionGenerator);
+		return new QueryRunner(dataSource);
 		
 	}
 
