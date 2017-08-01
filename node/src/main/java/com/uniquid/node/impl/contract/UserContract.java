@@ -64,7 +64,7 @@ public class UserContract extends AbstractContract {
 			return;
 		}
 
-		String providerName = WalletUtils.retrieveNameFromProvider(providerAddress.toBase58());
+		String providerName = retrieveNameFromProvider(providerAddress);
 		if (providerName == null) {
 			LOGGER.error("Contract not valid! Provider name is null");
 			return;
@@ -113,6 +113,10 @@ public class UserContract extends AbstractContract {
 	@Override
 	public void revokeRealContract(final Transaction tx) throws Exception {
 		// DO NOTHIG
+	}
+	
+	protected String retrieveNameFromProvider(Address providerAddress) {
+		 return WalletUtils.retrieveNameFromProvider(providerAddress.toBase58());
 	}
 
 }
