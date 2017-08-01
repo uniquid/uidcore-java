@@ -27,9 +27,17 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 			
 			if (connection != null) {
 				
-				connection.rollback();
+				//try {
 				
-				throw new TransactionException("Transaction already in progress");
+				//	connection.rollback();
+					
+					throw new TransactionException("Transaction already in progress");
+				
+				/*} finally {
+					
+					connection.close();
+					
+				}*/
 				
 			}
 
