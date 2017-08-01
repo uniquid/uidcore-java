@@ -125,6 +125,25 @@ public abstract class WalletUtils {
         }
     }
 	
+	/**
+     * Check if a Transaction have a valid (Uniquid) OP_RETURN
+     * */
+	public static boolean isValidOpReturn(TransactionOutput to){
+		
+		String op_return = getOpReturn(to);
+        
+        if (op_return != null) {
+
+        	return Hex.decode(op_return).length == 80;
+
+        } else {
+        	
+        	return false;
+        
+        }
+        
+    }
+	
 //    public static boolean isUnspent(String txid, String address){
 //        String result = httpGet(URL_UTXO, address);
 //
@@ -207,6 +226,20 @@ public abstract class WalletUtils {
             String script_string = script.toString();
             return script_string.substring(script_string.indexOf("[")+1, script_string.indexOf("]"));
         }
+        return null;
+    }
+    
+    public static String getOpReturn(TransactionOutput to) {
+    	
+        Script script = to.getScriptPubKey();
+        
+        if (script.isOpReturn()) {
+        	
+            String script_string = script.toString();
+            return script_string.substring(script_string.indexOf("[")+1, script_string.indexOf("]"));
+            
+        }
+        
         return null;
     }
 	
