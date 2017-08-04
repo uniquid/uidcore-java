@@ -39,6 +39,12 @@ public abstract class UserRegisterTest {
 		}
 
 		getUserRegister().insertChannel(userChannel);
+		
+		try {
+			getUserRegister().insertChannel(userChannel);
+		} catch (Exception ex) {
+			Assert.assertTrue(ex instanceof RegisterException);
+		}
 
 		channels = getUserRegister().getAllUserChannels();
 
@@ -163,6 +169,12 @@ public abstract class UserRegisterTest {
 		}
 
 		getUserRegister().deleteChannel(userChannel);
+		
+		try {
+			getUserRegister().deleteChannel(userChannel);
+		} catch (Exception ex) {
+			Assert.assertTrue(ex instanceof RegisterException);
+		}
 
 		channels = getUserRegister().getAllUserChannels();
 
