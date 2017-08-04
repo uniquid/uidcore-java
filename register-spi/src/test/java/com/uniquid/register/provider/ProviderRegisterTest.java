@@ -17,7 +17,7 @@ public abstract class ProviderRegisterTest {
 		List<ProviderChannel> channels = getProviderRegister().getAllChannels();
 
 		Assert.assertNotNull(channels);
-		Assert.assertEquals(channels.size(), 0);
+		Assert.assertEquals(0, channels.size());
 
 		ProviderChannel providerChannel = new ProviderChannel();
 		providerChannel.setProviderAddress("mfuta5iXJNe7yzCaPtmm4W2saiqTbTfxNG");
@@ -38,6 +38,17 @@ public abstract class ProviderRegisterTest {
 		}
 
 		getProviderRegister().insertChannel(providerChannel);
+		
+		try {
+
+            getProviderRegister().insertChannel(providerChannel);
+            Assert.fail();
+
+        } catch (RegisterException ex) {
+
+            Assert.assertEquals("Exception while insertChannel()", ex.getLocalizedMessage());
+
+        }
 
 		channels = getProviderRegister().getAllChannels();
 
@@ -66,6 +77,7 @@ public abstract class ProviderRegisterTest {
 
 			Assert.assertEquals("address is not valid", ex.getLocalizedMessage());
 		}
+		
 
 		ProviderChannel provider2 = getProviderRegister()
 				.getChannelByUserAddress("mkw5u34vDegrah5GasD5gKCJQ1NhNGG8tJ");
@@ -136,6 +148,7 @@ public abstract class ProviderRegisterTest {
 		}
 
 		getProviderRegister().deleteChannel(providerChannel);
+		
 
 		channels = getProviderRegister().getAllChannels();
 
