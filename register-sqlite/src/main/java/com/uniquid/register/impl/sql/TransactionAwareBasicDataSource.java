@@ -66,8 +66,6 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 			connection.commit();
 
 			connection.setAutoCommit(true);
-			
-			context.remove();
 
 		} catch (Exception ex) {
 
@@ -84,7 +82,10 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 				LOGGER.error("Exception closing connection", e);
 				
 			}
-			
+		
+			// remove wrapper!
+			context.remove();
+
 		}
 		
 	}
@@ -102,8 +103,6 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 
 			connection.setAutoCommit(true);
 
-			context.remove();
-
 		} catch (Exception ex) {
 
 			throw new TransactionException("Exception", ex);
@@ -119,7 +118,10 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 				LOGGER.error("Exception closing connection", e);
 				
 			}
-			
+		
+			// remove wrapper!
+			context.remove();
+
 		}
 		
 	}
