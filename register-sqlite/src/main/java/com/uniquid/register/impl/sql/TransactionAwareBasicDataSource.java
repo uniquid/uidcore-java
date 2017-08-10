@@ -19,7 +19,7 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 	@Override
 	public void startTransaction() throws TransactionException {
 		
-		LOGGER.info("Starting transaction " + Thread.currentThread().getName());
+		LOGGER.debug("Starting transaction " + Thread.currentThread().getName());
 
 		try {
 			
@@ -57,7 +57,7 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 	@Override
 	public void commitTransaction() throws TransactionException {
 
-		LOGGER.info("Committing transaction " + Thread.currentThread().getName());
+		LOGGER.debug("Committing transaction " + Thread.currentThread().getName());
 
 		TransactionAwareConnection connection = context.get();
 
@@ -93,7 +93,7 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 	@Override
 	public void rollbackTransaction() throws TransactionException {
 		
-		LOGGER.info("Rollbacking transaction " + Thread.currentThread().getName());
+		LOGGER.debug("Rollbacking transaction " + Thread.currentThread().getName());
 
 		TransactionAwareConnection connection = context.get();
 
