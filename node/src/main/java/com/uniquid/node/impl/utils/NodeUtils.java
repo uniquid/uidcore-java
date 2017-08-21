@@ -167,12 +167,6 @@ public class NodeUtils {
 	 * @param chainFile the chain file to use
 	 * @param listener the listener to inform for status changes
 	 */
-	public static void syncBlockChain(NetworkParameters params, final Wallet wallet, final File chainFile, final DownloadProgressTracker listener) {
-
-		syncBlockChain(params, Arrays.asList(new Wallet[] { wallet }), chainFile, listener, null);
-
-	}
-	
 	public static void syncBlockChain(NetworkParameters params, final Wallet wallet, final File chainFile, 
 			final DownloadProgressTracker listener, final NativePeerEventListener peerListener) {
 
