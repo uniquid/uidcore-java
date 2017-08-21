@@ -1,7 +1,10 @@
 package com.uniquid.node.impl;
 
 import java.util.Date;
+import java.util.Set;
 
+import org.bitcoinj.core.Peer;
+import org.bitcoinj.core.PeerAddress;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -66,6 +69,24 @@ class UniquidNodeEventListenerTest implements UniquidNodeEventListener {
 	
 	public boolean isTriggered() {
 		return triggered;
+	}
+
+	@Override
+	public void onPeerConnected(Peer peer, int peerCount) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPeerDisconnected(Peer peer, int peerCount) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPeersDiscovered(Set<PeerAddress> peerAddresses) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

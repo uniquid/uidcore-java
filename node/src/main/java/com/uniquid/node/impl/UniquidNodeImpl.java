@@ -7,16 +7,22 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.Peer;
+import org.bitcoinj.core.PeerAddress;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
+import org.bitcoinj.core.listeners.PeerConnectedEventListener;
+import org.bitcoinj.core.listeners.PeerDisconnectedEventListener;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.MnemonicCode;
+import org.bitcoinj.jni.NativePeerEventListener;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.UnreadableWalletException;
@@ -269,11 +275,11 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		// Provider wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, providerWallet, providerChainFile,
-				new UniquidNodeDownloadProgressTracker());
+				new UniquidNodeDownloadProgressTracker(), new UniquidPeerConnectionListener());
 
 		// User wallet BC sync
 		NodeUtils.syncBlockChain(networkParameters, userWallet, userChainFile,
-				new UniquidNodeDownloadProgressTracker());
+				new UniquidNodeDownloadProgressTracker(), new UniquidPeerConnectionListener());
 
 		try {
 
@@ -644,6 +650,26 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		}
 
+	}
+	
+	private class UniquidPeerConnectionListener extends NativePeerEventListener {
+		
+		@Override
+		public void onPeersDiscovered(Set<PeerAddress> peerAddresses) {
+			uniquidNodeEventService.onPeersDiscovered(peerAddresses);
+		}
+
+		@Override
+		public void onPeerConnected(Peer peer, int peerCount) {
+			uniquidNodeEventService.onPeerConnected(peer, peerCount);
+			
+		}
+
+		@Override
+		public void onPeerDisconnected(Peer peer, int peerCount) {
+			uniquidNodeEventService.onPeerDisconnected(peer, peerCount);			
+		}
+		
 	}
 
 	@Override
