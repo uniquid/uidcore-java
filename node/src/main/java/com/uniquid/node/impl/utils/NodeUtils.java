@@ -17,10 +17,12 @@ import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
+import org.bitcoinj.core.listeners.PeerConnectedEventListener;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
+import org.bitcoinj.jni.NativePeerEventListener;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.net.discovery.SeedPeers;
 import org.bitcoinj.store.BlockStore;
@@ -89,7 +91,8 @@ public class NodeUtils {
 	 * @param chainFile the chain file to use
 	 * @param listener the listener to inform for status changes
 	 */
-	public static void syncBlockChain(NetworkParameters params, final List<Wallet> wallets, final File chainFile, final DownloadProgressTracker listener) {
+	public static void syncBlockChain(NetworkParameters params, final List<Wallet> wallets, final File chainFile, 
+			final DownloadProgressTracker listener, final NativePeerEventListener peerListener) {
 		
 		try {
 
@@ -137,7 +140,10 @@ public class NodeUtils {
 			}
 
 			LOGGER.info("BLOCKCHAIN Preparing to download blockchain...");
-
+			
+			peerGroup.addConnectedEventListener(peerListener);
+			peerGroup.addDisconnectedEventListener(peerListener);
+			peerGroup.addDiscoveredEventListener(peerListener);
 			peerGroup.start();
 			peerGroup.startBlockChainDownload(listener);
 			listener.await();
@@ -161,9 +167,10 @@ public class NodeUtils {
 	 * @param chainFile the chain file to use
 	 * @param listener the listener to inform for status changes
 	 */
-	public static void syncBlockChain(NetworkParameters params, final Wallet wallet, final File chainFile, final DownloadProgressTracker listener) {
+	public static void syncBlockChain(NetworkParameters params, final Wallet wallet, final File chainFile, 
+			final DownloadProgressTracker listener, final NativePeerEventListener peerListener) {
 
-		syncBlockChain(params, Arrays.asList(new Wallet[] { wallet }), chainFile, listener);
+		syncBlockChain(params, Arrays.asList(new Wallet[] { wallet }), chainFile, listener, peerListener);
 
 	}
 	

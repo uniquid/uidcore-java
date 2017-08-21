@@ -2,11 +2,14 @@ package com.uniquid.node.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+import org.bitcoinj.core.Peer;
+import org.bitcoinj.core.PeerAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -288,6 +291,59 @@ public class UniquidNodeEventService {
 			}
 			
 		});
+	}
+
+	public void onPeerConnected(final Peer peer, final int peerCount) {
+			executorService.submit(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				for (UniquidNodeEventListener listener : observers) {
+					
+					listener.onPeerConnected(peer, peerCount);
+					
+				}
+				
+			}
+			
+		});
+	}
+
+	
+	public void onPeerDisconnected(final Peer peer, final int peerCount) {
+			executorService.submit(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				for (UniquidNodeEventListener listener : observers) {
+					
+					listener.onPeerDisconnected(peer, peerCount);
+					
+				}
+				
+			}
+			
+		});		
+	}
+
+	public void onPeersDiscovered(final Set<PeerAddress> peerAddresses) {
+			executorService.submit(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				for (UniquidNodeEventListener listener : observers) {
+					
+					listener.onPeersDiscovered(peerAddresses);
+					
+				}
+				
+			}
+			
+		});	
+		
 	}
 
 }
