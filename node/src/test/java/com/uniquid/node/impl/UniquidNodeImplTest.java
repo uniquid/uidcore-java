@@ -86,14 +86,7 @@ public class UniquidNodeImplTest {
 		
 		Assert.assertEquals(1487159470, uniquidNode.getCreationTime());
 		
-		try {
-			
-			uniquidNode.getHexSeed();
-			Assert.fail();
-			
-		} catch (Exception e) {
-			// do nothing
-		}
+		Assert.assertEquals("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", uniquidNode.getHexSeed());
 		
 		try {
 			
