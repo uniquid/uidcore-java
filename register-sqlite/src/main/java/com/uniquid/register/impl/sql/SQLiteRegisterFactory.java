@@ -1,6 +1,9 @@
 package com.uniquid.register.impl.sql;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +20,7 @@ import com.uniquid.register.user.UserRegister;
 public class SQLiteRegisterFactory implements RegisterFactory {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(SQLiteRegisterFactory.class);
-
+	
 	protected TransactionAwareBasicDataSource dataSource;
 
 	/**
@@ -52,9 +55,15 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 
 			dataSource.setUrl(connectionString);
 
-			Connection c = dataSource.getConnection();
+			Connection connection = dataSource.getConnection();
 			
-			c.close();
+			if (!tableExist(connection, "provider_channel")) {
+				
+				initDb(connection);
+				
+			}
+			
+			connection.close();
 			
 		} catch (Exception ex) {
 			
@@ -111,6 +120,54 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 		
 		return dataSource;
 		
+	}
+	
+	/**
+	 * Initialize the database
+	 * @param connection
+	 * @throws RegisterException
+	 */
+	protected void initDb(Connection connection) throws RegisterException {
+		
+		try {
+			
+			Statement statement = connection.createStatement();
+			
+			statement.execute("PRAGMA foreign_keys = ON;");
+	
+			statement.executeUpdate(SQLiteRegister.CREATE_PROVIDER_TABLE);
+			statement.executeUpdate(SQLiteRegister.CREATE_USER_TABLE);
+			
+			statement.close();
+		
+		} catch (Exception ex) {
+			
+			throw new RegisterException("Exception", ex);
+			
+		}
+		
+	}
+	
+	/**
+	 * This is an utility method that checks if a table exists in the database
+	 * @param conn
+	 * @param tableName
+	 * @return
+	 * @throws SQLException
+	 */
+	private static boolean tableExist(Connection conn, String tableName) throws SQLException {
+		
+		boolean tExists = false;
+		try (ResultSet rs = conn.getMetaData().getTables(null, null, tableName, null)) {
+			while (rs.next()) {
+				String tName = rs.getString("TABLE_NAME");
+				if (tName != null && tName.equals(tableName)) {
+					tExists = true;
+					break;
+				}
+			}
+		}
+		return tExists;
 	}
 
 }
