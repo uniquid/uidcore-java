@@ -59,6 +59,8 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 			
 			if (!tableExist(connection, "provider_channel")) {
 				
+				LOGGER.info("Found empty database! Creating needed tables");
+				
 				initDb(connection);
 				
 			}
