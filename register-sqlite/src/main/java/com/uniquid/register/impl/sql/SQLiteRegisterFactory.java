@@ -142,7 +142,7 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 		
 		} catch (Exception ex) {
 			
-			throw new RegisterException("Exception", ex);
+			throw new RegisterException("Exception while creating node tables", ex);
 			
 		}
 		
