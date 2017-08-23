@@ -42,7 +42,21 @@ public class MQTTUserClient implements UserClient {
 	@Override
 	public ProviderResponse sendOutputMessage(final ProviderRequest providerRequest) throws ConnectorException {
 		
-		RPCProviderRequest request = (RPCProviderRequest) providerRequest;
+		byte[] payload;
+		
+		if (providerRequest instanceof RPCProviderRequest) {
+			
+			payload = ((RPCProviderRequest) providerRequest).toJSONString().getBytes();
+			
+		} else if (providerRequest instanceof AnnouncerProviderRequest) {
+			
+			payload = ((AnnouncerProviderRequest) providerRequest).toJSONString().getBytes();
+			
+		} else {
+			
+			throw new ConnectorException("unexpected ProviderRequest instance!");
+			
+		}
 		
 		BlockingConnection connection = null;
 		
@@ -63,7 +77,7 @@ public class MQTTUserClient implements UserClient {
 			/*byte[] qoses = */connection.subscribe(topics);
 
 			// consume
-			connection.publish(destinationTopic, request.toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
+			connection.publish(destinationTopic, payload, QoS.AT_LEAST_ONCE, false);
 			
 			final Message message = connection.receive(timeoutInSeconds, TimeUnit.SECONDS);
 			
@@ -73,7 +87,7 @@ public class MQTTUserClient implements UserClient {
 
 			}
 
-			byte[] payload = message.getPayload();
+			payload = message.getPayload();
 
 			message.ack();
 
