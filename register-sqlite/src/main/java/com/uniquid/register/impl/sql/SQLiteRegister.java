@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -139,7 +138,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			}
 		};
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 		
@@ -167,7 +166,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -195,7 +194,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -223,7 +222,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<ProviderChannel> handler = createProviderResultSetHandler();
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -245,7 +244,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -269,7 +268,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (providerChannel == null) throw new RegisterException("providerChannel is null!");
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -352,7 +351,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			}
 		};
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -380,7 +379,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -408,7 +407,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -430,7 +429,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -454,7 +453,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		if (userChannel == null) throw new RegisterException("userchannel is null!");
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -483,7 +482,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -511,7 +510,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<UserChannel> handler = createUserResultSetHandler();
 		
-		QueryRunner run = getQueryRunner();
+		TransactionAwareQueryRunner run = getQueryRunner();
 		
 		try {
 			
@@ -528,9 +527,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	/**
 	 * Returns QueryRunner to use for interact with DB
 	 */
-	protected QueryRunner getQueryRunner() {
+	protected TransactionAwareQueryRunner getQueryRunner() {
 		
-		return new QueryRunner(dataSource);
+		return new TransactionAwareQueryRunner(dataSource);
 		
 	}
 

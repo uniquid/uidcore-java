@@ -19,11 +19,18 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Wrapper around Connection implementation. This will avoid to close explicitly a connection
  * if we are in the middle of a transaction
  */
 public class TransactionAwareConnection implements Connection {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionAwareConnection.class.getName());
+	
+	private final Object sync;
 	
 	private Connection wrapped;
 	private volatile boolean inTransaction;
@@ -31,6 +38,7 @@ public class TransactionAwareConnection implements Connection {
 	private String threadName;
 	
 	public TransactionAwareConnection(Connection wrapped, Thread runnerThread) {
+		this.sync = new Object();
 		this.wrapped = wrapped;
 		this.inTransaction = true;
 		this.threadId = runnerThread.getId();
@@ -79,33 +87,37 @@ public class TransactionAwareConnection implements Connection {
 
 	public void commit() throws SQLException {
 		
-		
-		try {
-			checkCurrentThread();
-			wrapped.commit();
-		} finally {
-			inTransaction = false;
+		synchronized (sync) {
+			
+			try {
+				//checkCurrentThread();
+				wrapped.commit();
+			} finally {
+				inTransaction = false;
+			}
+
 		}
+		
 	}
 
 	public void rollback() throws SQLException {
 		
-		
-		try {
-			checkCurrentThread();
-			wrapped.rollback();
-		} finally {
-			inTransaction = false;
+		synchronized (sync) {
+
+			try {
+				//checkCurrentThread();
+				wrapped.rollback();
+			} finally {
+				inTransaction = false;
+			}
+			
 		}
+		
 	}
 
 	public void close() throws SQLException {
 		
-		checkCurrentThread();
-		
-		if (!inTransaction) {
-			wrapped.close();
-		}
+		wrapped.close();
 		
 	}
 
@@ -328,12 +340,24 @@ public class TransactionAwareConnection implements Connection {
 		return wrapped.getNetworkTimeout();
 	}
 	
+	public boolean inTransaction() {
+		
+		synchronized (sync) {
+			
+			return inTransaction;
+			
+		}
+		
+	}
+	
 	private void checkCurrentThread() {
 		
 		Thread runner = Thread.currentThread();
 		
 		if (runner.getId() != threadId ||
 				!runner.getName().equals(threadName)) {
+			
+			LOGGER.error("The thread executing transaction is different");
 			
 			throw new IllegalStateException("The thread executing transaction is different");
 			

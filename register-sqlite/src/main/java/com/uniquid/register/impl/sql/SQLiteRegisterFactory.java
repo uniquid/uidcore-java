@@ -40,16 +40,17 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 			dataSource.setDriverClassName("org.sqlite.JDBC");
 			
 			dataSource.addConnectionProperty("foreign_keys", "ON");
+			dataSource.addConnectionProperty("journal_mode", "WAL");
+			dataSource.addConnectionProperty("transaction_mode", "IMMEDIATE");
+			dataSource.addConnectionProperty("busy_timeout", "0");
 			
-			dataSource.setDefaultTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+			dataSource.setMaxIdle(3);
 			
-			dataSource.setMaxIdle(1);
+			dataSource.setMinIdle(3);
 			
-			dataSource.setMinIdle(1);
+			dataSource.setMaxTotal(3);
 			
-			dataSource.setMaxTotal(1);
-			
-			dataSource.setInitialSize(1);
+			dataSource.setInitialSize(3);
 			
 			dataSource.setDefaultAutoCommit(true);
 
@@ -135,8 +136,6 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 			
 			Statement statement = connection.createStatement();
 			
-			statement.execute("PRAGMA foreign_keys = ON;");
-	
 			statement.executeUpdate(SQLiteRegister.CREATE_PROVIDER_TABLE);
 			statement.executeUpdate(SQLiteRegister.CREATE_USER_TABLE);
 			

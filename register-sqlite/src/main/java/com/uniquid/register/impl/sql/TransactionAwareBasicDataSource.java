@@ -2,6 +2,8 @@ package com.uniquid.register.impl.sql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
@@ -15,6 +17,15 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionAwareBasicDataSource.class);
 	
 	private static final ThreadLocal<TransactionAwareConnection> context = new ThreadLocal<TransactionAwareConnection>();
+	
+	// This will prevent multiple writer to be active
+	private final Lock writerLock;
+	
+	public TransactionAwareBasicDataSource() {
+		super();
+		
+		this.writerLock = new ReentrantLock();
+	}
 
 	@Override
 	public void startTransaction() throws TransactionException {
@@ -23,21 +34,15 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 
 		try {
 			
+			writerLock.lock();
+
 			Connection connection = context.get();
 			
 			if (connection != null) {
 				
-				//try {
+				LOGGER.error("A transaction is already in progress for " + Thread.currentThread().getName());
 				
-				//	connection.rollback();
-					
-					throw new TransactionException("Transaction already in progress");
-				
-				/*} finally {
-					
-					connection.close();
-					
-				}*/
+				throw new TransactionException("Transaction already in progress");
 				
 			}
 
@@ -47,6 +52,8 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 			context.set(new TransactionAwareConnection(connection, Thread.currentThread()));
 
 		} catch (Exception ex) {
+			
+			writerLock.unlock();
 
 			throw new TransactionException("Exception", ex);
 
@@ -60,6 +67,14 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 		LOGGER.debug("Committing transaction " + Thread.currentThread().getName());
 
 		TransactionAwareConnection connection = context.get();
+		
+		if (connection == null) {
+			
+			LOGGER.error("No transaction found for " + Thread.currentThread().getName());
+			
+			throw new TransactionException("Connection is null!");
+			
+		}
 
 		try {
 			
@@ -82,6 +97,8 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 				LOGGER.error("Exception closing connection", e);
 				
 			}
+			
+			writerLock.unlock();
 		
 			// remove wrapper!
 			context.remove();
@@ -96,6 +113,14 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 		LOGGER.debug("Rollbacking transaction " + Thread.currentThread().getName());
 
 		TransactionAwareConnection connection = context.get();
+		
+		if (connection == null) {
+			
+			LOGGER.error("No transaction found for " + Thread.currentThread().getName());
+			
+			throw new TransactionException("Connection is null!");
+			
+		}
 
 		try {
 			
@@ -118,6 +143,8 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 				LOGGER.error("Exception closing connection", e);
 				
 			}
+			
+			writerLock.unlock();
 		
 			// remove wrapper!
 			context.remove();
