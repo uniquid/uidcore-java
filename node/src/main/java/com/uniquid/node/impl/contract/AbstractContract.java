@@ -44,6 +44,8 @@ public abstract class AbstractContract implements ContractStrategy {
 
 		// Transaction already confirmed
 		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
+			
+			LOGGER.info("TX {} was included in a block. Checking for a contract", tx.getHashAsString());
 
 			doRealContract(tx);
 
@@ -60,6 +62,8 @@ public abstract class AbstractContract implements ContractStrategy {
 
 						if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)
 								&& reason.equals(ChangeReason.TYPE)) {
+							
+							LOGGER.info("TX {} was included in a block. Checking for a contract", tx.getHashAsString());
 
 							doRealContract(tx);
 
@@ -70,7 +74,7 @@ public abstract class AbstractContract implements ContractStrategy {
 						} else if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.DEAD)
 								&& reason.equals(ChangeReason.TYPE)) {
 
-							LOGGER.error("Something bad happened! TRansaction is DEAD!");
+							LOGGER.warn("Something bad happened! TX {} is DEAD!", tx.getHashAsString());
 
 							tx.getConfidence().removeEventListener(this);
 

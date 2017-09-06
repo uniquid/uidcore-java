@@ -39,10 +39,12 @@ public class ImprintingContract extends AbstractContract {
 
 	@Override
 	public void doRealContract(final Transaction tx) throws Exception {
+		
+		LOGGER.info("Making imprint contract from TX {}", tx.getHashAsString());
 
 		// Retrieve sender
 		String sender = tx.getInput(0).getFromAddress().toBase58();
-
+		
 		// Check output
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();
 		for (TransactionOutput to : transactionOutputs) {
@@ -51,6 +53,8 @@ public class ImprintingContract extends AbstractContract {
 			if (address != null && address.equals(imprintingAddress)) {
 
 				// This is our imprinter!!!
+				
+				LOGGER.info("Received imprint contract from {}!", sender);
 
 				ProviderRegister providerRegister = registerFactory.getProviderRegister();
 

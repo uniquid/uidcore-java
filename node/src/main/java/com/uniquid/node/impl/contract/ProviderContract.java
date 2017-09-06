@@ -38,6 +38,8 @@ public class ProviderContract extends AbstractContract {
 
 	@Override
 	public void doRealContract(final Transaction tx) throws Exception {
+		
+		LOGGER.info("Making provider contract from TX {}", tx.getHashAsString());
 
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();
 
@@ -79,6 +81,8 @@ public class ProviderContract extends AbstractContract {
 			LOGGER.error("Contract not valid! Revoke address is null");
 			return;
 		}
+		
+		LOGGER.info("Contract is valid. Inserting in register");
 
 		// Create provider channel
 		final ProviderChannel providerChannel = new ProviderChannel();
@@ -116,6 +120,8 @@ public class ProviderContract extends AbstractContract {
 			}
 
 			providerRegister.insertChannel(providerChannel);
+			
+			LOGGER.trace("Inserted provider register: " + providerRegister);
 
 		} catch (Exception e) {
 

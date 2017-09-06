@@ -187,13 +187,19 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		try {
 			
+			LOGGER.info("Initializing node");
+			
 			if (providerFile.exists() && !providerFile.isDirectory() && userFile.exists() && !userFile.isDirectory()) {
+				
+				LOGGER.info("Found {} {}", providerFile, userFile);
 
 				// Wallets already present!
 				providerWallet = Wallet.loadFromFile(providerFile);
 				userWallet = Wallet.loadFromFile(userFile);
 
 			} else {
+				
+				LOGGER.info("Generating new node from seed");
 
 				// Create a new provider wallet
 				providerWallet = Wallet.fromSeed(networkParameters, detSeed, UniquidNodeImpl.BIP44_ACCOUNT_PROVIDER);
@@ -245,6 +251,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	
 	@Override
 	public synchronized void updateNode() throws NodeException {
+		
+		LOGGER.info("Updating node");
 
 		// Start node sync
 		uniquidNodeEventService.onSyncNodeStart();
@@ -264,7 +272,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		} catch (IOException ex) {
 
-			throw new NodeException("Exception while updating node", ex);
+			throw new NodeException("Exception while persisting wallets", ex);
 
 		}
 		
@@ -342,6 +350,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	@Override
 	public synchronized String signTransaction(final String s_tx, final String path) throws NodeException {
 
+		LOGGER.info("Signing TX");
+		LOGGER.trace("Signing TX {} at path {}", s_tx, path);
+		
 		try {
 			Transaction originalTransaction = networkParameters.getDefaultSerializer().makeTransaction(Hex.decode(s_tx));
 	
@@ -384,6 +395,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	
 	@Override
 	public String broadCastTransaction(String serializedTx) throws NodeException {
+		
+		LOGGER.info("Broadcasting TX");
 		
 		try {
 
@@ -538,6 +551,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 */
 	public synchronized void setUniquidNodeState(final UniquidNodeState nodeState) {
 		
+		LOGGER.info("Changing node state to {}", nodeState.toString());
+		
 		this.nodeState = nodeState;
 		
 		// Send event to listeners
@@ -548,6 +563,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 * Calculate some public info
 	 */
 	private void calculatePublicInfo(final DeterministicSeed detSeed) {
+		
+		LOGGER.debug("Calculating public info");
 
 		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(detSeed.getSeedBytes());
 

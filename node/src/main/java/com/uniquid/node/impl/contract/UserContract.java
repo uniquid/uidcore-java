@@ -32,6 +32,8 @@ public class UserContract extends AbstractContract {
 
 	@Override
 	public void doRealContract(final Transaction tx) throws Exception {
+		
+		LOGGER.info("Making user contract from TX {}", tx.getHashAsString());
 
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();
 
@@ -69,6 +71,8 @@ public class UserContract extends AbstractContract {
 			LOGGER.error("Contract not valid! Provider name is null");
 			return;
 		}
+		
+		LOGGER.info("Contract is valid. Inserting in register");
 
 		// Create channel
 		final UserChannel userChannel = new UserChannel();
@@ -95,7 +99,7 @@ public class UserContract extends AbstractContract {
 
 			userRegister.insertChannel(userChannel);
 			
-			LOGGER.info("inserted user register: " + userRegister);
+			LOGGER.trace("Inserted user register: " + userRegister);
 
 		} catch (Exception e) {
 
