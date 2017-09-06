@@ -191,7 +191,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			
 			if (providerFile.exists() && !providerFile.isDirectory() && userFile.exists() && !userFile.isDirectory()) {
 				
-				LOGGER.info("Found {} {}", providerFile, userFile);
+				LOGGER.info("Found {} {}", providerFile.getAbsolutePath(), userFile.getAbsolutePath());
 
 				// Wallets already present!
 				providerWallet = Wallet.loadFromFile(providerFile);
@@ -223,11 +223,15 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 			// If there is at least 1 contract, then we are ready
 			if (providerChannels.size() > 0) {
+				
+				LOGGER.info("Found {} contracts. Jumping to Ready State", providerChannels.size());
 
 				// Jump to ready state
 				setUniquidNodeState(getReadyState());
 
 			} else {
+				
+				LOGGER.info("No contracts found. Jumping to Imprinting State");
 
 				// Jump to initializing
 				setUniquidNodeState(getImprintingState());
@@ -551,7 +555,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 */
 	public synchronized void setUniquidNodeState(final UniquidNodeState nodeState) {
 		
-		LOGGER.info("Changing node state to {}", nodeState.toString());
+		LOGGER.info("Changing node state to {}", nodeState.getClass());
 		
 		this.nodeState = nodeState;
 		
