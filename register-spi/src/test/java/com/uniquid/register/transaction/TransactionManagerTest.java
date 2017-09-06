@@ -75,30 +75,49 @@ public abstract class TransactionManagerTest {
 	@Test
 	public void multithreadTest() throws Exception {
 		
-		Thread t1 = new Thread(new Inserter(getRegisterFactory(), 50), "t1");
+		Thread w1 = new Thread(new Inserter(getRegisterFactory(), 3000), "w1");
 		
-		Thread t2 = new Thread(new Inserter(getRegisterFactory(), 200), "t2");
+		Thread w2 = new Thread(new Inserter(getRegisterFactory(), 4000), "w2");
+
+		Thread r1 = new Thread(new Reader(getRegisterFactory(), 20000), "r1");
 		
-		t1.start();
-		t2.start();
+		Thread r2 = new Thread(new Reader(getRegisterFactory(), 20000), "r2");
 		
-		t1.join();
-		t2.join();
+		Thread r3 = new Thread(new Reader(getRegisterFactory(), 20000), "r3");
+		
+		Thread w3 = new Thread(new Inserter(getRegisterFactory(), 5000), "w3");
+		
+		r1.start();
+		r2.start();
+		r3.start();
+		
+		w1.start();
+		w2.start();
+		w3.start();
+		
+		
+		r1.join();
+		r2.join();
+		r3.join();
+		w1.join();
+		w2.join();
+		w3.join();
+		
 		
 		List<ProviderChannel> channels = getRegisterFactory().getProviderRegister().getAllChannels();
 		
 		Assert.assertNotNull(channels);
-		Assert.assertEquals(channels.size(), 251);
+		Assert.assertTrue(channels.size() > 0);
 	}
 	
 	class Inserter implements Runnable {
 		
 		private RegisterFactory registerFactory;
-		private int loop;
+		private int duration;
 		
-		public Inserter(RegisterFactory registerFactory, int loop) {
+		public Inserter(RegisterFactory registerFactory, int duration) {
 			this.registerFactory = registerFactory;
-			this.loop = loop;
+			this.duration = duration;
 		}
 
 		@Override
@@ -108,9 +127,12 @@ public abstract class TransactionManagerTest {
 				
 				registerFactory.getTransactionManager().startTransaction();
 				
-				for (int i = 0; i < loop; i++) {
-					
-					String str = Thread.currentThread().getName() + i;
+				long now = System.currentTimeMillis();
+				int i = 0;
+				
+				while (System.currentTimeMillis() < (now + duration)) {
+				
+					String str = Thread.currentThread().getName() + i++;
 					
 					ProviderChannel providerChannel = new ProviderChannel();
 					providerChannel.setProviderAddress(String.valueOf(str));
@@ -119,26 +141,77 @@ public abstract class TransactionManagerTest {
 					providerChannel.setRevokeTxId(String.valueOf(str));
 					providerChannel.setBitmask(String.valueOf(str));
 					
-					System.out.println("Inserting " + providerChannel);
+					System.out.println("Writing " + str);
 					
 					registerFactory.getProviderRegister().insertChannel(providerChannel);
 					
+					Thread.currentThread().sleep(400);
+					
 				}
+				
+				System.out.println(Thread.currentThread().getName() + " finished!");
 				
 				registerFactory.getTransactionManager().commitTransaction();
 			
 			} catch (Exception e) {
+				
+				System.err.println("Exception in " + Thread.currentThread().getName());
+				
+				e.printStackTrace();
 				
 				try {
 
 					registerFactory.getTransactionManager().rollbackTransaction();
 				
 				} catch (Throwable e1) {
+					
+					System.err.println("Exception in " + Thread.currentThread().getName());
 
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 
 				}
+				
+			}
+			
+		}
+		
+	}
+	
+	class Reader implements Runnable {
+		
+		private RegisterFactory registerFactory;
+		private int duration;
+		
+		public Reader(RegisterFactory registerFactory, int duration) {
+			this.registerFactory = registerFactory;
+			this.duration = duration;
+		}
+
+		@Override
+		public void run() {
+
+			try {
+				
+				long now = System.currentTimeMillis();
+				
+				while (System.currentTimeMillis() < (now + duration)) {
+					
+					String str = Thread.currentThread().getName();
+					
+					long size = registerFactory.getProviderRegister().getAllChannels().size();
+					
+					System.out.println(Thread.currentThread().getName() + " Read elements : " + size);
+					
+					Thread.currentThread().sleep(100);
+					
+				}
+				
+			} catch (Exception e) {
+				
+				System.err.println("Exception in " + Thread.currentThread().getName());
+				
+				e.printStackTrace();
 				
 			}
 			
