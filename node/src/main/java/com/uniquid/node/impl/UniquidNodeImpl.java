@@ -361,7 +361,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			Transaction originalTransaction = networkParameters.getDefaultSerializer().makeTransaction(Hex.decode(s_tx));
 	
 			String transactionToString = Hex.toHexString(originalTransaction.bitcoinSerialize());
-			LOGGER.info("Serialized unsigned transaction: " + transactionToString);
+			LOGGER.trace("Serialized unsigned transaction: " + transactionToString);
 	
 			SendRequest send = SendRequest.forTx(originalTransaction);
 	
