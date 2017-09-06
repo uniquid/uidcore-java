@@ -78,6 +78,8 @@ public class UniquidSimplifier extends Core {
 	 * @throws FunctionException in case a problem occurs.
 	 */
 	public void addFunction(Function function, int functionNumber) throws FunctionException {
+		
+		LOGGER.trace("Associating function {} with number {}", function.toString(), functionNumber );
 
 		if (functionNumber >= 32) {
 
@@ -99,6 +101,8 @@ public class UniquidSimplifier extends Core {
 	 * Register an internal Function
 	 */
 	private void addUniquidFunction(Function function, int value) throws FunctionException {
+		
+		LOGGER.trace("Associating internal function {} with number {}", function.toString(), value );
 
 		if (value >= 0 && value <= 31) {
 
@@ -141,12 +145,14 @@ public class UniquidSimplifier extends Core {
 				
 				try {
 					
+					LOGGER.info("Updating node from the BlockChain");
+					
 					// Update node from blockchain
 					getNode().updateNode();
 
 				} catch (Exception e) {
 					
-					LOGGER.error("Exception", e);
+					LOGGER.error("Exception while updating node from the BlockChain", e);
 				}
 
 			}
@@ -156,12 +162,16 @@ public class UniquidSimplifier extends Core {
 				TimeUnit.MINUTES);
 
 		try {
+			
+			LOGGER.info("Starting connector");
 
 			// start connector
 			getConnector().start();
 
 		} catch (ConnectorException e) {
-			LOGGER.error("Exception", e);
+			
+			LOGGER.error("Exception while starting the connector", e);
+			
 		}
 
 		// Create a thread to wait for messages
@@ -174,9 +184,13 @@ public class UniquidSimplifier extends Core {
 				while (!Thread.currentThread().isInterrupted()) {
 
 					try {
+						
+						LOGGER.info("Wait to receive request...");
 
 						// this will block until a message is received
 						EndPoint endPoint = getConnector().accept();
+						
+						LOGGER.info("Request received!");
 
 						ProviderRequest inputMessage = endPoint.getInputMessage();
 
@@ -188,8 +202,8 @@ public class UniquidSimplifier extends Core {
 							continue;
 						}
 
-						LOGGER.info("Received input message from : " + inputMessage.getSender()
-								+ " asking method " + inputMessage.getFunction());
+						LOGGER.info("Received input message from {} asking for method {}", inputMessage.getSender(),
+								inputMessage.getFunction());
 
 						LOGGER.info("Checking sender...");
 
@@ -226,12 +240,14 @@ public class UniquidSimplifier extends Core {
 	 * @throws Exception in case a problem occurs
 	 */
 	public void shutdown() throws Exception {
+		
+		LOGGER.info("Shutting down!");
 
 		scheduledExecutorService.shutdown();
 		receiverExecutorService.shutdown();
 		
  		try {
-			
+ 			
 			scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS);
 			receiverExecutorService.awaitTermination(5, TimeUnit.SECONDS);
 
@@ -242,9 +258,14 @@ public class UniquidSimplifier extends Core {
 		}
 
 		try {
+			
+			LOGGER.info("Stopping connector");
 			getConnector().stop();
+			
 		} catch (ConnectorException e) {
-			LOGGER.error("Error", e);
+			
+			LOGGER.error("Exception while stopping connector", e);
+			
 		}
 	}
 

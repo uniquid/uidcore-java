@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.uniquid.core.Core;
 import com.uniquid.core.ProviderRequest;
@@ -17,6 +19,8 @@ import com.uniquid.node.UniquidNode;
  * {@link Function} designed to manage Contract signing from Orchestrator 
  */
 public class ContractFunction extends GenericFunction {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContractFunction.class);
 
 	@Override
 	public void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload)
@@ -24,6 +28,8 @@ public class ContractFunction extends GenericFunction {
 
 		String params = inputMessage.getParams();
 		String tx, path;
+		
+		LOGGER.trace("Received input {}", inputMessage);
 		
 		try {
 		
@@ -43,9 +49,13 @@ public class ContractFunction extends GenericFunction {
 			
 		try {
 			
+			LOGGER.info("Signing on path {}", path);
+			
 			UniquidNode spvNode = (UniquidNode) getFunctionContext().getAttribute(Core.NODE_ATTRIBUTE);
 		
 			String signedTx = spvNode.signTransaction(tx, path);
+			
+			LOGGER.info("Broadcasting TX");
 			
 			String txid = spvNode.broadCastTransaction(signedTx);
 			
