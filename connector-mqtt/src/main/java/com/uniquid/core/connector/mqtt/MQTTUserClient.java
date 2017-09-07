@@ -42,7 +42,7 @@ public class MQTTUserClient implements UserClient {
 	@Override
 	public ProviderResponse sendOutputMessage(final ProviderRequest providerRequest) throws ConnectorException {
 		
-		LOGGER.info("Sending output message!");
+		LOGGER.info("Sending output message to {}", destination);
 		
 		byte[] payload;
 		
