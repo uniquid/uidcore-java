@@ -158,7 +158,7 @@ public class UniquidSimplifier extends Core {
 			}
 		};
 
-		final ScheduledFuture<?> updaterThread = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 1,
+		final ScheduledFuture<?> walletSyncherFuture = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 1,
 				TimeUnit.MINUTES);
 
 		try {
@@ -217,6 +217,12 @@ public class UniquidSimplifier extends Core {
 						
 						LOGGER.info("Done!");
 
+					} catch (InterruptedException ex) {
+						
+						LOGGER.info("Received request to stop. Exiting");
+						
+						return;
+						
 					} catch (Throwable t) {
 
 						LOGGER.error("Throwable catched", t);
@@ -242,31 +248,22 @@ public class UniquidSimplifier extends Core {
 	public void shutdown() throws Exception {
 		
 		LOGGER.info("Shutting down!");
-
-		scheduledExecutorService.shutdown();
-		receiverExecutorService.shutdown();
 		
- 		try {
- 			
-			scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS);
-			receiverExecutorService.awaitTermination(5, TimeUnit.SECONDS);
-
-		} catch (InterruptedException e) {
-
-			LOGGER.error("Exception while awaiting for termination", e);
-
-		}
-
 		try {
 			
 			LOGGER.info("Stopping connector");
 			getConnector().stop();
-			
+
 		} catch (ConnectorException e) {
 			
-			LOGGER.error("Exception while stopping connector", e);
+			LOGGER.error("Exception while stopping the connector", e);
 			
 		}
+
+		scheduledExecutorService.shutdown();
+		receiverExecutorService.shutdownNow();
+		
+
 	}
 
 }
