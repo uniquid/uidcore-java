@@ -44,14 +44,6 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 			dataSource.addConnectionProperty("transaction_mode", "IMMEDIATE");
 			dataSource.addConnectionProperty("busy_timeout", "0");
 			
-			dataSource.setMaxIdle(3);
-			
-			dataSource.setMinIdle(3);
-			
-			dataSource.setMaxTotal(3);
-			
-			dataSource.setInitialSize(3);
-			
 			dataSource.setDefaultAutoCommit(true);
 
 			dataSource.setUrl(connectionString);
