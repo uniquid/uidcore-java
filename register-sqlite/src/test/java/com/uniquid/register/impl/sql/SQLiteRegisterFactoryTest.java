@@ -22,9 +22,9 @@ public class SQLiteRegisterFactoryTest extends RegisterFactoryTest {
 	}
 
 	@AfterClass
-	public static void testDestroy() throws Exception {
+	public static void testClose() throws Exception {
 
-		factory.destroy();
+		factory.close();
 
 		try {
 			ProviderRegister providerRegister = factory.getProviderRegister();
@@ -39,7 +39,7 @@ public class SQLiteRegisterFactoryTest extends RegisterFactoryTest {
 		}
 
 		try {
-			factory.destroy();
+			factory.close();
 		} catch (RegisterException ex) {
 			Assert.assertEquals("Exception while closing dataSource", ex.getLocalizedMessage());
 		}

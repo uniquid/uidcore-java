@@ -94,7 +94,7 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 	/**
 	 * Destroy the data source
 	 */
-	public void destroy() throws RegisterException {
+	public void close() throws RegisterException {
 		
 		try {
 		
