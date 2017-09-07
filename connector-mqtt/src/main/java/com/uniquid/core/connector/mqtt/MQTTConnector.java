@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
@@ -83,7 +82,7 @@ public class MQTTConnector implements Connector {
 	}
 
 	@Override
-	public EndPoint accept() throws ConnectorException {
+	public EndPoint accept() throws ConnectorException, InterruptedException {
 
 		try {
 
@@ -101,6 +100,10 @@ public class MQTTConnector implements Connector {
 
 			}
 
+		} catch (InterruptedException ex) {
+			
+			throw ex;
+			
 		} catch (Exception ex) {
 
 			throw new ConnectorException(ex);
@@ -122,6 +125,8 @@ public class MQTTConnector implements Connector {
 				while (!Thread.currentThread().isInterrupted()) {
 					
 					try {
+						
+						LOGGER.info("Starting MQTTConnector");
 
 						BlockingConnection connection = null;
 	
@@ -130,6 +135,8 @@ public class MQTTConnector implements Connector {
 							MQTT mqtt = new MQTT();
 	
 							mqtt.setHost(broker);
+							
+							LOGGER.info("Connecting to MQTT");
 	
 							connection = mqtt.blockingConnection();
 							connection.connect();
@@ -138,8 +145,12 @@ public class MQTTConnector implements Connector {
 							Topic[] topics = { new Topic(providerTopic, QoS.AT_LEAST_ONCE) };
 							/*byte[] qoses = */connection.subscribe(topics);
 	
+							LOGGER.info("Waiting for a message!");
+							
 							// blocks!!!
 							Message message = connection.receive();
+							
+							LOGGER.info("Message received!");
 							
 							byte[] payload = message.getPayload();
 	
@@ -160,6 +171,8 @@ public class MQTTConnector implements Connector {
 	
 							// disconnect
 							try {
+								
+								LOGGER.info("Disconnecting");
 	
 								connection.disconnect();
 	
@@ -171,6 +184,12 @@ public class MQTTConnector implements Connector {
 	
 						}
 					
+					} catch (InterruptedException ex) {
+						
+						LOGGER.info("Received interrupt request. Exiting");
+						
+						return;
+						
 					} catch (Throwable t) {
 						
 						LOGGER.error("Catched Exception", t);
@@ -191,18 +210,8 @@ public class MQTTConnector implements Connector {
 	@Override
 	public void stop() {
 
-		receiverExecutorService.shutdown();
+		receiverExecutorService.shutdownNow();
 
-		try {
-
-			receiverExecutorService.awaitTermination(5, TimeUnit.SECONDS);
-
-		} catch (InterruptedException e) {
-
-			LOGGER.error("Exception while awaiting for termination", e);
-
-		}
-		
 	}
 
 }

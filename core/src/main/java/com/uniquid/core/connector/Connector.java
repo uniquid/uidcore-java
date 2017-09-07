@@ -23,6 +23,6 @@ public interface Connector {
 	 * @return {@link EndPoint} the endpoint that wrap the communication with the User.
 	 * @throws ConnectorException in case a problem occurs.
 	 */
-	public EndPoint accept() throws ConnectorException;
+	public EndPoint accept() throws ConnectorException, InterruptedException;
 	
 }

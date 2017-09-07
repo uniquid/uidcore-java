@@ -56,7 +56,7 @@ public class MQTTConnectorTest {
 		try {
 			EndPoint endPoint = mqttConnector.accept();
 			Assert.assertEquals("hola!", endPoint.getInputMessage().getParams());
-		} catch (ConnectorException e) {
+		} catch (Exception e) {
 			Assert.fail();
 		}
 		
@@ -94,7 +94,7 @@ public class MQTTConnectorTest {
 	}
 	
 	@Test(expected = ConnectorException.class)
-	public void testAcceptException() throws ConnectorException {
+	public void testAcceptException() throws Exception {
 		String broker = "tcp://appliance4.uniquid.co:1883";
 		String topic = "test";
 		final MQTTConnector mqttConnector = new MQTTConnector.Builder()
