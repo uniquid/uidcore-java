@@ -42,6 +42,8 @@ public class MQTTUserClient implements UserClient {
 	@Override
 	public ProviderResponse sendOutputMessage(final ProviderRequest providerRequest) throws ConnectorException {
 		
+		LOGGER.info("Sending output message!");
+		
 		byte[] payload;
 		
 		if (providerRequest instanceof RPCProviderRequest) {
@@ -53,6 +55,8 @@ public class MQTTUserClient implements UserClient {
 			payload = ((AnnouncerProviderRequest) providerRequest).toJSONString().getBytes();
 			
 		} else {
+			
+			LOGGER.error("unexpected ProviderRequest instance!");
 			
 			throw new ConnectorException("unexpected ProviderRequest instance!");
 			
@@ -96,6 +100,8 @@ public class MQTTUserClient implements UserClient {
 			
 		} catch (Throwable t) {
 			
+			LOGGER.error("Exception", t);
+			
 			throw new ConnectorException("Exception", t);
 			
 		} finally {
@@ -103,8 +109,13 @@ public class MQTTUserClient implements UserClient {
 			// disconnect
 			try {
 
-				if (connection != null)
+				if (connection != null) {
+				
+					LOGGER.info("Disconnecting");
+					
 					connection.disconnect();
+					
+				}
 
 			} catch (Exception ex) {
 

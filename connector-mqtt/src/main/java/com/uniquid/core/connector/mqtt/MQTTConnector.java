@@ -22,7 +22,7 @@ import com.uniquid.core.connector.EndPoint;
  */
 public class MQTTConnector implements Connector {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(MQTTConnector.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(MQTTConnector.class);
 
 	private String providerTopic;
 	private String broker;
@@ -84,27 +84,38 @@ public class MQTTConnector implements Connector {
 	@Override
 	public EndPoint accept() throws ConnectorException, InterruptedException {
 
+
 		try {
 
 			synchronized (inputQueue) {
 
 				while (inputQueue.isEmpty()) {
 
+					LOGGER.trace("inputQueue is empty. waiting");
+
 					inputQueue.wait();
 
 				}
 
+				LOGGER.trace("inputQueue not empty! fetching element");
+				
 				byte[] inputMessage = inputQueue.poll();
 
+				LOGGER.trace("returning MQTTEndPoint");
+				
 				return new MQTTEndPoint(inputMessage, broker);
 
 			}
 
 		} catch (InterruptedException ex) {
 			
+			LOGGER.error("Catched InterruptedException", ex);
+			
 			throw ex;
 			
 		} catch (Exception ex) {
+			
+			LOGGER.error("Catched Exception", ex);
 
 			throw new ConnectorException(ex);
 
@@ -201,6 +212,8 @@ public class MQTTConnector implements Connector {
 			}
 
 		};
+		
+		LOGGER.info("Starting receiving");
 
 		// Start receiver
 		receiverExecutorService.execute(receiver);
@@ -209,6 +222,8 @@ public class MQTTConnector implements Connector {
 
 	@Override
 	public void stop() {
+		
+		LOGGER.info("Stopping MQTTConnector");
 
 		receiverExecutorService.shutdownNow();
 

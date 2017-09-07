@@ -6,6 +6,8 @@ import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.uniquid.core.ProviderRequest;
 import com.uniquid.core.ProviderResponse;
@@ -17,7 +19,9 @@ import com.uniquid.core.connector.EndPoint;
  */
 public class MQTTEndPoint implements EndPoint {
 	
-private String broker;
+	private static final Logger LOGGER = LoggerFactory.getLogger(MQTTEndPoint.class);
+	
+	private String broker;
 	
 	private final RPCProviderRequest rpcProviderRequest;
 	private final RPCProviderResponse rpcProviderResponse;
@@ -60,44 +64,50 @@ private String broker;
 	@Override
 	public void flush() throws ConnectorException {
 		
+		LOGGER.info("Sending response");
+		
 		BlockingConnection connection = null;
 
+		try {
+
+			MQTT mqtt = new MQTT();
+
+			mqtt.setHost(broker);
+
+			connection = mqtt.blockingConnection();
+			connection.connect();
+			
+			String destinationTopic = rpcProviderRequest.getSender(); 
+			
+			// to subscribe
+			Topic[] topics = { new Topic(destinationTopic, QoS.AT_LEAST_ONCE) };
+			connection.subscribe(topics);
+
+			// consume
+			connection.publish(destinationTopic, rpcProviderResponse.toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
+
+		} catch (Exception ex) {
+			
+			LOGGER.error("Catched Exception", ex);
+			
+			throw new ConnectorException(ex);
+			
+		} finally {
+
+			// disconnect
 			try {
-	
-				MQTT mqtt = new MQTT();
-	
-				mqtt.setHost(broker);
-	
-				connection = mqtt.blockingConnection();
-				connection.connect();
 				
-				String destinationTopic = rpcProviderRequest.getSender(); 
-				
-				// to subscribe
-				Topic[] topics = { new Topic(destinationTopic, QoS.AT_LEAST_ONCE) };
-				connection.subscribe(topics);
-	
-				// consume
-				connection.publish(destinationTopic, rpcProviderResponse.toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
-	
+				LOGGER.info("Disconnecting");
+
+				connection.disconnect();
+
 			} catch (Exception ex) {
-				
-				throw new ConnectorException(ex);
-				
-			} finally {
-	
-				// disconnect
-				try {
-	
-					connection.disconnect();
-	
-				} catch (Exception ex) {
-	
-					//LOGGER.error("Catched Exception", ex);
-	
-				}
-	
+
+				LOGGER.error("Catched Exception", ex);
+
 			}
+
+		}
 
 	}
 
