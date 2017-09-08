@@ -656,11 +656,6 @@ public class UniquidNodeImpl implements UniquidNode {
 		}
 		
 		@Override
-		public RegisterFactory getRegisterFactory() {
-			return UniquidNodeImpl.this.uniquidNodeConfiguration.getRegisterFactory();
-		}
-		
-		@Override
 		public String getPublicKey() {
 			return UniquidNodeImpl.this.publicKey;
 		}
@@ -671,13 +666,13 @@ public class UniquidNodeImpl implements UniquidNode {
 		}
 		
 		@Override
-		public NetworkParameters getNetworkParameters() {
-			return UniquidNodeImpl.this.uniquidNodeConfiguration.getNetworkParameters();
-		}
-		
-		@Override
 		public Address getImprintingAddress() {
 			return UniquidNodeImpl.this.imprintingAddress;
+		}
+
+		@Override
+		public UniquidNodeConfiguration getUniquidNodeConfiguration() {
+			return UniquidNodeImpl.this.uniquidNodeConfiguration;
 		}
 		
 	}

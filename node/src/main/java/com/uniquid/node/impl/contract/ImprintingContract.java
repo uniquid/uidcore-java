@@ -40,14 +40,14 @@ public class ImprintingContract extends AbstractContract {
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();
 		for (TransactionOutput to : transactionOutputs) {
 
-			Address address = to.getAddressFromP2PKHScript(uniquidNodeStateContext.getNetworkParameters());
+			Address address = to.getAddressFromP2PKHScript(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
 			if (address != null && address.equals(uniquidNodeStateContext.getImprintingAddress())) {
 
 				// This is our imprinter!!!
 				
 				LOGGER.info("Received imprint contract from {}!", sender);
 
-				ProviderRegister providerRegister = uniquidNodeStateContext.getRegisterFactory().getProviderRegister();
+				ProviderRegister providerRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getProviderRegister();
 
 				// Create provider channel
 				final ProviderChannel providerChannel = new ProviderChannel();

@@ -71,11 +71,6 @@ public class ImprintingContractTest {
 			}
 			
 			@Override
-			public RegisterFactory getRegisterFactory() {
-				return dummyFactory;
-			}
-			
-			@Override
 			public String getPublicKey() {
 				return null;
 			}
@@ -86,13 +81,25 @@ public class ImprintingContractTest {
 			}
 			
 			@Override
-			public NetworkParameters getNetworkParameters() {
-				return UniquidRegTest.get();
-			}
-			
-			@Override
 			public Address getImprintingAddress() {
 				return address;
+			}
+
+			@Override
+			public UniquidNodeConfiguration getUniquidNodeConfiguration() {
+				return new UniquidNodeConfiguration() {
+					
+					@Override
+					public RegisterFactory getRegisterFactory() {
+						return dummyFactory;
+					}
+					
+					@Override
+					public NetworkParameters getNetworkParameters() {
+						return UniquidRegTest.get();
+					}
+					
+				};
 			}
 		});
 		

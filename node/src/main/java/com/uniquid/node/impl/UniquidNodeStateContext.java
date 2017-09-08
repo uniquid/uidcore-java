@@ -1,11 +1,9 @@
 package com.uniquid.node.impl;
 
 import org.bitcoinj.core.Address;
-import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.wallet.Wallet;
 
 import com.uniquid.node.impl.state.UniquidNodeState;
-import com.uniquid.register.RegisterFactory;
 
 /**
  * {@link UniquidNodeStateContext} allows to implement State design Pattern: it present a single interface to the
@@ -32,22 +30,16 @@ public interface UniquidNodeStateContext {
 	public Wallet getUserWallet();
 	
 	/**
-	 * Return NetworkParameters
+	 * Return UniquidNodeConfiguration
 	 * @return
 	 */
-	public NetworkParameters getNetworkParameters();
+	public UniquidNodeConfiguration getUniquidNodeConfiguration();
 	
 	/**
 	 * Returns imprinting address
 	 * @return
 	 */
 	public Address getImprintingAddress();
-	
-	/**
-	 * Returns register factory
-	 * @return
-	 */
-	public RegisterFactory getRegisterFactory();
 	
 	/**
 	 * Return Event Service

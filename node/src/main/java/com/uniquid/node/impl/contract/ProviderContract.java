@@ -44,7 +44,7 @@ public class ProviderContract extends AbstractContract {
 		}
 
 		Script script = tx.getInput(0).getScriptSig();
-		Address providerAddress = new Address(uniquidNodeStateContext.getNetworkParameters(),
+		Address providerAddress = new Address(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
 				org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
 
 		if (!uniquidNodeStateContext.getProviderWallet().isPubKeyHashMine(providerAddress.getHash160())) {
@@ -54,7 +54,7 @@ public class ProviderContract extends AbstractContract {
 
 		List<TransactionOutput> ts = new ArrayList<>(transactionOutputs);
 
-		Address userAddress = ts.get(0).getAddressFromP2PKHScript(uniquidNodeStateContext.getNetworkParameters());
+		Address userAddress = ts.get(0).getAddressFromP2PKHScript(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
 
 		// We are provider!!!
 		if (userAddress == null) {
@@ -67,7 +67,7 @@ public class ProviderContract extends AbstractContract {
 			return;
 		}
 
-		Address revoke = ts.get(2).getAddressFromP2PKHScript(uniquidNodeStateContext.getNetworkParameters());
+		Address revoke = ts.get(2).getAddressFromP2PKHScript(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
 		if (revoke == null /*
 							 * ||
 							 * !WalletUtils.isUnspent(tx.getHashAsString(),
@@ -101,7 +101,7 @@ public class ProviderContract extends AbstractContract {
 
 		try {
 
-			ProviderRegister providerRegister = uniquidNodeStateContext.getRegisterFactory().getProviderRegister();
+			ProviderRegister providerRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getProviderRegister();
 
 			List<ProviderChannel> channels = providerRegister.getAllChannels();
 
@@ -140,7 +140,7 @@ public class ProviderContract extends AbstractContract {
 		ProviderRegister providerRegister;
 		try {
 
-			providerRegister = uniquidNodeStateContext.getRegisterFactory().getProviderRegister();
+			providerRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getProviderRegister();
 			final ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
 
 			if (channel != null) {

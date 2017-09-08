@@ -43,7 +43,7 @@ public class ImprintingState implements UniquidNodeState {
 			try {
 				
 				// If is imprinting transaction...
-				if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getImprintingAddress())) {
+				if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getImprintingAddress())) {
 
 					LOGGER.info("Valid Imprinting contract received!");
 

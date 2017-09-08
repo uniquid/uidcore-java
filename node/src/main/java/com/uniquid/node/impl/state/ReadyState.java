@@ -83,12 +83,12 @@ public class ReadyState implements UniquidNodeState {
 			LOGGER.info("Received coins on provider wallet");
 			
 			// If is imprinting transaction...
-			if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getImprintingAddress())) {
+			if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getImprintingAddress())) {
 
 				// imprint!
 				LOGGER.warn("Attention! Another machine tried to imprint US! Skip request!");
 
-			} else if (UniquidNodeStateUtils.isValidRevokeContract(tx, uniquidNodeStateContext.getRegisterFactory())) {
+			} else if (UniquidNodeStateUtils.isValidRevokeContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
 
 				try {
 					// Revoking a contract will move coins from provider wallet to another provider address
