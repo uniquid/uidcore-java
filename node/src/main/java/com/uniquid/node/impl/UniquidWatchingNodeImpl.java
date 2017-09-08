@@ -1,13 +1,10 @@
 package com.uniquid.node.impl;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
-import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +22,8 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeImpl.class.getName());
 
-	protected UniquidWatchingNodeImpl(UniquidWatchingNodeConfiguration uniquidWatchingNodeConfiguration)
-			throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+	protected UniquidWatchingNodeImpl(UniquidWatchingNodeConfiguration uniquidWatchingNodeConfiguration) 
+			throws NodeException {
 
 		super(uniquidWatchingNodeConfiguration);
 
@@ -37,45 +34,45 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl {
 	@Override
 	public void initNode() throws NodeException {
 		try {
-			if (getUniquidNodeConfiguration().getProviderFile().exists()
-					&& !getUniquidNodeConfiguration().getProviderFile().isDirectory()
-					&& getUniquidNodeConfiguration().getUserFile().exists()
-					&& !getUniquidNodeConfiguration().getUserFile().isDirectory()) {
+			if (uniquidNodeConfiguration.getProviderFile().exists()
+					&& !uniquidNodeConfiguration.getProviderFile().isDirectory()
+					&& uniquidNodeConfiguration.getUserFile().exists()
+					&& !uniquidNodeConfiguration.getUserFile().isDirectory()) {
 
 				// Wallets already present!
-				providerWallet = Wallet.loadFromFile(getUniquidNodeConfiguration().getProviderFile());
-				userWallet = Wallet.loadFromFile(getUniquidNodeConfiguration().getUserFile());
+				providerWallet = Wallet.loadFromFile(uniquidNodeConfiguration.getProviderFile());
+				userWallet = Wallet.loadFromFile(uniquidNodeConfiguration.getUserFile());
 			} else {
 				DeterministicKey key = DeterministicKey.deserializeB58(null, publicKey,
-						getUniquidNodeConfiguration().getNetworkParameters());
-				LOGGER.info(key.toAddress(getUniquidNodeConfiguration().getNetworkParameters()).toBase58());
+						uniquidNodeConfiguration.getNetworkParameters());
+				LOGGER.info(key.toAddress(uniquidNodeConfiguration.getNetworkParameters()).toBase58());
 				DeterministicHierarchy hierarchy = new DeterministicHierarchy(key);
 
 				DeterministicKey k_orch = hierarchy.get(ImmutableList.of(new ChildNumber(0, false)), true, true);
 
 				DeterministicKey k_machines = DeterministicKey.deserializeB58(null,
-						k_orch.dropParent().serializePubB58(getUniquidNodeConfiguration().getNetworkParameters()),
-						getUniquidNodeConfiguration().getNetworkParameters());
+						k_orch.dropParent().serializePubB58(uniquidNodeConfiguration.getNetworkParameters()),
+						uniquidNodeConfiguration.getNetworkParameters());
 				DeterministicHierarchy h_machines = new DeterministicHierarchy(k_machines);
 
 				DeterministicKey k_provider = h_machines.get(ImmutableList.of(new ChildNumber(0, false)), true, true);
-				providerWallet = Wallet.fromWatchingKeyB58(getUniquidNodeConfiguration().getNetworkParameters(),
-						k_provider.serializePubB58(getUniquidNodeConfiguration().getNetworkParameters()),
-						getUniquidNodeConfiguration().getCreationTime(), ImmutableList.of(new ChildNumber(0, false)));
+				providerWallet = Wallet.fromWatchingKeyB58(uniquidNodeConfiguration.getNetworkParameters(),
+						k_provider.serializePubB58(uniquidNodeConfiguration.getNetworkParameters()),
+						uniquidNodeConfiguration.getCreationTime(), ImmutableList.of(new ChildNumber(0, false)));
 				providerWallet.setDescription("provider");
-				providerWallet.saveToFile(getUniquidNodeConfiguration().getProviderFile());
+				providerWallet.saveToFile(uniquidNodeConfiguration.getProviderFile());
 				imprintingAddress = providerWallet.currentReceiveAddress();
 
 				DeterministicKey k_user = h_machines.get(ImmutableList.of(new ChildNumber(1, false)), true, true);
-				userWallet = Wallet.fromWatchingKeyB58(getUniquidNodeConfiguration().getNetworkParameters(),
-						k_user.serializePubB58(getUniquidNodeConfiguration().getNetworkParameters()),
-						getUniquidNodeConfiguration().getCreationTime(), ImmutableList.of(new ChildNumber(1, false)));
+				userWallet = Wallet.fromWatchingKeyB58(uniquidNodeConfiguration.getNetworkParameters(),
+						k_user.serializePubB58(uniquidNodeConfiguration.getNetworkParameters()),
+						uniquidNodeConfiguration.getCreationTime(), ImmutableList.of(new ChildNumber(1, false)));
 				userWallet.setDescription("user");
-				userWallet.saveToFile(getUniquidNodeConfiguration().getUserFile());
+				userWallet.saveToFile(uniquidNodeConfiguration.getUserFile());
 
 			}
 			// Retrieve contracts
-			List<ProviderChannel> providerChannels = getUniquidNodeConfiguration().getRegisterFactory()
+			List<ProviderChannel> providerChannels = uniquidNodeConfiguration.getRegisterFactory()
 					.getProviderRegister().getAllChannels();
 
 			LOGGER.info("providerChannels size: " + providerChannels.size());

@@ -2,8 +2,6 @@ package com.uniquid.node.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +20,6 @@ import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.jni.NativePeerEventListener;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
-import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
 import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
@@ -69,20 +66,17 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	protected Address imprintingAddress;
 	protected String publicKey;
 
-	protected UniquidNodeConfiguration uniquidNodeConfiguration;
+	protected final UniquidNodeConfiguration uniquidNodeConfiguration;
 
-	private UniquidNodeEventService uniquidNodeEventService;
+	private final UniquidNodeEventService uniquidNodeEventService;
 
 	/**
-	 * Creates a new instance from {@code Builder}
+	 * Creates a new instance
 	 * 
-	 * @param builder
-	 * @throws UnreadableWalletException
-	 * @throws NoSuchAlgorithmException
-	 * @throws UnsupportedEncodingException
+	 * @param uniquidNodeConfiguration
+	 * @throws NodeException
 	 */
-	protected UniquidNodeImpl(UniquidNodeConfiguration uniquidNodeConfiguration)
-			throws UnreadableWalletException, NoSuchAlgorithmException, UnsupportedEncodingException {
+	protected UniquidNodeImpl(UniquidNodeConfiguration uniquidNodeConfiguration) throws NodeException {
 
 		this.uniquidNodeConfiguration = uniquidNodeConfiguration;
 		this.uniquidNodeEventService = new UniquidNodeEventService();
@@ -125,10 +119,6 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 		return new ImprintingState(this);
 
-	}
-
-	protected UniquidNodeConfiguration getUniquidNodeConfiguration() {
-		return uniquidNodeConfiguration;
 	}
 
 	/*
