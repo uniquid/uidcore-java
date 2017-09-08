@@ -3,15 +3,12 @@ package com.uniquid.node.impl.contract;
 import java.util.List;
 
 import org.bitcoinj.core.Address;
-import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
-import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.node.impl.UniquidNodeEventService;
-import com.uniquid.register.RegisterFactory;
+import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 
@@ -27,16 +24,10 @@ public class ImprintingContract extends AbstractContract {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImprintingContract.class);
 
-	private Address imprintingAddress;
-	
-	public ImprintingContract(NetworkParameters networkParameters, Wallet userWallet, Wallet providerWallet, RegisterFactory registerFactory,
-			UniquidNodeEventService uniquidNodeEventService, String pubKey, Address imprintingAddres) {
-		
-		super(networkParameters, userWallet, providerWallet, registerFactory, uniquidNodeEventService, pubKey);
-		
-		this.imprintingAddress = imprintingAddres;
+	public ImprintingContract(UniquidNodeStateContext uniquidNodeStateContext) {
+		super(uniquidNodeStateContext);
 	}
-
+	
 	@Override
 	public void doRealContract(final Transaction tx) throws Exception {
 		
@@ -49,19 +40,19 @@ public class ImprintingContract extends AbstractContract {
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();
 		for (TransactionOutput to : transactionOutputs) {
 
-			Address address = to.getAddressFromP2PKHScript(networkParameters);
-			if (address != null && address.equals(imprintingAddress)) {
+			Address address = to.getAddressFromP2PKHScript(uniquidNodeStateContext.getNetworkParameters());
+			if (address != null && address.equals(uniquidNodeStateContext.getImprintingAddress())) {
 
 				// This is our imprinter!!!
 				
 				LOGGER.info("Received imprint contract from {}!", sender);
 
-				ProviderRegister providerRegister = registerFactory.getProviderRegister();
+				ProviderRegister providerRegister = uniquidNodeStateContext.getRegisterFactory().getProviderRegister();
 
 				// Create provider channel
 				final ProviderChannel providerChannel = new ProviderChannel();
 				providerChannel.setUserAddress(sender);
-				providerChannel.setProviderAddress(imprintingAddress.toBase58());
+				providerChannel.setProviderAddress(uniquidNodeStateContext.getImprintingAddress().toBase58());
 				providerChannel.setBitmask(CONTRACT_FUNCTION);
 				providerChannel.setRevokeAddress("IMPRINTING");
 				providerChannel.setRevokeTxId(tx.getHashAsString());
@@ -71,7 +62,7 @@ public class ImprintingContract extends AbstractContract {
 				providerRegister.insertChannel(providerChannel);
 
 				// send event
-				uniquidNodeEventService.onProviderContractCreated(providerChannel);
+				uniquidNodeStateContext.getUniquidNodeEventService().onProviderContractCreated(providerChannel);
 				
 				break;
 

@@ -5,18 +5,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bitcoinj.core.Address;
-import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.script.Script;
-import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import com.uniquid.node.impl.UniquidNodeEventService;
+import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.node.impl.utils.WalletUtils;
-import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 
@@ -30,12 +27,10 @@ public class ProviderContract extends AbstractContract {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProviderContract.class);
 
-	public ProviderContract(NetworkParameters networkParameters, Wallet userWallet, Wallet providerWallet, RegisterFactory registerFactory,
-			UniquidNodeEventService uniquidNodeEventService, String pubKey) {
-		
-		super(networkParameters, userWallet, providerWallet, registerFactory, uniquidNodeEventService, pubKey);
+	public ProviderContract(UniquidNodeStateContext uniquidNodeStateContext) {
+		super(uniquidNodeStateContext);
 	}
-
+	
 	@Override
 	public void doRealContract(final Transaction tx) throws Exception {
 		
@@ -49,17 +44,17 @@ public class ProviderContract extends AbstractContract {
 		}
 
 		Script script = tx.getInput(0).getScriptSig();
-		Address providerAddress = new Address(networkParameters,
+		Address providerAddress = new Address(uniquidNodeStateContext.getNetworkParameters(),
 				org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
 
-		if (!providerWallet.isPubKeyHashMine(providerAddress.getHash160())) {
+		if (!uniquidNodeStateContext.getProviderWallet().isPubKeyHashMine(providerAddress.getHash160())) {
 			LOGGER.error("Contract not valid! We are not the provider");
 			return;
 		}
 
 		List<TransactionOutput> ts = new ArrayList<>(transactionOutputs);
 
-		Address userAddress = ts.get(0).getAddressFromP2PKHScript(networkParameters);
+		Address userAddress = ts.get(0).getAddressFromP2PKHScript(uniquidNodeStateContext.getNetworkParameters());
 
 		// We are provider!!!
 		if (userAddress == null) {
@@ -72,7 +67,7 @@ public class ProviderContract extends AbstractContract {
 			return;
 		}
 
-		Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
+		Address revoke = ts.get(2).getAddressFromP2PKHScript(uniquidNodeStateContext.getNetworkParameters());
 		if (revoke == null /*
 							 * ||
 							 * !WalletUtils.isUnspent(tx.getHashAsString(),
@@ -106,7 +101,7 @@ public class ProviderContract extends AbstractContract {
 
 		try {
 
-			ProviderRegister providerRegister = registerFactory.getProviderRegister();
+			ProviderRegister providerRegister = uniquidNodeStateContext.getRegisterFactory().getProviderRegister();
 
 			List<ProviderChannel> channels = providerRegister.getAllChannels();
 
@@ -132,7 +127,7 @@ public class ProviderContract extends AbstractContract {
 		}
 
 		// Inform listeners
-		uniquidNodeEventService.onProviderContractCreated(providerChannel);
+		uniquidNodeStateContext.getUniquidNodeEventService().onProviderContractCreated(providerChannel);
 
 	}
 
@@ -145,7 +140,7 @@ public class ProviderContract extends AbstractContract {
 		ProviderRegister providerRegister;
 		try {
 
-			providerRegister = registerFactory.getProviderRegister();
+			providerRegister = uniquidNodeStateContext.getRegisterFactory().getProviderRegister();
 			final ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
 
 			if (channel != null) {
@@ -157,7 +152,7 @@ public class ProviderContract extends AbstractContract {
 				LOGGER.info("Contract revoked! " + channel);
 				
 				// Inform listeners
-				uniquidNodeEventService.onProviderContractRevoked(channel);
+				uniquidNodeStateContext.getUniquidNodeEventService().onProviderContractRevoked(channel);
 
 			} else {
 

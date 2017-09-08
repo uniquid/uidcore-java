@@ -143,17 +143,13 @@ public class ReadyState implements UniquidNodeState {
 
 	protected ContractStrategy createProviderContract() {
 		
-		return new ProviderContract(uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getUserWallet(),
-				uniquidNodeStateContext.getProviderWallet(), uniquidNodeStateContext.getRegisterFactory(),
-				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKey());
+		return new ProviderContract(uniquidNodeStateContext);
 
 	}
 	
 	protected ContractStrategy createUserContract() {
 		
-		return new UserContract(uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getUserWallet(),
-				uniquidNodeStateContext.getProviderWallet(), uniquidNodeStateContext.getRegisterFactory(),
-				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKey());
+		return new UserContract(uniquidNodeStateContext);
 	
 	}
 	

@@ -1,13 +1,16 @@
 package com.uniquid.node.impl;
 
 import org.bitcoinj.core.Address;
+import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.wallet.Wallet;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.node.impl.contract.ImprintingContract;
 import com.uniquid.node.impl.params.UniquidRegTest;
+import com.uniquid.node.impl.state.UniquidNodeState;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
 import com.uniquid.node.impl.utils.DummyUserRegister;
 import com.uniquid.register.RegisterFactory;
@@ -27,7 +30,7 @@ public class ImprintingContractTest {
 		
 		final UserRegister dummyUser = new DummyUserRegister();
 		
-		RegisterFactory dummyFactory = new RegisterFactory() {
+		final RegisterFactory dummyFactory = new RegisterFactory() {
 					
 			@Override
 			public UserRegister getUserRegister() throws RegisterException {
@@ -48,10 +51,50 @@ public class ImprintingContractTest {
 		
 		Transaction originalTransaction = UniquidRegTest.get().getDefaultSerializer().makeTransaction(Hex.decode(imprinttx));
 		
-		Address address = Address.fromBase58(UniquidRegTest.get(), "mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb");
+		final Address address = Address.fromBase58(UniquidRegTest.get(), "mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb");
 		
-		ImprintingContract contract = new ImprintingContract(UniquidRegTest.get(), null,
-				null, dummyFactory, new UniquidNodeEventService(), null, address);
+		ImprintingContract contract = new ImprintingContract(new UniquidNodeStateContext() {
+			
+			@Override
+			public void setUniquidNodeState(UniquidNodeState nodeState) {
+				
+			}
+			
+			@Override
+			public Wallet getUserWallet() {
+				return null;
+			}
+			
+			@Override
+			public UniquidNodeEventService getUniquidNodeEventService() {
+				return new UniquidNodeEventService();
+			}
+			
+			@Override
+			public RegisterFactory getRegisterFactory() {
+				return dummyFactory;
+			}
+			
+			@Override
+			public String getPublicKey() {
+				return null;
+			}
+			
+			@Override
+			public Wallet getProviderWallet() {
+				return null;
+			}
+			
+			@Override
+			public NetworkParameters getNetworkParameters() {
+				return UniquidRegTest.get();
+			}
+			
+			@Override
+			public Address getImprintingAddress() {
+				return address;
+			}
+		});
 		
 		contract.doRealContract(originalTransaction);
 		

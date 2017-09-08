@@ -1,15 +1,12 @@
 package com.uniquid.node.impl.contract;
 
-import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionConfidence;
 import org.bitcoinj.core.TransactionConfidence.Listener;
-import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.node.impl.UniquidNodeEventService;
-import com.uniquid.register.RegisterFactory;
+import com.uniquid.node.impl.UniquidNodeStateContext;
 
 /**
  * Abstract implementation of State pattern with some boilerplate code for
@@ -19,26 +16,12 @@ public abstract class AbstractContract implements ContractStrategy {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractContract.class);
 	
-	protected NetworkParameters networkParameters;
-	protected Wallet userWallet;
-	protected Wallet providerWallet;
-	protected RegisterFactory registerFactory;
-	protected UniquidNodeEventService uniquidNodeEventService;
-	protected String pubKey;
+	protected UniquidNodeStateContext uniquidNodeStateContext;
 	
-	public AbstractContract(final NetworkParameters networkParameters, final Wallet userWallet, final Wallet providerWallet,
-			final RegisterFactory registerFactory, final UniquidNodeEventService uniquidNodeEventService,
-			String pubKey) {
-
-		this.networkParameters = networkParameters;
-		this.userWallet = userWallet;
-		this.providerWallet = providerWallet;
-		this.registerFactory = registerFactory;
-		this.uniquidNodeEventService = uniquidNodeEventService;
-		this.pubKey = pubKey;
-
+	public AbstractContract(UniquidNodeStateContext uniquidNodeStateContext) {
+		this.uniquidNodeStateContext = uniquidNodeStateContext;
 	}
-
+	
 	@Override
 	public void manageContractCreation(final Transaction tx) throws Exception {
 

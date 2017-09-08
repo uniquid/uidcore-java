@@ -104,17 +104,13 @@ public class ImprintingState implements UniquidNodeState {
 	
 	protected ContractStrategy createImprintingContract() {
 		
-		return new ImprintingContract(uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getUserWallet(),
-				uniquidNodeStateContext.getProviderWallet(), uniquidNodeStateContext.getRegisterFactory(),
-				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKey(), uniquidNodeStateContext.getImprintingAddress());
+		return new ImprintingContract(uniquidNodeStateContext);
 		
 	}
 	
 	protected ContractStrategy createUserContract() {
 		
-		return new UserContract(uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getUserWallet(),
-				uniquidNodeStateContext.getProviderWallet(), uniquidNodeStateContext.getRegisterFactory(),
-				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKey());
+		return new UserContract(uniquidNodeStateContext);
 	
 	}
 

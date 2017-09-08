@@ -5,29 +5,24 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bitcoinj.core.Address;
-import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.script.Script;
-import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import com.uniquid.node.impl.UniquidNodeEventService;
+import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.node.impl.utils.WalletUtils;
-import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
 public class UserContract extends AbstractContract {
 	
-	public UserContract(NetworkParameters networkParameters, Wallet userWallet, Wallet providerWallet, RegisterFactory registerFactory,
-			UniquidNodeEventService uniquidNodeEventService, String pubKey) {
-		
-		super(networkParameters, userWallet, providerWallet, registerFactory, uniquidNodeEventService, pubKey);
+	public UserContract(UniquidNodeStateContext uniquidNodeStateContext) {
+		super(uniquidNodeStateContext);
 	}
-
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserContract.class);
 
 	@Override
@@ -43,14 +38,14 @@ public class UserContract extends AbstractContract {
 		}
 
 		Script script = tx.getInput(0).getScriptSig();
-		Address providerAddress = new Address(networkParameters,
+		Address providerAddress = new Address(uniquidNodeStateContext.getNetworkParameters(),
 				org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
 
 		List<TransactionOutput> ts = new ArrayList<>(transactionOutputs);
 
-		Address userAddress = ts.get(0).getAddressFromP2PKHScript(networkParameters);
+		Address userAddress = ts.get(0).getAddressFromP2PKHScript(uniquidNodeStateContext.getNetworkParameters());
 
-		if (userAddress == null || !userWallet.isPubKeyHashMine(userAddress.getHash160())) {
+		if (userAddress == null || !uniquidNodeStateContext.getUserWallet().isPubKeyHashMine(userAddress.getHash160())) {
 			LOGGER.error("Contract not valid! User address is null or we are not the user");
 			return;
 		}
@@ -60,7 +55,7 @@ public class UserContract extends AbstractContract {
 			return;
 		}
 
-		Address revoke = ts.get(2).getAddressFromP2PKHScript(networkParameters);
+		Address revoke = ts.get(2).getAddressFromP2PKHScript(uniquidNodeStateContext.getNetworkParameters());
 		if (revoke == null /*|| !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())*/) {
 			LOGGER.error("Contract not valid! Revoke address is null or contract revoked");
 			return;
@@ -95,7 +90,7 @@ public class UserContract extends AbstractContract {
 
 		try {
 
-			UserRegister userRegister = registerFactory.getUserRegister();
+			UserRegister userRegister = uniquidNodeStateContext.getRegisterFactory().getUserRegister();
 
 			userRegister.insertChannel(userChannel);
 			
@@ -110,7 +105,7 @@ public class UserContract extends AbstractContract {
 		}
 		
 		// Inform listeners
-		uniquidNodeEventService.onUserContractCreated(userChannel);
+		uniquidNodeStateContext.getUniquidNodeEventService().onUserContractCreated(userChannel);
 
 	}
 
