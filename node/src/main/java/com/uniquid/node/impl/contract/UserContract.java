@@ -61,7 +61,7 @@ public class UserContract extends AbstractContract {
 			return;
 		}
 
-		String providerName = retrieveNameFromProvider(providerAddress);
+		String providerName = retrieveNameFromProvider(providerAddress, uniquidNodeStateContext);
 		if (providerName == null) {
 			LOGGER.error("Contract not valid! Provider name is null");
 			return;
@@ -114,8 +114,8 @@ public class UserContract extends AbstractContract {
 		// DO NOTHIG
 	}
 	
-	protected String retrieveNameFromProvider(Address providerAddress) {
-		 return WalletUtils.retrieveNameFromProvider(providerAddress.toBase58());
+	protected String retrieveNameFromProvider(Address providerAddress, UniquidNodeStateContext uniquidNodeStateContext) {
+		 return WalletUtils.retrieveNameFromProvider(providerAddress.toBase58(), uniquidNodeStateContext.getUniquidNodeConfiguration().getRegistryUrl());
 	}
 
 }

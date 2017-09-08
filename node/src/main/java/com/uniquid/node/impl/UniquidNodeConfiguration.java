@@ -23,6 +23,8 @@ public class UniquidNodeConfiguration {
 	private RegisterFactory registerFactory;
 
 	private DeterministicSeed detSeed;
+	
+	private String registryUrl;
 
 	public File getProviderChainFile() {
 		return providerChainFile;
@@ -104,4 +106,12 @@ public class UniquidNodeConfiguration {
 		this.detSeed = detSeed;
 	}
 
+	public String getRegistryUrl() {
+		return registryUrl;
+	}
+
+	public void setRegistryUrl(String registryUrl) {
+		this.registryUrl = registryUrl;
+	}
+	
 }

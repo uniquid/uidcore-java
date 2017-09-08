@@ -28,12 +28,11 @@ import org.spongycastle.util.encoders.Hex;
  * Utility class that contains useful methods for managing wallets
  */
 public abstract class WalletUtils {
+	
+	private static String URL_REGISTRY = "http://%1&s/registry";
+	
 	private static final Logger LOGGER = LoggerFactory.getLogger(WalletUtils.class.getName());
 	
-	private static String URL_REGISTRY = "http://104.130.230.85:8080/registry";
-    private static String URL_UTXO = "http://52.167.211.151:3001/insight-api/addr/%1&s/utxo";
-    private static String URL_PROVIDER = "http://appliance4.uniquid.co:8080/registry";
-
     /**
      * Allow to complete a deserialized transaction from content fetched from the wallet
      * @param sendRequest
@@ -161,8 +160,8 @@ public abstract class WalletUtils {
 //        return false;
 //    }
     
-    public static String retrieveNameFromProvider(String provider){
-        String result = httpGet(URL_REGISTRY, null);
+    public static String retrieveNameFromProvider(String provider, String registryUrl){
+        String result = httpGet(URL_REGISTRY, registryUrl);
 
         if (result == null)
             return null;
