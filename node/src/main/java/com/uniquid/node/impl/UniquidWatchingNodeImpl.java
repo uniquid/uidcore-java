@@ -96,10 +96,10 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl {
 			}
 
 			// Add event listeners
-			providerWallet.addCoinsReceivedEventListener(this);
-			providerWallet.addCoinsSentEventListener(this);
-			userWallet.addCoinsReceivedEventListener(this);
-			userWallet.addCoinsSentEventListener(this);
+			providerWallet.addCoinsReceivedEventListener(new UniquidWalletCoinsReceivedEventListener());
+			providerWallet.addCoinsSentEventListener(new UniquidWalletCoinsSentEventListener());
+			userWallet.addCoinsReceivedEventListener(new UniquidWalletCoinsReceivedEventListener());
+			userWallet.addCoinsSentEventListener(new UniquidWalletCoinsSentEventListener());
 		} catch (Exception ex) {
 			throw new NodeException("Exception while initializating node", ex);
 		}

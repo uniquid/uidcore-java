@@ -43,7 +43,7 @@ import com.uniquid.register.provider.ProviderChannel;
 /**
  * Implementation of an Uniquid Node with BitcoinJ library
  */
-public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListener, WalletCoinsReceivedEventListener {
+public class UniquidNodeImpl implements UniquidNode {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeImpl.class.getName());
 
@@ -104,49 +104,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 */
 	protected UniquidNodeState getReadyState() {
 
-		return new ReadyState(new UniquidNodeStateContext() {
-			
-			@Override
-			public void setUniquidNodeState(UniquidNodeState nodeState) {
-				UniquidNodeImpl.this.setUniquidNodeState(nodeState);
-				
-			}
-			
-			@Override
-			public Wallet getUserWallet() {
-				return UniquidNodeImpl.this.userWallet;
-			}
-			
-			@Override
-			public UniquidNodeEventService getUniquidNodeEventService() {
-				return UniquidNodeImpl.this.uniquidNodeEventService;
-			}
-			
-			@Override
-			public RegisterFactory getRegisterFactory() {
-				return UniquidNodeImpl.this.uniquidNodeConfiguration.getRegisterFactory();
-			}
-			
-			@Override
-			public String getPublicKeyValue() {
-				return UniquidNodeImpl.this.publicKey;
-			}
-			
-			@Override
-			public Wallet getProviderWallet() {
-				return UniquidNodeImpl.this.providerWallet;
-			}
-			
-			@Override
-			public NetworkParameters getNetworkParameters() {
-				return UniquidNodeImpl.this.uniquidNodeConfiguration.getNetworkParameters();
-			}
-			
-			@Override
-			public Address getImprintingAddressValue() {
-				return UniquidNodeImpl.this.imprintingAddress;
-			}
-		});
+		return new ReadyState(new UniquidNodeStateContextImpl());
 
 	}
 
@@ -158,49 +116,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 */
 	protected UniquidNodeState getImprintingState() {
 
-		return new ImprintingState(new UniquidNodeStateContext() {
-			
-			@Override
-			public void setUniquidNodeState(UniquidNodeState nodeState) {
-				UniquidNodeImpl.this.setUniquidNodeState(nodeState);
-				
-			}
-			
-			@Override
-			public Wallet getUserWallet() {
-				return UniquidNodeImpl.this.userWallet;
-			}
-			
-			@Override
-			public UniquidNodeEventService getUniquidNodeEventService() {
-				return UniquidNodeImpl.this.uniquidNodeEventService;
-			}
-			
-			@Override
-			public RegisterFactory getRegisterFactory() {
-				return UniquidNodeImpl.this.uniquidNodeConfiguration.getRegisterFactory();
-			}
-			
-			@Override
-			public String getPublicKeyValue() {
-				return UniquidNodeImpl.this.publicKey;
-			}
-			
-			@Override
-			public Wallet getProviderWallet() {
-				return UniquidNodeImpl.this.providerWallet;
-			}
-			
-			@Override
-			public NetworkParameters getNetworkParameters() {
-				return UniquidNodeImpl.this.uniquidNodeConfiguration.getNetworkParameters();
-			}
-			
-			@Override
-			public Address getImprintingAddressValue() {
-				return UniquidNodeImpl.this.imprintingAddress;
-			}
-		});
+		return new ImprintingState(new UniquidNodeStateContextImpl());
 
 	}
 
@@ -303,10 +219,10 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			}
 
 			// Add event listeners
-			providerWallet.addCoinsReceivedEventListener(this);
-			providerWallet.addCoinsSentEventListener(this);
-			userWallet.addCoinsReceivedEventListener(this);
-			userWallet.addCoinsSentEventListener(this);
+			providerWallet.addCoinsReceivedEventListener(new UniquidWalletCoinsReceivedEventListener());
+			providerWallet.addCoinsSentEventListener(new UniquidWalletCoinsSentEventListener());
+			userWallet.addCoinsReceivedEventListener(new UniquidWalletCoinsReceivedEventListener());
+			userWallet.addCoinsSentEventListener(new UniquidWalletCoinsSentEventListener());
 
 		} catch (Exception ex) {
 
@@ -641,35 +557,9 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	/*
-	 * callback to receive events from bitcoinj when coins are received
-	 */
-	public synchronized void onCoinsReceived(final Wallet wallet, final Transaction tx, final Coin prevBalance,
-			final Coin newBalance) {
-
-		org.bitcoinj.core.Context currentContext = new org.bitcoinj.core.Context(
-				uniquidNodeConfiguration.getNetworkParameters());
-		org.bitcoinj.core.Context.propagate(currentContext);
-
-		nodeState.onCoinsReceived(wallet, tx);
-	}
-
-	/*
-	 * callback to receive events from bitcoinj when coins are sent
-	 */
-	public synchronized void onCoinsSent(final Wallet wallet, final Transaction tx, final Coin prevBalance,
-			final Coin newBalance) {
-
-		org.bitcoinj.core.Context currentContext = new org.bitcoinj.core.Context(
-				uniquidNodeConfiguration.getNetworkParameters());
-		org.bitcoinj.core.Context.propagate(currentContext);
-
-		nodeState.onCoinsSent(wallet, tx);
-	}
-
-	/*
 	 * Implementation of callback for blockchain events
 	 */
-	private class UniquidNodeDownloadProgressTracker extends DownloadProgressTracker {
+	protected class UniquidNodeDownloadProgressTracker extends DownloadProgressTracker {
 
 		@Override
 		protected void startDownload(final int blocks) {
@@ -694,7 +584,7 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 
 	}
 
-	private class UniquidPeerConnectionListener extends NativePeerEventListener {
+	protected class UniquidPeerConnectionListener extends NativePeerEventListener {
 
 		@Override
 		public void onPeersDiscovered(Set<PeerAddress> peerAddresses) {
@@ -712,6 +602,80 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			uniquidNodeEventService.onPeerDisconnected(peer, peerCount);
 		}
 
+	}
+	
+	protected class UniquidWalletCoinsReceivedEventListener implements WalletCoinsReceivedEventListener {
+
+		@Override
+		public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+			
+			org.bitcoinj.core.Context currentContext = new org.bitcoinj.core.Context(
+					uniquidNodeConfiguration.getNetworkParameters());
+			org.bitcoinj.core.Context.propagate(currentContext);
+
+			UniquidNodeImpl.this.nodeState.onCoinsReceived(wallet, tx);
+			
+		}
+		
+	}
+	
+	protected class UniquidWalletCoinsSentEventListener implements WalletCoinsSentEventListener {
+
+		@Override
+		public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
+			
+			org.bitcoinj.core.Context currentContext = new org.bitcoinj.core.Context(
+					uniquidNodeConfiguration.getNetworkParameters());
+			org.bitcoinj.core.Context.propagate(currentContext);
+
+			UniquidNodeImpl.this.nodeState.onCoinsSent(wallet, tx);
+			
+		}
+		
+	}
+	
+	protected class UniquidNodeStateContextImpl implements UniquidNodeStateContext {
+
+		@Override
+		public void setUniquidNodeState(UniquidNodeState nodeState) {
+			UniquidNodeImpl.this.setUniquidNodeState(nodeState);
+		}
+		
+		@Override
+		public Wallet getUserWallet() {
+			return UniquidNodeImpl.this.userWallet;
+		}
+		
+		@Override
+		public UniquidNodeEventService getUniquidNodeEventService() {
+			return UniquidNodeImpl.this.uniquidNodeEventService;
+		}
+		
+		@Override
+		public RegisterFactory getRegisterFactory() {
+			return UniquidNodeImpl.this.uniquidNodeConfiguration.getRegisterFactory();
+		}
+		
+		@Override
+		public String getPublicKeyValue() {
+			return UniquidNodeImpl.this.publicKey;
+		}
+		
+		@Override
+		public Wallet getProviderWallet() {
+			return UniquidNodeImpl.this.providerWallet;
+		}
+		
+		@Override
+		public NetworkParameters getNetworkParameters() {
+			return UniquidNodeImpl.this.uniquidNodeConfiguration.getNetworkParameters();
+		}
+		
+		@Override
+		public Address getImprintingAddressValue() {
+			return UniquidNodeImpl.this.imprintingAddress;
+		}
+		
 	}
 
 }
