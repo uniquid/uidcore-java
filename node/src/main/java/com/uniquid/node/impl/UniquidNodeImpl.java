@@ -661,7 +661,7 @@ public class UniquidNodeImpl implements UniquidNode {
 		}
 		
 		@Override
-		public String getPublicKeyValue() {
+		public String getPublicKey() {
 			return UniquidNodeImpl.this.publicKey;
 		}
 		
@@ -676,7 +676,7 @@ public class UniquidNodeImpl implements UniquidNode {
 		}
 		
 		@Override
-		public Address getImprintingAddressValue() {
+		public Address getImprintingAddress() {
 			return UniquidNodeImpl.this.imprintingAddress;
 		}
 		

@@ -83,7 +83,7 @@ public class ReadyState implements UniquidNodeState {
 			LOGGER.info("Received coins on provider wallet");
 			
 			// If is imprinting transaction...
-			if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getImprintingAddressValue())) {
+			if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getImprintingAddress())) {
 
 				// imprint!
 				LOGGER.warn("Attention! Another machine tried to imprint US! Skip request!");
@@ -145,7 +145,7 @@ public class ReadyState implements UniquidNodeState {
 		
 		return new ProviderContract(uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getUserWallet(),
 				uniquidNodeStateContext.getProviderWallet(), uniquidNodeStateContext.getRegisterFactory(),
-				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKeyValue());
+				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKey());
 
 	}
 	
@@ -153,7 +153,7 @@ public class ReadyState implements UniquidNodeState {
 		
 		return new UserContract(uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getUserWallet(),
 				uniquidNodeStateContext.getProviderWallet(), uniquidNodeStateContext.getRegisterFactory(),
-				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKeyValue());
+				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKey());
 	
 	}
 	

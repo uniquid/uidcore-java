@@ -41,7 +41,7 @@ public interface UniquidNodeStateContext {
 	 * Returns imprinting address
 	 * @return
 	 */
-	public Address getImprintingAddressValue();
+	public Address getImprintingAddress();
 	
 	/**
 	 * Returns register factory
@@ -59,6 +59,6 @@ public interface UniquidNodeStateContext {
 	 * Return node publick key
 	 * @return
 	 */
-	public String getPublicKeyValue();
+	public String getPublicKey();
 	
 }

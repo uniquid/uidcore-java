@@ -43,7 +43,7 @@ public class ImprintingState implements UniquidNodeState {
 			try {
 				
 				// If is imprinting transaction...
-				if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getImprintingAddressValue())) {
+				if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getImprintingAddress())) {
 
 					LOGGER.info("Valid Imprinting contract received!");
 
@@ -106,7 +106,7 @@ public class ImprintingState implements UniquidNodeState {
 		
 		return new ImprintingContract(uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getUserWallet(),
 				uniquidNodeStateContext.getProviderWallet(), uniquidNodeStateContext.getRegisterFactory(),
-				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKeyValue(), uniquidNodeStateContext.getImprintingAddressValue());
+				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKey(), uniquidNodeStateContext.getImprintingAddress());
 		
 	}
 	
@@ -114,7 +114,7 @@ public class ImprintingState implements UniquidNodeState {
 		
 		return new UserContract(uniquidNodeStateContext.getNetworkParameters(), uniquidNodeStateContext.getUserWallet(),
 				uniquidNodeStateContext.getProviderWallet(), uniquidNodeStateContext.getRegisterFactory(),
-				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKeyValue());
+				uniquidNodeStateContext.getUniquidNodeEventService(), uniquidNodeStateContext.getPublicKey());
 	
 	}
 
