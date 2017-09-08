@@ -568,21 +568,21 @@ public class UniquidNodeImpl implements UniquidNode {
 		@Override
 		protected void startDownload(final int blocks) {
 
-			uniquidNodeEventService.onSyncStarted(blocks);
+			UniquidNodeImpl.this.uniquidNodeEventService.onSyncStarted(blocks);
 
 		}
 
 		@Override
 		protected void progress(final double pct, final int blocksSoFar, final Date date) {
 
-			uniquidNodeEventService.onSyncProgress(pct, blocksSoFar, date);
+			UniquidNodeImpl.this.uniquidNodeEventService.onSyncProgress(pct, blocksSoFar, date);
 
 		}
 
 		@Override
 		public void doneDownload() {
 
-			uniquidNodeEventService.onSyncEnded();
+			UniquidNodeImpl.this.uniquidNodeEventService.onSyncEnded();
 
 		}
 
@@ -592,18 +592,18 @@ public class UniquidNodeImpl implements UniquidNode {
 
 		@Override
 		public void onPeersDiscovered(Set<PeerAddress> peerAddresses) {
-			uniquidNodeEventService.onPeersDiscovered(peerAddresses);
+			UniquidNodeImpl.this.uniquidNodeEventService.onPeersDiscovered(peerAddresses);
 		}
 
 		@Override
 		public void onPeerConnected(Peer peer, int peerCount) {
-			uniquidNodeEventService.onPeerConnected(peer, peerCount);
+			UniquidNodeImpl.this.uniquidNodeEventService.onPeerConnected(peer, peerCount);
 
 		}
 
 		@Override
 		public void onPeerDisconnected(Peer peer, int peerCount) {
-			uniquidNodeEventService.onPeerDisconnected(peer, peerCount);
+			UniquidNodeImpl.this.uniquidNodeEventService.onPeerDisconnected(peer, peerCount);
 		}
 
 	}
