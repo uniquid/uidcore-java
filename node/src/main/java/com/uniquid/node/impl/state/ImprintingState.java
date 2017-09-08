@@ -98,16 +98,6 @@ public class ImprintingState implements UniquidNodeState {
 
 	}
 
-	@Override
-	public String getImprintingAddress() {
-		return uniquidNodeStateContext.getImprintingAddressValue().toBase58();
-	}
-
-	@Override
-	public String getPublicKey() {
-		return uniquidNodeStateContext.getPublicKeyValue();
-	}
-	
 	protected UniquidNodeState getReadyState() {
 		return new ReadyState(uniquidNodeStateContext);
 	}

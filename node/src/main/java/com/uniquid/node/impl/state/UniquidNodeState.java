@@ -29,15 +29,4 @@ public interface UniquidNodeState {
 	 */
 	public com.uniquid.node.UniquidNodeState getNodeState();
 	
-	/**
-	 * Returns the imprinting address
-	 * @return
-	 */
-	public String getImprintingAddress();
-
-	/**
-	 * Returns the public key
-	 * @return
-	 */
-	public String getPublicKey();
 }

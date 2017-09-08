@@ -23,14 +23,4 @@ public class CreatedState implements UniquidNodeState {
 		return com.uniquid.node.UniquidNodeState.CREATED;
 	}
 
-	@Override
-	public String getImprintingAddress() {
-		throw new IllegalStateException();
-	}
-
-	@Override
-	public String getPublicKey() {
-		throw new IllegalStateException();
-	}
-
 }

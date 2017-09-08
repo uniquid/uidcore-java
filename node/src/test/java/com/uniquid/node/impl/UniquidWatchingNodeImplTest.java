@@ -63,23 +63,9 @@ public class UniquidWatchingNodeImplTest {
 		
 		Assert.assertEquals(UniquidNodeState.CREATED, uniquidNode.getNodeState());
 		
-		try {
-			
-			uniquidNode.getImprintingAddress();
-			Assert.fail();
-			
-		} catch (Exception e) {
-			// do nothing
-		}
+		uniquidNode.getImprintingAddress();
 		
-		try {
-			
-			uniquidNode.getPublicKey();
-			Assert.fail();
-			
-		} catch (Exception e) {
-			// do nothing
-		}
+		uniquidNode.getPublicKey();
 		
 		Assert.assertEquals(machineName, uniquidNode.getNodeName());
 		

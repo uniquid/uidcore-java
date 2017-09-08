@@ -127,12 +127,16 @@ public class UniquidNodeImpl implements UniquidNode {
 	 */
 	@Override
 	public synchronized String getImprintingAddress() {
-		return nodeState.getImprintingAddress();
+		if (imprintingAddress != null) {
+			return imprintingAddress.toBase58();
+		}
+		
+		return null;
 	}
 
 	@Override
 	public synchronized String getPublicKey() {
-		return nodeState.getPublicKey();
+		return publicKey;
 	}
 
 	@Override
