@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.uniquid.node.exception.NodeException;
+import com.uniquid.node.impl.utils.NodeUtils;
 import com.uniquid.register.provider.ProviderChannel;
 
 /**
@@ -70,11 +71,15 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl {
 				userWallet.setDescription("user");
 				userWallet.saveToFile(uniquidNodeConfiguration.getUserFile());
 
+				imprintingAddress = NodeUtils.calculateImprintAddress(key,
+						uniquidNodeConfiguration.getNetworkParameters());
+				
 			}
 			// Retrieve contracts
 			List<ProviderChannel> providerChannels = uniquidNodeConfiguration.getRegisterFactory()
 					.getProviderRegister().getAllChannels();
 
+			
 			LOGGER.info("providerChannels size: " + providerChannels.size());
 
 			// If there is at least 1 contract, then we are ready
