@@ -1,15 +1,12 @@
 package com.uniquid.node.impl;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.bitcoinj.core.NetworkParameters;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.uniquid.node.UniquidNodeState;
-import com.uniquid.node.impl.UniquidWatchingNodeImpl.Builder;
 import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
 import com.uniquid.node.impl.utils.DummyUserRegister;
@@ -18,7 +15,6 @@ import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.transaction.TransactionManager;
-import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
 public class UniquidWatchingNodeImplTest {
@@ -26,7 +22,7 @@ public class UniquidWatchingNodeImplTest {
 	@Test
 	public void testBuild() throws Exception {
 		
-		UniquidWatchingNodeImpl.Builder builder = new Builder();
+		UniquidWatchingNodeImpl.WatchingNodeBuilder builder = new UniquidWatchingNodeImpl.WatchingNodeBuilder();
 		
 		NetworkParameters parameters = UniquidRegTest.get();
 		File providerFile = File.createTempFile("provider", ".wallet");
@@ -56,7 +52,7 @@ public class UniquidWatchingNodeImplTest {
 		builder.setNetworkParameters(parameters);
 		builder.setProviderFile(providerFile);
 		builder.setUserFile(userFile);
-		builder.setChainFile(chainFile);
+		builder.setProviderChainFile(chainFile);
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyRegister);
 		builder.setNodeName(machineName);
@@ -105,7 +101,7 @@ public class UniquidWatchingNodeImplTest {
 	@Test
 	public void testInitNode0Elements() throws Exception {
 
-		UniquidWatchingNodeImpl.Builder builder = new Builder();
+		UniquidWatchingNodeImpl.WatchingNodeBuilder builder = new UniquidWatchingNodeImpl.WatchingNodeBuilder();
 		
 		NetworkParameters parameters = UniquidRegTest.get();
 		File providerFile = File.createTempFile("provider", ".wallet");
@@ -145,7 +141,7 @@ public class UniquidWatchingNodeImplTest {
 		builder.setNetworkParameters(parameters);
 		builder.setProviderFile(providerFile);
 		builder.setUserFile(userFile);
-		builder.setChainFile(chainFile);
+		builder.setProviderChainFile(chainFile);
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyFactory);
 		builder.setNodeName(machineName);
@@ -175,7 +171,7 @@ public class UniquidWatchingNodeImplTest {
 	@Test
 	public void testInitNode1Elements() throws Exception {
 
-		UniquidWatchingNodeImpl.Builder builder = new Builder();
+		UniquidWatchingNodeImpl.WatchingNodeBuilder builder = new UniquidWatchingNodeImpl.WatchingNodeBuilder();
 		
 		NetworkParameters parameters = UniquidRegTest.get();
 		File providerFile = File.createTempFile("provider", ".wallet");
@@ -229,7 +225,7 @@ public class UniquidWatchingNodeImplTest {
 		builder.setNetworkParameters(parameters);
 		builder.setProviderFile(providerFile);
 		builder.setUserFile(userFile);
-		builder.setChainFile(chainFile);
+		builder.setProviderChainFile(chainFile);
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyFactory);
 		builder.setNodeName(machineName);
@@ -259,7 +255,7 @@ public class UniquidWatchingNodeImplTest {
 	@Test
 	public void testUpdateNode() throws Exception {
 
-		UniquidWatchingNodeImpl.Builder builder = new Builder();
+		UniquidWatchingNodeImpl.WatchingNodeBuilder builder = new UniquidWatchingNodeImpl.WatchingNodeBuilder();
 		
 		NetworkParameters parameters = UniquidRegTest.get();
 		File providerFile = File.createTempFile("provider", ".wallet");
@@ -299,7 +295,7 @@ public class UniquidWatchingNodeImplTest {
 		builder.setNetworkParameters(parameters);
 		builder.setProviderFile(providerFile);
 		builder.setUserFile(userFile);
-		builder.setChainFile(chainFile);
+		builder.setProviderChainFile(chainFile);
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyFactory);
 		builder.setNodeName(machineName);

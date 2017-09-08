@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.uniquid.node.UniquidNodeState;
-import com.uniquid.node.impl.UniquidNodeImpl.Builder;
 import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
 import com.uniquid.node.impl.utils.DummyUserRegister;
@@ -23,7 +22,8 @@ public class UniquidNodeImplTest {
 	@Test
 	public void testBuild() throws Exception {
 		
-		UniquidNodeImpl.Builder builder = new Builder();
+		@SuppressWarnings("rawtypes")
+		UniquidNodeImpl.UniquidNodeBuilder builder = new UniquidNodeImpl.UniquidNodeBuilder();
 		
 		NetworkParameters parameters = UniquidRegTest.get();
 		File providerFile = File.createTempFile("provider", ".wallet");
@@ -53,7 +53,7 @@ public class UniquidNodeImplTest {
 		builder.setNetworkParameters(parameters);
 		builder.setProviderFile(providerFile);
 		builder.setUserFile(userFile);
-		builder.setChainFile(chainFile);
+		builder.setProviderChainFile(chainFile);
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyRegister);
 		builder.setNodeName(machineName);
@@ -102,7 +102,8 @@ public class UniquidNodeImplTest {
 	@Test
 	public void testInitNode0Elements() throws Exception {
 
-		UniquidNodeImpl.Builder builder = new Builder();
+		@SuppressWarnings("rawtypes")
+		UniquidNodeImpl.UniquidNodeBuilder builder = new UniquidNodeImpl.UniquidNodeBuilder();
 		
 		NetworkParameters parameters = UniquidRegTest.get();
 		File providerFile = File.createTempFile("provider", ".wallet");
@@ -142,7 +143,7 @@ public class UniquidNodeImplTest {
 		builder.setNetworkParameters(parameters);
 		builder.setProviderFile(providerFile);
 		builder.setUserFile(userFile);
-		builder.setChainFile(chainFile);
+		builder.setProviderChainFile(chainFile);
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyFactory);
 		builder.setNodeName(machineName);
@@ -172,7 +173,8 @@ public class UniquidNodeImplTest {
 	@Test
 	public void testInitNode1Elements() throws Exception {
 
-		UniquidNodeImpl.Builder builder = new Builder();
+		@SuppressWarnings("rawtypes")
+		UniquidNodeImpl.UniquidNodeBuilder builder = new UniquidNodeImpl.UniquidNodeBuilder();
 		
 		NetworkParameters parameters = UniquidRegTest.get();
 		File providerFile = File.createTempFile("provider", ".wallet");
@@ -226,7 +228,7 @@ public class UniquidNodeImplTest {
 		builder.setNetworkParameters(parameters);
 		builder.setProviderFile(providerFile);
 		builder.setUserFile(userFile);
-		builder.setChainFile(chainFile);
+		builder.setProviderChainFile(chainFile);
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyFactory);
 		builder.setNodeName(machineName);
@@ -256,7 +258,8 @@ public class UniquidNodeImplTest {
 	@Test
 	public void testUpdateNode() throws Exception {
 
-		UniquidNodeImpl.Builder builder = new Builder();
+		@SuppressWarnings("rawtypes")
+		UniquidNodeImpl.UniquidNodeBuilder builder = new UniquidNodeImpl.UniquidNodeBuilder();
 		
 		NetworkParameters parameters = UniquidRegTest.get();
 		File providerFile = File.createTempFile("provider", ".wallet");
@@ -296,7 +299,7 @@ public class UniquidNodeImplTest {
 		builder.setNetworkParameters(parameters);
 		builder.setProviderFile(providerFile);
 		builder.setUserFile(userFile);
-		builder.setChainFile(chainFile);
+		builder.setProviderChainFile(chainFile);
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyFactory);
 		builder.setNodeName(machineName);
