@@ -43,8 +43,7 @@ import com.uniquid.register.provider.ProviderChannel;
 /**
  * Implementation of an Uniquid Node with BitcoinJ library
  */
-public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListener, WalletCoinsReceivedEventListener,
-		UniquidNodeStateContext {
+public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListener, WalletCoinsReceivedEventListener {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeImpl.class.getName());
 
@@ -105,7 +104,49 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 */
 	protected UniquidNodeState getReadyState() {
 
-		return new ReadyState(this);
+		return new ReadyState(new UniquidNodeStateContext() {
+			
+			@Override
+			public void setUniquidNodeState(UniquidNodeState nodeState) {
+				UniquidNodeImpl.this.setUniquidNodeState(nodeState);
+				
+			}
+			
+			@Override
+			public Wallet getUserWallet() {
+				return UniquidNodeImpl.this.userWallet;
+			}
+			
+			@Override
+			public UniquidNodeEventService getUniquidNodeEventService() {
+				return UniquidNodeImpl.this.uniquidNodeEventService;
+			}
+			
+			@Override
+			public RegisterFactory getRegisterFactory() {
+				return UniquidNodeImpl.this.uniquidNodeConfiguration.getRegisterFactory();
+			}
+			
+			@Override
+			public String getPublicKeyValue() {
+				return UniquidNodeImpl.this.publicKey;
+			}
+			
+			@Override
+			public Wallet getProviderWallet() {
+				return UniquidNodeImpl.this.providerWallet;
+			}
+			
+			@Override
+			public NetworkParameters getNetworkParameters() {
+				return UniquidNodeImpl.this.uniquidNodeConfiguration.getNetworkParameters();
+			}
+			
+			@Override
+			public Address getImprintingAddressValue() {
+				return UniquidNodeImpl.this.imprintingAddress;
+			}
+		});
 
 	}
 
@@ -117,7 +158,49 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	 */
 	protected UniquidNodeState getImprintingState() {
 
-		return new ImprintingState(this);
+		return new ImprintingState(new UniquidNodeStateContext() {
+			
+			@Override
+			public void setUniquidNodeState(UniquidNodeState nodeState) {
+				UniquidNodeImpl.this.setUniquidNodeState(nodeState);
+				
+			}
+			
+			@Override
+			public Wallet getUserWallet() {
+				return UniquidNodeImpl.this.userWallet;
+			}
+			
+			@Override
+			public UniquidNodeEventService getUniquidNodeEventService() {
+				return UniquidNodeImpl.this.uniquidNodeEventService;
+			}
+			
+			@Override
+			public RegisterFactory getRegisterFactory() {
+				return UniquidNodeImpl.this.uniquidNodeConfiguration.getRegisterFactory();
+			}
+			
+			@Override
+			public String getPublicKeyValue() {
+				return UniquidNodeImpl.this.publicKey;
+			}
+			
+			@Override
+			public Wallet getProviderWallet() {
+				return UniquidNodeImpl.this.providerWallet;
+			}
+			
+			@Override
+			public NetworkParameters getNetworkParameters() {
+				return UniquidNodeImpl.this.uniquidNodeConfiguration.getNetworkParameters();
+			}
+			
+			@Override
+			public Address getImprintingAddressValue() {
+				return UniquidNodeImpl.this.imprintingAddress;
+			}
+		});
 
 	}
 
@@ -132,18 +215,8 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 	}
 
 	@Override
-	public synchronized Address getImprintingAddressValue() {
-		return imprintingAddress;
-	}
-
-	@Override
 	public synchronized String getPublicKey() {
 		return nodeState.getPublicKey();
-	}
-
-	@Override
-	public synchronized String getPublicKeyValue() {
-		return publicKey;
 	}
 
 	@Override
@@ -639,21 +712,6 @@ public class UniquidNodeImpl implements UniquidNode, WalletCoinsSentEventListene
 			uniquidNodeEventService.onPeerDisconnected(peer, peerCount);
 		}
 
-	}
-
-	@Override
-	public NetworkParameters getNetworkParameters() {
-		return uniquidNodeConfiguration.getNetworkParameters();
-	}
-
-	@Override
-	public RegisterFactory getRegisterFactory() {
-		return uniquidNodeConfiguration.getRegisterFactory();
-	}
-
-	@Override
-	public UniquidNodeEventService getUniquidNodeEventService() {
-		return uniquidNodeEventService;
 	}
 
 }
