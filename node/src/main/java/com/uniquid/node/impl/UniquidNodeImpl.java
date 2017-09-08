@@ -459,6 +459,11 @@ public class UniquidNodeImpl implements UniquidNode {
 			uniquidNodeConfiguration.setNodeName(machineName);
 			return (B) this;
 		}
+		
+		public B setRegistryUrl(String registryUrl) {
+			uniquidNodeConfiguration.setRegistryUrl(registryUrl);
+			return (B) this;
+		}
 
 		/**
 		 * Build a new instance
