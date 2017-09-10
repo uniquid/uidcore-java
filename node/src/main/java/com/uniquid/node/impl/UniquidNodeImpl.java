@@ -116,7 +116,7 @@ public class UniquidNodeImpl implements UniquidNode {
 	 */
 	protected UniquidNodeState getImprintingState() {
 
-		return new ImprintingState(new UniquidNodeStateContextImpl());
+		return new ImprintingState(new UniquidNodeStateContextImpl(), getReadyState());
 
 	}
 

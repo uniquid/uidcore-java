@@ -19,10 +19,12 @@ public class ImprintingState implements UniquidNodeState {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImprintingState.class);
 
 	protected UniquidNodeStateContext uniquidNodeStateContext;
+	private UniquidNodeState readyState;
 
-	public ImprintingState(final UniquidNodeStateContext uniquidNodeStateContext) {
+	public ImprintingState(final UniquidNodeStateContext uniquidNodeStateContext, UniquidNodeState readyState) {
 
 		this.uniquidNodeStateContext = uniquidNodeStateContext;
+		this.readyState = readyState;
 
 	}
 
@@ -53,7 +55,7 @@ public class ImprintingState implements UniquidNodeState {
 					contractStrategy.manageContractCreation(tx);
 
 					// We can move now to ReadyState
-					uniquidNodeStateContext.setUniquidNodeState(getReadyState());
+					uniquidNodeStateContext.setUniquidNodeState(readyState);
 
 				} else {
 
@@ -98,10 +100,6 @@ public class ImprintingState implements UniquidNodeState {
 
 	}
 
-	protected UniquidNodeState getReadyState() {
-		return new ReadyState(uniquidNodeStateContext);
-	}
-	
 	protected ContractStrategy createImprintingContract() {
 		
 		return new ImprintingContract(uniquidNodeStateContext);
