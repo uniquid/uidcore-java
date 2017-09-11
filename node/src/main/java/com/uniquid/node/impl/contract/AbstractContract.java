@@ -6,19 +6,20 @@ import org.bitcoinj.core.TransactionConfidence.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.uniquid.node.impl.UniquidNodeConfiguration;
 import com.uniquid.node.impl.UniquidNodeStateContext;
 
 /**
  * Abstract implementation of State pattern with some boilerplate code for
  * transactions callback
  */
-public abstract class AbstractContract implements ContractStrategy {
+public abstract class AbstractContract<T extends UniquidNodeConfiguration> implements ContractStrategy {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractContract.class);
 	
-	protected UniquidNodeStateContext uniquidNodeStateContext;
+	protected UniquidNodeStateContext<T> uniquidNodeStateContext;
 	
-	public AbstractContract(UniquidNodeStateContext uniquidNodeStateContext) {
+	public AbstractContract(UniquidNodeStateContext<T> uniquidNodeStateContext) {
 		this.uniquidNodeStateContext = uniquidNodeStateContext;
 	}
 	
