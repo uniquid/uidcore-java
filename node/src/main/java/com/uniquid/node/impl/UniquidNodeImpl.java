@@ -84,42 +84,6 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 
 	}
 
-	/**
-	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
-	 * {@link com.uniquid.node.UniquidNodeState.CREATED}
-	 * 
-	 * @return
-	 */
-	protected UniquidNodeState getCreatedState() {
-
-		return new CreatedState();
-
-	}
-
-	/**
-	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
-	 * {@link com.uniquid.node.UniquidNodeState.READY}
-	 * 
-	 * @return
-	 */
-	protected UniquidNodeState getReadyState() {
-
-		return new ReadyState<T>(new UniquidNodeStateContextImpl());
-
-	}
-
-	/**
-	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
-	 * {@link com.uniquid.node.UniquidNodeState.IMPRINTING}
-	 * 
-	 * @return
-	 */
-	protected UniquidNodeState getImprintingState() {
-
-		return new ImprintingState<T>(new UniquidNodeStateContextImpl(), getReadyState());
-
-	}
-
 	/*
 	 * 
 	 * Begin of public part for implementing UniquidNode
@@ -323,23 +287,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 	public synchronized void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
 		uniquidNodeEventService.removeUniquidNodeEventListener(uniquidNodeEventListener);
 	}
-
-	/*
-	 * End of public part for implementing UniquidNode
-	 *
-	 */
-
-	/*
-	 * Begin of some other useful public method
-	 */
-	public Wallet getProviderWallet() {
-		return providerWallet;
-	}
-
-	public Wallet getUserWallet() {
-		return userWallet;
-	}
-
+	
 	@Override
 	public synchronized String signTransaction(final String s_tx, final String path) throws NodeException {
 
@@ -410,6 +358,104 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 
 	}
 
+	/*
+	 * End of public part for implementing UniquidNode
+	 *
+	 */
+	
+	/**
+	 * Returns the Provider Wallet
+	 * @return
+	 */
+	public Wallet getProviderWallet() {
+		return providerWallet;
+	}
+
+	/**
+	 * Return the User Wallet
+	 * @return
+	 */
+	public Wallet getUserWallet() {
+		return userWallet;
+	}
+
+	/**
+	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
+	 * {@link com.uniquid.node.UniquidNodeState.CREATED}
+	 * 
+	 * @return
+	 */
+	protected UniquidNodeState getCreatedState() {
+
+		return new CreatedState();
+
+	}
+
+	/**
+	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
+	 * {@link com.uniquid.node.UniquidNodeState.READY}
+	 * 
+	 * @return
+	 */
+	protected UniquidNodeState getReadyState() {
+
+		return new ReadyState<T>(new UniquidNodeStateContextImpl());
+
+	}
+
+	/**
+	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
+	 * {@link com.uniquid.node.UniquidNodeState.IMPRINTING}
+	 * 
+	 * @return
+	 */
+	protected UniquidNodeState getImprintingState() {
+
+		return new ImprintingState<T>(new UniquidNodeStateContextImpl(), getReadyState());
+
+	}
+	
+	/**
+	 * Change internal node state
+	 */
+	protected synchronized void setUniquidNodeState(final UniquidNodeState nodeState) {
+
+		this.nodeState = nodeState;
+
+		LOGGER.info("Node state changed to {}", nodeState.getNodeState());
+
+		// Send event to listeners
+		uniquidNodeEventService.onNodeStateChange(nodeState.getNodeState());
+	}
+	
+	/**
+	 * Calculate some public info of Node
+	 */
+	private void calculatePublicInfo(final DeterministicSeed detSeed) {
+
+		LOGGER.debug("Calculating public info");
+
+		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(detSeed.getSeedBytes());
+
+		// LOGGER.info("START_NODE tpriv: " +
+		// deterministicKey.serializePrivB58(networkParameters));
+		// LOGGER.info("START_NODE tpub: " +
+		// deterministicKey.serializePubB58(networkParameters));
+
+		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
+
+		ImmutableList<ChildNumber> IMPRINTING_PATH = ImmutableList.of(new ChildNumber(44, true),
+				new ChildNumber(0, true));
+
+		DeterministicKey imprintingKey = deterministicHierarchy.get(IMPRINTING_PATH, true, true);
+
+		publicKey = imprintingKey.serializePubB58(uniquidNodeConfiguration.getNetworkParameters());
+
+		imprintingAddress = NodeUtils.calculateImprintAddress(imprintingKey,
+				uniquidNodeConfiguration.getNetworkParameters());
+
+	}
+
 	/**
 	 * Builder for UniquidNodeImpl
 	 */
@@ -471,7 +517,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 		 * @return
 		 * @throws Exception
 		 */
-		public UniquidNodeImpl<T> build() throws Exception {
+		public UniquidNodeImpl<T> build() throws NodeException {
 
 			SecureRandom random = new SecureRandom();
 			byte[] entropy = new byte[32];
@@ -488,25 +534,40 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 		}
 		
 		@Deprecated
-		public UniquidNodeImpl<T> buildFromHexSeed(final String hexSeed, final long creationTime) throws Exception {
+		public UniquidNodeImpl<T> buildFromHexSeed(final String hexSeed, final long creationTime) throws NodeException {
 
-			DeterministicSeed detSeed = new DeterministicSeed("", org.bitcoinj.core.Utils.HEX.decode(hexSeed), "", creationTime);
-
-			_uniquidNodeConfiguration.setCreationTime(creationTime);
-			_uniquidNodeConfiguration.setDetSeed(detSeed);
-
-			return createUniquidNode(_uniquidNodeConfiguration);
+			try {
+				
+				DeterministicSeed detSeed = new DeterministicSeed("", org.bitcoinj.core.Utils.HEX.decode(hexSeed), "", creationTime);
+	
+				_uniquidNodeConfiguration.setCreationTime(creationTime);
+				_uniquidNodeConfiguration.setDetSeed(detSeed);
+	
+				return createUniquidNode(_uniquidNodeConfiguration);
+				
+			} catch (Exception ex) {
+				
+				throw new NodeException("Exception while building node from hex seed", ex);
+				
+			}
 
 		}
 
-		public UniquidNodeImpl<T> buildFromMnemonic(final String mnemonic, final long creationTime) throws Exception {
+		public UniquidNodeImpl<T> buildFromMnemonic(final String mnemonic, final long creationTime) throws NodeException {
 
-			DeterministicSeed detSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
-
-			_uniquidNodeConfiguration.setCreationTime(creationTime);
-			_uniquidNodeConfiguration.setDetSeed(detSeed);
-
-			return createUniquidNode(_uniquidNodeConfiguration);
+			try {
+				DeterministicSeed detSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
+	
+				_uniquidNodeConfiguration.setCreationTime(creationTime);
+				_uniquidNodeConfiguration.setDetSeed(detSeed);
+	
+				return createUniquidNode(_uniquidNodeConfiguration);
+			
+			} catch (Exception ex) {
+				
+				throw new NodeException("Exception while building node from mnemonic", ex);
+				
+			}
 
 		}
 
@@ -515,59 +576,14 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 			return (T) new UniquidNodeConfiguration();
 		}
 
-		protected UniquidNodeImpl<T> createUniquidNode(T uniquidNodeConfiguration) throws Exception {
+		protected UniquidNodeImpl<T> createUniquidNode(T uniquidNodeConfiguration) throws NodeException {
 			return new UniquidNodeImpl<T>(uniquidNodeConfiguration);
 		}
 
 	}
 
-	/*
-	 * Begin of some other useful public method
-	 */
-
 	/**
-	 * Change internal state
-	 */
-	protected synchronized void setUniquidNodeState(final UniquidNodeState nodeState) {
-
-		LOGGER.info("Changing node state to {}", nodeState.getClass());
-
-		this.nodeState = nodeState;
-
-		// Send event to listeners
-		uniquidNodeEventService.onNodeStateChange(nodeState.getNodeState());
-	}
-
-	/*
-	 * Calculate some public info
-	 */
-	private void calculatePublicInfo(final DeterministicSeed detSeed) {
-
-		LOGGER.debug("Calculating public info");
-
-		DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(detSeed.getSeedBytes());
-
-		// LOGGER.info("START_NODE tpriv: " +
-		// deterministicKey.serializePrivB58(networkParameters));
-		// LOGGER.info("START_NODE tpub: " +
-		// deterministicKey.serializePubB58(networkParameters));
-
-		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
-
-		ImmutableList<ChildNumber> IMPRINTING_PATH = ImmutableList.of(new ChildNumber(44, true),
-				new ChildNumber(0, true));
-
-		DeterministicKey imprintingKey = deterministicHierarchy.get(IMPRINTING_PATH, true, true);
-
-		publicKey = imprintingKey.serializePubB58(uniquidNodeConfiguration.getNetworkParameters());
-
-		imprintingAddress = NodeUtils.calculateImprintAddress(imprintingKey,
-				uniquidNodeConfiguration.getNetworkParameters());
-
-	}
-
-	/*
-	 * Implementation of callback for blockchain events
+	 * Default implementation of BitcoinJ callback to receive blockchain events
 	 */
 	protected class UniquidNodeDownloadProgressTracker extends DownloadProgressTracker {
 		
@@ -598,6 +614,9 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 
 	}
 
+	/**
+	 * Default implementation of BitcoinJ callback to receive events regarding peer connection
+	 */
 	protected class UniquidPeerConnectionListener extends NativePeerEventListener {
 		
 		public UniquidPeerConnectionListener() {
@@ -622,6 +641,9 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 
 	}
 	
+	/**
+	 * Default implementation of BitcoinJ callback to receive event of coins received
+	 */
 	protected class UniquidWalletCoinsReceivedEventListener implements WalletCoinsReceivedEventListener {
 		
 		public UniquidWalletCoinsReceivedEventListener() {
@@ -641,6 +663,9 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 		
 	}
 	
+	/**
+	 * Default implementation of BitcoinJ callback to receive event of coins sent
+	 */
 	protected class UniquidWalletCoinsSentEventListener implements WalletCoinsSentEventListener {
 		
 		public UniquidWalletCoinsSentEventListener() {
@@ -660,6 +685,12 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 		
 	}
 	
+	/**
+	 * Default implementation of UniquidNodeStateContext.
+	 * This is an inner class: subclasses of UniquidNodeImpl can access it and avoid to copy/pass each time parameters.
+	 * 
+	 * Remember that to access UniquidNodeImpl field you must use "UniquidNodeImpl.this.fied" as access
+	 */
 	protected class UniquidNodeStateContextImpl implements UniquidNodeStateContext<T> {
 		
 		public UniquidNodeStateContextImpl() {
