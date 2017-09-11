@@ -14,6 +14,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.node.impl.utils.WalletUtils;
+import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 
@@ -101,10 +102,12 @@ public class ProviderContract extends AbstractContract {
 		// persist
 		providerChannel.setBitmask(bitmaskToString);
 
+		ProviderRegister providerRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getProviderRegister();
+
+		uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().startTransaction();
+		
 		try {
-
-			ProviderRegister providerRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getProviderRegister();
-
+		
 			List<ProviderChannel> channels = providerRegister.getAllChannels();
 
 			// If this is the first "normal" contract then remove the
@@ -119,13 +122,18 @@ public class ProviderContract extends AbstractContract {
 			providerRegister.insertChannel(providerChannel);
 			
 			LOGGER.trace("Inserted provider register: " + providerRegister);
-
-		} catch (Exception e) {
-
-			LOGGER.error("Exception while inserting provider register", e);
-
-			throw e;
-
+			
+			uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().commitTransaction();
+		
+		} catch (RegisterException ex) {
+			
+			LOGGER.error("Error while inserting channel", ex);
+			
+			uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().rollbackTransaction();
+			
+			// ReThrow
+			throw ex;
+			
 		}
 
 		// Inform listeners

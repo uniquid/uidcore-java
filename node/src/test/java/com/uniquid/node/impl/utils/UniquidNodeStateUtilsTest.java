@@ -71,7 +71,7 @@ public class UniquidNodeStateUtilsTest {
 
 			@Override
 			public TransactionManager getTransactionManager() throws RegisterException {
-				return null;
+				return new DummyTransactionManager();
 			}
 			
 		};
@@ -90,7 +90,7 @@ public class UniquidNodeStateUtilsTest {
 			
 			@Override
 			public TransactionManager getTransactionManager() throws RegisterException {
-				return null;
+				return new DummyTransactionManager();
 			}
 			
 		};

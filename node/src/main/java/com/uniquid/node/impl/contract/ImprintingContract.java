@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.uniquid.node.impl.UniquidNodeStateContext;
+import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 
@@ -60,8 +61,25 @@ public class ImprintingContract extends AbstractContract {
 				providerChannel.setRevokeTxId(tx.getHashAsString());
 				providerChannel.setCreationTime(tx.getUpdateTime().getTime()/1000);
 
-				// persist channel
-				providerRegister.insertChannel(providerChannel);
+				uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().startTransaction();
+				
+				try {
+					
+					// persist channel
+					providerRegister.insertChannel(providerChannel);
+					
+					uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().commitTransaction();
+				
+				} catch (RegisterException ex) {
+					
+					LOGGER.error("Error while inserting channel", ex);
+					
+					uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().rollbackTransaction();
+					
+					// ReThrow
+					throw ex;
+					
+				}
 
 				// send event
 				uniquidNodeStateContext.getUniquidNodeEventService().onProviderContractCreated(providerChannel);

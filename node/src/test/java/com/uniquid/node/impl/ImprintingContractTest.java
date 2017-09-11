@@ -12,6 +12,7 @@ import com.uniquid.node.impl.contract.ImprintingContract;
 import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.node.impl.state.UniquidNodeState;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
+import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.node.impl.utils.DummyUserRegister;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
@@ -44,7 +45,7 @@ public class ImprintingContractTest {
 			
 			@Override
 			public TransactionManager getTransactionManager() throws RegisterException {
-				return null;
+				return new DummyTransactionManager();
 			}
 			
 		};

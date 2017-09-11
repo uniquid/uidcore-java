@@ -10,11 +10,13 @@ import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
+import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.node.impl.utils.DummyUserRegister;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.transaction.TransactionException;
 import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
 
@@ -44,7 +46,7 @@ public class UniquidWatchingNodeImplTest {
 
 					@Override
 					public TransactionManager getTransactionManager() throws RegisterException {
-						return null;
+						return new DummyTransactionManager();
 					}
 					
 				};
@@ -132,7 +134,7 @@ public class UniquidWatchingNodeImplTest {
 					
 					@Override
 					public TransactionManager getTransactionManager() throws RegisterException {
-						return null;
+						return new DummyTransactionManager();
 					}
 					
 				};
@@ -216,7 +218,7 @@ public class UniquidWatchingNodeImplTest {
 					
 					@Override
 					public TransactionManager getTransactionManager() throws RegisterException {
-						return null;
+						return new DummyTransactionManager();
 					}
 					
 				};
@@ -286,7 +288,7 @@ public class UniquidWatchingNodeImplTest {
 					
 					@Override
 					public TransactionManager getTransactionManager() throws RegisterException {
-						return null;
+						return new DummyTransactionManager();
 					}
 					
 				};

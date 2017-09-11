@@ -14,6 +14,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.node.impl.utils.WalletUtils;
+import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
@@ -90,22 +91,29 @@ public class UserContract extends AbstractContract {
 
 		userChannel.setBitmask(bitmaskToString);
 
+		UserRegister userRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getUserRegister();
+		
+		uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().startTransaction();
+		
 		try {
-
-			UserRegister userRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getUserRegister();
 
 			userRegister.insertChannel(userChannel);
 			
 			LOGGER.trace("Inserted user register: " + userRegister);
-
-		} catch (Exception e) {
-
-			LOGGER.error("Exception while inserting userChannel", e);
-
-			throw e;
-
-		}
+			
+			uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().commitTransaction();
 		
+		} catch (RegisterException ex) {
+			
+			LOGGER.error("Error while inserting channel", ex);
+			
+			uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().rollbackTransaction();
+			
+			// ReThrow
+			throw ex;
+			
+		}
+
 		// Inform listeners
 		uniquidNodeStateContext.getUniquidNodeEventService().onUserContractCreated(userChannel);
 
