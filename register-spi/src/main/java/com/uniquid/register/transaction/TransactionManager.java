@@ -7,5 +7,7 @@ public interface TransactionManager {
 	public void commitTransaction() throws TransactionException;
 	
 	public void rollbackTransaction() throws TransactionException;
-	
+
+	public boolean insideTransaction();
+
 }

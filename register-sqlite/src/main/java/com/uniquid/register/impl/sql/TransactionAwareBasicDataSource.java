@@ -154,18 +154,26 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 	}
 
 	@Override
-    public Connection getConnection() throws SQLException {
-		
-		Connection connection = context.get();
-		
-		if (connection == null) {
-			
-			connection = super.getConnection();
-			
-		}
-		
-		return connection;
-		
+	public boolean insideTransaction() {
+
+		return (context.get() != null);
+
 	}
+
+	@Override
+	public Connection getConnection() throws SQLException {
+
+		Connection connection = context.get();
+
+		if (connection == null) {
+
+			connection = super.getConnection();
+
+		}
+
+		return connection;
+
+	}
+
 	
 }
