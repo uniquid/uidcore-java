@@ -19,9 +19,9 @@ import com.uniquid.register.provider.ProviderChannel;
  * 
  * @author Giuseppe Magnotta
  */
-public class UniquidWatchingNodeImpl extends UniquidNodeImpl {
+public class UniquidWatchingNodeImpl extends UniquidNodeImpl<UniquidWatchingNodeConfiguration> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeImpl.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidWatchingNodeImpl.class.getName());
 
 	protected UniquidWatchingNodeImpl(UniquidWatchingNodeConfiguration uniquidWatchingNodeConfiguration) 
 			throws NodeException {
@@ -132,16 +132,16 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl {
 		}
 		
 		@Override
-		public UniquidNodeImpl build() throws Exception {
+		public UniquidWatchingNodeImpl build() throws NodeException {
 
-			throw new Exception("Can't create node with random seed");
+			throw new NodeException("Can't create watchingnode with random seed");
 
 		}
 		
 		@Override
-		public UniquidNodeImpl buildFromMnemonic(final String mnemonic, final long creationTime) throws Exception {
+		public UniquidWatchingNodeImpl buildFromMnemonic(final String mnemonic, final long creationTime) throws NodeException {
 
-			throw new Exception("Can't create node from mnemonic");
+			throw new NodeException("Can't create watchingnode from mnemonic");
 
 		}
 
@@ -151,7 +151,7 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl {
 		}
 		
 		@Override
-		protected UniquidWatchingNodeImpl createUniquidNode(UniquidWatchingNodeConfiguration uniquidNodeConfiguration) throws Exception {
+		protected UniquidWatchingNodeImpl createUniquidNode(UniquidWatchingNodeConfiguration uniquidNodeConfiguration) throws NodeException {
 			return new UniquidWatchingNodeImpl(uniquidNodeConfiguration);
 		}
 		
