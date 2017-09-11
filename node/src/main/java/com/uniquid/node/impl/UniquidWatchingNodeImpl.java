@@ -124,10 +124,10 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl {
 
 		public UniquidWatchingNodeImpl buildFromXpub(final String xpub, final long creationTime) throws Exception {
 
-			uniquidNodeConfiguration.setXpub(xpub);
-			uniquidNodeConfiguration.setCreationTime(creationTime);
+			_uniquidNodeConfiguration.setXpub(xpub);
+			_uniquidNodeConfiguration.setCreationTime(creationTime);
 
-			return createUniquidNode(uniquidNodeConfiguration);
+			return createUniquidNode(_uniquidNodeConfiguration);
 			
 		}
 		

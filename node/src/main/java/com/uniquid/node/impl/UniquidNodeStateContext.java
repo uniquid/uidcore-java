@@ -9,7 +9,7 @@ import com.uniquid.node.impl.state.UniquidNodeState;
  * {@link UniquidNodeStateContext} allows to implement State design Pattern: it present a single interface to the
  * outside world. This interface is used by the particular state to ask for needed parameters to perform its job.
  */
-public interface UniquidNodeStateContext {
+public interface UniquidNodeStateContext<T extends UniquidNodeConfiguration> {
 
 	/**
 	 * Change internal state
@@ -33,7 +33,7 @@ public interface UniquidNodeStateContext {
 	 * Return UniquidNodeConfiguration
 	 * @return
 	 */
-	public UniquidNodeConfiguration getUniquidNodeConfiguration();
+	public T getUniquidNodeConfiguration();
 	
 	/**
 	 * Returns imprinting address

@@ -5,6 +5,7 @@ import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.uniquid.node.impl.UniquidNodeConfiguration;
 import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.node.impl.contract.ContractStrategy;
 import com.uniquid.node.impl.contract.ProviderContract;
@@ -14,13 +15,13 @@ import com.uniquid.node.impl.utils.UniquidNodeStateUtils;
 /**
  * State that represents a Node ready to work.
  */
-public class ReadyState implements UniquidNodeState {
+public class ReadyState<T extends UniquidNodeConfiguration> implements UniquidNodeState {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReadyState.class);
 
-	protected UniquidNodeStateContext uniquidNodeStateContext;
+	protected UniquidNodeStateContext<T> uniquidNodeStateContext;
 
-	public ReadyState(final UniquidNodeStateContext uniquidNodeStateContext) {
+	public ReadyState(final UniquidNodeStateContext<T> uniquidNodeStateContext) {
 
 		this.uniquidNodeStateContext = uniquidNodeStateContext;
 

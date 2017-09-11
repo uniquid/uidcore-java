@@ -5,6 +5,7 @@ import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.uniquid.node.impl.UniquidNodeConfiguration;
 import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.node.impl.contract.ContractStrategy;
 import com.uniquid.node.impl.contract.ImprintingContract;
@@ -14,14 +15,14 @@ import com.uniquid.node.impl.utils.UniquidNodeStateUtils;
 /**
  * State that represents a node in Imprinting State: it is ready to receive coins.
  */
-public class ImprintingState implements UniquidNodeState {
+public class ImprintingState<T extends UniquidNodeConfiguration> implements UniquidNodeState {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImprintingState.class);
 
-	protected UniquidNodeStateContext uniquidNodeStateContext;
+	protected UniquidNodeStateContext<T> uniquidNodeStateContext;
 	private UniquidNodeState readyState;
 
-	public ImprintingState(final UniquidNodeStateContext uniquidNodeStateContext, UniquidNodeState readyState) {
+	public ImprintingState(final UniquidNodeStateContext<T> uniquidNodeStateContext, UniquidNodeState readyState) {
 
 		this.uniquidNodeStateContext = uniquidNodeStateContext;
 		this.readyState = readyState;

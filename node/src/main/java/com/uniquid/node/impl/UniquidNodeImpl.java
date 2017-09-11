@@ -43,7 +43,7 @@ import com.uniquid.register.provider.ProviderChannel;
 /**
  * Implementation of an Uniquid Node with BitcoinJ library
  */
-public class UniquidNodeImpl implements UniquidNode {
+public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements UniquidNode {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeImpl.class.getName());
 
@@ -65,9 +65,9 @@ public class UniquidNodeImpl implements UniquidNode {
 	protected Address imprintingAddress;
 	protected String publicKey;
 
-	protected final UniquidNodeConfiguration uniquidNodeConfiguration;
+	protected final T uniquidNodeConfiguration;
 
-	private final UniquidNodeEventService uniquidNodeEventService;
+	protected final UniquidNodeEventService uniquidNodeEventService;
 
 	/**
 	 * Creates a new instance
@@ -75,7 +75,7 @@ public class UniquidNodeImpl implements UniquidNode {
 	 * @param uniquidNodeConfiguration
 	 * @throws NodeException
 	 */
-	protected UniquidNodeImpl(UniquidNodeConfiguration uniquidNodeConfiguration) throws NodeException {
+	protected UniquidNodeImpl(T uniquidNodeConfiguration) throws NodeException {
 
 		this.uniquidNodeConfiguration = uniquidNodeConfiguration;
 		this.uniquidNodeEventService = new UniquidNodeEventService();
@@ -104,7 +104,7 @@ public class UniquidNodeImpl implements UniquidNode {
 	 */
 	protected UniquidNodeState getReadyState() {
 
-		return new ReadyState(new UniquidNodeStateContextImpl());
+		return new ReadyState<T>(new UniquidNodeStateContextImpl());
 
 	}
 
@@ -116,7 +116,7 @@ public class UniquidNodeImpl implements UniquidNode {
 	 */
 	protected UniquidNodeState getImprintingState() {
 
-		return new ImprintingState(new UniquidNodeStateContextImpl(), getReadyState());
+		return new ImprintingState<T>(new UniquidNodeStateContextImpl(), getReadyState());
 
 	}
 
@@ -415,53 +415,53 @@ public class UniquidNodeImpl implements UniquidNode {
 	 */
 	public static class UniquidNodeBuilder<B extends UniquidNodeBuilder<B, T>, T extends UniquidNodeConfiguration> {
 
-		protected T uniquidNodeConfiguration;
+		protected T _uniquidNodeConfiguration;
 
 		public UniquidNodeBuilder() {
-			this.uniquidNodeConfiguration = createUniquidNodeConfiguration();
+			this._uniquidNodeConfiguration = createUniquidNodeConfiguration();
 		}
 		
 		public T getUniquidNodeConfiguration() {
-			return uniquidNodeConfiguration;
+			return _uniquidNodeConfiguration;
 		}
 
 		public B setNetworkParameters(NetworkParameters params) {
-			uniquidNodeConfiguration.setNetworkParameters(params);
+			_uniquidNodeConfiguration.setNetworkParameters(params);
 			return (B) this;
 		}
 
 		public B setProviderFile(File providerFile) {
-			uniquidNodeConfiguration.setProviderFile(providerFile);
+			_uniquidNodeConfiguration.setProviderFile(providerFile);
 			return (B) this;
 		}
 
 		public B setUserFile(File userFile) {
-			uniquidNodeConfiguration.setUserFile(userFile);
+			_uniquidNodeConfiguration.setUserFile(userFile);
 			return (B) this;
 		}
 
 		public B setProviderChainFile(File chainFile) {
-			uniquidNodeConfiguration.setProviderChainFile(chainFile);
+			_uniquidNodeConfiguration.setProviderChainFile(chainFile);
 			return (B) this;
 		}
 
 		public B setUserChainFile(File userChainFile) {
-			uniquidNodeConfiguration.setUserChainFile(userChainFile);
+			_uniquidNodeConfiguration.setUserChainFile(userChainFile);
 			return (B) this;
 		}
 
 		public B setRegisterFactory(RegisterFactory registerFactory) {
-			uniquidNodeConfiguration.setRegisterFactory(registerFactory);
+			_uniquidNodeConfiguration.setRegisterFactory(registerFactory);
 			return (B) this;
 		}
 
 		public B setNodeName(String machineName) {
-			uniquidNodeConfiguration.setNodeName(machineName);
+			_uniquidNodeConfiguration.setNodeName(machineName);
 			return (B) this;
 		}
 		
 		public B setRegistryUrl(String registryUrl) {
-			uniquidNodeConfiguration.setRegistryUrl(registryUrl);
+			_uniquidNodeConfiguration.setRegistryUrl(registryUrl);
 			return (B) this;
 		}
 
@@ -471,7 +471,7 @@ public class UniquidNodeImpl implements UniquidNode {
 		 * @return
 		 * @throws Exception
 		 */
-		public UniquidNodeImpl build() throws Exception {
+		public UniquidNodeImpl<T> build() throws Exception {
 
 			SecureRandom random = new SecureRandom();
 			byte[] entropy = new byte[32];
@@ -480,32 +480,33 @@ public class UniquidNodeImpl implements UniquidNode {
 
 			DeterministicSeed detSeed = new DeterministicSeed(entropy, "", creationTime);
 
-			uniquidNodeConfiguration.setCreationTime(creationTime);
-			uniquidNodeConfiguration.setDetSeed(detSeed);
+			_uniquidNodeConfiguration.setCreationTime(creationTime);
+			_uniquidNodeConfiguration.setDetSeed(detSeed);
 
-			return createUniquidNode(uniquidNodeConfiguration);
+			return createUniquidNode(_uniquidNodeConfiguration);
 
 		}
 		
-		public UniquidNodeImpl buildFromHexSeed(final String hexSeed, final long creationTime) throws Exception {
+		@Deprecated
+		public UniquidNodeImpl<T> buildFromHexSeed(final String hexSeed, final long creationTime) throws Exception {
 
 			DeterministicSeed detSeed = new DeterministicSeed("", org.bitcoinj.core.Utils.HEX.decode(hexSeed), "", creationTime);
 
-			uniquidNodeConfiguration.setCreationTime(creationTime);
-			uniquidNodeConfiguration.setDetSeed(detSeed);
+			_uniquidNodeConfiguration.setCreationTime(creationTime);
+			_uniquidNodeConfiguration.setDetSeed(detSeed);
 
-			return createUniquidNode(uniquidNodeConfiguration);
+			return createUniquidNode(_uniquidNodeConfiguration);
 
 		}
 
-		public UniquidNodeImpl buildFromMnemonic(final String mnemonic, final long creationTime) throws Exception {
+		public UniquidNodeImpl<T> buildFromMnemonic(final String mnemonic, final long creationTime) throws Exception {
 
 			DeterministicSeed detSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
 
-			uniquidNodeConfiguration.setCreationTime(creationTime);
-			uniquidNodeConfiguration.setDetSeed(detSeed);
+			_uniquidNodeConfiguration.setCreationTime(creationTime);
+			_uniquidNodeConfiguration.setDetSeed(detSeed);
 
-			return createUniquidNode(uniquidNodeConfiguration);
+			return createUniquidNode(_uniquidNodeConfiguration);
 
 		}
 
@@ -514,8 +515,8 @@ public class UniquidNodeImpl implements UniquidNode {
 			return (T) new UniquidNodeConfiguration();
 		}
 
-		protected UniquidNodeImpl createUniquidNode(T uniquidNodeConfiguration) throws Exception {
-			return new UniquidNodeImpl(uniquidNodeConfiguration);
+		protected UniquidNodeImpl<T> createUniquidNode(T uniquidNodeConfiguration) throws Exception {
+			return new UniquidNodeImpl<T>(uniquidNodeConfiguration);
 		}
 
 	}
@@ -527,7 +528,7 @@ public class UniquidNodeImpl implements UniquidNode {
 	/**
 	 * Change internal state
 	 */
-	public synchronized void setUniquidNodeState(final UniquidNodeState nodeState) {
+	protected synchronized void setUniquidNodeState(final UniquidNodeState nodeState) {
 
 		LOGGER.info("Changing node state to {}", nodeState.getClass());
 
@@ -569,6 +570,10 @@ public class UniquidNodeImpl implements UniquidNode {
 	 * Implementation of callback for blockchain events
 	 */
 	protected class UniquidNodeDownloadProgressTracker extends DownloadProgressTracker {
+		
+		public UniquidNodeDownloadProgressTracker() {
+			// protected class have default constructor protected.
+		}
 
 		@Override
 		protected void startDownload(final int blocks) {
@@ -594,6 +599,10 @@ public class UniquidNodeImpl implements UniquidNode {
 	}
 
 	protected class UniquidPeerConnectionListener extends NativePeerEventListener {
+		
+		public UniquidPeerConnectionListener() {
+			// protected class have default constructor protected.
+		}
 
 		@Override
 		public void onPeersDiscovered(Set<PeerAddress> peerAddresses) {
@@ -614,6 +623,10 @@ public class UniquidNodeImpl implements UniquidNode {
 	}
 	
 	protected class UniquidWalletCoinsReceivedEventListener implements WalletCoinsReceivedEventListener {
+		
+		public UniquidWalletCoinsReceivedEventListener() {
+			// protected class have default constructor protected.
+		}
 
 		@Override
 		public void onCoinsReceived(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
@@ -629,6 +642,10 @@ public class UniquidNodeImpl implements UniquidNode {
 	}
 	
 	protected class UniquidWalletCoinsSentEventListener implements WalletCoinsSentEventListener {
+		
+		public UniquidWalletCoinsSentEventListener() {
+			// protected class have default constructor protected.
+		}
 
 		@Override
 		public void onCoinsSent(Wallet wallet, Transaction tx, Coin prevBalance, Coin newBalance) {
@@ -643,7 +660,11 @@ public class UniquidNodeImpl implements UniquidNode {
 		
 	}
 	
-	protected class UniquidNodeStateContextImpl implements UniquidNodeStateContext {
+	protected class UniquidNodeStateContextImpl implements UniquidNodeStateContext<T> {
+		
+		public UniquidNodeStateContextImpl() {
+			// protected class have default constructor protected.
+		}
 
 		@Override
 		public void setUniquidNodeState(UniquidNodeState nodeState) {
@@ -676,7 +697,7 @@ public class UniquidNodeImpl implements UniquidNode {
 		}
 
 		@Override
-		public UniquidNodeConfiguration getUniquidNodeConfiguration() {
+		public T getUniquidNodeConfiguration() {
 			return UniquidNodeImpl.this.uniquidNodeConfiguration;
 		}
 		
