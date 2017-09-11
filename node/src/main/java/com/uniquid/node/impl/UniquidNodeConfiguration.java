@@ -7,6 +7,9 @@ import org.bitcoinj.wallet.DeterministicSeed;
 
 import com.uniquid.register.RegisterFactory;
 
+/**
+ * Bean to encapsulate Node configuration data
+ */
 public class UniquidNodeConfiguration {
 
 	private File providerChainFile;
