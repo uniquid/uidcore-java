@@ -19,16 +19,16 @@ import com.uniquid.register.provider.ProviderChannel;
  * 
  * @author Giuseppe Magnotta
  */
-public class UniquidWatchingNodeImpl extends UniquidNodeImpl<UniquidWatchingNodeConfiguration> {
+public class UniquidWatchingNodeImpl extends UniquidNodeImpl<UniquidNodeConfiguration> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidWatchingNodeImpl.class.getName());
 
-	protected UniquidWatchingNodeImpl(UniquidWatchingNodeConfiguration uniquidWatchingNodeConfiguration) 
+	protected UniquidWatchingNodeImpl(UniquidNodeConfiguration uniquidWatchingNodeConfiguration) 
 			throws NodeException {
 
 		super(uniquidWatchingNodeConfiguration);
 
-		this.publicKey = uniquidWatchingNodeConfiguration.getXpub();
+		this.publicKey = uniquidWatchingNodeConfiguration.getPublicKey();
 
 	}
 
@@ -120,11 +120,11 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl<UniquidWatchingNode
 	/**
 	 * Builder for WatchingNodeBuilder
 	 */
-	public static class WatchingNodeBuilder extends UniquidNodeImpl.UniquidNodeBuilder<WatchingNodeBuilder, UniquidWatchingNodeConfiguration> {
+	public static class WatchingNodeBuilder extends UniquidNodeImpl.UniquidNodeBuilder<WatchingNodeBuilder, UniquidNodeConfiguration> {
 
 		public UniquidWatchingNodeImpl buildFromXpub(final String xpub, final long creationTime) throws Exception {
 
-			_uniquidNodeConfiguration.setXpub(xpub);
+			_uniquidNodeConfiguration.setPublicKey(xpub);
 			_uniquidNodeConfiguration.setCreationTime(creationTime);
 
 			return createUniquidNode(_uniquidNodeConfiguration);
@@ -146,12 +146,12 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl<UniquidWatchingNode
 		}
 
 		@Override
-		protected UniquidWatchingNodeConfiguration createUniquidNodeConfiguration() {
-			return new UniquidWatchingNodeConfiguration();
+		protected UniquidNodeConfiguration createUniquidNodeConfiguration() {
+			return new UniquidNodeConfiguration();
 		}
 		
 		@Override
-		protected UniquidWatchingNodeImpl createUniquidNode(UniquidWatchingNodeConfiguration uniquidNodeConfiguration) throws NodeException {
+		protected UniquidWatchingNodeImpl createUniquidNode(UniquidNodeConfiguration uniquidNodeConfiguration) throws NodeException {
 			return new UniquidWatchingNodeImpl(uniquidNodeConfiguration);
 		}
 		

@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.uniquid.node.UniquidNodeState;
+import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
 import com.uniquid.node.impl.utils.DummyUserRegister;
@@ -56,6 +57,20 @@ public class UniquidWatchingNodeImplTest {
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyRegister);
 		builder.setNodeName(machineName);
+		
+		
+		try {
+			UniquidWatchingNodeImpl uniquidNode = builder.build();
+			Assert.fail();
+		} catch (NodeException ex) {
+			
+		}
+		
+		try {
+			UniquidWatchingNodeImpl uniquidNode = builder.buildFromMnemonic("", System.currentTimeMillis());
+		} catch (NodeException ex) {
+			
+		}
 		
 		UniquidWatchingNodeImpl uniquidNode = builder.buildFromXpub("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", 1487159470);
 		
