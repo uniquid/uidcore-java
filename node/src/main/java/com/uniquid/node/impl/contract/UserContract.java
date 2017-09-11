@@ -12,13 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import com.uniquid.node.impl.UniquidNodeConfiguration;
 import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.node.impl.utils.WalletUtils;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
+@SuppressWarnings("rawtypes")
 public class UserContract extends AbstractContract {
 	
+	@SuppressWarnings("unchecked")
 	public UserContract(UniquidNodeStateContext uniquidNodeStateContext) {
 		super(uniquidNodeStateContext);
 	}

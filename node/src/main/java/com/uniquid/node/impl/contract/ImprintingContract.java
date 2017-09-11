@@ -18,12 +18,14 @@ import com.uniquid.register.provider.ProviderRegister;
  * @author giuseppe
  *
  */
+@SuppressWarnings("rawtypes")
 public class ImprintingContract extends AbstractContract {
 	
 	public static final String CONTRACT_FUNCTION = "00000000400000000000000000000000000000";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImprintingContract.class);
 
+	@SuppressWarnings("unchecked")
 	public ImprintingContract(UniquidNodeStateContext uniquidNodeStateContext) {
 		super(uniquidNodeStateContext);
 	}

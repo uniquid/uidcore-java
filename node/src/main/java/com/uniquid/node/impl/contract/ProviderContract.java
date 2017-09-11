@@ -23,10 +23,12 @@ import com.uniquid.register.provider.ProviderRegister;
  * @author giuseppe
  *
  */
+@SuppressWarnings("rawtypes")
 public class ProviderContract extends AbstractContract {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProviderContract.class);
 
+	@SuppressWarnings("unchecked")
 	public ProviderContract(UniquidNodeStateContext uniquidNodeStateContext) {
 		super(uniquidNodeStateContext);
 	}
