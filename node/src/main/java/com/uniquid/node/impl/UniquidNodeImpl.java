@@ -459,53 +459,62 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 	/**
 	 * Builder for UniquidNodeImpl
 	 */
-	public static class UniquidNodeBuilder<B extends UniquidNodeBuilder<B, T>, T extends UniquidNodeConfigurationImpl> {
-
-		protected T _uniquidNodeConfiguration;
+	public static class UniquidNodeBuilder<B extends UniquidNodeBuilder<B, T, C>, T extends UniquidNodeConfiguration, C extends UniquidNodeConfigurationImpl> {
+		
+		protected C _uniquidNodeConfiguration;
 
 		public UniquidNodeBuilder() {
 			this._uniquidNodeConfiguration = createUniquidNodeConfiguration();
 		}
 		
+		@SuppressWarnings("unchecked")
 		public T getUniquidNodeConfiguration() {
-			return _uniquidNodeConfiguration;
+			return (T) _uniquidNodeConfiguration;
 		}
 
+		@SuppressWarnings("unchecked")
 		public B setNetworkParameters(NetworkParameters params) {
 			_uniquidNodeConfiguration.setNetworkParameters(params);
 			return (B) this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public B setProviderFile(File providerFile) {
 			_uniquidNodeConfiguration.setProviderFile(providerFile);
 			return (B) this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public B setUserFile(File userFile) {
 			_uniquidNodeConfiguration.setUserFile(userFile);
 			return (B) this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public B setProviderChainFile(File chainFile) {
 			_uniquidNodeConfiguration.setProviderChainFile(chainFile);
 			return (B) this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public B setUserChainFile(File userChainFile) {
 			_uniquidNodeConfiguration.setUserChainFile(userChainFile);
 			return (B) this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public B setRegisterFactory(RegisterFactory registerFactory) {
 			_uniquidNodeConfiguration.setRegisterFactory(registerFactory);
 			return (B) this;
 		}
 
+		@SuppressWarnings("unchecked")
 		public B setNodeName(String machineName) {
 			_uniquidNodeConfiguration.setNodeName(machineName);
 			return (B) this;
 		}
 		
+		@SuppressWarnings("unchecked")
 		public B setRegistryUrl(String registryUrl) {
 			_uniquidNodeConfiguration.setRegistryUrl(registryUrl);
 			return (B) this;
@@ -517,6 +526,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 		 * @return
 		 * @throws Exception
 		 */
+		@SuppressWarnings("unchecked")
 		public UniquidNodeImpl<T> build() throws NodeException {
 
 			SecureRandom random = new SecureRandom();
@@ -529,10 +539,11 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 			_uniquidNodeConfiguration.setCreationTime(creationTime);
 			_uniquidNodeConfiguration.setDetSeed(detSeed);
 
-			return createUniquidNode(_uniquidNodeConfiguration);
+			return createUniquidNode((T) _uniquidNodeConfiguration);
 
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Deprecated
 		public UniquidNodeImpl<T> buildFromHexSeed(final String hexSeed, final long creationTime) throws NodeException {
 
@@ -543,7 +554,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 				_uniquidNodeConfiguration.setCreationTime(creationTime);
 				_uniquidNodeConfiguration.setDetSeed(detSeed);
 	
-				return createUniquidNode(_uniquidNodeConfiguration);
+				return createUniquidNode((T) _uniquidNodeConfiguration);
 				
 			} catch (Exception ex) {
 				
@@ -553,6 +564,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 
 		}
 
+		@SuppressWarnings("unchecked")
 		public UniquidNodeImpl<T> buildFromMnemonic(final String mnemonic, final long creationTime) throws NodeException {
 
 			try {
@@ -561,7 +573,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 				_uniquidNodeConfiguration.setCreationTime(creationTime);
 				_uniquidNodeConfiguration.setDetSeed(detSeed);
 	
-				return createUniquidNode(_uniquidNodeConfiguration);
+				return createUniquidNode((T) _uniquidNodeConfiguration);
 			
 			} catch (Exception ex) {
 				
@@ -572,8 +584,8 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 		}
 
 		@SuppressWarnings("unchecked")
-		protected T createUniquidNodeConfiguration() {
-			return (T) new UniquidNodeConfigurationImpl();
+		protected C createUniquidNodeConfiguration() {
+			return (C) new UniquidNodeConfigurationImpl();
 		}
 
 		protected UniquidNodeImpl<T> createUniquidNode(T uniquidNodeConfiguration) throws NodeException {

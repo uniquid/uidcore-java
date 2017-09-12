@@ -19,11 +19,11 @@ import com.uniquid.register.provider.ProviderChannel;
  * 
  * @author Giuseppe Magnotta
  */
-public class UniquidWatchingNodeImpl extends UniquidNodeImpl<UniquidNodeConfigurationImpl> {
+public class UniquidWatchingNodeImpl extends UniquidNodeImpl<UniquidNodeConfiguration> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidWatchingNodeImpl.class.getName());
 
-	protected UniquidWatchingNodeImpl(UniquidNodeConfigurationImpl uniquidWatchingNodeConfiguration) 
+	protected UniquidWatchingNodeImpl(UniquidNodeConfiguration uniquidWatchingNodeConfiguration)
 			throws NodeException {
 
 		super(uniquidWatchingNodeConfiguration);
@@ -120,7 +120,7 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl<UniquidNodeConfigur
 	/**
 	 * Builder for WatchingNodeBuilder
 	 */
-	public static class WatchingNodeBuilder extends UniquidNodeImpl.UniquidNodeBuilder<WatchingNodeBuilder, UniquidNodeConfigurationImpl> {
+	public static class WatchingNodeBuilder extends UniquidNodeImpl.UniquidNodeBuilder<WatchingNodeBuilder, UniquidNodeConfiguration, UniquidNodeConfigurationImpl> {
 
 		public UniquidWatchingNodeImpl buildFromXpub(final String xpub, final long creationTime) throws Exception {
 
@@ -146,12 +146,7 @@ public class UniquidWatchingNodeImpl extends UniquidNodeImpl<UniquidNodeConfigur
 		}
 
 		@Override
-		protected UniquidNodeConfigurationImpl createUniquidNodeConfiguration() {
-			return new UniquidNodeConfigurationImpl();
-		}
-		
-		@Override
-		protected UniquidWatchingNodeImpl createUniquidNode(UniquidNodeConfigurationImpl uniquidNodeConfiguration) throws NodeException {
+		protected UniquidWatchingNodeImpl createUniquidNode(UniquidNodeConfiguration uniquidNodeConfiguration) throws NodeException {
 			return new UniquidWatchingNodeImpl(uniquidNodeConfiguration);
 		}
 		
