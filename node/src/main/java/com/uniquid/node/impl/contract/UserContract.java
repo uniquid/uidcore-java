@@ -17,6 +17,9 @@ import com.uniquid.node.impl.utils.WalletUtils;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
+import com.uniquid.registry.RegistryDAO;
+import com.uniquid.registry.exception.RegistryException;
+import com.uniquid.registry.impl.RegistryDAOImpl;
 
 @SuppressWarnings("rawtypes")
 public class UserContract extends AbstractContract {
@@ -124,8 +127,12 @@ public class UserContract extends AbstractContract {
 		// DO NOTHIG
 	}
 	
-	protected String retrieveNameFromProvider(Address providerAddress, UniquidNodeStateContext uniquidNodeStateContext) {
-		 return WalletUtils.retrieveNameFromProvider(providerAddress.toBase58(), uniquidNodeStateContext.getUniquidNodeConfiguration().getRegistryUrl());
+	protected String retrieveNameFromProvider(Address providerAddress, UniquidNodeStateContext uniquidNodeStateContext) throws RegistryException {
+		
+		RegistryDAO registryDAO = new RegistryDAOImpl(uniquidNodeStateContext.getUniquidNodeConfiguration().getRegistryUrl());
+		
+		return registryDAO.retrieveProviderName(providerAddress.toBase58());
+		
 	}
 
 }
