@@ -29,7 +29,7 @@ import org.spongycastle.util.encoders.Hex;
  */
 public abstract class WalletUtils {
 	
-	private static String URL_REGISTRY = "http://%1&s/registry";
+	private static String URL_REGISTRY = "%1&s/registry";
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(WalletUtils.class.getName());
 	
