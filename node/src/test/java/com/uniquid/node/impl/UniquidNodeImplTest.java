@@ -21,7 +21,6 @@ import com.uniquid.register.user.UserRegister;
 
 public class UniquidNodeImplTest {
 
-	@Test
 	public void testBuild() throws Exception {
 		
 		@SuppressWarnings("rawtypes")
@@ -88,7 +87,6 @@ public class UniquidNodeImplTest {
 		
 	}
 	
-	@Test
 	public void testInitNode0Elements() throws Exception {
 
 		@SuppressWarnings("rawtypes")
@@ -161,7 +159,6 @@ public class UniquidNodeImplTest {
 		
 	}
 	
-	@Test
 	public void testInitNode1Elements() throws Exception {
 
 		@SuppressWarnings("rawtypes")

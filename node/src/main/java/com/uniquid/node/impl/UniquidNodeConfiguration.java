@@ -30,7 +30,5 @@ public interface UniquidNodeConfiguration {
 
 	public RegisterFactory getRegisterFactory();
 
-	public DeterministicSeed getDetSeed();
-
 	public String getRegistryUrl();
 }

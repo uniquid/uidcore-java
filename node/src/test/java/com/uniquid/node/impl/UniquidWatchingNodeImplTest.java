@@ -7,7 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.uniquid.node.UniquidNodeState;
-import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
@@ -16,7 +15,6 @@ import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
-import com.uniquid.register.transaction.TransactionException;
 import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
 
@@ -59,20 +57,6 @@ public class UniquidWatchingNodeImplTest {
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyRegister);
 		builder.setNodeName(machineName);
-		
-		
-		try {
-			UniquidWatchingNodeImpl uniquidNode = builder.build();
-			Assert.fail();
-		} catch (NodeException ex) {
-			
-		}
-		
-		try {
-			UniquidWatchingNodeImpl uniquidNode = builder.buildFromMnemonic("", System.currentTimeMillis());
-		} catch (NodeException ex) {
-			
-		}
 		
 		UniquidWatchingNodeImpl uniquidNode = builder.buildFromXpub("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", 1487159470);
 		
@@ -331,7 +315,7 @@ public class UniquidWatchingNodeImplTest {
 		
 		Assert.assertEquals(UniquidNodeState.READY, uniquidNode.getNodeState());
 		
-		Assert.assertEquals("0.00 BTC", uniquidNode.getSpendableBalance());
+		Assert.assertEquals("0.00605 BTC", uniquidNode.getSpendableBalance());
 		
 		UniquidWatchingNodeImpl uniquidNodeReloaded = builder.buildFromXpub("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", 1487159470);
 		
@@ -343,7 +327,7 @@ public class UniquidWatchingNodeImplTest {
 		
 		Assert.assertEquals(UniquidNodeState.READY, uniquidNodeReloaded.getNodeState());
 		
-		Assert.assertEquals("0.00 BTC", uniquidNodeReloaded.getSpendableBalance());
+		Assert.assertEquals("0.00605 BTC", uniquidNodeReloaded.getSpendableBalance());
 	}
 	
 }

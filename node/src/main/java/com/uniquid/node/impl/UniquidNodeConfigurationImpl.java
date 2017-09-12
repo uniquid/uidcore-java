@@ -25,8 +25,6 @@ public class UniquidNodeConfigurationImpl implements UniquidNodeConfiguration {
 
 	private RegisterFactory registerFactory;
 
-	private DeterministicSeed detSeed;
-	
 	private String registryUrl;
 
 	public File getProviderChainFile() {
@@ -99,14 +97,6 @@ public class UniquidNodeConfigurationImpl implements UniquidNodeConfiguration {
 
 	public void setRegisterFactory(RegisterFactory registerFactory) {
 		this.registerFactory = registerFactory;
-	}
-
-	public DeterministicSeed getDetSeed() {
-		return detSeed;
-	}
-
-	public void setDetSeed(DeterministicSeed detSeed) {
-		this.detSeed = detSeed;
 	}
 
 	public String getRegistryUrl() {
