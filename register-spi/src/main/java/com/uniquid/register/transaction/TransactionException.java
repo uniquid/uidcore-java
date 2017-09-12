@@ -1,6 +1,8 @@
 package com.uniquid.register.transaction;
 
-public class TransactionException extends Exception {
+import com.uniquid.register.exception.RegisterException;
+
+public class TransactionException extends RegisterException {
 
 	private static final long serialVersionUID = 1L;
 	
