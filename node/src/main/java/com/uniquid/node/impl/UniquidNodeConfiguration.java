@@ -10,111 +10,27 @@ import com.uniquid.register.RegisterFactory;
 /**
  * Bean to encapsulate Node configuration data
  */
-public class UniquidNodeConfiguration {
+public interface UniquidNodeConfiguration {
 
-	private File providerChainFile;
-	private File userChainFile;
-	private String nodeName;
+	public File getProviderChainFile();
 
-	private NetworkParameters networkParameters;
-	private File providerFile;
-	private File userFile;
+	public File getUserChainFile();
 
-	private String publicKey;
-	private long creationTime;
+	public String getNodeName();
 
-	private RegisterFactory registerFactory;
+	public NetworkParameters getNetworkParameters();
 
-	private DeterministicSeed detSeed;
-	
-	private String registryUrl;
+	public File getProviderFile();
 
-	public File getProviderChainFile() {
-		return providerChainFile;
-	}
+	public File getUserFile();
 
-	public void setProviderChainFile(File providerChainFile) {
-		this.providerChainFile = providerChainFile;
-	}
+	public String getPublicKey();
 
-	public File getUserChainFile() {
-		return userChainFile;
-	}
+	public long getCreationTime();
 
-	public void setUserChainFile(File userChainFile) {
-		this.userChainFile = userChainFile;
-	}
+	public RegisterFactory getRegisterFactory();
 
-	public String getNodeName() {
-		return nodeName;
-	}
+	public DeterministicSeed getDetSeed();
 
-	public void setNodeName(String nodeName) {
-		this.nodeName = nodeName;
-	}
-
-	public NetworkParameters getNetworkParameters() {
-		return networkParameters;
-	}
-
-	public void setNetworkParameters(NetworkParameters networkParameters) {
-		this.networkParameters = networkParameters;
-	}
-
-	public File getProviderFile() {
-		return providerFile;
-	}
-
-	public void setProviderFile(File providerFile) {
-		this.providerFile = providerFile;
-	}
-
-	public File getUserFile() {
-		return userFile;
-	}
-
-	public void setUserFile(File userFile) {
-		this.userFile = userFile;
-	}
-
-	public String getPublicKey() {
-		return publicKey;
-	}
-
-	public void setPublicKey(String publicKey) {
-		this.publicKey = publicKey;
-	}
-
-	public long getCreationTime() {
-		return creationTime;
-	}
-
-	public void setCreationTime(long creationTime) {
-		this.creationTime = creationTime;
-	}
-
-	public RegisterFactory getRegisterFactory() {
-		return registerFactory;
-	}
-
-	public void setRegisterFactory(RegisterFactory registerFactory) {
-		this.registerFactory = registerFactory;
-	}
-
-	public DeterministicSeed getDetSeed() {
-		return detSeed;
-	}
-
-	public void setDetSeed(DeterministicSeed detSeed) {
-		this.detSeed = detSeed;
-	}
-
-	public String getRegistryUrl() {
-		return registryUrl;
-	}
-
-	public void setRegistryUrl(String registryUrl) {
-		this.registryUrl = registryUrl;
-	}
-	
+	public String getRegistryUrl();
 }

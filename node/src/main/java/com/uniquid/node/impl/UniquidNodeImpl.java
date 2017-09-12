@@ -459,7 +459,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 	/**
 	 * Builder for UniquidNodeImpl
 	 */
-	public static class UniquidNodeBuilder<B extends UniquidNodeBuilder<B, T>, T extends UniquidNodeConfiguration> {
+	public static class UniquidNodeBuilder<B extends UniquidNodeBuilder<B, T>, T extends UniquidNodeConfigurationImpl> {
 
 		protected T _uniquidNodeConfiguration;
 
@@ -573,7 +573,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> implements Uniq
 
 		@SuppressWarnings("unchecked")
 		protected T createUniquidNodeConfiguration() {
-			return (T) new UniquidNodeConfiguration();
+			return (T) new UniquidNodeConfigurationImpl();
 		}
 
 		protected UniquidNodeImpl<T> createUniquidNode(T uniquidNodeConfiguration) throws NodeException {

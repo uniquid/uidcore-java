@@ -90,7 +90,7 @@ public class ProviderContractTest {
 			
 			@Override
 			public UniquidNodeConfiguration getUniquidNodeConfiguration() {
-				return new UniquidNodeConfiguration() {
+				return new UniquidNodeConfigurationImpl() {
 					
 					@Override
 					public RegisterFactory getRegisterFactory() {

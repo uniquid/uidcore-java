@@ -88,7 +88,7 @@ public class ImprintingContractTest {
 
 			@Override
 			public UniquidNodeConfiguration getUniquidNodeConfiguration() {
-				return new UniquidNodeConfiguration() {
+				return new UniquidNodeConfigurationImpl() {
 					
 					@Override
 					public RegisterFactory getRegisterFactory() {
