@@ -29,8 +29,6 @@ import org.spongycastle.util.encoders.Hex;
  */
 public abstract class WalletUtils {
 	
-	private static String URL_REGISTRY = "http://%1&s/registry";
-	
 	private static final Logger LOGGER = LoggerFactory.getLogger(WalletUtils.class.getName());
 	
     /**
@@ -159,28 +157,6 @@ public abstract class WalletUtils {
 //
 //        return false;
 //    }
-    
-    public static String retrieveNameFromProvider(String provider, String registryUrl){
-        String result = httpGet(URL_REGISTRY, registryUrl);
-
-        if (result == null)
-            return null;
-
-        JSONArray jArray = new JSONArray(result);
-
-        for (int i = 0; i < jArray.length(); i++){
-            JSONObject jsonObject = jArray.getJSONObject(i);
-            
-            String name = jsonObject.getString("provider_name");
-            String address = jsonObject.getString("provider_address");
-            
-            if (provider.equals(address)) {
-            		return name;
-            }
-        }
-
-        return null;
-    }
     
     public static String httpGet(String url, String param){
     	try {
