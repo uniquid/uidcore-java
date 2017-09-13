@@ -1,6 +1,8 @@
 package com.uniquid.core.provider.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,7 +29,9 @@ public class ContractFunction extends GenericFunction {
 			throws FunctionException, IOException {
 
 		String params = inputMessage.getParams();
-		String tx, path;
+		String tx;
+		
+		List<String> path = new ArrayList<String>();
 		
 		LOGGER.trace("Received input {}", inputMessage);
 		
@@ -39,7 +43,12 @@ public class ContractFunction extends GenericFunction {
 			
 			JSONArray paths = jsonMessage.getJSONArray("paths");
 			
-			path = paths.getString(0);
+			for (int i = 0; i < paths.length(); i++) {
+
+				path.add(paths.getString(i));
+				
+			}
+			
 			
 		} catch (JSONException ex) {
 			

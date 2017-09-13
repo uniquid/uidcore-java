@@ -1,5 +1,7 @@
 package com.uniquid.core.impl.test;
 
+import java.util.List;
+
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
@@ -74,7 +76,7 @@ public class DummyNode implements UniquidNode {
 	}
 
 	@Override
-	public String signTransaction(String s_tx, String path) throws NodeException {
+	public String signTransaction(String s_tx, List<String> path) throws NodeException {
 		
 		return s_tx;
 		
