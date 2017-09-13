@@ -12,15 +12,19 @@ import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.script.Script;
+import org.bitcoinj.signers.LocalTransactionSigner;
+import org.bitcoinj.signers.MissingSigResolutionSigner;
+import org.bitcoinj.signers.TransactionSigner;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.KeyBag;
+import org.bitcoinj.wallet.RedeemData;
 import org.bitcoinj.wallet.SendRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
-import com.uniquid.blockchain.impl.InsightApiDAOImpl;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.utils.NodeUtils;
 import com.uniquid.node.impl.utils.WalletUtils;
@@ -61,84 +65,62 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 	@Override
 	public synchronized String signTransaction(final String s_tx, final String path) throws NodeException {
 
-		LOGGER.info("Signing TX");
-		LOGGER.trace("Signing TX {} at path {}", s_tx, path);
-		
 		try {
-			
 			ImmutableList<ChildNumber> list = listFromPath(path);
-			
-			Transaction originalTransaction = uniquidNodeConfiguration.getNetworkParameters().getDefaultSerializer().makeTransaction(Hex.decode(s_tx));
-			
+
+			Transaction originalTransaction = uniquidNodeConfiguration.getNetworkParameters().getDefaultSerializer()
+					.makeTransaction(Hex.decode(s_tx));
+
 			SendRequest req = SendRequest.forTx(originalTransaction);
-			
-			DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(deterministicSeed.getSeedBytes());
-			
+
+			DeterministicKey deterministicKey = NodeUtils
+					.createDeterministicKeyFromByteArray(deterministicSeed.getSeedBytes());
+
 			DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 
-			ImmutableList<ChildNumber> IMPRINTING_PATH = ImmutableList.of(new ChildNumber(44, true),
-					new ChildNumber(0, true));
-
 			DeterministicKey imprintingKey = deterministicHierarchy.get(list, true, true);
-			
+
 			Transaction tx = req.tx;
-	        List<TransactionInput> inputs = tx.getInputs();
-	        List<TransactionOutput> outputs = tx.getOutputs();
 
-	        KeyBag maybeDecryptingKeyBag = new UniquidKeyBag(imprintingKey);
+			KeyBag maybeDecryptingKeyBag = new UniquidKeyBag(imprintingKey);
 
-	        int numInputs = tx.getInputs().size();
-	        for (int i = 0; i < numInputs; i++) {
-	            TransactionInput txIn = tx.getInput(i);
-//	            if (txIn.getConnectedOutput() == null) {
-//	                // Missing connected output, assuming already signed.
-//	                continue;
-//	            }
+			int numInputs = tx.getInputs().size();
+			for (int i = 0; i < numInputs; i++) {
+				TransactionInput txIn = tx.getInput(i);
 
-//	            try {
-//	                // We assume if its already signed, its hopefully got a SIGHASH type that will not invalidate when
-//	                // we sign missing pieces (to check this would require either assuming any signatures are signing
-//	                // standard output types or a way to get processed signatures out of script execution)
-//	                txIn.getScriptSig().correctlySpends(tx, i, txIn.getConnectedOutput().getScriptPubKey());
-//	                LOGGER.warn("Input {} already correctly spends output, assuming SIGHASH type used will be safe and skipping signing.", i);
-//	                continue;
-//	            } catch (ScriptException e) {
-//	                LOGGER.debug("Input contained an incorrect signature", e);
-//	                // Expected.
-//	            }
-	            
-	            InsightApiDAOImpl blockChainDAO = new InsightApiDAOImpl(uni);
-	            
-	            
-	            String rawTx = blockChainDAO.retrieveRawTx("607d5d3b4a23e5740db877dcae83816838f26639ed7de5019cf292314b6ea939");
-				
-				Transaction inputTransaction = UniquidRegTest.get().getDefaultSerializer().makeTransaction(Hex.decode(rawTx));
-				
+				// Fetch input tx from wallet
+				Transaction inputTransaction = providerWallet.getTransaction(txIn.getOutpoint().getHash());
+
+				if (inputTransaction == null) {
+
+					throw new NodeException("Input TX not found in wallet!");
+
+				}
+
 				TransactionOutput outputToUse = inputTransaction.getOutput(txIn.getOutpoint().getIndex());
-				
+
 				originalTransaction.getInput(0).connect(outputToUse);
-	            Script scriptPubKey = txIn.getConnectedOutput().getScriptPubKey();
-	            RedeemData redeemData = txIn.getConnectedRedeemData(maybeDecryptingKeyBag);
-	            checkNotNull(redeemData, "Transaction exists in wallet that we cannot redeem: %s", txIn.getOutpoint().getHash());
-	            txIn.setScriptSig(scriptPubKey.createEmptyInputScript(redeemData.keys.get(0), redeemData.redeemScript));
-	        }
+				Script scriptPubKey = txIn.getConnectedOutput().getScriptPubKey();
+				RedeemData redeemData = txIn.getConnectedRedeemData(maybeDecryptingKeyBag);
+				txIn.setScriptSig(scriptPubKey.createEmptyInputScript(redeemData.keys.get(0), redeemData.redeemScript));
+			}
 
-	        TransactionSigner.ProposedTransaction proposal = new TransactionSigner.ProposedTransaction(tx);
-	        TransactionSigner signer = new LocalTransactionSigner();
-	            if (!signer.signInputs(proposal, maybeDecryptingKeyBag))
-	                LOGGER.info("{} returned false for the tx", signer.getClass().getName());
+			TransactionSigner.ProposedTransaction proposal = new TransactionSigner.ProposedTransaction(tx);
+			TransactionSigner signer = new LocalTransactionSigner();
+			if (!signer.signInputs(proposal, maybeDecryptingKeyBag)) {
+				LOGGER.info("{} returned false for the tx", signer.getClass().getName());
+				throw new NodeException("Cannot sign TX!");
+			}
 
-	        // resolve missing sigs if any
-	        new MissingSigResolutionSigner(req.missingSigsMode).signInputs(proposal, maybeDecryptingKeyBag);
-			
-	        return Hex.toHexString(originalTransaction.bitcoinSerialize());
-			
-		} catch (Exception e) {
-			
-			throw new NodeException("Exception", e);
-			
+			// resolve missing sigs if any
+			new MissingSigResolutionSigner(req.missingSigsMode).signInputs(proposal, maybeDecryptingKeyBag);
+
+			return Hex.toHexString(originalTransaction.bitcoinSerialize());
+
+		} catch (Exception ex) {
+
+			throw new NodeException("Exce", ex);
 		}
-		
 	}
 	
 	public synchronized String oldsignTransaction(final String s_tx, final String path) throws NodeException {
