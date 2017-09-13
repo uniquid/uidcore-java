@@ -159,7 +159,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	/**
 	 * Builder for UniquidNodeImpl
 	 */
-	public static class UniquidNodeBuilder<B extends WatchingNodeBuilder<B, T, C>, T extends UniquidNodeConfiguration, C extends UniquidNodeConfigurationImpl> extends UniquidWatchingNodeImpl.WatchingNodeBuilder<B, T, C> {
+	public static class UniquidNodeBuilder<B extends UniquidNodeBuilder<B, T, C>, T extends UniquidNodeConfiguration, C extends UniquidNodeConfigurationImpl> extends UniquidWatchingNodeImpl.WatchingNodeBuilder<B, T, C> {
 		
 		/**
 		 * Build a new instance
