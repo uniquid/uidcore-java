@@ -17,7 +17,6 @@ import org.bitcoinj.signers.LocalTransactionSigner;
 import org.bitcoinj.signers.MissingSigResolutionSigner;
 import org.bitcoinj.signers.TransactionSigner;
 import org.bitcoinj.wallet.DeterministicSeed;
-import org.bitcoinj.wallet.KeyBag;
 import org.bitcoinj.wallet.RedeemData;
 import org.bitcoinj.wallet.SendRequest;
 import org.slf4j.Logger;
@@ -27,12 +26,11 @@ import org.spongycastle.util.encoders.Hex;
 import com.google.common.collect.ImmutableList;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.utils.NodeUtils;
-import com.uniquid.node.impl.utils.WalletUtils;
 
 /**
  * Implementation of an Uniquid Node with BitcoinJ library
  */
-public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfiguration> {
+public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends UniquidWatchingNodeImpl<T> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeImpl.class.getName());
 
@@ -44,7 +42,7 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 	 * @param uniquidNodeConfiguration
 	 * @throws NodeException
 	 */
-	protected UniquidNodeImpl(UniquidNodeConfiguration uniquidNodeConfiguration, DeterministicSeed deterministicSeed) throws NodeException {
+	protected UniquidNodeImpl(T uniquidNodeConfiguration, DeterministicSeed deterministicSeed) throws NodeException {
 
 		super(uniquidNodeConfiguration);
 		
@@ -132,6 +130,10 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 		}
 	}
 	
+	public DeterministicSeed getDeterministicSeed() {
+		return deterministicSeed;
+	}
+	
 	private static ImmutableList<ChildNumber> listFromPath(String path) {
 			
 			StringTokenizer tokenizer = new StringTokenizer(path, "/");
@@ -157,7 +159,7 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 	/**
 	 * Builder for UniquidNodeImpl
 	 */
-	public static class UniquidNodeBuilder extends UniquidWatchingNodeImpl.WatchingNodeBuilder<UniquidNodeBuilder, UniquidNodeConfiguration, UniquidNodeConfigurationImpl> {
+	public static class UniquidNodeBuilder<B extends WatchingNodeBuilder<B, T, C>, T extends UniquidNodeConfiguration, C extends UniquidNodeConfigurationImpl> extends UniquidWatchingNodeImpl.WatchingNodeBuilder<B, T, C> {
 		
 		/**
 		 * Build a new instance
@@ -165,7 +167,7 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 		 * @return
 		 * @throws Exception
 		 */
-		public UniquidNodeImpl build() throws NodeException {
+		public UniquidNodeImpl<T> build() throws NodeException {
 
 			SecureRandom random = new SecureRandom();
 			byte[] entropy = new byte[32];
@@ -182,7 +184,7 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 		}
 		
 		@Deprecated
-		public UniquidNodeImpl buildFromHexSeed(final String hexSeed, final long creationTime) throws NodeException {
+		public UniquidNodeImpl<T> buildFromHexSeed(final String hexSeed, final long creationTime) throws NodeException {
 
 			try {
 				
@@ -201,7 +203,7 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 
 		}
 
-		public UniquidNodeImpl buildFromMnemonic(final String mnemonic, final long creationTime) throws NodeException {
+		public UniquidNodeImpl<T> buildFromMnemonic(final String mnemonic, final long creationTime) throws NodeException {
 
 			try {
 				DeterministicSeed detSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
@@ -219,7 +221,8 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 
 		}
 
-		protected UniquidNodeImpl createUniquidNode(UniquidNodeConfiguration uniquidNodeConfiguration, DeterministicSeed deterministicSeed) throws NodeException {
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		protected UniquidNodeImpl<T> createUniquidNode(C uniquidNodeConfiguration, DeterministicSeed deterministicSeed) throws NodeException {
 			return new UniquidNodeImpl(uniquidNodeConfiguration, deterministicSeed);
 		}
 		
