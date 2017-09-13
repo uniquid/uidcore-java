@@ -1,5 +1,7 @@
 package com.uniquid.node;
 
+import java.util.List;
+
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 
@@ -94,7 +96,7 @@ public interface UniquidNode {
 	 * @return the serialized signed transaction
 	 * @throws NodeException in case a problem occurs.
 	 */
-	public String signTransaction(final String serializedTx, final String path) throws NodeException;
+	public String signTransaction(final String serializedTx, final List<String> paths) throws NodeException;
 	
 	/**
 	 * Allow to propagate a serialized Tx on the peer2peer network

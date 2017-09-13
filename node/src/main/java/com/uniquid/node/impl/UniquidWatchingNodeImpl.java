@@ -290,7 +290,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	}
 	
 	@Override
-	public synchronized String signTransaction(final String s_tx, final String path) throws NodeException {
+	public synchronized String signTransaction(final String s_tx, final List<String> paths) throws NodeException {
 
 		throw new NodeException("This node can't sign a transaction");
 

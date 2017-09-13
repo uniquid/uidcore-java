@@ -1,6 +1,8 @@
 package com.uniquid.node.impl;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bitcoinj.core.NetworkParameters;
 import org.junit.Assert;
@@ -336,13 +338,14 @@ public class UniquidNodeImplTest {
 		
 		Assert.assertEquals("2.00 BTC", uniquidNodeReloaded.getSpendableBalance());
 		
-		String path = "0/0/0";
+		List<String> paths = new ArrayList<String>();
+		paths.add("0/0/0");
 		
 		String unsigned_tx = "010000000147a327c7f5d626a7159c5c0fccf90732ba733ab6e9eea53db24c4829b3cc46a40000000000ffffffff0140420f00000000001976a91457c9afb8bc5e4fa738f5b46afcb51b43a48b270988ac00000000";
 		
 		String signed_tx = "010000000147a327c7f5d626a7159c5c0fccf90732ba733ab6e9eea53db24c4829b3cc46a4000000006a4730440220086cd07ca66e18fa79c8b525c63a119f9470dd20e6e2c4cde5541e763a14f87702204611076bc4bbef07dbc9c26dda113fee296bb085c05faea1572916fcaa4edc2e012102461fb3538ffec054fd4ee1e9087e7debf8442028f941bda308c24b508cbf69f7ffffffff0140420f00000000001976a91457c9afb8bc5e4fa738f5b46afcb51b43a48b270988ac00000000";
 		
-		Assert.assertEquals(signed_tx, uniquidNode.signTransaction(unsigned_tx, path));
+		Assert.assertEquals(signed_tx, uniquidNode.signTransaction(unsigned_tx, paths));
 		
 	}
 	

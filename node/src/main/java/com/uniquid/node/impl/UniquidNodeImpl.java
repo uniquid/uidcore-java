@@ -63,32 +63,39 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 	}
 
 	@Override
-	public synchronized String signTransaction(final String s_tx, final String path) throws NodeException {
+	public synchronized String signTransaction(final String s_tx, final List<String> paths) throws NodeException {
 
 		try {
-			ImmutableList<ChildNumber> list = listFromPath(path);
+			
+			DeterministicKey deterministicKey = NodeUtils
+					.createDeterministicKeyFromByteArray(deterministicSeed.getSeedBytes());
+			
+			DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
+			
+			UniquidKeyBag keyBag = new UniquidKeyBag();
 
+			for (String path : paths) {
+				
+				ImmutableList<ChildNumber> list = listFromPath(path);
+
+				DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
+			
+				keyBag.addDeterministicKey(signingKey);
+				
+			}
+			
 			Transaction originalTransaction = uniquidNodeConfiguration.getNetworkParameters().getDefaultSerializer()
 					.makeTransaction(Hex.decode(s_tx));
 
 			SendRequest req = SendRequest.forTx(originalTransaction);
 
-			DeterministicKey deterministicKey = NodeUtils
-					.createDeterministicKeyFromByteArray(deterministicSeed.getSeedBytes());
-
-			DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
-
-			DeterministicKey imprintingKey = deterministicHierarchy.get(list, true, true);
-
 			Transaction tx = req.tx;
-
-			KeyBag maybeDecryptingKeyBag = new UniquidKeyBag(imprintingKey);
 
 			int numInputs = tx.getInputs().size();
 			for (int i = 0; i < numInputs; i++) {
 				TransactionInput txIn = tx.getInput(i);
 
-				// Fetch input tx from wallet
+				// Fetch input tx from wallet TODO use a proper wallet!
 				Transaction inputTransaction = providerWallet.getTransaction(txIn.getOutpoint().getHash());
 
 				if (inputTransaction == null) {
@@ -101,72 +108,27 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 
 				originalTransaction.getInput(0).connect(outputToUse);
 				Script scriptPubKey = txIn.getConnectedOutput().getScriptPubKey();
-				RedeemData redeemData = txIn.getConnectedRedeemData(maybeDecryptingKeyBag);
+				RedeemData redeemData = txIn.getConnectedRedeemData(keyBag);
 				txIn.setScriptSig(scriptPubKey.createEmptyInputScript(redeemData.keys.get(0), redeemData.redeemScript));
+
 			}
 
 			TransactionSigner.ProposedTransaction proposal = new TransactionSigner.ProposedTransaction(tx);
 			TransactionSigner signer = new LocalTransactionSigner();
-			if (!signer.signInputs(proposal, maybeDecryptingKeyBag)) {
+			if (!signer.signInputs(proposal, keyBag)) {
 				LOGGER.info("{} returned false for the tx", signer.getClass().getName());
 				throw new NodeException("Cannot sign TX!");
 			}
 
 			// resolve missing sigs if any
-			new MissingSigResolutionSigner(req.missingSigsMode).signInputs(proposal, maybeDecryptingKeyBag);
+			new MissingSigResolutionSigner(req.missingSigsMode).signInputs(proposal, keyBag);
 
 			return Hex.toHexString(originalTransaction.bitcoinSerialize());
 
 		} catch (Exception ex) {
 
-			throw new NodeException("Exce", ex);
-		}
-	}
-	
-	public synchronized String oldsignTransaction(final String s_tx, final String path) throws NodeException {
-
-		LOGGER.info("Signing TX");
-		LOGGER.trace("Signing TX {} at path {}", s_tx, path);
-
-		try {
-			Transaction originalTransaction = uniquidNodeConfiguration.getNetworkParameters().getDefaultSerializer()
-					.makeTransaction(Hex.decode(s_tx));
-
-			String transactionToString = Hex.toHexString(originalTransaction.bitcoinSerialize());
-			LOGGER.trace("Serialized unsigned transaction: " + transactionToString);
-
-			SendRequest send = SendRequest.forTx(originalTransaction);
-
-			if (path.startsWith("0")) {
-
-				// fix our tx
-				WalletUtils.newCompleteTransaction(send, providerWallet,
-						uniquidNodeConfiguration.getNetworkParameters());
-
-				// delegate to walled the signing
-				providerWallet.signTransaction(send);
-
-				return Hex.toHexString(originalTransaction.bitcoinSerialize());
-
-			} else if (path.startsWith("1")) {
-
-				// fix our tx
-				WalletUtils.newCompleteTransaction(send, userWallet, uniquidNodeConfiguration.getNetworkParameters());
-
-				// delegate to walled the signing
-				userWallet.signTransaction(send);
-
-				return Hex.toHexString(originalTransaction.bitcoinSerialize());
-
-			} else {
-
-				throw new NodeException("Unknown path");
-
-			}
-
-		} catch (Exception ex) {
-
 			throw new NodeException("Exception while signing", ex);
+
 		}
 	}
 	
