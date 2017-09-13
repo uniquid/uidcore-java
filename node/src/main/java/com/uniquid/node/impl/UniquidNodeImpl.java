@@ -97,8 +97,14 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 				Transaction inputTransaction = providerWallet.getTransaction(txIn.getOutpoint().getHash());
 
 				if (inputTransaction == null) {
+					
+					inputTransaction = userWallet.getTransaction(txIn.getOutpoint().getHash());
+					
+					if (inputTransaction == null) {
 
-					throw new NodeException("Input TX not found in wallet!");
+						throw new NodeException("Input TX not found in any wallet!");
+					
+					}
 
 				}
 
