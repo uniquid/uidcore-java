@@ -106,7 +106,7 @@ public class UniquidNodeImpl extends UniquidWatchingNodeImpl<UniquidNodeConfigur
 
 				TransactionOutput outputToUse = inputTransaction.getOutput(txIn.getOutpoint().getIndex());
 
-				originalTransaction.getInput(0).connect(outputToUse);
+				originalTransaction.getInput(i).connect(outputToUse);
 				Script scriptPubKey = txIn.getConnectedOutput().getScriptPubKey();
 				RedeemData redeemData = txIn.getConnectedRedeemData(keyBag);
 				txIn.setScriptSig(scriptPubKey.createEmptyInputScript(redeemData.keys.get(0), redeemData.redeemScript));
