@@ -211,12 +211,12 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		uniquidNodeEventService.onSyncNodeStart();
 
 		// Provider wallet BC sync
-		NodeUtils.syncBlockChain(uniquidNodeConfiguration.getNetworkParameters(), providerWallet,
+		NodeUtils.syncBlockChain(uniquidNodeConfiguration, providerWallet,
 				uniquidNodeConfiguration.getProviderChainFile(), new UniquidNodeDownloadProgressTracker(),
 				new UniquidPeerConnectionListener());
 
 		// User wallet BC sync
-		NodeUtils.syncBlockChain(uniquidNodeConfiguration.getNetworkParameters(), userWallet,
+		NodeUtils.syncBlockChain(uniquidNodeConfiguration, userWallet,
 				uniquidNodeConfiguration.getUserChainFile(), new UniquidNodeDownloadProgressTracker(),
 				new UniquidPeerConnectionListener());
 

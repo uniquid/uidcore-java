@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
+import com.uniquid.node.impl.UniquidNodeConfiguration;
 
 /**
  * NodeUtils contains some static useful methods
@@ -91,21 +92,23 @@ public class NodeUtils {
 	 * @param chainFile the chain file to use
 	 * @param listener the listener to inform for status changes
 	 */
-	public static void syncBlockChain(NetworkParameters params, final List<Wallet> wallets, final File chainFile, 
+	public static void syncBlockChain(UniquidNodeConfiguration configuration, final List<Wallet> wallets, final File chainFile, 
 			final DownloadProgressTracker listener, final NativePeerEventListener peerListener) {
 		
 		try {
+			NetworkParameters params = configuration.getNetworkParameters();
 
 			BlockStore chainStore = new SPVBlockStore(params, chainFile);
 			
 			for (Wallet wallet : wallets) {
 				
-				if (wallet.getLastBlockSeenHeight() < 1) {
+				if ((wallet.getLastBlockSeenHeight() < 1) &&
+						(openStream(params) != null)) {
 
 					try {
 						
 						CheckpointManager.checkpoint(params, openStream(params), chainStore,
-								wallet.getKeyChainSeed().getCreationTimeSeconds());
+								configuration.getCreationTime());
 						
 						StoredBlock head = chainStore.getChainHead();
 						LOGGER.info("Skipped to checkpoint " + head.getHeight() + " at "
@@ -167,10 +170,10 @@ public class NodeUtils {
 	 * @param chainFile the chain file to use
 	 * @param listener the listener to inform for status changes
 	 */
-	public static void syncBlockChain(NetworkParameters params, final Wallet wallet, final File chainFile, 
+	public static void syncBlockChain(UniquidNodeConfiguration configuration, final Wallet wallet, final File chainFile, 
 			final DownloadProgressTracker listener, final NativePeerEventListener peerListener) {
 
-		syncBlockChain(params, Arrays.asList(new Wallet[] { wallet }), chainFile, listener, peerListener);
+		syncBlockChain(configuration, Arrays.asList(new Wallet[] { wallet }), chainFile, listener, peerListener);
 
 	}
 	
