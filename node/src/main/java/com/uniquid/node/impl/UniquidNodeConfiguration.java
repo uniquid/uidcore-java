@@ -3,7 +3,6 @@ package com.uniquid.node.impl;
 import java.io.File;
 
 import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.wallet.DeterministicSeed;
 
 import com.uniquid.register.RegisterFactory;
 
