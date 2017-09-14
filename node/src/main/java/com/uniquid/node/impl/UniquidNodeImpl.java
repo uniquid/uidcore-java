@@ -35,6 +35,8 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeImpl.class.getName());
 
 	private final DeterministicSeed deterministicSeed;
+	
+	private final DeterministicHierarchy deterministicHierarchy;
 
 	/**
 	 * Creates a new instance
@@ -47,6 +49,11 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		super(uniquidNodeConfiguration);
 		
 		this.deterministicSeed = deterministicSeed;
+		
+		DeterministicKey deterministicKey = NodeUtils
+				.createDeterministicKeyFromByteArray(deterministicSeed.getSeedBytes());
+		
+		deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 
 	}
 
@@ -55,10 +62,6 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	 * Begin of public part for implementing UniquidNode
 	 *
 	 */
-	@Override
-	public synchronized String getHexSeed() {
-		return deterministicSeed.toHexString();
-	}
 
 	@Override
 	public synchronized String signTransaction(final String s_tx, final List<String> paths) throws NodeException {
@@ -75,11 +78,6 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 				throw new NodeException("Unknown paths!");
 			}
 
-			DeterministicKey deterministicKey = NodeUtils
-					.createDeterministicKeyFromByteArray(deterministicSeed.getSeedBytes());
-			
-			DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
-			
 			UniquidKeyBag keyBag = new UniquidKeyBag();
 
 			for (String path : paths) {
@@ -147,6 +145,16 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	
 	public DeterministicSeed getDeterministicSeed() {
 		return deterministicSeed;
+	}
+	
+	public String signMessage(String message, String path) throws NodeException {
+		
+		ImmutableList<ChildNumber> list = listFromPath(path);
+
+		DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
+		
+		return signingKey.signMessage(message);
+		
 	}
 	
 	private static ImmutableList<ChildNumber> listFromPath(String path) {

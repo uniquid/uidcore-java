@@ -101,12 +101,6 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	}
 
 	@Override
-	@Deprecated
-	public synchronized String getHexSeed() {
-		return null;
-	}
-
-	@Override
 	public synchronized String getSpendableBalance() {
 		return providerWallet.getBalance(Wallet.BalanceType.AVAILABLE).toFriendlyString();
 	}
@@ -292,8 +286,14 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	@Override
 	public synchronized String signTransaction(final String s_tx, final List<String> paths) throws NodeException {
 
-		throw new NodeException("This node can't sign a transaction");
+		throw new NodeException("This node can't sign transactions");
 
+	}
+
+	@Override
+	public String signMessage(String message, String path) throws NodeException {
+
+		throw new NodeException("This node can't sign messages");
 	}
 
 	@Override

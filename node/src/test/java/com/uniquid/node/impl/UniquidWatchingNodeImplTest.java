@@ -72,8 +72,6 @@ public class UniquidWatchingNodeImplTest {
 		
 		Assert.assertEquals(1487159470, uniquidNode.getCreationTime());
 		
-		Assert.assertEquals(null, uniquidNode.getHexSeed());
-		
 		try {
 			
 			uniquidNode.getSpendableBalance();
@@ -144,8 +142,6 @@ public class UniquidWatchingNodeImplTest {
 		Assert.assertEquals("mgvAfpjBzHVtGQqtqRC9QSgfR7AKawSUEN", uniquidNode.getImprintingAddress());
 		
 		Assert.assertEquals("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", uniquidNode.getPublicKey());
-		
-		Assert.assertEquals(null, uniquidNode.getHexSeed());
 		
 		Assert.assertEquals("0.00 BTC", uniquidNode.getSpendableBalance());
 		
@@ -229,8 +225,6 @@ public class UniquidWatchingNodeImplTest {
 		
 		Assert.assertEquals("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", uniquidNode.getPublicKey());
 		
-		Assert.assertEquals(null, uniquidNode.getHexSeed());
-		
 		Assert.assertEquals("0.00 BTC", uniquidNode.getSpendableBalance());
 		
 		Assert.assertNotNull(uniquidNode.getProviderWallet());
@@ -298,8 +292,6 @@ public class UniquidWatchingNodeImplTest {
 		Assert.assertEquals("mgvAfpjBzHVtGQqtqRC9QSgfR7AKawSUEN", uniquidNode.getImprintingAddress());
 		
 		Assert.assertEquals("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", uniquidNode.getPublicKey());
-		
-		Assert.assertEquals(null, uniquidNode.getHexSeed());
 		
 		Assert.assertEquals("0.00 BTC", uniquidNode.getSpendableBalance());
 		

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,8 +77,6 @@ public class UniquidNodeImplTest {
 		Assert.assertEquals(machineName, uniquidNode.getNodeName());
 		
 		Assert.assertEquals(1487159470, uniquidNode.getCreationTime());
-		
-		Assert.assertEquals("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", uniquidNode.getHexSeed());
 		
 		try {
 			
@@ -152,8 +151,6 @@ public class UniquidNodeImplTest {
 		Assert.assertEquals("mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb", uniquidNode.getImprintingAddress());
 		
 		Assert.assertEquals("tpubDAjeiZPBWjUzphKoEJhkBdiqCSjkunkKQmUxGycsWBPH2aHqdAmJXoRhY6NfNAmRXLmQikRxZM1urcP4Rv7Fb3mcSFpozMstdqUtmSwjFJp", uniquidNode.getPublicKey());
-		
-		Assert.assertEquals("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", uniquidNode.getHexSeed());
 		
 		Assert.assertEquals("0.00 BTC", uniquidNode.getSpendableBalance());
 		
@@ -239,8 +236,6 @@ public class UniquidNodeImplTest {
 		
 		Assert.assertEquals("tpubDAjeiZPBWjUzphKoEJhkBdiqCSjkunkKQmUxGycsWBPH2aHqdAmJXoRhY6NfNAmRXLmQikRxZM1urcP4Rv7Fb3mcSFpozMstdqUtmSwjFJp", uniquidNode.getPublicKey());
 		
-		Assert.assertEquals("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", uniquidNode.getHexSeed());
-		
 		Assert.assertEquals("0.00 BTC", uniquidNode.getSpendableBalance());
 		
 		Assert.assertNotNull(uniquidNode.getProviderWallet());
@@ -311,8 +306,6 @@ public class UniquidNodeImplTest {
 		
 		Assert.assertEquals("tpubDAjeiZPBWjUzphKoEJhkBdiqCSjkunkKQmUxGycsWBPH2aHqdAmJXoRhY6NfNAmRXLmQikRxZM1urcP4Rv7Fb3mcSFpozMstdqUtmSwjFJp", uniquidNode.getPublicKey());
 		
-		Assert.assertEquals("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", uniquidNode.getHexSeed());
-		
 		Assert.assertEquals("0.00 BTC", uniquidNode.getSpendableBalance());
 		
 		Assert.assertNotNull(uniquidNode.getProviderWallet());
@@ -350,6 +343,18 @@ public class UniquidNodeImplTest {
 		String signed_tx = "010000000247a327c7f5d626a7159c5c0fccf90732ba733ab6e9eea53db24c4829b3cc46a4000000006a473044022014fac39447707341f16cac6fcd9a7258dcc636767016e225c5bb2a2ed4462f4c02202867a07f0695109b47cd9de86d06393c9f3f1f0ebbde5f3f7914f5296edf1be4012102461fb3538ffec054fd4ee1e9087e7debf8442028f941bda308c24b508cbf69f7ffffffffced72f216e191ebc3be3b7b8c5d8fc0a7ac52fa934e395f837a28f96df2d8f90010000006a473044022061e3c20622dcbe8ea3a62c66ba56da91c4f1083b11bbd6e912df81bc92826ac50220631d302f309a1c5212933830f910ba2931ff32a5b41a2c9aaa808b926aa99363012102ece5ce70796b6893283aa0c8f30273c7dc0ff0b82a75017285387ecd2d767110ffffffff0140420f00000000001976a91457c9afb8bc5e4fa738f5b46afcb51b43a48b270988ac00000000";
 		
 		Assert.assertEquals(signed_tx, uniquidNode.signTransaction(unsigned_tx, paths));
+		
+		Assert.assertEquals("IOAhyp0at0puRgDZD3DJl0S2FjgLEo0q7nBdgzDrWpbDR+B3daIlN3R20lhcpQKZFWl8/ttxUXzQYS0EFso2VLo=", uniquidNode.signMessage("Hello World!", "0/0/0"));
+		
+		final ECKey key = ECKey.signedMessageToKey("Hello World!", "IOAhyp0at0puRgDZD3DJl0S2FjgLEo0q7nBdgzDrWpbDR+B3daIlN3R20lhcpQKZFWl8/ttxUXzQYS0EFso2VLo=");
+		
+		Assert.assertEquals("mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb", key.toAddress(UniquidRegTest.get()).toBase58());
+		
+		Assert.assertEquals("H3UHssQig0Vef9VIzUmDW0HV37vpm5ZZGF0zbw6xxMMoTTbUm/efPIQDcx5IlOgflC7BcR90aXHsV7BBaQx+b9Q=", uniquidNode.signMessage("Hello World!", "1/0/0"));
+		
+		final ECKey key2 = ECKey.signedMessageToKey("Hello World!", "H3UHssQig0Vef9VIzUmDW0HV37vpm5ZZGF0zbw6xxMMoTTbUm/efPIQDcx5IlOgflC7BcR90aXHsV7BBaQx+b9Q=");
+		
+		Assert.assertEquals("mgXg8FWaYaDVcsvjJq4jW7vrxQCRtjPchs", key2.toAddress(UniquidRegTest.get()).toBase58());
 		
 	}
 	
