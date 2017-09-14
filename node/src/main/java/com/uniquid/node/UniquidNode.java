@@ -92,7 +92,7 @@ public interface UniquidNode {
 	public String signTransaction(final String serializedTx, final List<String> paths) throws NodeException;
 	
 	/**
-	 * Sign the input message with the key derived from path
+	 * Sign the input message with the key derived from path specified
 	 * 
 	 * @param message the message to sign
 	 * @param path the path to use to derive HD key
@@ -100,6 +100,16 @@ public interface UniquidNode {
 	 * @throws NodeException in case a problem occurs.
 	 */
 	public String signMessage(String message, String path) throws NodeException;
+	
+	/**
+	 * Sign the input message with the private key corresponding to the public key hash specified
+	 * 
+	 * @param message the message to sign
+	 * @param pubKeyHash the hash of the corresponding public key 
+	 * @return the message signed with the derived HD key
+	 * @throws NodeException in case a problem occurs.
+	 */
+	public String signMessage(String message, byte[] pubKeyHash) throws NodeException;
 	
 	/**
 	 * Allow to propagate a serialized Tx on the peer2peer network

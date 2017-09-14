@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionInput;
@@ -147,6 +148,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		return deterministicSeed;
 	}
 	
+	@Override
 	public String signMessage(String message, String path) throws NodeException {
 		
 		ImmutableList<ChildNumber> list = listFromPath(path);
@@ -157,7 +159,42 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		
 	}
 	
+	@Override
+	public String signMessage(String message, byte[] pubKeyHash) throws NodeException {
+		
+		// First retrieve key from pub key hash
+		
+		// start with provider wallet
+		ECKey key = providerWallet.findKeyFromPubHash(pubKeyHash);
+		
+		if (key == null) {
+			
+			// fallback to user wallet
+			
+			key = userWallet.findKeyFromPubHash(pubKeyHash);
+			
+			if (key == null) {
+				
+				throw new NodeException("Can't find requested public key!");
+				
+			}
+
+		}
+		
+		String path = ((DeterministicKey) key).getPathAsString();
+		
+		return signMessage(message, path);
+		
+	}
+	
 	private static ImmutableList<ChildNumber> listFromPath(String path) {
+		
+			// Remove M/ prefix
+			if (path.startsWith("M/")) {
+				
+				path = path.substring(2);
+				
+			}
 			
 			StringTokenizer tokenizer = new StringTokenizer(path, "/");
 			
@@ -177,8 +214,8 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 			
 			return ImmutableList.copyOf(start);
 			
-		}
-
+	}
+	
 	/**
 	 * Builder for UniquidNodeImpl
 	 */

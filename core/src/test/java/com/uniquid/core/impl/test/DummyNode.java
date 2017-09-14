@@ -85,5 +85,12 @@ public class DummyNode implements UniquidNode {
 	public String signMessage(String message, String path) throws NodeException {
 		throw new NodeException("Exception");
 	}
+	
+	@Override
+	public String signMessage(String message, byte[] pubKeyHash) throws NodeException {
+		
+		throw new NodeException("Exception");
+		
+	}
 
 }

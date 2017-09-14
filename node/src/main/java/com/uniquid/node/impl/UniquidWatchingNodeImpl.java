@@ -295,6 +295,12 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 		throw new NodeException("This node can't sign messages");
 	}
+	
+	@Override
+	public String signMessage(String message, byte[] pubKeyHash) throws NodeException {
+		
+		throw new NodeException("This node can't sign messages");
+	}
 
 	@Override
 	public String broadCastTransaction(String serializedTx) throws NodeException {
