@@ -44,13 +44,6 @@ public interface UniquidNode {
 	public long getCreationTime();
 	
 	/**
-	 * Returns the hex seed of this node
-	 * @return the hex seed of this node
-	 */
-	@Deprecated
-	public String getHexSeed();
-	
-	/**
 	 * Return the spendable balance of this node
 	 * 
 	 * @return the spendable balance of this node
@@ -97,6 +90,16 @@ public interface UniquidNode {
 	 * @throws NodeException in case a problem occurs.
 	 */
 	public String signTransaction(final String serializedTx, final List<String> paths) throws NodeException;
+	
+	/**
+	 * Sign the input message with the key derived from path
+	 * 
+	 * @param message the message to sign
+	 * @param path the path to use to derive HD key
+	 * @return the message signed with the derived HD key
+	 * @throws NodeException in case a problem occurs.
+	 */
+	public String signMessage(String message, String path) throws NodeException;
 	
 	/**
 	 * Allow to propagate a serialized Tx on the peer2peer network
