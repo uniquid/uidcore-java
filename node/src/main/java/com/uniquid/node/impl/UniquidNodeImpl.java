@@ -13,7 +13,6 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
-import org.bitcoinj.signers.LocalTransactionSigner;
 import org.bitcoinj.signers.MissingSigResolutionSigner;
 import org.bitcoinj.signers.TransactionSigner;
 import org.bitcoinj.wallet.DeterministicSeed;
@@ -104,7 +103,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 			for (int i = 0; i < numInputs; i++) {
 				TransactionInput txIn = tx.getInput(i);
 
-				// Fetch input tx from wallet TODO use a proper wallet!
+				// Fetch input tx from proper wallet
 				Transaction inputTransaction = wallet.getTransaction(txIn.getOutpoint().getHash());
 
 				if (inputTransaction == null) {
@@ -123,7 +122,6 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 			}
 
 			TransactionSigner.ProposedTransaction proposal = new TransactionSigner.ProposedTransaction(tx);
-//			TransactionSigner signer = new LocalTransactionSigner();
 			for (TransactionSigner signer : wallet.getTransactionSigners()) {
 				if (!signer.signInputs(proposal, keyBag)) {
 					LOGGER.info("{} returned false for the tx", signer.getClass().getName());
