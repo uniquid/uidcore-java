@@ -34,12 +34,6 @@ public class DummyExceptionNode implements UniquidNode {
 	}
 
 	@Override
-	public String getHexSeed() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String getSpendableBalance() {
 		// TODO Auto-generated method stub
 		return null;
@@ -86,6 +80,13 @@ public class DummyExceptionNode implements UniquidNode {
 	public String broadCastTransaction(String serializedTx) throws NodeException {
 		
 		throw new NodeException("Exception");
+	}
+
+	@Override
+	public String signMessage(String message, String path) throws NodeException {
+		
+		throw new NodeException("Exception");
+		
 	}
 
 }
