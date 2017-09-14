@@ -1,6 +1,7 @@
 package com.uniquid.node.impl;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.bitcoinj.core.NetworkParameters;
 import org.junit.Assert;
@@ -57,6 +58,7 @@ public class UniquidWatchingNodeImplTest {
 		builder.setUserChainFile(userChainFile);
 		builder.setRegisterFactory(dummyRegister);
 		builder.setNodeName(machineName);
+		builder.setRegistryUrl("UNKNOWN");
 		
 		UniquidWatchingNodeImpl uniquidNode = builder.buildFromXpub("tpubDAnD549eCz2j2w21P6sx9NvXJrEoWzVevpbvXDpwQzKTC9xWsr8emiEdJ64h1qXbYE4SbDJNbZ7imotNPsGD8RvHQvh6xtgMJTczb8WW8X8", 1487159470);
 		
@@ -79,6 +81,34 @@ public class UniquidWatchingNodeImplTest {
 			
 		} catch (Exception e) {
 			// do nothing
+		}
+		
+		try {
+			uniquidNode.signTransaction("NOTHING", new ArrayList<String>());
+			Assert.fail();
+		} catch (Exception e) {
+			// NOTHING TO DO
+		}
+		
+		try {
+			uniquidNode.signMessage("NOTHING", "0/0/0");
+			Assert.fail();
+		} catch (Exception e) {
+			// NOTHING TO DO
+		}
+		
+		try {
+			uniquidNode.signMessage("NOTHING", new byte[] {});
+			Assert.fail();
+		} catch (Exception e) {
+			// NOTHING TO DO
+		}
+		
+		try {
+			uniquidNode.broadCastTransaction("INVALIDTX");
+			Assert.fail();
+		} catch (Exception e) {
+			// NOTHING TO DO
 		}
 		
 	}

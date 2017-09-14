@@ -361,6 +361,15 @@ public class UniquidNodeImplTest {
 		
 		Assert.assertEquals("IOAhyp0at0puRgDZD3DJl0S2FjgLEo0q7nBdgzDrWpbDR+B3daIlN3R20lhcpQKZFWl8/ttxUXzQYS0EFso2VLo=", signedMessage);
 		
+		try {
+			List<String> invalid = new ArrayList<String>();
+			invalid.add("2/0/0");
+			uniquidNode.signTransaction(unsigned_tx, invalid);
+			Assert.fail();
+		} catch (Exception ex) {
+			// NOTHING TO DO
+		}
+		
 	}
 	
 }
