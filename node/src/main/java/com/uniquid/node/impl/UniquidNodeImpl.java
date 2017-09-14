@@ -19,6 +19,7 @@ import org.bitcoinj.signers.TransactionSigner;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.RedeemData;
 import org.bitcoinj.wallet.SendRequest;
+import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -64,7 +65,17 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	public synchronized String signTransaction(final String s_tx, final List<String> paths) throws NodeException {
 
 		try {
-			
+
+			Wallet wallet = null;
+
+			if (paths.get(0).startsWith("0")) {
+				wallet = providerWallet;
+			} else if (paths.get(0).startsWith("1")) {
+				wallet = userWallet;
+			} else {
+				throw new NodeException("Unknown paths!");
+			}
+
 			DeterministicKey deterministicKey = NodeUtils
 					.createDeterministicKeyFromByteArray(deterministicSeed.getSeedBytes());
 			
@@ -94,17 +105,11 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 				TransactionInput txIn = tx.getInput(i);
 
 				// Fetch input tx from wallet TODO use a proper wallet!
-				Transaction inputTransaction = providerWallet.getTransaction(txIn.getOutpoint().getHash());
+				Transaction inputTransaction = wallet.getTransaction(txIn.getOutpoint().getHash());
 
 				if (inputTransaction == null) {
 					
-					inputTransaction = userWallet.getTransaction(txIn.getOutpoint().getHash());
-					
-					if (inputTransaction == null) {
-
-						throw new NodeException("Input TX not found in any wallet!");
-					
-					}
+					throw new NodeException("Input TX not found in any wallet!");
 
 				}
 
@@ -118,14 +123,20 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 			}
 
 			TransactionSigner.ProposedTransaction proposal = new TransactionSigner.ProposedTransaction(tx);
-			TransactionSigner signer = new LocalTransactionSigner();
-			if (!signer.signInputs(proposal, keyBag)) {
-				LOGGER.info("{} returned false for the tx", signer.getClass().getName());
-				throw new NodeException("Cannot sign TX!");
+//			TransactionSigner signer = new LocalTransactionSigner();
+			for (TransactionSigner signer : wallet.getTransactionSigners()) {
+				if (!signer.signInputs(proposal, keyBag)) {
+					LOGGER.info("{} returned false for the tx", signer.getClass().getName());
+					throw new NodeException("Cannot sign TX!");
+				}
 			}
 
 			// resolve missing sigs if any
 			new MissingSigResolutionSigner(req.missingSigsMode).signInputs(proposal, keyBag);
+
+			// commit tx in wallet!
+			// This is not necessary! Kept here to remember
+//			wallet.commitTx(originalTransaction);
 
 			return Hex.toHexString(originalTransaction.bitcoinSerialize());
 
