@@ -126,11 +126,13 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 			} else {
 
-				LOGGER.info("Generating new node from xpub");
+				LOGGER.info("Generating new node from xpub {}", uniquidNodeConfiguration.getPublicKey());
 
 				DeterministicKey key = DeterministicKey.deserializeB58(null, uniquidNodeConfiguration.getPublicKey(),
 						uniquidNodeConfiguration.getNetworkParameters());
-				LOGGER.info(key.toAddress(uniquidNodeConfiguration.getNetworkParameters()).toBase58());
+				
+				LOGGER.trace("key: {}", key.toAddress(uniquidNodeConfiguration.getNetworkParameters()).toBase58());
+				
 				DeterministicHierarchy hierarchy = new DeterministicHierarchy(key);
 
 				DeterministicKey k_orch = hierarchy.get(ImmutableList.of(new ChildNumber(0, false)), true, true);
@@ -141,14 +143,19 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 				DeterministicHierarchy h_machines = new DeterministicHierarchy(k_machines);
 
 				DeterministicKey k_provider = h_machines.get(ImmutableList.of(new ChildNumber(0, false)), true, true);
+				
+				LOGGER.trace("Provider key: {}", k_provider.serializePubB58(uniquidNodeConfiguration.getNetworkParameters()));
+				
 				providerWallet = Wallet.fromWatchingKeyB58(uniquidNodeConfiguration.getNetworkParameters(),
 						k_provider.serializePubB58(uniquidNodeConfiguration.getNetworkParameters()),
 						uniquidNodeConfiguration.getCreationTime(), ImmutableList.of(new ChildNumber(0, false)));
 				providerWallet.setDescription("provider");
 				providerWallet.saveToFile(uniquidNodeConfiguration.getProviderFile());
-				imprintingAddress = providerWallet.currentReceiveAddress();
 
 				DeterministicKey k_user = h_machines.get(ImmutableList.of(new ChildNumber(1, false)), true, true);
+				
+				LOGGER.trace("User key: {}", k_user.serializePubB58(uniquidNodeConfiguration.getNetworkParameters()));
+				
 				userWallet = Wallet.fromWatchingKeyB58(uniquidNodeConfiguration.getNetworkParameters(),
 						k_user.serializePubB58(uniquidNodeConfiguration.getNetworkParameters()),
 						uniquidNodeConfiguration.getCreationTime(), ImmutableList.of(new ChildNumber(1, false)));
@@ -157,6 +164,8 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 				imprintingAddress = NodeUtils.calculateImprintAddress(key,
 						uniquidNodeConfiguration.getNetworkParameters());
+				
+				LOGGER.trace("Imprinting address {}", imprintingAddress);
 
 			}
 
