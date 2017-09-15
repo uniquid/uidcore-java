@@ -15,14 +15,14 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<bitcoinj-version>0.14.4</bitcoinj-version>
+		<bitcoinj-version>0.14.5</bitcoinj-version>
 	</properties>
 
 	<dependencies>
 
 		<dependency>
 			<groupId>org.bitcoinj</groupId>
-			<artifactId>bitcoinj-core</artifactId>
+			<artifactId>bitcoinj-core-uniquid</artifactId>
 			<version>${bitcoinj-version}</version>
 		</dependency>
 
