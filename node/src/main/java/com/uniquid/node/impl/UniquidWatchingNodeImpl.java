@@ -162,13 +162,13 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 				userWallet.setDescription("user");
 				userWallet.saveToFile(uniquidNodeConfiguration.getUserFile());
 
-				imprintingAddress = NodeUtils.calculateImprintAddress(key,
-						uniquidNodeConfiguration.getNetworkParameters());
-				
-				LOGGER.trace("Imprinting address {}", imprintingAddress);
-
 			}
 
+			imprintingAddress = NodeUtils.calculateImprintAddress(uniquidNodeConfiguration.getPublicKey(),
+					uniquidNodeConfiguration.getNetworkParameters());
+
+			LOGGER.trace("Imprinting address {}", imprintingAddress);
+			
 			// Retrieve contracts
 			List<ProviderChannel> providerChannels = uniquidNodeConfiguration.getRegisterFactory().getProviderRegister()
 					.getAllChannels();
