@@ -1,4 +1,4 @@
-package com.uniquid.core;
+package com.uniquid.core.user;
 
 /**
  * Represents a message response coming from a Provider and directed to an User 

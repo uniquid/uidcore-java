@@ -187,6 +187,8 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 				// Jump to initializing
 				setUniquidNodeState(getImprintingState());
+				
+				// SEND ANNOUNCE MESSAGE
 
 			}
 

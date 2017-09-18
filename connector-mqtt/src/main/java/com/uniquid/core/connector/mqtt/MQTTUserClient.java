@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import com.uniquid.core.ProviderRequest;
 import com.uniquid.core.ProviderResponse;
-import com.uniquid.core.UserRequest;
-import com.uniquid.core.UserResponse;
 import com.uniquid.core.connector.ConnectorException;
-import com.uniquid.core.connector.UserClient;
+import com.uniquid.core.user.UserClient;
+import com.uniquid.core.user.UserRequest;
+import com.uniquid.core.user.UserResponse;
 
 /**
  * Implementation of {@link UserClient} that uses MQTT protocol

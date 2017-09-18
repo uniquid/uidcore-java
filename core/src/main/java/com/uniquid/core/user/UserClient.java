@@ -1,7 +1,6 @@
-package com.uniquid.core.connector;
+package com.uniquid.core.user;
 
-import com.uniquid.core.UserRequest;
-import com.uniquid.core.UserResponse;
+import com.uniquid.core.connector.ConnectorException;
 
 /**
  * Allow an User to send a {@link UserRequest} to a Provider and have the {@link UserResponse} back
