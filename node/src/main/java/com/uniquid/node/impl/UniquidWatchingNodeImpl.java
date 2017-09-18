@@ -420,8 +420,8 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		}
 
 		@SuppressWarnings("unchecked")
-		public B setNetworkParameters(NetworkParameters params) {
-			_uniquidNodeConfiguration.setNetworkParameters(params);
+		public B setNetworkParameters(NetworkParameters networkParameters) {
+			_uniquidNodeConfiguration.setNetworkParameters(networkParameters);
 			return (B) this;
 		}
 
@@ -438,8 +438,8 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		}
 
 		@SuppressWarnings("unchecked")
-		public B setProviderChainFile(File chainFile) {
-			_uniquidNodeConfiguration.setProviderChainFile(chainFile);
+		public B setProviderChainFile(File providerChainFile) {
+			_uniquidNodeConfiguration.setProviderChainFile(providerChainFile);
 			return (B) this;
 		}
 
