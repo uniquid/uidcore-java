@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.uniquid.core.ProviderRequest;
 import com.uniquid.core.ProviderResponse;
+import com.uniquid.core.UserRequest;
+import com.uniquid.core.UserResponse;
 import com.uniquid.core.connector.ConnectorException;
 import com.uniquid.core.connector.UserClient;
 
@@ -40,19 +42,19 @@ public class MQTTUserClient implements UserClient {
 	}
 
 	@Override
-	public ProviderResponse sendOutputMessage(final ProviderRequest providerRequest) throws ConnectorException {
+	public UserResponse execute(final UserRequest userRequest) throws ConnectorException {
 		
 		LOGGER.info("Sending output message to {}", destination);
 		
 		byte[] payload;
 		
-		if (providerRequest instanceof RPCProviderRequest) {
+		if (userRequest instanceof RPCProviderRequest) {
 			
-			payload = ((RPCProviderRequest) providerRequest).toJSONString().getBytes();
+			payload = ((RPCProviderRequest) userRequest).toJSONString().getBytes();
 			
-		} else if (providerRequest instanceof AnnouncerProviderRequest) {
+		} else if (userRequest instanceof AnnouncerProviderRequest) {
 			
-			payload = ((AnnouncerProviderRequest) providerRequest).toJSONString().getBytes();
+			payload = ((AnnouncerProviderRequest) userRequest).toJSONString().getBytes();
 			
 		} else {
 			
@@ -74,7 +76,7 @@ public class MQTTUserClient implements UserClient {
 			
 			final String destinationTopic = destination;
 			
-			final String sender = providerRequest.getSender();
+			final String sender = userRequest.getUser();
 			
 			// to subscribe
 			final Topic[] topics = { new Topic(sender, QoS.AT_LEAST_ONCE) };

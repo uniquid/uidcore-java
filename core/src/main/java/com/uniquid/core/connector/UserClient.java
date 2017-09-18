@@ -1,19 +1,19 @@
 package com.uniquid.core.connector;
 
-import com.uniquid.core.ProviderRequest;
-import com.uniquid.core.ProviderResponse;
+import com.uniquid.core.UserRequest;
+import com.uniquid.core.UserResponse;
 
 /**
- * Allow a User to send a {@link ProviderRequest} to a Provider and have the {@link ProviderResponse} back
+ * Allow an User to send a {@link UserRequest} to a Provider and have the {@link UserResponse} back
  */
 public interface UserClient {
 
 	/**
-	 * Send the {@link ProviderRequest} to a Provider and return the {@link ProviderResponse} back.
-	 * @param providerRequest the request to send to the Provider
-	 * @return the {@link ProviderResponse} from the Provider.
+	 * Send the {@link UserRequest} to a Provider and return the {@link UserResponse} back.
+	 * @param userRequest the request to send to the Provider
+	 * @return the {@link UserResponse} from the Provider.
 	 * @throws ConnectorException in case a problem occurs.
 	 */
-	public ProviderResponse sendOutputMessage(ProviderRequest providerRequest) throws ConnectorException;
+	public UserResponse execute(UserRequest userRequest) throws ConnectorException;
 
 }

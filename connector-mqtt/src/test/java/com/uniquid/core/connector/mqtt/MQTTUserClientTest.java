@@ -52,7 +52,7 @@ public class MQTTUserClientTest {
 		}).start();
 
 		try {
-			RPCProviderResponse providerResponse = (RPCProviderResponse) mqttUserClient.sendOutputMessage(providerRequest);
+			RPCProviderResponse providerResponse = (RPCProviderResponse) mqttUserClient.execute(providerRequest);
 			Assert.assertNotNull(providerResponse);
 			
 			RPCProviderRequest rpcProviderRequest = (RPCProviderRequest) providerRequest;
@@ -130,7 +130,7 @@ public class MQTTUserClientTest {
 			}
 		}).start();
 
-		RPCProviderResponse providerResponse = (RPCProviderResponse) mqttUserClient.sendOutputMessage(providerRequest);
+		RPCProviderResponse providerResponse = (RPCProviderResponse) mqttUserClient.execute(providerRequest);
 		Assert.assertNotNull(providerResponse);
 		
 		RPCProviderRequest rpcProviderRequest = (RPCProviderRequest) providerRequest;
