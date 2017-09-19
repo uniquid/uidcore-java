@@ -21,7 +21,7 @@ public class UniquidKeyBagTest {
 		DeterministicSeed detSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
 		
 		DeterministicKey deterministicKey = NodeUtils
-				.createDeterministicKeyFromByteArray(detSeed.getSeedBytes());
+				.createDeterministicKeyFromDeterministicSeed(detSeed);
 		
 		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 		

@@ -50,7 +50,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		this.deterministicSeed = deterministicSeed;
 		
 		DeterministicKey deterministicKey = NodeUtils
-				.createDeterministicKeyFromByteArray(deterministicSeed.getSeedBytes());
+				.createDeterministicKeyFromDeterministicSeed(deterministicSeed);
 		
 		deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 
@@ -257,7 +257,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		
 		private static final String deriveXpub(NetworkParameters networkParameters, DeterministicSeed detSeed) {
 			
-			DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(detSeed.getSeedBytes());
+			DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromDeterministicSeed(detSeed);
 
 			DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 

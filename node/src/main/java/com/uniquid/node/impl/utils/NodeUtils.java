@@ -19,7 +19,6 @@ import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
-import org.bitcoinj.core.listeners.PeerConnectedEventListener;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
@@ -58,32 +57,18 @@ public class NodeUtils {
 		return new DeterministicSeed("", seed, "", creationTime);
 	}
 	
-//	/**
-//	 * Create from brain wallet
-//	 * @param string
-//	 * @return
-//	 * @throws NoSuchAlgorithmException
-//	 * @throws UnsupportedEncodingException
-//	 */
-//	public static DeterministicKey createDeterministicKeyFromBrainWallet(String string)
-//			throws NoSuchAlgorithmException, UnsupportedEncodingException {
-//		MessageDigest md = MessageDigest.getInstance("SHA-256");
-//
-//		md.update(string.getBytes("UTF-8"));
-//		byte[] hash = md.digest();
-//
-//		return HDKeyDerivation.createMasterPrivateKey(hash);
-//
-//	}
-	
 	/**
-	 * Generates a {@code DeterministicKey} from a byte array seed
+	 * Generates a {@code DeterministicKey} root key from DeterministicSeed
 	 * 
-	 * @param seed the seed represented as byte array
-	 * @return returns an instance of {@code DeterministicKey}
+	 * @param seed the DeterministicSeed
+	 * @return returns an instance of {@code DeterministicKey} representing the root key
 	 */
-	public static DeterministicKey createDeterministicKeyFromByteArray(byte[] seed) {
-		return HDKeyDerivation.createMasterPrivateKey(seed);
+	public static DeterministicKey createDeterministicKeyFromDeterministicSeed(DeterministicSeed seed) {
+
+		DeterministicKey rootKey = HDKeyDerivation.createMasterPrivateKey(seed.getSeedBytes());
+		rootKey.setCreationTimeSeconds(seed.getCreationTimeSeconds());
+		
+		return rootKey;
 	}
 	
 	/**
