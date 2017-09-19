@@ -12,6 +12,7 @@ import com.uniquid.node.impl.contract.ImprintingContract;
 import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.node.impl.state.UniquidNodeState;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
+import com.uniquid.node.impl.utils.DummyRegisterFactory;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.node.impl.utils.DummyUserRegister;
 import com.uniquid.register.RegisterFactory;
@@ -31,24 +32,7 @@ public class ImprintingContractTest {
 		
 		final UserRegister dummyUser = new DummyUserRegister();
 		
-		final RegisterFactory dummyFactory = new RegisterFactory() {
-					
-			@Override
-			public UserRegister getUserRegister() throws RegisterException {
-				return dummyUser;
-			}
-			
-			@Override
-			public ProviderRegister getProviderRegister() throws RegisterException {
-				return dummyProvider;
-			}
-			
-			@Override
-			public TransactionManager getTransactionManager() throws RegisterException {
-				return new DummyTransactionManager();
-			}
-			
-		};
+		final RegisterFactory dummyFactory = new DummyRegisterFactory(dummyUser, dummyProvider, new DummyTransactionManager());
 		
 		Transaction originalTransaction = UniquidRegTest.get().getDefaultSerializer().makeTransaction(Hex.decode(imprinttx));
 		

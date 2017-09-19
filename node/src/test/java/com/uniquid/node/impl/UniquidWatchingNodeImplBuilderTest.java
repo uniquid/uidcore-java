@@ -7,11 +7,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.uniquid.node.impl.params.UniquidRegTest;
+import com.uniquid.node.impl.utils.DummyRegisterFactory;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
-import com.uniquid.register.transaction.TransactionException;
 import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
 
@@ -116,24 +116,7 @@ public class UniquidWatchingNodeImplBuilderTest {
 		
 		Assert.assertNull(builder.getUniquidNodeConfiguration().getRegisterFactory());
 		
-		RegisterFactory dummy = new RegisterFactory() {
-			
-			@Override
-			public UserRegister getUserRegister() throws RegisterException {
-				return null;
-			}
-			
-			@Override
-			public ProviderRegister getProviderRegister() throws RegisterException {
-				return null;
-			}
-			
-			@Override
-			public TransactionManager getTransactionManager() throws RegisterException {
-				return new DummyTransactionManager();
-			}
-			
-		};
+		RegisterFactory dummy = new DummyRegisterFactory(null, null, new DummyTransactionManager());
 		
 		builder.setRegisterFactory(dummy);
 		
@@ -166,24 +149,7 @@ public class UniquidWatchingNodeImplBuilderTest {
 		File userFile = File.createTempFile("user", ".wallet");
 		File chainFile = File.createTempFile("chain", ".chain");
 		File userChainFile = File.createTempFile("userchain", ".chain");
-		RegisterFactory dummyRegister = new RegisterFactory() {
-					
-					@Override
-					public UserRegister getUserRegister() throws RegisterException {
-						return null;
-					}
-					
-					@Override
-					public ProviderRegister getProviderRegister() throws RegisterException {
-						return null;
-					}
-					
-					@Override
-					public TransactionManager getTransactionManager() throws RegisterException {
-						return new DummyTransactionManager();
-					}
-					
-				};
+		RegisterFactory dummyRegister = new DummyRegisterFactory(null, null, new DummyTransactionManager());
 		String machineName = "machineName";
 
 		builder.setNetworkParameters(parameters);

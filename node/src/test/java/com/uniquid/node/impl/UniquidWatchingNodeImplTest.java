@@ -10,13 +10,12 @@ import org.junit.Test;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
+import com.uniquid.node.impl.utils.DummyRegisterFactory;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.node.impl.utils.DummyUserRegister;
 import com.uniquid.register.RegisterFactory;
-import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
-import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
 
 public class UniquidWatchingNodeImplTest {
@@ -31,24 +30,7 @@ public class UniquidWatchingNodeImplTest {
 		File userFile = File.createTempFile("user", ".wallet");
 		File chainFile = File.createTempFile("chain", ".chain");
 		File userChainFile = File.createTempFile("userchain", ".chain");
-		RegisterFactory dummyRegister = new RegisterFactory() {
-					
-					@Override
-					public UserRegister getUserRegister() throws RegisterException {
-						return null;
-					}
-					
-					@Override
-					public ProviderRegister getProviderRegister() throws RegisterException {
-						return null;
-					}
-
-					@Override
-					public TransactionManager getTransactionManager() throws RegisterException {
-						return new DummyTransactionManager();
-					}
-					
-				};
+		RegisterFactory dummyRegister = new DummyRegisterFactory(null, null, new DummyTransactionManager());
 		String machineName = "machineName";
 
 		builder.setNetworkParameters(parameters);
@@ -132,25 +114,8 @@ public class UniquidWatchingNodeImplTest {
 		
 		final UserRegister dummyUser = new DummyUserRegister();
 		
-		RegisterFactory dummyFactory = new RegisterFactory() {
-					
-					@Override
-					public UserRegister getUserRegister() throws RegisterException {
-						return dummyUser;
-					}
-					
-					@Override
-					public ProviderRegister getProviderRegister() throws RegisterException {
-						return dummyProvider;
-					}
-					
-					@Override
-					public TransactionManager getTransactionManager() throws RegisterException {
-						return new DummyTransactionManager();
-					}
-					
-				};
-				
+		RegisterFactory dummyFactory = new DummyRegisterFactory(dummyUser, dummyProvider, new DummyTransactionManager());
+		
 		String machineName = "machineName";
 
 		builder.setNetworkParameters(parameters);
@@ -214,24 +179,7 @@ public class UniquidWatchingNodeImplTest {
 		
 		final UserRegister dummyUser = new DummyUserRegister();
 		
-		RegisterFactory dummyFactory = new RegisterFactory() {
-					
-					@Override
-					public UserRegister getUserRegister() throws RegisterException {
-						return dummyUser;
-					}
-					
-					@Override
-					public ProviderRegister getProviderRegister() throws RegisterException {
-						return dummyProvider;
-					}
-					
-					@Override
-					public TransactionManager getTransactionManager() throws RegisterException {
-						return new DummyTransactionManager();
-					}
-					
-				};
+		RegisterFactory dummyFactory = new DummyRegisterFactory(dummyUser, dummyProvider, new DummyTransactionManager());
 				
 		String machineName = "machineName";
 
@@ -282,24 +230,7 @@ public class UniquidWatchingNodeImplTest {
 		
 		final UserRegister dummyUser = new DummyUserRegister();
 		
-		RegisterFactory dummyFactory = new RegisterFactory() {
-					
-					@Override
-					public UserRegister getUserRegister() throws RegisterException {
-						return dummyUser;
-					}
-					
-					@Override
-					public ProviderRegister getProviderRegister() throws RegisterException {
-						return dummyProvider;
-					}
-					
-					@Override
-					public TransactionManager getTransactionManager() throws RegisterException {
-						return new DummyTransactionManager();
-					}
-					
-				};
+		RegisterFactory dummyFactory = new DummyRegisterFactory(dummyUser, dummyProvider, new DummyTransactionManager());
 				
 		String machineName = "machineName";
 
