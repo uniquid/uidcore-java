@@ -1,6 +1,7 @@
 package com.uniquid.node.impl.utils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public abstract class WalletUtils {
 	/**
 	 * Check if a Transaction has a valid (Uniquid) OP_RETURN
 	 */
-	public static boolean isValidOpReturn(Transaction tx) throws Exception {
+	public static boolean isValidOpReturn(Transaction tx) {
 
 		byte[] opreturn = getOpReturnAsByteArray(tx);
 
@@ -40,7 +41,7 @@ public abstract class WalletUtils {
 	/**
 	 * Retrieve OP_RETURN from a Transaction as Hex String
 	 */
-	public static String getOpReturn(Transaction tx) throws Exception {
+	public static String getOpReturn(Transaction tx) {
 
 		byte[] opreturn = getOpReturnAsByteArray(tx);
 
@@ -60,7 +61,7 @@ public abstract class WalletUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static byte[] getOpReturnAsByteArray(Transaction tx) throws Exception {
+	public static byte[] getOpReturnAsByteArray(Transaction tx) {
 
 		List<TransactionOutput> to = tx.getOutputs();
 
@@ -72,7 +73,17 @@ public abstract class WalletUtils {
 
 				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-				script.getChunks().get(1).write(byteArrayOutputStream);
+				try {
+					
+					script.getChunks().get(1).write(byteArrayOutputStream);
+				
+				} catch (IOException ex) {
+					
+					LOGGER.error("Exception while writing to ByteArrayOutputStream", ex);
+					
+					return null;
+					
+				}
 
 				// FIRST BYTE IS OPCODE
 				// SECOND BYTE IS TOTAL LENGHT OF OPRETURN
