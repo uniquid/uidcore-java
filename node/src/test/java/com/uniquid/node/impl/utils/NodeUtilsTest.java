@@ -3,6 +3,8 @@ package com.uniquid.node.impl.utils;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
+import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,6 +28,22 @@ public class NodeUtilsTest {
 		SendRequest sendRequest = SendRequest.forTx(originalTransaction);
 		
 		NodeUtils.sendTransaction(UniquidRegTest.get(), sendRequest);
+		
+	}
+	
+	@Test
+	public void testcreateDeterministicKeyFromDeterministicSeed() throws Exception {
+		
+		String mnemonic = "sunny current people chicken once sauce radar decade word judge craft when where assume world";
+		long creationTime = System.currentTimeMillis() / 1000;
+		
+		DeterministicSeed detSeed = new DeterministicSeed(mnemonic, null, "", creationTime);
+		
+		DeterministicKey detKey = NodeUtils.createDeterministicKeyFromDeterministicSeed(detSeed);
+		
+		Assert.assertEquals("09cd6950b9154693eb43f129234b008e6b19d0635ddd0a8e50888f12c25bb4b1", detKey.getPrivateKeyAsHex()); 
+		Assert.assertEquals("03ee71bd702ce4b9992260e750a72bc6d0731892554c6aca524e613dd59e764a1b", detKey.getPublicKeyAsHex()); 
+		Assert.assertEquals("5670db79964182eb728d43ee737059ba685862ae45ee4da2c1e25f9b1b551132", org.bitcoinj.core.Utils.HEX.encode(detKey.getChainCode()));
 		
 	}
 

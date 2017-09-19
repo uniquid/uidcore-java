@@ -30,7 +30,6 @@ import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.SPVBlockStore;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
-import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,17 +44,6 @@ import com.uniquid.node.impl.UniquidNodeConfiguration;
 public class NodeUtils {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeUtils.class.getName());
-	
-	/**
-	 * Generate a {@code DeterministicSeed} from a byte array and  a creatiom time
-	 * 
-	 * @param seed byte array representing seed
-	 * @param creationTime creation time of seed
-	 * @return returns an instance of {@code DeterministicSeed}
-	 */
-	public static DeterministicSeed createDeterministicSeed(final byte[] seed, final long creationTime) throws UnreadableWalletException {
-		return new DeterministicSeed("", seed, "", creationTime);
-	}
 	
 	/**
 	 * Generates a {@code DeterministicKey} root key from DeterministicSeed
