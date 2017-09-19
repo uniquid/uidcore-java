@@ -2,9 +2,11 @@ package com.uniquid.node.impl.utils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -290,6 +292,41 @@ public class NodeUtils {
 		DeterministicKey imprintingKey = deterministicHierarchy.get(imprintingChild, true, true);
 		return imprintingKey.toAddress(networkParameters);
 
+	}
+	
+	/**
+	 * Allow to return an ImmutableList<ChildNumber> from a string represeting path.
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public static ImmutableList<ChildNumber> listFromPath(String path) {
+		
+		// Remove M/ prefix
+		if (path.startsWith("M/")) {
+			
+			path = path.substring(2);
+			
+		}
+		
+		StringTokenizer tokenizer = new StringTokenizer(path, "/");
+		
+		List<ChildNumber> start = new ArrayList<ChildNumber>();
+		
+		start.add(new ChildNumber(44, true));
+		start.add(new ChildNumber(0, true));
+		start.add(new ChildNumber(0, false));
+		
+		while (tokenizer.hasMoreTokens()) {
+			
+			String next = tokenizer.nextToken();
+			
+			start.add(new ChildNumber(Integer.valueOf(next), false));
+			
+		}
+		
+		return ImmutableList.copyOf(start);
+		
 	}
 
 }

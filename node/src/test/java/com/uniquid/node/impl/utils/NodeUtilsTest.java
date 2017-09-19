@@ -2,11 +2,13 @@ package com.uniquid.node.impl.utils;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.SendRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
+import com.google.common.collect.ImmutableList;
 import com.uniquid.node.impl.params.UniquidRegTest;
 
 
@@ -44,6 +46,27 @@ public class NodeUtilsTest {
 
 		Assert.assertEquals(expectedImprintAddress, address.toBase58());
 
+	}
+	
+	@Test
+	public void testList() throws Exception {
+		
+		ImmutableList<ChildNumber> list = NodeUtils.listFromPath("0/0/0");
+		
+		Assert.assertEquals("[44H, 0H, 0, 0, 0, 0]", list.toString());
+		
+		ImmutableList<ChildNumber> list2 = NodeUtils.listFromPath("1/0/0");
+		
+		Assert.assertEquals("[44H, 0H, 0, 1, 0, 0]", list2.toString());
+		
+		ImmutableList<ChildNumber> list3 = NodeUtils.listFromPath("1/0/1");
+		
+		Assert.assertEquals("[44H, 0H, 0, 1, 0, 1]", list3.toString());
+		
+		ImmutableList<ChildNumber> list4 = NodeUtils.listFromPath("0/1/0");
+		
+		Assert.assertEquals("[44H, 0H, 0, 0, 1, 0]", list4.toString());
+		
 	}
 
 }

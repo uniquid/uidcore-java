@@ -8,7 +8,6 @@ import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.node.impl.params.UniquidRegTest;
 
-
 public class WalletUtilsTest {
 	
 	@Test

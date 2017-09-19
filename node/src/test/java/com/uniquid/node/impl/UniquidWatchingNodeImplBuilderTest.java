@@ -10,10 +10,6 @@ import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyRegisterFactory;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.register.RegisterFactory;
-import com.uniquid.register.exception.RegisterException;
-import com.uniquid.register.provider.ProviderRegister;
-import com.uniquid.register.transaction.TransactionManager;
-import com.uniquid.register.user.UserRegister;
 
 public class UniquidWatchingNodeImplBuilderTest {
 	
