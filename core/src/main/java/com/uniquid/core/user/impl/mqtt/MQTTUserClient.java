@@ -1,4 +1,4 @@
-package com.uniquid.core.connector.mqtt;
+package com.uniquid.core.user.impl.mqtt;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -11,12 +11,9 @@ import org.fusesource.mqtt.client.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.core.ProviderRequest;
-import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.connector.ConnectorException;
+import com.uniquid.core.messages.UniquidMessage;
 import com.uniquid.core.user.UserClient;
-import com.uniquid.core.user.UserRequest;
-import com.uniquid.core.user.UserResponse;
 
 /**
  * Implementation of {@link UserClient} that uses MQTT protocol
@@ -28,6 +25,8 @@ public class MQTTUserClient implements UserClient {
 	private String broker;
 	private int timeoutInSeconds;
 	private String destination;
+	private String senderTopic;
+	private MQTTMessageSerializer messageSerializer;
 	
 	/**
 	 * Creates an instance from broker, destination topic and timeout
@@ -35,34 +34,20 @@ public class MQTTUserClient implements UserClient {
 	 * @param destinationTopic the topic that will receive the message
 	 * @param timeoutInSeconds the timeout in seconds to wait for a response
 	 */
-	public MQTTUserClient(final String broker, final String destinationTopic, final int timeoutInSeconds) {
+	public MQTTUserClient(final String broker, final String destinationTopic, final int timeoutInSeconds,
+			String senderTopic) {
 		this.broker = broker;
 		this.destination = destinationTopic;
 		this.timeoutInSeconds = timeoutInSeconds;
+		this.senderTopic = senderTopic;
+		this.messageSerializer = new MQTTMessageSerializer();
+		
 	}
 
 	@Override
-	public UserResponse execute(final UserRequest userRequest) throws ConnectorException {
+	public UniquidMessage execute(final UniquidMessage userRequest) throws ConnectorException {
 		
 		LOGGER.info("Sending output message to {}", destination);
-		
-		byte[] payload;
-		
-		if (userRequest instanceof RPCProviderRequest) {
-			
-			payload = ((RPCProviderRequest) userRequest).toJSONString().getBytes();
-			
-		} else if (userRequest instanceof AnnouncerProviderRequest) {
-			
-			payload = ((AnnouncerProviderRequest) userRequest).toJSONString().getBytes();
-			
-		} else {
-			
-			LOGGER.error("unexpected ProviderRequest instance!");
-			
-			throw new ConnectorException("unexpected ProviderRequest instance!");
-			
-		}
 		
 		BlockingConnection connection = null;
 		
@@ -76,11 +61,11 @@ public class MQTTUserClient implements UserClient {
 			
 			final String destinationTopic = destination;
 			
-			final String sender = userRequest.getUser();
-			
 			// to subscribe
-			final Topic[] topics = { new Topic(sender, QoS.AT_LEAST_ONCE) };
+			final Topic[] topics = { new Topic(senderTopic, QoS.AT_LEAST_ONCE) };
 			/*byte[] qoses = */connection.subscribe(topics);
+
+			byte[] payload = messageSerializer.serialize(userRequest);
 
 			// consume
 			connection.publish(destinationTopic, payload, QoS.AT_LEAST_ONCE, false);
@@ -98,7 +83,7 @@ public class MQTTUserClient implements UserClient {
 			message.ack();
 
 			// Create a JSON Message
-			return RPCProviderResponse.fromJSONString(new String(payload));
+			return messageSerializer.deserialize(payload);
 			
 		} catch (Throwable t) {
 			

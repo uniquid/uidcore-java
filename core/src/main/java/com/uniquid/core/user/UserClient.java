@@ -1,6 +1,7 @@
 package com.uniquid.core.user;
 
 import com.uniquid.core.connector.ConnectorException;
+import com.uniquid.core.messages.UniquidMessage;
 
 /**
  * Allow an User to send a {@link UserRequest} to a Provider and have the {@link UserResponse} back
@@ -13,6 +14,6 @@ public interface UserClient {
 	 * @return the {@link UserResponse} from the Provider.
 	 * @throws ConnectorException in case a problem occurs.
 	 */
-	public UserResponse execute(UserRequest userRequest) throws ConnectorException;
+	public UniquidMessage execute(UniquidMessage userRequest) throws ConnectorException;
 
 }

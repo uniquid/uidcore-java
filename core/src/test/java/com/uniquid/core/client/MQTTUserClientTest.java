@@ -1,4 +1,4 @@
-package com.uniquid.core.connector.mqtt;
+package com.uniquid.core.client;
 
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
@@ -8,9 +8,11 @@ import org.fusesource.mqtt.client.Topic;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.uniquid.core.ProviderRequest;
-import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.connector.ConnectorException;
+import com.uniquid.core.messages.FunctionRequestMessage;
+import com.uniquid.core.messages.FunctionResponseMessage;
+import com.uniquid.core.user.impl.mqtt.MQTTMessageSerializer;
+import com.uniquid.core.user.impl.mqtt.MQTTUserClient;
 
 public class MQTTUserClientTest {
 
@@ -20,7 +22,7 @@ public class MQTTUserClientTest {
 		String destination = "test";
 		int timeout = 10;
 		
-		MQTTUserClient mqttUserClient = new MQTTUserClient(broker, destination, timeout);
+		MQTTUserClient mqttUserClient = new MQTTUserClient(broker, destination, timeout, "test2");
 		Assert.assertNotNull(mqttUserClient);
 	}
 	
@@ -30,17 +32,16 @@ public class MQTTUserClientTest {
 		int method = 5;
 		String params = "params";
 		
-		final ProviderRequest providerRequest = new RPCProviderRequest.Builder()
-				.set_sender(sender)
-				.set_rpcMethod(method)
-				.set_params(params)
-				.build();
+		FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser(sender);
+		providerRequest.setMethod(method);
+		providerRequest.setParameters(params);
 		
 		String broker = "tcp://appliance4.uniquid.co:1883"; 
 		String destination = "test";
 		int timeout = 10;
 		
-		final MQTTUserClient mqttUserClient = new MQTTUserClient(broker, destination, timeout);
+		final MQTTUserClient mqttUserClient = new MQTTUserClient(broker, destination, timeout, sender);
 		Assert.assertNotNull(mqttUserClient);
 		
 		new Thread(new Runnable() {
@@ -52,11 +53,10 @@ public class MQTTUserClientTest {
 		}).start();
 
 		try {
-			RPCProviderResponse providerResponse = (RPCProviderResponse) mqttUserClient.execute(providerRequest);
+			FunctionResponseMessage providerResponse = (FunctionResponseMessage) mqttUserClient.execute(providerRequest);
 			Assert.assertNotNull(providerResponse);
 			
-			RPCProviderRequest rpcProviderRequest = (RPCProviderRequest) providerRequest;
-			Assert.assertEquals(rpcProviderRequest.getId(), providerResponse.getId());
+			Assert.assertEquals(providerResponse.getId(), providerRequest.getId());
 		} catch (ConnectorException e) {
 			Assert.fail();
 		}				
@@ -84,17 +84,17 @@ public class MQTTUserClientTest {
 			message.ack();
 			
 			Assert.assertNotNull(message);
-						
-			String request = new String(payload);
-			RPCProviderRequest rpcProviderRequest = RPCProviderRequest.fromJSONString(request);
+
+			FunctionRequestMessage rpcProviderRequest = (FunctionRequestMessage) new MQTTMessageSerializer().deserialize(payload);
 			Assert.assertNotNull(rpcProviderRequest);
 			
-			RPCProviderResponse rpcProviderResponse = new RPCProviderResponse.Builder().buildFromId(rpcProviderRequest.getId());
-			rpcProviderResponse.setSender("sender");
-			rpcProviderResponse.setResult("result");
+			FunctionResponseMessage rpcProviderResponse = new FunctionResponseMessage();
+			rpcProviderResponse.setProvider("sender");
 			rpcProviderResponse.setError(0);
-			String response = rpcProviderResponse.toJSONString();
-			connection.publish(rpcProviderRequest.getSender(), response.getBytes(), QoS.AT_LEAST_ONCE, false);
+			rpcProviderResponse.setResult("result");
+			rpcProviderResponse.setId(rpcProviderRequest.getId());
+			
+			connection.publish(rpcProviderRequest.getUser(), new MQTTMessageSerializer().serialize(rpcProviderResponse), QoS.AT_LEAST_ONCE, false);
 			
 			connection.disconnect();			
 			
@@ -109,17 +109,17 @@ public class MQTTUserClientTest {
 		int method = 5;
 		String params = "params";
 		
-		final ProviderRequest providerRequest = new RPCProviderRequest.Builder()
-				.set_sender(sender)
-				.set_rpcMethod(method)
-				.set_params(params)
-				.build();
+		FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser(sender);
+		providerRequest.setMethod(method);
+		providerRequest.setParameters(params);
+		providerRequest.setId(1234);
 		
 		String broker = "tcp://appliance4.uniquid.co:1883"; 
 		String destination = "test";
 		int timeout = 10;
 		
-		final MQTTUserClient mqttUserClient = new MQTTUserClient(broker, destination, timeout);
+		final MQTTUserClient mqttUserClient = new MQTTUserClient(broker, destination, timeout, sender);
 		Assert.assertNotNull(mqttUserClient);
 		
 		new Thread(new Runnable() {
@@ -130,11 +130,10 @@ public class MQTTUserClientTest {
 			}
 		}).start();
 
-		RPCProviderResponse providerResponse = (RPCProviderResponse) mqttUserClient.execute(providerRequest);
+		FunctionRequestMessage providerResponse = (FunctionRequestMessage) mqttUserClient.execute(providerRequest);
 		Assert.assertNotNull(providerResponse);
 		
-		RPCProviderRequest rpcProviderRequest = (RPCProviderRequest) providerRequest;
-		Assert.assertEquals(rpcProviderRequest.getId(), providerResponse.getId());
+		Assert.assertEquals(providerRequest.getId(), providerResponse.getId());
 	
 	}
 	
@@ -160,15 +159,13 @@ private void startMqttServerMockException() {
 			
 			Assert.assertNotNull(message);
 						
-			String request = new String(payload);
-			RPCProviderRequest rpcProviderRequest = RPCProviderRequest.fromJSONString(request);
-			Assert.assertNotNull(rpcProviderRequest);
-			
-			RPCProviderResponse rpcProviderResponse = new RPCProviderResponse.Builder().buildFromId(rpcProviderRequest.getId());
-			rpcProviderResponse.setSender("sender");
-			rpcProviderResponse.setResult("result");
-			rpcProviderResponse.setError(0);
-			String response = rpcProviderResponse.toJSONString();
+			FunctionRequestMessage functionRequestMessage = (FunctionRequestMessage) new MQTTMessageSerializer().deserialize(payload);
+			Assert.assertNotNull(functionRequestMessage);
+
+			FunctionResponseMessage functionResponseMessage = new FunctionResponseMessage();
+			functionResponseMessage.setProvider("sender");
+			functionResponseMessage.setResult("result");
+			functionResponseMessage.setError(0);
 			
 			connection.disconnect();			
 			
