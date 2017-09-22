@@ -11,16 +11,15 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.uniquid.node.UniquidNodeState;
+import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
+import com.uniquid.node.impl.utils.DummyRegisterFactory;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.node.impl.utils.DummyUserRegister;
 import com.uniquid.register.RegisterFactory;
-import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
-import com.uniquid.register.transaction.TransactionException;
-import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
 
 public class UniquidNodeImplTest {
@@ -36,25 +35,9 @@ public class UniquidNodeImplTest {
 		File userFile = File.createTempFile("user", ".wallet");
 		File chainFile = File.createTempFile("chain", ".chain");
 		File userChainFile = File.createTempFile("userchain", ".chain");
-		RegisterFactory dummyRegister = new RegisterFactory() {
-					
-					@Override
-					public UserRegister getUserRegister() throws RegisterException {
-						return null;
-					}
-					
-					@Override
-					public ProviderRegister getProviderRegister() throws RegisterException {
-						return null;
-					}
-					
-					@Override
-					public TransactionManager getTransactionManager() throws RegisterException {
-						
-						return new DummyTransactionManager();
-					}
-					
-				};
+		
+		RegisterFactory dummyRegister = new DummyRegisterFactory(null, null, new DummyTransactionManager());
+		
 		String machineName = "machineName";
 
 		builder.setNetworkParameters(parameters);
@@ -110,26 +93,7 @@ public class UniquidNodeImplTest {
 		
 		final UserRegister dummyUser = new DummyUserRegister();
 		
-		RegisterFactory dummyFactory = new RegisterFactory() {
-					
-					@Override
-					public UserRegister getUserRegister() throws RegisterException {
-						return dummyUser;
-					}
-					
-					@Override
-					public ProviderRegister getProviderRegister() throws RegisterException {
-						return dummyProvider;
-					}
-					
-					@Override
-					public TransactionManager getTransactionManager() throws RegisterException {
-
-						return new DummyTransactionManager();
-						
-					}
-					
-				};
+		RegisterFactory dummyFactory = new DummyRegisterFactory(dummyUser, dummyProvider, new DummyTransactionManager());
 				
 		String machineName = "machineName";
 
@@ -195,25 +159,7 @@ public class UniquidNodeImplTest {
 		
 		final UserRegister dummyUser = new DummyUserRegister();
 		
-		RegisterFactory dummyFactory = new RegisterFactory() {
-					
-					@Override
-					public UserRegister getUserRegister() throws RegisterException {
-						return dummyUser;
-					}
-					
-					@Override
-					public ProviderRegister getProviderRegister() throws RegisterException {
-						return dummyProvider;
-					}
-					
-					@Override
-					public TransactionManager getTransactionManager() throws RegisterException {
-
-						return new DummyTransactionManager();
-					}
-					
-				};
+		RegisterFactory dummyFactory = new DummyRegisterFactory(dummyUser, dummyProvider, new DummyTransactionManager());
 				
 		String machineName = "machineName";
 
@@ -265,25 +211,7 @@ public class UniquidNodeImplTest {
 		
 		final UserRegister dummyUser = new DummyUserRegister();
 		
-		RegisterFactory dummyFactory = new RegisterFactory() {
-					
-					@Override
-					public UserRegister getUserRegister() throws RegisterException {
-						return dummyUser;
-					}
-					
-					@Override
-					public ProviderRegister getProviderRegister() throws RegisterException {
-						return dummyProvider;
-					}
-					
-					@Override
-					public TransactionManager getTransactionManager() throws RegisterException {
-
-						return new DummyTransactionManager();
-					}
-					
-				};
+		RegisterFactory dummyFactory = new DummyRegisterFactory(dummyUser, dummyProvider, new DummyTransactionManager());
 				
 		String machineName = "machineName";
 
@@ -344,6 +272,38 @@ public class UniquidNodeImplTest {
 		String signed_tx = "010000000247a327c7f5d626a7159c5c0fccf90732ba733ab6e9eea53db24c4829b3cc46a4000000006a473044022014fac39447707341f16cac6fcd9a7258dcc636767016e225c5bb2a2ed4462f4c02202867a07f0695109b47cd9de86d06393c9f3f1f0ebbde5f3f7914f5296edf1be4012102461fb3538ffec054fd4ee1e9087e7debf8442028f941bda308c24b508cbf69f7ffffffffced72f216e191ebc3be3b7b8c5d8fc0a7ac52fa934e395f837a28f96df2d8f90010000006a473044022061e3c20622dcbe8ea3a62c66ba56da91c4f1083b11bbd6e912df81bc92826ac50220631d302f309a1c5212933830f910ba2931ff32a5b41a2c9aaa808b926aa99363012102ece5ce70796b6893283aa0c8f30273c7dc0ff0b82a75017285387ecd2d767110ffffffff0140420f00000000001976a91457c9afb8bc5e4fa738f5b46afcb51b43a48b270988ac00000000";
 		
 		Assert.assertEquals(signed_tx, uniquidNode.signTransaction(unsigned_tx, paths));
+		
+		
+		List<String> paths2 = new ArrayList<String>();
+		paths2.add("1/1/1");
+		
+		String unsigned_tx2 = "010000000144106042786d7b5f3bb24777ce51024e8de51a8845dfd05f59f04fcb78331f6a0100000000ffffffff010084d717000000001976a9141686d60b9db2bd5646b493ce17dd7bb0731cb50788ac00000000";
+		
+		String signed_tx2 = "010000000144106042786d7b5f3bb24777ce51024e8de51a8845dfd05f59f04fcb78331f6a010000006a47304402201f7f991baf62b800e49348ddd4de2f6d1cb589d6e1344a89f0e2bfdac852d6e602203cb054754a82029f75af8e445eb5c5ce8cd4a669dac5f29ae3cdb12c4d97ce13012102d42246dbf36fd5c73d318e3db60c172ddaa9debe7d7908ac1b36efa46d818b4bffffffff010084d717000000001976a9141686d60b9db2bd5646b493ce17dd7bb0731cb50788ac00000000";
+		
+		Assert.assertEquals(signed_tx2, uniquidNode.signTransaction(unsigned_tx2, paths2));
+		
+		try {
+			
+			uniquidNode.signTransaction(unsigned_tx, paths2);
+			Assert.fail();
+			
+		} catch (NodeException ex) {
+			// NOTHING TO DO.
+		}
+		
+		List<String> paths3 = new ArrayList<String>();
+		paths3.add("1/0/0");
+		
+		try {
+			
+			uniquidNode.signTransaction(unsigned_tx2, paths3);
+			Assert.fail();
+			
+		} catch (NodeException ex) {
+			// NOTHING TO DO.
+		}
+		
 		
 		Assert.assertEquals("IOAhyp0at0puRgDZD3DJl0S2FjgLEo0q7nBdgzDrWpbDR+B3daIlN3R20lhcpQKZFWl8/ttxUXzQYS0EFso2VLo=", uniquidNode.signMessage("Hello World!", "0/0/0"));
 		

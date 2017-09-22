@@ -1,9 +1,7 @@
 package com.uniquid.node.impl;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
@@ -52,7 +50,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		this.deterministicSeed = deterministicSeed;
 		
 		DeterministicKey deterministicKey = NodeUtils
-				.createDeterministicKeyFromByteArray(deterministicSeed.getSeedBytes());
+				.createDeterministicKeyFromDeterministicSeed(deterministicSeed);
 		
 		deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 
@@ -83,7 +81,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 
 			for (String path : paths) {
 				
-				ImmutableList<ChildNumber> list = listFromPath(path);
+				ImmutableList<ChildNumber> list = NodeUtils.listFromPath(path);
 
 				DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
 			
@@ -151,7 +149,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	@Override
 	public String signMessage(String message, String path) throws NodeException {
 		
-		ImmutableList<ChildNumber> list = listFromPath(path);
+		ImmutableList<ChildNumber> list = NodeUtils.listFromPath(path);
 
 		DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
 		
@@ -185,35 +183,6 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		
 		return signMessage(message, path);
 		
-	}
-	
-	private static ImmutableList<ChildNumber> listFromPath(String path) {
-		
-			// Remove M/ prefix
-			if (path.startsWith("M/")) {
-				
-				path = path.substring(2);
-				
-			}
-			
-			StringTokenizer tokenizer = new StringTokenizer(path, "/");
-			
-			List<ChildNumber> start = new ArrayList<ChildNumber>();
-			
-			start.add(new ChildNumber(44, true));
-			start.add(new ChildNumber(0, true));
-			start.add(new ChildNumber(0, false));
-			
-			while (tokenizer.hasMoreTokens()) {
-				
-				String next = tokenizer.nextToken();
-				
-				start.add(new ChildNumber(Integer.valueOf(next), false));
-				
-			}
-			
-			return ImmutableList.copyOf(start);
-			
 	}
 	
 	/**
@@ -288,7 +257,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		
 		private static final String deriveXpub(NetworkParameters networkParameters, DeterministicSeed detSeed) {
 			
-			DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromByteArray(detSeed.getSeedBytes());
+			DeterministicKey deterministicKey = NodeUtils.createDeterministicKeyFromDeterministicSeed(detSeed);
 
 			DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 

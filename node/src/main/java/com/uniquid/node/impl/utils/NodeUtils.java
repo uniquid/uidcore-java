@@ -2,9 +2,11 @@ package com.uniquid.node.impl.utils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
+import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +19,6 @@ import org.bitcoinj.core.StoredBlock;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
-import org.bitcoinj.core.listeners.PeerConnectedEventListener;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
@@ -29,7 +30,6 @@ import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.SPVBlockStore;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
-import org.bitcoinj.wallet.UnreadableWalletException;
 import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,42 +46,17 @@ public class NodeUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeUtils.class.getName());
 	
 	/**
-	 * Generate a {@code DeterministicSeed} from a byte array and  a creatiom time
+	 * Generates a {@code DeterministicKey} root key from DeterministicSeed
 	 * 
-	 * @param seed byte array representing seed
-	 * @param creationTime creation time of seed
-	 * @return returns an instance of {@code DeterministicSeed}
+	 * @param seed the DeterministicSeed
+	 * @return returns an instance of {@code DeterministicKey} representing the root key
 	 */
-	public static DeterministicSeed createDeterministicSeed(final byte[] seed, final long creationTime) throws UnreadableWalletException {
-		return new DeterministicSeed("", seed, "", creationTime);
-	}
-	
-//	/**
-//	 * Create from brain wallet
-//	 * @param string
-//	 * @return
-//	 * @throws NoSuchAlgorithmException
-//	 * @throws UnsupportedEncodingException
-//	 */
-//	public static DeterministicKey createDeterministicKeyFromBrainWallet(String string)
-//			throws NoSuchAlgorithmException, UnsupportedEncodingException {
-//		MessageDigest md = MessageDigest.getInstance("SHA-256");
-//
-//		md.update(string.getBytes("UTF-8"));
-//		byte[] hash = md.digest();
-//
-//		return HDKeyDerivation.createMasterPrivateKey(hash);
-//
-//	}
-	
-	/**
-	 * Generates a {@code DeterministicKey} from a byte array seed
-	 * 
-	 * @param seed the seed represented as byte array
-	 * @return returns an instance of {@code DeterministicKey}
-	 */
-	public static DeterministicKey createDeterministicKeyFromByteArray(byte[] seed) {
-		return HDKeyDerivation.createMasterPrivateKey(seed);
+	public static DeterministicKey createDeterministicKeyFromDeterministicSeed(DeterministicSeed seed) {
+
+		DeterministicKey rootKey = HDKeyDerivation.createMasterPrivateKey(seed.getSeedBytes());
+		rootKey.setCreationTimeSeconds(seed.getCreationTimeSeconds());
+		
+		return rootKey;
 	}
 	
 	/**
@@ -290,6 +265,41 @@ public class NodeUtils {
 		DeterministicKey imprintingKey = deterministicHierarchy.get(imprintingChild, true, true);
 		return imprintingKey.toAddress(networkParameters);
 
+	}
+	
+	/**
+	 * Allow to return an ImmutableList<ChildNumber> from a string represeting path.
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public static ImmutableList<ChildNumber> listFromPath(String path) {
+		
+		// Remove M/ prefix
+		if (path.startsWith("M/")) {
+			
+			path = path.substring(2);
+			
+		}
+		
+		StringTokenizer tokenizer = new StringTokenizer(path, "/");
+		
+		List<ChildNumber> start = new ArrayList<ChildNumber>();
+		
+		start.add(new ChildNumber(44, true));
+		start.add(new ChildNumber(0, true));
+		start.add(new ChildNumber(0, false));
+		
+		while (tokenizer.hasMoreTokens()) {
+			
+			String next = tokenizer.nextToken();
+			
+			start.add(new ChildNumber(Integer.valueOf(next), false));
+			
+		}
+		
+		return ImmutableList.copyOf(start);
+		
 	}
 
 }
