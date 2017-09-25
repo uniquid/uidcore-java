@@ -7,8 +7,9 @@ import org.fusesource.mqtt.client.Topic;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.uniquid.core.connector.ConnectorException;
 import com.uniquid.core.connector.EndPoint;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.serializers.JSONMessageSerializer;
 
 public class MQTTConnectorTest {
 
@@ -55,7 +56,8 @@ public class MQTTConnectorTest {
 		
 		try {
 			EndPoint endPoint = mqttConnector.accept();
-			Assert.assertEquals("hola!", endPoint.getInputMessage().getParams());
+			
+			Assert.assertEquals("hola!", ((FunctionRequestMessage)endPoint.getInputMessage()).getParameters());
 		} catch (Exception e) {
 			Assert.fail();
 		}
@@ -66,14 +68,10 @@ public class MQTTConnectorTest {
 		String broker = "tcp://appliance4.uniquid.co:1883";
 		String topic = "test";
 		
-		RPCProviderRequest rpcProviderRequest = new RPCProviderRequest
-				.Builder()
-				.set_sender("sender")
-				.set_rpcMethod(33)
-				.set_params("hola!")
-				.build();
-		
-		String request = rpcProviderRequest.toJSONString();
+		FunctionRequestMessage functionRequestMessage = new FunctionRequestMessage();
+		functionRequestMessage.setUser("sender");
+		functionRequestMessage.setFunction(33);
+		functionRequestMessage.setParameters("hola!");
 		
 		String sender = "sender";
 		Topic[] topics = {new Topic(sender, QoS.AT_LEAST_ONCE)};
@@ -85,7 +83,7 @@ public class MQTTConnectorTest {
 			connection = mqtt.blockingConnection();
 			connection.connect();
 			connection.subscribe(topics);
-			connection.publish(topic, request.getBytes(), QoS.AT_LEAST_ONCE, false);
+			connection.publish(topic, new JSONMessageSerializer().serialize(functionRequestMessage), QoS.AT_LEAST_ONCE, false);
 			connection.disconnect();
 		} catch (Throwable t) {
 			Assert.fail();
@@ -93,7 +91,7 @@ public class MQTTConnectorTest {
 				
 	}
 	
-	@Test(expected = ConnectorException.class)
+	@Test
 	public void testAcceptException() throws Exception {
 		String broker = "tcp://appliance4.uniquid.co:1883";
 		String topic = "test";
@@ -120,7 +118,7 @@ public class MQTTConnectorTest {
 		}).start();
 			
 		EndPoint endPoint = mqttConnector.accept();
-		Assert.assertEquals("hola!", endPoint.getInputMessage().getParams());
+		Assert.assertEquals("hola!", ((FunctionRequestMessage)endPoint.getInputMessage()).getParameters());
 		
 	}
 	
@@ -128,13 +126,10 @@ public class MQTTConnectorTest {
 		String broker = "tcp://appliance4.uniquid.co:1883";
 		String topic = "test";
 		
-		RPCProviderRequest rpcProviderRequest = new RPCProviderRequest
-				.Builder()
-				.set_sender("sender")
-				.set_rpcMethod(33)
-				.build();
-		
-		String request = rpcProviderRequest.toJSONString();
+		FunctionRequestMessage functionRequestMessage = new FunctionRequestMessage();
+		functionRequestMessage.setUser("sender");
+		functionRequestMessage.setFunction(33);
+		functionRequestMessage.setParameters("hola!");
 		
 		String sender = "sender";
 		Topic[] topics = {new Topic(sender, QoS.AT_LEAST_ONCE)};
@@ -146,7 +141,7 @@ public class MQTTConnectorTest {
 			connection = mqtt.blockingConnection();
 			connection.connect();
 			connection.subscribe(topics);
-			connection.publish(topic, request.getBytes(), QoS.AT_LEAST_ONCE, false);
+			connection.publish(topic, new JSONMessageSerializer().serialize(functionRequestMessage), QoS.AT_LEAST_ONCE, false);
 			connection.disconnect();
 		} catch (Throwable t) {
 			Assert.fail();

@@ -12,13 +12,13 @@ import com.uniquid.core.connector.ConnectorException;
 import com.uniquid.core.connector.EndPoint;
 import com.uniquid.core.impl.test.DummyNode;
 import com.uniquid.core.impl.test.DummyProviderRegister;
-import com.uniquid.core.impl.test.DummyProviderRequest;
-import com.uniquid.core.impl.test.DummyProviderResponse;
 import com.uniquid.core.impl.test.DummyUserRegister;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.core.provider.impl.EchoFunction;
 import com.uniquid.core.provider.impl.GenericFunction;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
@@ -62,7 +62,7 @@ public class CoreTest {
 		Core core = new Core(dummyFactory, connector, node) {
 			
 			@Override
-			protected Function getFunction(ProviderRequest inputMessage) {
+			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
@@ -113,19 +113,22 @@ public class CoreTest {
 		Core core = new Core(dummyFactory, connector, node) {
 			
 			@Override
-			protected Function getFunction(ProviderRequest inputMessage) {
+			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return new EchoFunction();
 			}
 		};
 		
-		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 30, "params");
+		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("userAddress");
+		providerRequest.setFunction(30);
+		providerRequest.setParameters("params");
 		
-		final ProviderResponse providerResponse = new DummyProviderResponse();
+		final FunctionResponseMessage providerResponse = new FunctionResponseMessage();
 		
 		core.performProviderRequest(providerRequest, providerResponse, null);
 		
-		Assert.assertEquals(ProviderResponse.RESULT_OK, providerResponse.getError());
-		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getSender());
+		Assert.assertEquals(FunctionResponseMessage.RESULT_OK, providerResponse.getError());
+		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getProvider());
 		
 	}
 	
@@ -166,11 +169,11 @@ public class CoreTest {
 		Core core = new Core(dummyFactory, connector, node) {
 			
 			@Override
-			protected Function getFunction(ProviderRequest inputMessage) {
+			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return new GenericFunction() {
 					
 					@Override
-					public void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload)
+					public void service(FunctionRequestMessage inputMessage, FunctionResponseMessage outputMessage, byte[] payload)
 							throws FunctionException, IOException {
 						throw new FunctionException("Error!");
 						
@@ -179,14 +182,17 @@ public class CoreTest {
 			}
 		};
 		
-		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 30, "params");
+		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("userAddress");
+		providerRequest.setFunction(30);
+		providerRequest.setParameters("params");
 		
-		final ProviderResponse providerResponse = new DummyProviderResponse();
+		final FunctionResponseMessage providerResponse = new FunctionResponseMessage();
 		
 		core.performProviderRequest(providerRequest, providerResponse, null);
 		
-		Assert.assertEquals(ProviderResponse.RESULT_ERROR, providerResponse.getError());
-		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getSender());
+		Assert.assertEquals(FunctionResponseMessage.RESULT_ERROR, providerResponse.getError());
+		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getProvider());
 		
 	}
 	
@@ -227,19 +233,22 @@ public class CoreTest {
 		Core core = new Core(dummyFactory, connector, node) {
 			
 			@Override
-			protected Function getFunction(ProviderRequest inputMessage) {
+			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
 		
-		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 30, "params");
+		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("userAddress");
+		providerRequest.setFunction(30);
+		providerRequest.setParameters("params");
 		
-		final ProviderResponse providerResponse = new DummyProviderResponse();
+		final FunctionResponseMessage providerResponse = new FunctionResponseMessage();
 		
 		core.performProviderRequest(providerRequest, providerResponse, null);
 		
-		Assert.assertEquals(ProviderResponse.RESULT_FUNCTION_NOT_AVAILABLE, providerResponse.getError());
-		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getSender());
+		Assert.assertEquals(FunctionResponseMessage.RESULT_FUNCTION_NOT_AVAILABLE, providerResponse.getError());
+		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getProvider());
 		
 	}
 	
@@ -276,12 +285,15 @@ public class CoreTest {
 		Core core = new Core(dummyFactory, connector, node) {
 			
 			@Override
-			protected Function getFunction(ProviderRequest inputMessage) {
+			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
 		
-		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 30, "params");
+		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("userAddress");
+		providerRequest.setFunction(30);
+		providerRequest.setParameters("params");
 		
 		try {
 			
@@ -337,12 +349,15 @@ public class CoreTest {
 		Core core = new Core(dummyFactory, connector, node) {
 			
 			@Override
-			protected Function getFunction(ProviderRequest inputMessage) {
+			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
 		
-		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 30, "params");
+		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("userAddress");
+		providerRequest.setFunction(30);
+		providerRequest.setParameters("params");
 		
 		try {
 			
@@ -398,12 +413,15 @@ public class CoreTest {
 		Core core = new Core(dummyFactory, connector, node) {
 			
 			@Override
-			protected Function getFunction(ProviderRequest inputMessage) {
+			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
 		
-		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 31, "params");
+		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("userAddress");
+		providerRequest.setFunction(31);
+		providerRequest.setParameters("params");
 		
 		try {
 			
@@ -459,12 +477,16 @@ public class CoreTest {
 		Core core = new Core(dummyFactory, connector, node) {
 			
 			@Override
-			protected Function getFunction(ProviderRequest inputMessage) {
+			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
 		
-		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 30, "params");
+		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("userAddress");
+		providerRequest.setFunction(30);
+		providerRequest.setParameters("params");
+		
 		Assert.assertNotNull(core.checkSender(providerRequest));
 		Assert.assertTrue(Arrays.equals(b2, core.checkSender(providerRequest)));
 		
@@ -511,12 +533,15 @@ public class CoreTest {
 		Core core = new Core(dummyFactory, connector, node) {
 			
 			@Override
-			protected Function getFunction(ProviderRequest inputMessage) {
+			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
 		
-		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 30, "params");
+		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("userAddress");
+		providerRequest.setFunction(30);
+		providerRequest.setParameters("params");
 		
 		try {
 			
@@ -571,12 +596,15 @@ public class CoreTest {
 		Core core = new Core(dummyFactory, connector, node) {
 			
 			@Override
-			protected Function getFunction(ProviderRequest inputMessage) {
+			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
 		
-		final ProviderRequest providerRequest = new DummyProviderRequest("userAddress", 30, "params");
+		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("userAddress");
+		providerRequest.setFunction(30);
+		providerRequest.setParameters("params");
 		
 		try {
 			

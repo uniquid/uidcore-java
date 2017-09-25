@@ -2,12 +2,12 @@ package com.uniquid.core.provider.impl;
 
 import java.io.IOException;
 
-import com.uniquid.core.ProviderRequest;
-import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.FunctionConfig;
 import com.uniquid.core.provider.FunctionContext;
 import com.uniquid.core.provider.exception.FunctionException;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
 
 /**
  * Defines a generic, protocol-independent function.
@@ -52,7 +52,7 @@ public abstract class GenericFunction implements Function, FunctionConfig {
     }
 
 	@Override
-	public abstract void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload)
+	public abstract void service(FunctionRequestMessage inputMessage, FunctionResponseMessage outputMessage, byte[] payload)
 			throws FunctionException, IOException;
 
 	@Override

@@ -84,7 +84,6 @@ public class MQTTConnector implements Connector {
 	@Override
 	public EndPoint accept() throws ConnectorException, InterruptedException {
 
-
 		try {
 
 			synchronized (inputQueue) {

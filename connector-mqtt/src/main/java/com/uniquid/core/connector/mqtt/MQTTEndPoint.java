@@ -1,7 +1,5 @@
 package com.uniquid.core.connector.mqtt;
 
-import java.nio.charset.StandardCharsets;
-
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.QoS;
@@ -9,10 +7,14 @@ import org.fusesource.mqtt.client.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.core.ProviderRequest;
-import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.connector.ConnectorException;
 import com.uniquid.core.connector.EndPoint;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
+import com.uniquid.messages.MessageSerializer;
+import com.uniquid.messages.MessageType;
+import com.uniquid.messages.UniquidMessage;
+import com.uniquid.messages.serializers.JSONMessageSerializer;
 
 /**
  * Implementation of a {@link EndPoint} used by {@link MQTTConnector}
@@ -23,8 +25,10 @@ public class MQTTEndPoint implements EndPoint {
 	
 	private String broker;
 	
-	private final RPCProviderRequest rpcProviderRequest;
-	private final RPCProviderResponse rpcProviderResponse;
+	private final FunctionRequestMessage providerRequest;
+	private final FunctionResponseMessage providerResponse;
+	
+	private MessageSerializer messageSerializer = new JSONMessageSerializer();
 	
 	/**
 	 * Creates a new instance from the byte array message and broker
@@ -36,13 +40,23 @@ public class MQTTEndPoint implements EndPoint {
 		
 		this.broker = broker;
 
-		final String inputstring = new String(mqttMessageRequest, StandardCharsets.UTF_8); // Or any encoding.
-		
 		try {
-			// Retrieve message
-			rpcProviderRequest = RPCProviderRequest.fromJSONString(inputstring);
 			
-			rpcProviderResponse = new RPCProviderResponse.Builder().buildFromId(rpcProviderRequest.getId());
+			UniquidMessage messageReceived = messageSerializer.deserialize(mqttMessageRequest);
+			
+			if (MessageType.FUNCTION_REQUEST.equals(messageReceived.getMessageType())) {
+				
+				// Retrieve message
+				providerRequest = (FunctionRequestMessage) messageReceived;
+						
+				providerResponse = new FunctionResponseMessage();
+				providerResponse.setId(providerRequest.getId());
+				
+			} else {
+			
+				throw new Exception("Received an invalid message type " + messageReceived.getMessageType());
+			
+			}
 		
 		} catch (Exception ex) {
 			
@@ -52,13 +66,13 @@ public class MQTTEndPoint implements EndPoint {
 	}
 
 	@Override
-	public ProviderRequest getInputMessage() {
-		return rpcProviderRequest;
+	public FunctionRequestMessage getInputMessage() {
+		return providerRequest;
 	}
 
 	@Override
-	public ProviderResponse getOutputMessage() {
-		return rpcProviderResponse;
+	public FunctionResponseMessage getOutputMessage() {
+		return providerResponse;
 	}
 
 	@Override
@@ -77,14 +91,14 @@ public class MQTTEndPoint implements EndPoint {
 			connection = mqtt.blockingConnection();
 			connection.connect();
 			
-			String destinationTopic = rpcProviderRequest.getSender(); 
+			String destinationTopic = providerRequest.getUser(); 
 			
 			// to subscribe
 			Topic[] topics = { new Topic(destinationTopic, QoS.AT_LEAST_ONCE) };
 			connection.subscribe(topics);
 
 			// consume
-			connection.publish(destinationTopic, rpcProviderResponse.toJSONString().getBytes(), QoS.AT_LEAST_ONCE, false);
+			connection.publish(destinationTopic, messageSerializer.serialize(providerResponse), QoS.AT_LEAST_ONCE, false);
 
 		} catch (Exception ex) {
 			
