@@ -1,9 +1,5 @@
 package com.uniquid.core.connector.mqtt;
 
-import org.fusesource.mqtt.client.BlockingConnection;
-import org.fusesource.mqtt.client.MQTT;
-import org.fusesource.mqtt.client.QoS;
-import org.fusesource.mqtt.client.Topic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +11,8 @@ import com.uniquid.messages.MessageSerializer;
 import com.uniquid.messages.MessageType;
 import com.uniquid.messages.UniquidMessage;
 import com.uniquid.messages.serializers.JSONMessageSerializer;
+import com.uniquid.userclient.UserClientException;
+import com.uniquid.userclient.impl.MQTTUserClient;
 
 /**
  * Implementation of a {@link EndPoint} used by {@link MQTTConnector}
@@ -22,6 +20,7 @@ import com.uniquid.messages.serializers.JSONMessageSerializer;
 public class MQTTEndPoint implements EndPoint {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(MQTTEndPoint.class);
+	private static final int DEFAULT_TIMEOUT = 60;
 	
 	private String broker;
 	
@@ -78,49 +77,16 @@ public class MQTTEndPoint implements EndPoint {
 	@Override
 	public void flush() throws ConnectorException {
 		
-		LOGGER.info("Sending response");
+		MQTTUserClient mqttUserClient = new MQTTUserClient(broker, providerRequest.getUser(), DEFAULT_TIMEOUT, providerResponse.getProvider());
 		
-		BlockingConnection connection = null;
-
 		try {
-
-			MQTT mqtt = new MQTT();
-
-			mqtt.setHost(broker);
-
-			connection = mqtt.blockingConnection();
-			connection.connect();
 			
-			String destinationTopic = providerRequest.getUser(); 
+			mqttUserClient.send(providerResponse);
 			
-			// to subscribe
-			Topic[] topics = { new Topic(destinationTopic, QoS.AT_LEAST_ONCE) };
-			connection.subscribe(topics);
-
-			// consume
-			connection.publish(destinationTopic, messageSerializer.serialize(providerResponse), QoS.AT_LEAST_ONCE, false);
-
-		} catch (Exception ex) {
+		} catch (UserClientException e) {
 			
-			LOGGER.error("Catched Exception", ex);
+			throw new ConnectorException("Exception", e);
 			
-			throw new ConnectorException(ex);
-			
-		} finally {
-
-			// disconnect
-			try {
-				
-				LOGGER.info("Disconnecting");
-
-				connection.disconnect();
-
-			} catch (Exception ex) {
-
-				LOGGER.error("Catched Exception", ex);
-
-			}
-
 		}
 
 	}
