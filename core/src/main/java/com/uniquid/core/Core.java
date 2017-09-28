@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import com.uniquid.core.connector.Connector;
+import com.uniquid.connector.Connector;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.FunctionContext;
 import com.uniquid.core.provider.impl.ApplicationContext;
@@ -28,7 +28,7 @@ public abstract class Core {
 
 	public static final String NODE_ATTRIBUTE = com.uniquid.node.UniquidNode.class.getName();
 	public static final String REGISTER_FACTORY_ATTRIBUTE = com.uniquid.register.RegisterFactory.class.getName();
-	public static final String CONNECTOR_ATTRIBUTE = com.uniquid.core.connector.Connector.class.getName();
+	public static final String CONNECTOR_ATTRIBUTE = com.uniquid.connector.Connector.class.getName();
 
 	private RegisterFactory registerFactory;
 	private Connector connector;

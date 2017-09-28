@@ -12,9 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.uniquid.core.Core;
-import com.uniquid.core.connector.Connector;
-import com.uniquid.core.connector.ConnectorException;
-import com.uniquid.core.connector.EndPoint;
+import com.uniquid.connector.Connector;
+import com.uniquid.connector.ConnectorException;
+import com.uniquid.connector.EndPoint;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.core.provider.impl.ContractFunction;

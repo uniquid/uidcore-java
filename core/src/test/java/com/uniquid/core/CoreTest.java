@@ -7,9 +7,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
-import com.uniquid.core.connector.Connector;
-import com.uniquid.core.connector.ConnectorException;
-import com.uniquid.core.connector.EndPoint;
+import com.uniquid.connector.Connector;
+import com.uniquid.connector.ConnectorException;
+import com.uniquid.connector.EndPoint;
 import com.uniquid.core.impl.test.DummyNode;
 import com.uniquid.core.impl.test.DummyProviderRegister;
 import com.uniquid.core.impl.test.DummyUserRegister;
