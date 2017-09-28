@@ -86,7 +86,6 @@
   <modules>
     <module>node</module>
     <module>core</module>
-    <module>connector-mqtt</module>
     <module>register-spi</module>
     <module>register-sqlite</module>
     <module>java-package</module>
