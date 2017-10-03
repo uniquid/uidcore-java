@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.uniquid.core.Core;
-import com.uniquid.core.ProviderRequest;
-import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.node.UniquidNode;
 
 /**
@@ -25,10 +25,10 @@ public class ContractFunction extends GenericFunction {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ContractFunction.class);
 
 	@Override
-	public void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload)
+	public void service(FunctionRequestMessage inputMessage, FunctionResponseMessage outputMessage, byte[] payload)
 			throws FunctionException, IOException {
 
-		String params = inputMessage.getParams();
+		String params = inputMessage.getParameters();
 		String tx;
 		
 		List<String> path = new ArrayList<String>();

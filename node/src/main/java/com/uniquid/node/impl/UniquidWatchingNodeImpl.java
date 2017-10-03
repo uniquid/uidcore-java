@@ -36,6 +36,7 @@ import com.uniquid.node.impl.utils.NodeUtils;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.userclient.UserClientFactory;
 
 /**
  * Implementation of an Uniquid Node with BitcoinJ library
@@ -187,6 +188,8 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 				// Jump to initializing
 				setUniquidNodeState(getImprintingState());
+				
+				// SEND ANNOUNCE MESSAGE
 
 			}
 
@@ -464,6 +467,12 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		@SuppressWarnings("unchecked")
 		public B setRegistryUrl(String registryUrl) {
 			_uniquidNodeConfiguration.setRegistryUrl(registryUrl);
+			return (B) this;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public B setUserClientFactory(UserClientFactory userClientFactory) {
+			_uniquidNodeConfiguration.setUserClientFactory(userClientFactory);
 			return (B) this;
 		}
 

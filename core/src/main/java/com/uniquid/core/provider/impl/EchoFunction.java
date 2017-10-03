@@ -2,10 +2,10 @@ package com.uniquid.core.provider.impl;
 
 import java.io.IOException;
 
-import com.uniquid.core.ProviderRequest;
-import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
 
 /**
  * {@link Function} designed to echo with the content received from the User 
@@ -13,10 +13,10 @@ import com.uniquid.core.provider.exception.FunctionException;
 public class EchoFunction extends GenericFunction {
 
 	@Override
-	public void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload)
+	public void service(FunctionRequestMessage inputMessage, FunctionResponseMessage outputMessage, byte[] payload)
 			throws FunctionException, IOException {
 		
-		outputMessage.setResult("UID_echo: " + inputMessage.getParams());
+		outputMessage.setResult("UID_echo: " + inputMessage.getParameters());
 		
 	}
 	

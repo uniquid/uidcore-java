@@ -7,10 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import com.uniquid.core.connector.Connector;
+import com.uniquid.connector.Connector;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.FunctionContext;
 import com.uniquid.core.provider.impl.ApplicationContext;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
@@ -26,7 +28,7 @@ public abstract class Core {
 
 	public static final String NODE_ATTRIBUTE = com.uniquid.node.UniquidNode.class.getName();
 	public static final String REGISTER_FACTORY_ATTRIBUTE = com.uniquid.register.RegisterFactory.class.getName();
-	public static final String CONNECTOR_ATTRIBUTE = com.uniquid.core.connector.Connector.class.getName();
+	public static final String CONNECTOR_ATTRIBUTE = com.uniquid.connector.Connector.class.getName();
 
 	private RegisterFactory registerFactory;
 	private Connector connector;
@@ -94,7 +96,7 @@ public abstract class Core {
 	 * @param providerRequest the {@link ProviderRequest} to fetch the function number from.
 	 * @return the {@link Function} related to the {@link ProviderRequest} parameter.
 	 */
-	protected abstract Function getFunction(ProviderRequest providerRequest);
+	protected abstract Function getFunction(FunctionRequestMessage providerRequest);
 
 	/**
 	 * Perform the execution of a {@link Function} related to the {@link ProviderRequest} received.
@@ -104,7 +106,7 @@ public abstract class Core {
 	 * 
 	 * @throws Exception in case a problem occurs.
 	 */
-	protected final void performProviderRequest(final ProviderRequest providerRequest, final ProviderResponse providerResponse, final byte[] payload) throws Exception {
+	protected final void performProviderRequest(final FunctionRequestMessage providerRequest, final FunctionResponseMessage providerResponse, final byte[] payload) throws Exception {
 
 		Function function = getFunction(providerRequest);
 
@@ -115,19 +117,19 @@ public abstract class Core {
 				try {
 
 					function.service(providerRequest, providerResponse, payload);
-					providerResponse.setError(ProviderResponse.RESULT_OK);
+					providerResponse.setError(FunctionResponseMessage.RESULT_OK);
 
 				} catch (Exception ex) {
 
 					LOGGER.error("Error while executing function", ex);
-					providerResponse.setError(ProviderResponse.RESULT_ERROR);
+					providerResponse.setError(FunctionResponseMessage.RESULT_ERROR);
 
 					providerResponse.setResult("Error while executing function: " + ex.getMessage());
 				}
 
 			} else {
 
-				providerResponse.setError(ProviderResponse.RESULT_FUNCTION_NOT_AVAILABLE);
+				providerResponse.setError(FunctionResponseMessage.RESULT_FUNCTION_NOT_AVAILABLE);
 				
 				providerResponse.setResult("Function not available");
 
@@ -136,13 +138,13 @@ public abstract class Core {
 		} finally {
 
 			// Populate all missing parameters...
-			String sender = providerRequest.getSender();
+			String sender = providerRequest.getUser();
 
 			ProviderRegister providerRegister = registerFactory.getProviderRegister();
 
 			ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
 			
-			providerResponse.setSender(providerChannel.getProviderAddress());
+			providerResponse.setProvider(providerChannel.getProviderAddress());
 
 		}
 
@@ -156,10 +158,10 @@ public abstract class Core {
 	 * 
 	 * @throws Exception in case an error occurs.
 	 */
-	protected final byte[] checkSender(ProviderRequest providerRequest) throws Exception {
+	protected final byte[] checkSender(FunctionRequestMessage providerRequest) throws Exception {
 
 		// Retrieve sender
-		String sender = providerRequest.getSender();
+		String sender = providerRequest.getUser();
 
 		ProviderRegister providerRegister = registerFactory.getProviderRegister();
 

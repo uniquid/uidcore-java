@@ -2,9 +2,9 @@ package com.uniquid.core.provider;
 
 import java.io.IOException;
 
-import com.uniquid.core.ProviderRequest;
-import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.provider.exception.FunctionException;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
 
 /**
  * Defines methods that all functions must implement.
@@ -40,6 +40,6 @@ public interface Function {
 	 * @throws FunctionException in case a problem occurs during executing the function
 	 * @throws IOException
 	 */
-	public void service(ProviderRequest inputMessage, ProviderResponse outputMessage, byte[] payload) throws FunctionException, IOException;
+	public void service(FunctionRequestMessage inputMessage, FunctionResponseMessage outputMessage, byte[] payload) throws FunctionException, IOException;
 	
 }

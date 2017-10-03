@@ -4,17 +4,15 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.uniquid.core.Core;
-import com.uniquid.core.ProviderRequest;
-import com.uniquid.core.ProviderResponse;
 import com.uniquid.core.impl.test.DummyExceptionNode;
 import com.uniquid.core.impl.test.DummyNode;
-import com.uniquid.core.impl.test.DummyProviderRequest;
-import com.uniquid.core.impl.test.DummyProviderResponse;
 import com.uniquid.core.provider.FunctionConfig;
 import com.uniquid.core.provider.FunctionContext;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.core.provider.impl.ApplicationContext;
 import com.uniquid.core.provider.impl.ContractFunction;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
 
 public class ContractFunctionTest {
 
@@ -25,9 +23,12 @@ public class ContractFunctionTest {
 		
 		Assert.assertNotNull(contractFunction);
 		
-		ProviderRequest providerRequest = new DummyProviderRequest("sender", 30, "");
-		
-		ProviderResponse providerResponse = new DummyProviderResponse();
+		FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("sender");
+		providerRequest.setFunction(30);
+		providerRequest.setParameters("{ }");
+
+		FunctionResponseMessage providerResponse = new FunctionResponseMessage();
 		
 		try {
 
@@ -39,10 +40,12 @@ public class ContractFunctionTest {
 			
 		}
 		
-
-		ProviderRequest providerRequest2 = new DummyProviderRequest("sender", 30, "{ \"tx\":\"1234\", \"paths\": [\"1234\"] } ");
+		FunctionRequestMessage providerRequest2 = new FunctionRequestMessage();
+		providerRequest2.setUser("sender");
+		providerRequest2.setFunction(30);
+		providerRequest2.setParameters("{ \"tx\":\"1234\", \"paths\": [\"1234\"] }");
 		
-		ProviderResponse providerResponse2 = new DummyProviderResponse();
+		FunctionResponseMessage providerResponse2 = new FunctionResponseMessage();
 		
 		contractFunction.init(new FunctionConfig() {
 			
@@ -70,9 +73,12 @@ public class ContractFunctionTest {
 		
 		Assert.assertNotNull(contractFunction);
 		
-		ProviderRequest providerRequest = new DummyProviderRequest("sender", 30, "");
+		FunctionRequestMessage providerRequest = new FunctionRequestMessage();
+		providerRequest.setUser("sender");
+		providerRequest.setFunction(30);
+		providerRequest.setParameters("{ \"tx\":\"1234\", \"paths\": [\"1234\"] }");
 		
-		ProviderResponse providerResponse = new DummyProviderResponse();
+		FunctionResponseMessage providerResponse = new FunctionResponseMessage();
 		
 		try {
 
@@ -84,11 +90,13 @@ public class ContractFunctionTest {
 			
 		}
 		
+		FunctionRequestMessage providerRequest2 = new FunctionRequestMessage();
+		providerRequest2.setUser("sender");
+		providerRequest2.setFunction(30);
+		providerRequest2.setParameters("{ \"tx\":\"1234\", \"paths\": [\"1234\"] }");
+		
+		FunctionResponseMessage providerResponse2 = new FunctionResponseMessage();
 
-		ProviderRequest providerRequest2 = new DummyProviderRequest("sender", 30, "{ \"tx\":\"1234\", \"paths\": [\"1234\"] } ");
-		
-		ProviderResponse providerResponse2 = new DummyProviderResponse();
-		
 		contractFunction.init(new FunctionConfig() {
 			
 			@Override

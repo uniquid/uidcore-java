@@ -12,16 +12,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.uniquid.core.Core;
-import com.uniquid.core.ProviderRequest;
-import com.uniquid.core.ProviderResponse;
-import com.uniquid.core.connector.Connector;
-import com.uniquid.core.connector.ConnectorException;
-import com.uniquid.core.connector.EndPoint;
+import com.uniquid.connector.Connector;
+import com.uniquid.connector.ConnectorException;
+import com.uniquid.connector.EndPoint;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.core.provider.impl.ContractFunction;
 import com.uniquid.core.provider.impl.EchoFunction;
 import com.uniquid.core.provider.impl.FunctionConfigImpl;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
+import com.uniquid.messages.MessageType;
+import com.uniquid.messages.UniquidMessage;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.register.RegisterFactory;
@@ -63,7 +65,7 @@ public class UniquidSimplifier extends Core {
 	}
 	
 	@Override
-	protected Function getFunction(ProviderRequest inputMessage) {
+	protected Function getFunction(FunctionRequestMessage inputMessage) {
 
 		int rpcMethod = inputMessage.getFunction();
 
@@ -192,26 +194,33 @@ public class UniquidSimplifier extends Core {
 						
 						LOGGER.info("Request received!");
 
-						ProviderRequest inputMessage = endPoint.getInputMessage();
+						UniquidMessage inputMessage = endPoint.getInputMessage();
 
-						ProviderResponse outputMessage = endPoint.getOutputMessage();
+						UniquidMessage outputMessage = endPoint.getOutputMessage();
 						
 						if (!UniquidNodeState.READY.equals(getNode().getNodeState())) {
 							LOGGER.warn("Node is not yet READY! Skipping request");
 							
 							continue;
 						}
-
-						LOGGER.info("Received input message from {} asking for method {}", inputMessage.getSender(),
-								inputMessage.getFunction());
-
-						LOGGER.info("Checking sender...");
+						
+						if (MessageType.FUNCTION_REQUEST.equals(inputMessage.getMessageType())) {
+							
+							LOGGER.info("Received input message {}", inputMessage.getMessageType());
+							
+						} else {
+							
+							LOGGER.info("Unknown message type {} received", inputMessage.getMessageType());
+							
+							throw new Exception("Unknown message type");
+							
+						}
 
 						// Check if sender is authorized or throw exception
-						byte[] payload = checkSender(inputMessage);
+						byte[] payload = checkSender((FunctionRequestMessage) inputMessage);
 
 						LOGGER.info("Performing function...");
-						performProviderRequest(inputMessage, outputMessage, payload);
+						performProviderRequest((FunctionRequestMessage) inputMessage, (FunctionResponseMessage) outputMessage, payload);
 
 						endPoint.flush();
 						

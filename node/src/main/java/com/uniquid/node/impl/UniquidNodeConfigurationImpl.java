@@ -5,6 +5,7 @@ import java.io.File;
 import org.bitcoinj.core.NetworkParameters;
 
 import com.uniquid.register.RegisterFactory;
+import com.uniquid.userclient.UserClientFactory;
 
 /**
  * Bean to encapsulate Node configuration data
@@ -25,6 +26,8 @@ public class UniquidNodeConfigurationImpl implements UniquidNodeConfiguration {
 	private RegisterFactory registerFactory;
 
 	private String registryUrl;
+	
+	private UserClientFactory userClientFactory;
 
 	public File getProviderChainFile() {
 		return providerChainFile;
@@ -104,6 +107,14 @@ public class UniquidNodeConfigurationImpl implements UniquidNodeConfiguration {
 
 	public void setRegistryUrl(String registryUrl) {
 		this.registryUrl = registryUrl;
+	}
+
+	public UserClientFactory getUserClientFactory() {
+		return userClientFactory;
+	}
+
+	public void setUserClientFactory(UserClientFactory userClientFactory) {
+		this.userClientFactory = userClientFactory;
 	}
 	
 }

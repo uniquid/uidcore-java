@@ -19,11 +19,6 @@
     </dependency>
     <dependency>
       <groupId>com.uniquid</groupId>
-      <artifactId>connector-mqtt</artifactId>
-      <version>${project.parent.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.uniquid</groupId>
       <artifactId>register-spi</artifactId>
       <version>${project.parent.version}</version>
     </dependency>
