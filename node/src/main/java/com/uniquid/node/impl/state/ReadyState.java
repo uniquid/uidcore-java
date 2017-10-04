@@ -114,16 +114,35 @@ public class ReadyState<T extends UniquidNodeConfiguration> implements UniquidNo
 
 			LOGGER.info("Received coins on user wallet");
 
-			try {
+			if (UniquidNodeStateUtils.isValidRevokeUserContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
 
-				LOGGER.info("Creating user contract!");
-				ContractStrategy contractStrategy = createUserContract();
-				
-				contractStrategy.manageContractCreation(tx);
+				try {
 
-			} catch (Exception ex) {
+					LOGGER.info("Revoking user contract!");
 
-				LOGGER.error("Exception while creating provider contract", ex);
+					ContractStrategy contractStrategy = createUserContract();
+
+					contractStrategy.manageContractRevocation(tx);
+
+				} catch (Exception ex) {
+
+					LOGGER.error("Exception", ex);
+				}
+
+			} else {
+
+				try {
+
+					LOGGER.info("Creating user contract!");
+					ContractStrategy contractStrategy = createUserContract();
+
+					contractStrategy.manageContractCreation(tx);
+
+				} catch (Exception ex) {
+
+					LOGGER.error("Exception while creating provider contract", ex);
+
+				}
 
 			}
 

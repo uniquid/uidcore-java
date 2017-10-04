@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.user.UserChannel;
+import com.uniquid.register.user.UserRegister;
 
 /**
  * UniquidNodeStateUtils contains some useful methods used by UniquidNodeState class
@@ -59,6 +61,36 @@ public class UniquidNodeStateUtils {
 		try {
 			providerRegister = registerFactory.getProviderRegister();
 			ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
+
+			if (channel != null) {
+				return true;
+			}
+
+		} catch (Exception e) {
+
+			LOGGER.error("Exception", e);
+
+		}
+
+		return false;
+
+	}
+
+	/**
+	 * Returns true if the transaction is a valid revoke transaction
+	 * @param tx the transaction to check
+	 * @param registerFactory the {@link RegisterFactory} to use to access the data store
+	 * @return true if the revoke address is present in the data store
+	 */
+	public static boolean isValidRevokeUserContract(Transaction tx, RegisterFactory registerFactory) {
+
+		// Retrieve sender
+		String sender = tx.getInput(0).getFromAddress().toBase58();
+
+		UserRegister userRegister;
+		try {
+			userRegister = registerFactory.getUserRegister();
+			UserChannel channel = userRegister.getUserChannelByRevokeAddress(sender);
 
 			if (channel != null) {
 				return true;

@@ -237,44 +237,6 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 		}
 
-		// Check if user contracts are still valid
-		// try {
-		//
-		// List<UserChannel> userChannels =
-		// registerFactory.getUserRegister().getAllUserChannels();
-		//
-		// for (final UserChannel u : userChannels) {
-		//
-		// if (!WalletUtils.isUnspent(u.getRevokeTxId(), u.getRevokeAddress()) )
-		// {
-		//
-		// LOGGER.info("Revoking user channel: " + u);
-		//
-		// registerFactory.getUserRegister().deleteChannel(u);
-		//
-		// // Inform listeners
-		// for (final ListenerRegistration<UniquidNodeEventListener> listener :
-		// eventListeners) {
-		//
-		// listener.executor.execute(new Runnable() {
-		// @Override
-		// public void run() {
-		// listener.listener.onUserContractRevoked(u);
-		// }
-		// });
-		//
-		// }
-		//
-		// }
-		//
-		// }
-		//
-		// } catch (Exception ex) {
-		//
-		// LOGGER.error("Exception while accessing user channel", ex);
-		//
-		// }
-
 		// Start node sync
 		uniquidNodeEventService.onSyncNodeEnd();
 

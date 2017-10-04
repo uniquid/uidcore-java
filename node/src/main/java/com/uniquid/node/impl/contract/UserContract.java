@@ -15,6 +15,8 @@ import org.spongycastle.util.encoders.Hex;
 import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.node.impl.utils.WalletUtils;
 import com.uniquid.register.exception.RegisterException;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 import com.uniquid.registry.RegistryDAO;
@@ -124,7 +126,38 @@ public class UserContract extends AbstractContract {
 
 	@Override
 	public void revokeRealContract(final Transaction tx) throws Exception {
-		// DO NOTHIG
+
+		// Retrieve sender
+		String sender = tx.getInput(0).getFromAddress().toBase58();
+
+		UserRegister userRegister;
+		try {
+
+			userRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getUserRegister();
+			final UserChannel channel = userRegister.getUserChannelByRevokeAddress(sender);
+
+			if (channel != null) {
+
+				LOGGER.info("Found an user contract to revoke!");
+				// contract revoked
+				userRegister.deleteChannel(channel);
+
+				LOGGER.info("Contract revoked! " + channel);
+
+				// Inform listeners
+				uniquidNodeStateContext.getUniquidNodeEventService().onUserContractRevoked(channel);
+
+			} else {
+
+				LOGGER.warn("No contract found to revoke!");
+			}
+
+		} catch (Exception e) {
+
+			LOGGER.error("Exception", e);
+
+		}
+
 	}
 	
 	protected String retrieveNameFromProvider(Address providerAddress, UniquidNodeStateContext uniquidNodeStateContext) throws RegistryException {
