@@ -6,7 +6,7 @@ import org.bitcoinj.core.NetworkParameters;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.uniquid.node.impl.params.UniquidRegTest;
+import com.uniquid.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyRegisterFactory;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.register.RegisterFactory;

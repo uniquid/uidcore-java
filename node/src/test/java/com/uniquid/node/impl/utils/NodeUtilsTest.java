@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
-import com.uniquid.node.impl.params.UniquidRegTest;
+import com.uniquid.params.UniquidRegTest;
 
 
 public class NodeUtilsTest {

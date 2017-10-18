@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.node.impl.contract.ImprintingContract;
-import com.uniquid.node.impl.params.UniquidRegTest;
+import com.uniquid.params.UniquidRegTest;
 import com.uniquid.node.impl.state.UniquidNodeState;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
 import com.uniquid.node.impl.utils.DummyRegisterFactory;

@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
-import com.uniquid.node.impl.params.UniquidRegTest;
+import com.uniquid.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
 import com.uniquid.node.impl.utils.DummyRegisterFactory;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
