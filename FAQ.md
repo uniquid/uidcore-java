@@ -6,15 +6,17 @@ In order to create an Uniquid Node from a known seed you can use the following e
 
 ```java
 // Create new Uniquid Node from a known seed
-UniquidNode uniquidNode = new UniquidNodeImpl.Builder().
-	set_params(networkParameters).
-	set_providerFile(providerWalletFile).
-	set_userFile(userWalletFile).
-	set_chainFile(chainFile).
-	set_userChainFile(userChainFile).
-	set_registerFactory(registerFactory).
-	set_machine_name(machineName).
-	buildFromHexSeed("PUTHEREYOURHEXSEED", 1495534782);
+UniquidNodeImpl.UniquidNodeBuilder builder = new UniquidNodeImpl.UniquidNodeBuilder();
+
+builder.setNetworkParameters(networkParameters).
+	setProviderFile(providerWalletFile).
+	setUserFile(userWalletFile).
+	setProviderChainFile(chainFile).
+	setUserChainFile(userChainFile).
+	setRegisterFactory(registerFactory).
+	setNodeName(machineName);
+
+UniquidNode uniquidNode = builder.buildFromHexSeed("PUTHEREYOURHEXSEED", 1495534782);
 ```
 
 Basically, you have to use the buildFromHexSeed method from the Builder: the first parameter is the hex seed and the second is the node's creation time.
@@ -42,11 +44,11 @@ import com.uniquid.core.provider.impl.GenericFunction;
 public class EchoFunction extends GenericFunction {
 
 	@Override
-	public void service(ProviderRequest functionRequest, ProviderResponse functionResponse, byte[] payload)
+	public void service(FunctionRequestMessage inputMessage, FunctionResponseMessage outputMessage, byte[] payload)
 			throws FunctionException, IOException {
-
-		functionResponse.setResult("custom_user_33: " + functionRequest.getParams());
-
+		
+		outputMessage.setResult("UID_echo: " + inputMessage.getParameters());
+		
 	}
 
 }

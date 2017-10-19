@@ -29,15 +29,17 @@ The outputs are under the `target` directory.
 final SQLiteRegisterFactory registerFactory = new SQLiteRegisterFactory("jdbc:sqlite:/tmp/register.db");
 
 // Create new Uniquid Node from a random seed
-UniquidNode uniquidNode = new UniquidNodeImpl.Builder().
-	set_params(networkParameters).
-	set_providerFile(providerWalletFile).
-	set_userFile(userWalletFile).
-	set_chainFile(chainFile).
-	set_userChainFile(userChainFile).
-	set_registerFactory(registerFactory).
-	set_machine_name(machineName).
-	build();
+UniquidNodeImpl.UniquidNodeBuilder builder = new UniquidNodeImpl.UniquidNodeBuilder();
+		builder.setNetworkParameters(networkParameters)
+		.setProviderFile(providerWalletFile)
+		.setUserFile(userWalletFile)
+		.setProviderChainFile(chainFile)
+		.setUserChainFile(userChainFile)
+		.setRegisterFactory(registerFactory)
+		.setNodeName(machineName);
+
+// ask the builder to create a node with a random seed
+uniquidNode = builder.build();
 	
 // Register a custom event listener
 uniquidNode.addUniquidNodeEventListener(eventListener);
