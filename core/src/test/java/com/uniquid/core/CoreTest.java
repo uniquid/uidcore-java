@@ -69,7 +69,7 @@ public class CoreTest {
 		
 		Assert.assertNotNull(core);
 		Assert.assertEquals(dummyFactory, core.getRegisterFactory());
-		Assert.assertEquals(connector, core.getConnector());
+		Assert.assertEquals(connector, core.getConnectors().get(0));
 		Assert.assertEquals(node, core.getNode());
 		Assert.assertNotNull(core.getFunctionContext());
 		Assert.assertNull(core.getFunction(null));

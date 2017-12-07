@@ -1,7 +1,9 @@
 package com.uniquid.core;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +33,7 @@ public abstract class Core {
 	public static final String CONNECTOR_ATTRIBUTE = com.uniquid.connector.Connector.class.getName();
 
 	private RegisterFactory registerFactory;
-	private Connector connector;
+	private List<Connector> connectors;
 	private ApplicationContext applicationContext;
 	private UniquidNode uniquidNode;
 
@@ -42,11 +44,29 @@ public abstract class Core {
 	 * @param node the {@link UniquidNode} to use
 	 * @throws Exception in case an error occurs
 	 */
-	public Core(RegisterFactory registerFactory, Connector connector, UniquidNode node)
+	public Core(RegisterFactory registerFactory, final Connector connector, UniquidNode node)
+			throws Exception {
+
+		this(registerFactory, new ArrayList<Connector>() {
+			{
+				add(connector);
+			}
+		}, node);
+
+	}
+	
+	/**
+	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
+	 * @param registerFactory the {@link RegisterFactory} to use
+	 * @param connector the {@link Connector} to use
+	 * @param node the {@link UniquidNode} to use
+	 * @throws Exception in case an error occurs
+	 */
+	public Core(RegisterFactory registerFactory, List<Connector> connectors, UniquidNode node)
 			throws Exception {
 
 		this.registerFactory = registerFactory;
-		this.connector = connector;
+		this.connectors = connectors;
 		this.uniquidNode = node;
 
 		applicationContext = new ApplicationContext();
@@ -54,7 +74,7 @@ public abstract class Core {
 		applicationContext.setAttributeReadOnly(NODE_ATTRIBUTE);
 		applicationContext.setAttribute(REGISTER_FACTORY_ATTRIBUTE, registerFactory);
 		applicationContext.setAttributeReadOnly(REGISTER_FACTORY_ATTRIBUTE);
-		applicationContext.setAttribute(CONNECTOR_ATTRIBUTE, connector);
+		applicationContext.setAttribute(CONNECTOR_ATTRIBUTE, connectors);
 		applicationContext.setAttributeReadOnly(CONNECTOR_ATTRIBUTE);
 
 	}
@@ -79,8 +99,8 @@ public abstract class Core {
 	 * Retrieve the {@link Connector} instance in use.
 	 * @return the {@link Connector} instance in use.
 	 */
-	public Connector getConnector() {
-		return connector;
+	public List<Connector> getConnectors() {
+		return connectors;
 	}
 	
 	/**

@@ -1,7 +1,10 @@
 package com.uniquid.core.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -38,7 +41,7 @@ public class UniquidSimplifier extends Core {
 	private final Map<Integer, Function> functionsMap = new HashMap<>();
 	
 	private ScheduledExecutorService scheduledExecutorService;
-	private ScheduledExecutorService receiverExecutorService;
+	private ExecutorService receiverExecutorService;
 
 	/**
 	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
@@ -47,11 +50,29 @@ public class UniquidSimplifier extends Core {
 	 * @param node the {@link UniquidNode} to use
 	 * @throws Exception in case an error occurs
 	 */
-	public UniquidSimplifier(RegisterFactory registerFactory, Connector connectorServiceFactory, UniquidNode node)
+	public UniquidSimplifier(RegisterFactory registerFactory, final Connector connectorServiceFactory, UniquidNode node)
+			throws Exception {
+
+		this(registerFactory, new ArrayList<Connector>() {
+			{
+				add(connectorServiceFactory);
+			}
+		}, node);
+		
+	}
+	
+	/**
+	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
+	 * @param registerFactory the {@link RegisterFactory} to use
+	 * @param connectorServiceFactory the {@link Connector} to use
+	 * @param node the {@link UniquidNode} to use
+	 * @throws Exception in case an error occurs
+	 */
+	public UniquidSimplifier(RegisterFactory registerFactory, List<Connector> connectorServiceFactories, UniquidNode node)
 			throws Exception {
 
 		// Call superclass
-		super(registerFactory, connectorServiceFactory, node);
+		super(registerFactory, connectorServiceFactories, node);
 
 		// Register core functions
 		try {
@@ -131,7 +152,7 @@ public class UniquidSimplifier extends Core {
 	public void start() throws Exception {
 
 		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("scheduledExecutorService"));
-		receiverExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("receiverExecutorService"));
+		receiverExecutorService = Executors.newCachedThreadPool(new ContextPropagatingThreadFactory("receiverExecutorService"));
 
 		// initialize node if not yet initilized
 		if (UniquidNodeState.CREATED.equals(getNode().getNodeState())) {
@@ -168,84 +189,92 @@ public class UniquidSimplifier extends Core {
 			LOGGER.info("Starting connector");
 
 			// start connector
-			getConnector().start();
+			for (Connector c : getConnectors()) {
+				c.start();
+			}
 
 		} catch (ConnectorException e) {
 			
 			LOGGER.error("Exception while starting the connector", e);
 			
+			throw e;
+			
 		}
 
-		// Create a thread to wait for messages
-		final Runnable receiver = new Runnable() {
+		for (final Connector c : getConnectors()) {
+			
+			// Create a thread to wait for messages
+			final Runnable receiver = new Runnable() {
 
-			@Override
-			public void run() {
+				@Override
+				public void run() {
 
-				// until not interrupted
-				while (!Thread.currentThread().isInterrupted()) {
+					// until not interrupted
+					while (!Thread.currentThread().isInterrupted()) {
 
-					try {
-						
-						LOGGER.info("Wait to receive request...");
-
-						// this will block until a message is received
-						EndPoint endPoint = getConnector().accept();
-						
-						LOGGER.info("Request received!");
-
-						UniquidMessage inputMessage = endPoint.getInputMessage();
-
-						UniquidMessage outputMessage = endPoint.getOutputMessage();
-						
-						if (!UniquidNodeState.READY.equals(getNode().getNodeState())) {
-							LOGGER.warn("Node is not yet READY! Skipping request");
+						try {
 							
-							continue;
+							LOGGER.info("Wait to receive request...");
+
+							// this will block until a message is received
+							EndPoint endPoint = c.accept();
+							
+							LOGGER.info("Request received!");
+
+							UniquidMessage inputMessage = endPoint.getInputMessage();
+
+							UniquidMessage outputMessage = endPoint.getOutputMessage();
+							
+							if (!UniquidNodeState.READY.equals(getNode().getNodeState())) {
+								LOGGER.warn("Node is not yet READY! Skipping request");
+								
+								continue;
+							}
+							
+							if (MessageType.FUNCTION_REQUEST.equals(inputMessage.getMessageType())) {
+								
+								LOGGER.info("Received input message {}", inputMessage.getMessageType());
+								
+							} else {
+								
+								LOGGER.info("Unknown message type {} received", inputMessage.getMessageType());
+								
+								throw new Exception("Unknown message type");
+								
+							}
+
+							// Check if sender is authorized or throw exception
+							byte[] payload = checkSender((FunctionRequestMessage) inputMessage);
+
+							LOGGER.info("Performing function...");
+							performProviderRequest((FunctionRequestMessage) inputMessage, (FunctionResponseMessage) outputMessage, payload);
+
+							endPoint.flush();
+							
+							LOGGER.info("Done!");
+
+						} catch (InterruptedException ex) {
+							
+							LOGGER.info("Received request to stop. Exiting");
+							
+							return;
+							
+						} catch (Throwable t) {
+
+							LOGGER.error("Throwable catched", t);
+
 						}
-						
-						if (MessageType.FUNCTION_REQUEST.equals(inputMessage.getMessageType())) {
-							
-							LOGGER.info("Received input message {}", inputMessage.getMessageType());
-							
-						} else {
-							
-							LOGGER.info("Unknown message type {} received", inputMessage.getMessageType());
-							
-							throw new Exception("Unknown message type");
-							
-						}
-
-						// Check if sender is authorized or throw exception
-						byte[] payload = checkSender((FunctionRequestMessage) inputMessage);
-
-						LOGGER.info("Performing function...");
-						performProviderRequest((FunctionRequestMessage) inputMessage, (FunctionResponseMessage) outputMessage, payload);
-
-						endPoint.flush();
-						
-						LOGGER.info("Done!");
-
-					} catch (InterruptedException ex) {
-						
-						LOGGER.info("Received request to stop. Exiting");
-						
-						return;
-						
-					} catch (Throwable t) {
-
-						LOGGER.error("Throwable catched", t);
 
 					}
 
 				}
 
-			}
+			};
 
-		};
-
-		// Start receiver
-		receiverExecutorService.execute(receiver);
+			// Start receiver
+			receiverExecutorService.execute(receiver);
+			
+		}
 
 	}
 
@@ -261,8 +290,10 @@ public class UniquidSimplifier extends Core {
 		try {
 			
 			LOGGER.info("Stopping connector");
-			getConnector().stop();
-
+			for (Connector c : getConnectors()) {
+				c.stop();
+			}
+			
 		} catch (ConnectorException e) {
 			
 			LOGGER.error("Exception while stopping the connector", e);
@@ -271,7 +302,6 @@ public class UniquidSimplifier extends Core {
 
 		scheduledExecutorService.shutdown();
 		receiverExecutorService.shutdownNow();
-		
 
 	}
 
