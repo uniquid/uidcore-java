@@ -243,7 +243,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	}
 
 	@Override
-	public synchronized com.uniquid.node.UniquidNodeState getNodeState() {
+	public /* synchronized */com.uniquid.node.UniquidNodeState getNodeState() {
 		return nodeState.getNodeState();
 	}
 
