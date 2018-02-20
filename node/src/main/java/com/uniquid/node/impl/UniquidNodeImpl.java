@@ -3,6 +3,7 @@ package com.uniquid.node.impl;
 import java.security.SecureRandom;
 import java.util.List;
 
+import org.bitcoinj.core.Address;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
@@ -23,8 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
+import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.utils.NodeUtils;
+import com.uniquid.params.UniquidRegTest;
+import com.uniquid.register.exception.RegisterException;
+import com.uniquid.register.user.UserChannel;
 
 /**
  * Implementation of an Uniquid Node with BitcoinJ library
@@ -182,6 +187,52 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		String path = ((DeterministicKey) key).getPathAsString();
 		
 		return signMessage(message, path);
+		
+	}
+	
+	@Override
+	public UniquidCapability createUniquidCapability(String providerName, String userPublicKey, byte[] rights,
+			long since, long until)	throws NodeException {
+		
+		try {
+			// Retrieve contract
+			UserChannel userChannel = uniquidNodeConfiguration.getRegisterFactory().getUserRegister().getChannelByName(providerName);
+			
+			if (userChannel == null) {
+				throw new NodeException("Channel not found!");
+			}
+			
+			// Should verify that owner bit is set to one
+			
+			// Extract key from associated user address
+			ECKey key = userWallet.findKeyFromPubHash(Address.fromBase58(uniquidNodeConfiguration.getNetworkParameters(), userChannel.getUserAddress()).getHash160());
+			
+			if (key == null) {
+				throw new NodeException("ECKey not found for user channel!");
+			}
+			
+			String path = ((DeterministicKey) key).getPathAsString();
+			
+			UniquidCapability capability = new UniquidCapability.UniquidCapabilityBuilder()
+					.setResourceID(userChannel.getProviderAddress())
+					.setAssigner(userChannel.getUserAddress())
+					.setAssignee(userPublicKey)
+					.setRights(rights)
+					.setSince(since)
+					.setUntil(until)
+					.build();
+			
+			String signature = signMessage(capability.prepareToSign(), path);
+			
+			capability.setAssignerSignature(signature);
+			
+			return capability;
+		
+		} catch (Exception ex) {
+			
+			throw new NodeException("Exception while creating capability", ex);
+			
+		}
 		
 	}
 	

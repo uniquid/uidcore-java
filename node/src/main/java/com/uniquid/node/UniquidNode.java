@@ -119,4 +119,14 @@ public interface UniquidNode {
 	 */
 	public String broadCastTransaction(final String serializedTx) throws NodeException;
 	
+	/**
+	 * Create a new UniquidCapability
+	 * @param providerName
+	 * @param rights
+	 * @return
+	 * @throws NodeException
+	 */
+	public UniquidCapability createUniquidCapability(String providerName, String userPublicKey, byte[] rights,
+			long since, long until)	throws NodeException;
+	
 }

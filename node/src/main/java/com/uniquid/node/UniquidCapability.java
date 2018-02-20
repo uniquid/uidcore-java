@@ -1,0 +1,149 @@
+package com.uniquid.node;
+
+import java.util.Arrays;
+import java.util.Objects;
+
+import org.spongycastle.util.encoders.Hex;
+
+public class UniquidCapability {
+
+	private String resourceID;
+	private String assigner;
+	private String assignee;
+	private byte[] rights;
+	private long since;
+	private long until;
+	private String assignerSignature;
+	
+	private UniquidCapability() {}
+	
+	public String getAssignerSignature() {
+		return assignerSignature;
+	}
+
+	public void setAssignerSignature(String assignerSignature) {
+		this.assignerSignature = assignerSignature;
+	}
+	
+	public String getResourceID() {
+		return resourceID;
+	}
+
+	public String getAssigner() {
+		return assigner;
+	}
+
+	public String getAssignee() {
+		return assignee;
+	}
+
+	public byte[] getRights() {
+		return rights;
+	}
+
+	public long getSince() {
+		return since;
+	}
+
+	public long getUntil() {
+		return until;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+	
+		if (!(object instanceof UniquidCapability))
+			return false;
+		
+		if (this == object)
+			return true;
+		
+		final UniquidCapability other = (UniquidCapability) object;
+		
+		return Objects.equals(resourceID, other.resourceID) &&
+				Objects.equals(assigner, other.assigner) &&
+				Objects.equals(assignee, other.assignee) &&
+				Arrays.equals(rights, other.rights) &&
+				Objects.equals(since, other.since) &&
+				Objects.equals(until, other.until);
+		
+	}
+	
+	public String prepareToSign() {
+		
+		StringBuffer stringBuffer = new StringBuffer();
+		
+		stringBuffer.append(resourceID);
+		stringBuffer.append(assigner);
+		stringBuffer.append(assignee);
+		stringBuffer.append(Hex.toHexString(rights));
+		stringBuffer.append(since);
+		stringBuffer.append(until);
+		
+		return stringBuffer.toString();
+		
+	}
+	
+	/**
+	 * Builder for UniquidCapability
+	 *
+	 */
+	public static class UniquidCapabilityBuilder {
+		
+		protected UniquidCapability uniquidCapability;
+		
+		public UniquidCapabilityBuilder() {
+			
+			this.uniquidCapability = new UniquidCapability();
+			
+		}
+		
+		public UniquidCapabilityBuilder setResourceID(String resourceID) {
+			uniquidCapability.resourceID = resourceID;
+			
+			return this;
+		}
+		
+		public UniquidCapabilityBuilder setAssigner(String assigner) {
+			uniquidCapability.assigner = assigner;
+			return this;
+		}
+		
+		public UniquidCapabilityBuilder setAssignee(String assignee) {
+			uniquidCapability.assignee = assignee;
+			return this;
+		}
+		
+		public UniquidCapabilityBuilder setRights(byte[] rights) {
+			uniquidCapability.rights = rights;
+			return this;
+		}
+		
+		public UniquidCapabilityBuilder setSince(long since) {
+			uniquidCapability.since = since;
+			return this;
+		}
+		
+		public UniquidCapabilityBuilder setUntil(long until) {
+			uniquidCapability.until = until;
+			return this;
+		}
+		
+		public UniquidCapability build() throws Exception {
+			
+			if (uniquidCapability.resourceID == null ||
+					uniquidCapability.assigner == null ||
+					uniquidCapability.assignee == null ||
+					uniquidCapability.rights == null ||
+					uniquidCapability.since == 0 ||
+					uniquidCapability.until == 0) {
+				throw new Exception("Capability contains some null fields");
+			}
+
+			return uniquidCapability;
+			
+		}
+		
+	}
+	
+}

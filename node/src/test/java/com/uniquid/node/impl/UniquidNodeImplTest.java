@@ -7,9 +7,12 @@ import java.util.List;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+import org.spongycastle.util.encoders.Hex;
 
+import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.params.UniquidRegTest;
@@ -20,6 +23,7 @@ import com.uniquid.node.impl.utils.DummyUserRegister;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
 public class UniquidNodeImplTest {
@@ -320,6 +324,18 @@ public class UniquidNodeImplTest {
 		String signedMessage = uniquidNode.signMessage("Hello World!", Address.fromBase58(UniquidRegTest.get(), "mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb").getHash160());
 		
 		Assert.assertEquals("IOAhyp0at0puRgDZD3DJl0S2FjgLEo0q7nBdgzDrWpbDR+B3daIlN3R20lhcpQKZFWl8/ttxUXzQYS0EFso2VLo=", signedMessage);
+		
+		dummyFactory.getUserRegister().insertChannel(new UserChannel("test", "1234", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", "1234"));
+		
+		UniquidCapability capability = uniquidNode.createUniquidCapability("test", "12345", new byte[] {}, 1234, 12345);
+		
+		Assert.assertEquals("H95Y0u/IQTfAMJ69aH8Qyqfh2fpxYR9qUW87WPrR/b65X5/3C3YS89wz+bRawBPIodTxVF/XF76nJ1xWsb8xYv0=", capability.getAssignerSignature());
+		
+		ECKey signingKey = ECKey.signedMessageToKey(capability.prepareToSign(), capability.getAssignerSignature());
+		
+		Address a = signingKey.toAddress(UniquidRegTest.get());
+		
+		Assert.assertEquals(capability.getAssigner(), a.toBase58());
 		
 		try {
 			List<String> invalid = new ArrayList<String>();

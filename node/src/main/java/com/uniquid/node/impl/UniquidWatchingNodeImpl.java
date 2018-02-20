@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
+import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.state.CreatedState;
@@ -297,7 +298,13 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		}
 
 	}
-
+	
+	@Override
+	public UniquidCapability createUniquidCapability(String providerName, String userPublicKey, byte[] rights,
+			long since, long until) throws NodeException {
+		throw new NodeException("This node can't sign messages");
+	}
+	
 	/*
 	 * End of public part for implementing UniquidNode
 	 *
