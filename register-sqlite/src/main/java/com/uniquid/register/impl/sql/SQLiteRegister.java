@@ -24,21 +24,21 @@ import com.uniquid.register.user.UserRegister;
  */
 public class SQLiteRegister implements ProviderRegister, UserRegister {
 	
-	public static final String CREATE_PROVIDER_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, creation_time integer not null, primary key (provider_address, user_address));";
+	public static final String CREATE_PROVIDER_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, creation_time integer not null, since integer, until integer, primary key (provider_address, user_address));";
 
 	public static final String CREATE_USER_TABLE = "create table user_channel (provider_name text not null, provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, primary key (provider_name, provider_address, user_address));";
 
-	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time from provider_channel where user_address = ?";
+	private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time, since, until from provider_channel where user_address = ?";
 	
-	private static final String PROVIDER_CHANNEL_BY_REVOKE_ADDRESS = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time from provider_channel where revoke_address = ?";
+	private static final String PROVIDER_CHANNEL_BY_REVOKE_ADDRESS = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time, since, until from provider_channel where revoke_address = ?";
 	
-	private static final String PROVIDER_CHANNEL_BY_REVOKE_TXID = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time from provider_channel where revoke_tx_id = ?";
+	private static final String PROVIDER_CHANNEL_BY_REVOKE_TXID = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time, since, until from provider_channel where revoke_tx_id = ?";
 	
-	private static final String PROVIDER_INSERT = "insert into provider_channel (provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time) values (?, ?, ?, ?, ?, ?);";
+	private static final String PROVIDER_INSERT = "insert into provider_channel (provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time, since, until) values (?, ?, ?, ?, ?, ?, ?, ?);";
 	
 	private static final String PROVIDER_DELETE = "delete from provider_channel where provider_address = ? and user_address = ?;";
 	
-	private static final String PROVIDER_ALL_CHANNEL = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time from provider_channel order by creation_time desc;";
+	private static final String PROVIDER_ALL_CHANNEL = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time, since, until from provider_channel order by creation_time desc;";
 	
 	
 	private static final String USER_ALL_CHANNEL = "select provider_name, provider_address, user_address, bitmask, revoke_address, revoke_tx_id from user_channel";
@@ -87,6 +87,8 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		providerChannel.setRevokeAddress(rs.getString("revoke_address"));
 		providerChannel.setRevokeTxId(rs.getString("revoke_tx_id"));
 		providerChannel.setCreationTime(rs.getLong("creation_time"));
+		providerChannel.setSince(rs.getLong("since"));
+		providerChannel.setUntil(rs.getLong("until"));
 
 		return providerChannel;
 		
@@ -250,7 +252,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			
 			run.update(PROVIDER_INSERT, providerChannel.getProviderAddress(),
 					providerChannel.getUserAddress(), providerChannel.getBitmask(), providerChannel.getRevokeAddress(),
-					providerChannel.getRevokeTxId(), providerChannel.getCreationTime());
+					providerChannel.getRevokeTxId(), providerChannel.getCreationTime(), providerChannel.getSince(), providerChannel.getUntil());
 		
 		} catch (SQLException ex) {
 

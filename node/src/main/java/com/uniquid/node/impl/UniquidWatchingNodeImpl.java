@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Peer;
 import org.bitcoinj.core.PeerAddress;
@@ -303,6 +304,48 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	public UniquidCapability createUniquidCapability(String providerName, String userPublicKey, byte[] rights,
 			long since, long until) throws NodeException {
 		throw new NodeException("This node can't sign messages");
+	}
+	
+	@Override
+	public void receiveCapability(UniquidCapability uniquidCapability) throws NodeException {
+		
+		try {
+			// Verify signature and extract public key used to sign 
+			ECKey signingKey = ECKey.signedMessageToKey(uniquidCapability.prepareToSign(), uniquidCapability.getAssignerSignature());
+			
+			Address a = signingKey.toAddress(uniquidNodeConfiguration.getNetworkParameters());
+			
+			if (!uniquidCapability.getAssigner().equals(a.toBase58())) {
+				throw new NodeException("Assigner is not the one that signed the capability!");
+			}
+			
+			// find channel corresponding to owner (assigner)
+			ProviderChannel channel = uniquidNodeConfiguration.getRegisterFactory().getProviderRegister().getChannelByUserAddress(uniquidCapability.getAssigner());
+			
+			if (channel == null) {
+				throw new NodeException("Channel not found!");
+			}
+			
+			// we have a valid capability. we can insert in database
+			
+			ProviderChannel providerChannel = new ProviderChannel();
+			providerChannel.setProviderAddress(uniquidCapability.getResourceID());
+			providerChannel.setUserAddress(uniquidCapability.getAssignee());
+			providerChannel.setRevokeAddress(uniquidCapability.getAssigner());
+			providerChannel.setBitmask(""/*uniquidCapability.getRights()*/);
+			providerChannel.setCreationTime(System.currentTimeMillis());
+			providerChannel.setSince(uniquidCapability.getSince());
+			providerChannel.setUntil(uniquidCapability.getUntil());
+			
+			// since
+			// until
+			
+			uniquidNodeConfiguration.getRegisterFactory().getProviderRegister().insertChannel(providerChannel);
+
+		} catch (Exception ex) {
+			throw new NodeException("Problem while validating capability", ex);
+		}
+		
 	}
 	
 	/*

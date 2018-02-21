@@ -167,8 +167,8 @@ public abstract class Core {
 
 		ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
 
-		// Check if there is a channel available
-		if (providerChannel != null) {
+		// Check if there is a channel available and dates are valid
+		if (providerChannel != null && (providerChannel.isStartedValidity() && !providerChannel.isExpired())) {
 
 			String bitmask = providerChannel.getBitmask();
 

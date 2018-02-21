@@ -27,8 +27,6 @@ import com.google.common.collect.ImmutableList;
 import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.utils.NodeUtils;
-import com.uniquid.params.UniquidRegTest;
-import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.user.UserChannel;
 
 /**

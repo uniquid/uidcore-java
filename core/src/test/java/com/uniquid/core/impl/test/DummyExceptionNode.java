@@ -103,4 +103,9 @@ public class DummyExceptionNode implements UniquidNode {
 		throw new NodeException("Exception");
 	}
 
+	@Override
+	public void receiveCapability(UniquidCapability uniquidCapability) throws NodeException {
+		throw new NodeException("Exception");
+	}
+
 }
