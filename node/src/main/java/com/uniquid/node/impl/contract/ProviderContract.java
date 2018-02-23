@@ -89,6 +89,8 @@ public class ProviderContract extends AbstractContract {
 		providerChannel.setRevokeAddress(revoke.toBase58());
 		providerChannel.setRevokeTxId(tx.getHashAsString());
 		providerChannel.setCreationTime(tx.getUpdateTime().getTime()/1000);
+		providerChannel.setSince(0);
+		providerChannel.setUntil(Long.MAX_VALUE);
 
 		String opreturn = WalletUtils.getOpReturn(tx);
 

@@ -60,6 +60,8 @@ public class ImprintingContract extends AbstractContract {
 				providerChannel.setRevokeAddress("IMPRINTING");
 				providerChannel.setRevokeTxId(tx.getHashAsString());
 				providerChannel.setCreationTime(tx.getUpdateTime().getTime()/1000);
+				providerChannel.setSince(0);
+				providerChannel.setUntil(Long.MAX_VALUE);
 
 				uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().startTransaction();
 				

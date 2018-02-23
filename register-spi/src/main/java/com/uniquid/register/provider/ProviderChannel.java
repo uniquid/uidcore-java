@@ -153,26 +153,12 @@ public class ProviderChannel implements Serializable {
 		this.until = until;
 	}
 	
-	public boolean isExpired() {
+	public boolean isValid() {
 		
-		if (until == 0) {
-			return false;
-		}
-		
-		return until < System.currentTimeMillis();
+		return (System.currentTimeMillis() >= since) && (until <= System.currentTimeMillis());
 		
 	}
 	
-	public boolean isStartedValidity() {
-		
-		if (since == 0) {
-			return true;
-		}
-		
-		return System.currentTimeMillis() >= since;
-		
-	}
-
 	@Override
 	public String toString() {
 		

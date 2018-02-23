@@ -168,7 +168,13 @@ public abstract class Core {
 		ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
 
 		// Check if there is a channel available and dates are valid
-		if (providerChannel != null && (providerChannel.isStartedValidity() && !providerChannel.isExpired())) {
+		if (providerChannel != null) {
+
+			 if (!providerChannel.isValid()) {
+
+				 throw new Exception("Sender found in Provider register, but contract is expired/not yet valid!");
+
+			 }
 
 			String bitmask = providerChannel.getBitmask();
 
