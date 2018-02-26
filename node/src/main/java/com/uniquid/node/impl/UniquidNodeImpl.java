@@ -189,7 +189,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	}
 	
 	@Override
-	public UniquidCapability createUniquidCapability(String providerName, String userPublicKey, byte[] rights,
+	public UniquidCapability createCapability(String providerName, String userPublicKey, byte[] rights,
 			long since, long until)	throws NodeException {
 		
 		try {

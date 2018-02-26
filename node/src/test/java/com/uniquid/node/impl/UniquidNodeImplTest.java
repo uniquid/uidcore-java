@@ -327,7 +327,7 @@ public class UniquidNodeImplTest {
 		
 		dummyFactory.getUserRegister().insertChannel(new UserChannel("test", "1234", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", "1234"));
 		
-		UniquidCapability capability = uniquidNode.createUniquidCapability("test", "12345", new byte[] {}, 1234, 12345);
+		UniquidCapability capability = uniquidNode.createCapability("test", "12345", new byte[] {}, 1234, 12345);
 		
 		Assert.assertEquals("H95Y0u/IQTfAMJ69aH8Qyqfh2fpxYR9qUW87WPrR/b65X5/3C3YS89wz+bRawBPIodTxVF/XF76nJ1xWsb8xYv0=", capability.getAssignerSignature());
 		

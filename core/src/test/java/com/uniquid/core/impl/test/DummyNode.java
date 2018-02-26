@@ -95,14 +95,20 @@ public class DummyNode implements UniquidNode {
 	}
 
 	@Override
-	public UniquidCapability createUniquidCapability(String providerName, String userPublicKey, byte[] rights,
+	public UniquidCapability createCapability(String providerName, String userPublicKey, byte[] rights,
 			long since, long until) throws NodeException {
 		throw new NodeException("Exception");
 	}
 
 	@Override
-	public void receiveCapability(UniquidCapability uniquidCapability) throws NodeException {
+	public void receiveProviderCapability(UniquidCapability uniquidCapability) throws NodeException {
 		throw new NodeException("Exception");
+	}
+
+	@Override
+	public void receiveUserCapability(UniquidCapability uniquidCapability) throws NodeException {
+		throw new NodeException("Exception");
+		
 	}
 
 }

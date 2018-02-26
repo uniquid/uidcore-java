@@ -38,6 +38,7 @@ import com.uniquid.node.impl.utils.NodeUtils;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.user.UserChannel;
 import com.uniquid.userclient.UserClientFactory;
 
 /**
@@ -301,13 +302,13 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	}
 	
 	@Override
-	public UniquidCapability createUniquidCapability(String providerName, String userPublicKey, byte[] rights,
+	public UniquidCapability createCapability(String providerName, String userPublicKey, byte[] rights,
 			long since, long until) throws NodeException {
 		throw new NodeException("This node can't sign messages");
 	}
 	
 	@Override
-	public void receiveCapability(UniquidCapability uniquidCapability) throws NodeException {
+	public void receiveProviderCapability(UniquidCapability uniquidCapability) throws NodeException {
 		
 		try {
 			// Verify signature and extract public key used to sign 
@@ -332,7 +333,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 			providerChannel.setProviderAddress(uniquidCapability.getResourceID());
 			providerChannel.setUserAddress(uniquidCapability.getAssignee());
 			providerChannel.setRevokeAddress(uniquidCapability.getAssigner());
-			providerChannel.setBitmask(""/*uniquidCapability.getRights()*/);
+			providerChannel.setBitmask(Hex.toHexString(uniquidCapability.getRights()));
 			providerChannel.setCreationTime(System.currentTimeMillis());
 			providerChannel.setSince(uniquidCapability.getSince());
 			providerChannel.setUntil(uniquidCapability.getUntil());
@@ -344,6 +345,30 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 		} catch (Exception ex) {
 			throw new NodeException("Problem while validating capability", ex);
+		}
+		
+	}
+	
+	@Override
+	public void receiveUserCapability(UniquidCapability uniquidCapability) throws NodeException {
+		
+		try {
+			
+			UserChannel userChannel = new UserChannel();
+			userChannel.setProviderAddress(uniquidCapability.getResourceID());
+			userChannel.setUserAddress(uniquidCapability.getAssignee());
+			userChannel.setRevokeAddress(uniquidCapability.getAssigner());
+			userChannel.setBitmask(Hex.toHexString(uniquidCapability.getRights()));
+	//		userChannel.setCreationTime(System.currentTimeMillis());
+	//		userChannel.setSince(uniquidCapability.getSince());
+	//		userChannel.setUntil(uniquidCapability.getUntil());
+			
+			uniquidNodeConfiguration.getRegisterFactory().getUserRegister().insertChannel(userChannel);
+			
+			uniquidNodeEventService.onUserContractCreated(userChannel);
+		
+		} catch (Exception ex) {
+			throw new NodeException("Problem while inserting capability", ex);
 		}
 		
 	}
