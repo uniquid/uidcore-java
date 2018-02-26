@@ -318,6 +318,7 @@ public class CoreTest {
 		String bitmaskToString = new String(Hex.encode(b));
 		
 		ProviderChannel providerChannel = new ProviderChannel("providerAddress", "userAddress", bitmaskToString);
+		providerChannel.setUntil(System.currentTimeMillis() + 600000);
 		
 		dummyProvider.insertChannel(providerChannel);
 		
@@ -382,6 +383,7 @@ public class CoreTest {
 		String bitmaskToString = new String(Hex.encode(b));
 		
 		ProviderChannel providerChannel = new ProviderChannel("providerAddress", "userAddress", bitmaskToString);
+		providerChannel.setUntil(System.currentTimeMillis() + 600000);
 		
 		dummyProvider.insertChannel(providerChannel);
 		
@@ -446,6 +448,7 @@ public class CoreTest {
 		String bitmaskToString = new String(Hex.encode(b2));
 		
 		ProviderChannel providerChannel = new ProviderChannel("providerAddress", "userAddress", bitmaskToString);
+		providerChannel.setUntil(System.currentTimeMillis() + 600000);
 		
 		dummyProvider.insertChannel(providerChannel);
 		
@@ -502,6 +505,7 @@ public class CoreTest {
 		String bitmaskToString = new String(Hex.encode(b));
 		
 		ProviderChannel providerChannel = new ProviderChannel("providerAddress", "userAddress", bitmaskToString);
+		providerChannel.setUntil(System.currentTimeMillis() + 600000);
 		
 		dummyProvider.insertChannel(providerChannel);
 		
@@ -565,6 +569,7 @@ public class CoreTest {
 		String bitmaskToString = new String(Hex.encode(b2));
 		
 		ProviderChannel providerChannel = new ProviderChannel("providerAddress", "userAddress", bitmaskToString);
+		providerChannel.setUntil(System.currentTimeMillis() + 600000);
 		
 		dummyProvider.insertChannel(providerChannel);
 		
