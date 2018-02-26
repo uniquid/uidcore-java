@@ -155,7 +155,7 @@ public class ProviderChannel implements Serializable {
 	
 	public boolean isValid() {
 		
-		return (System.currentTimeMillis() >= since) && (until <= System.currentTimeMillis());
+		return (System.currentTimeMillis() >= since) && (System.currentTimeMillis() <= until);
 		
 	}
 	
