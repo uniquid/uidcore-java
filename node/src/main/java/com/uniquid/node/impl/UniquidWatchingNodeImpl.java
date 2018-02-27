@@ -338,10 +338,9 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 			providerChannel.setSince(uniquidCapability.getSince());
 			providerChannel.setUntil(uniquidCapability.getUntil());
 			
-			// since
-			// until
-			
 			uniquidNodeConfiguration.getRegisterFactory().getProviderRegister().insertChannel(providerChannel);
+			
+			uniquidNodeEventService.onProviderContractCreated(providerChannel);
 
 		} catch (Exception ex) {
 			throw new NodeException("Problem while validating capability", ex);
