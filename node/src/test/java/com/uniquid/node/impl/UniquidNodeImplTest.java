@@ -338,6 +338,22 @@ public class UniquidNodeImplTest {
 		Assert.assertEquals(capability.getAssigner(), a.toBase58());
 		
 		try {
+			uniquidNode.receiveProviderCapability(capability);
+			Assert.fail();
+		} catch (Exception ex) {
+			// Expected
+		}
+		
+		// Create fake ownership
+		ProviderChannel providerChannel = new ProviderChannel("providerAddr", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", "bitmask");
+		
+		dummyProvider.insertChannel(providerChannel);
+		
+		uniquidNode.receiveProviderCapability(capability);
+		
+		Assert.assertNotNull(dummyProvider.getChannelByUserAddress(capability.getAssignee()));
+		
+		try {
 			List<String> invalid = new ArrayList<String>();
 			invalid.add("2/0/0");
 			uniquidNode.signTransaction(unsigned_tx, invalid);
