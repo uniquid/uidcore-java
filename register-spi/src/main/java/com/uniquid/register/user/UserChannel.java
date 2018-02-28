@@ -17,6 +17,7 @@ public class UserChannel implements Serializable, Comparable<Object> {
     private String bitmask;
     private String revokeAddress;
     private String revokeTxId;
+    private String path;
 
     /**
      * Creates an empty instance
@@ -135,7 +136,15 @@ public class UserChannel implements Serializable, Comparable<Object> {
 	public String getRevokeTxId() {
 		return revokeTxId;
 	}
-    
+	
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
 	@Override
     public String toString() {
 		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
@@ -158,13 +167,14 @@ public class UserChannel implements Serializable, Comparable<Object> {
     			Objects.equals(userAddress, userChannel.userAddress) &&
     			Objects.equals(bitmask, userChannel.bitmask) &&
     			Objects.equals(revokeAddress, userChannel.revokeAddress) &&
-    			Objects.equals(revokeTxId, userChannel.revokeTxId);
+    			Objects.equals(revokeTxId, userChannel.revokeTxId) &&
+    			Objects.equals(path, userChannel.path);
     }
     
     @Override
     public int hashCode() {
     	
-    	return Objects.hash(providerName, providerAddress, userAddress, bitmask, revokeAddress, revokeTxId);
+    	return Objects.hash(providerName, providerAddress, userAddress, bitmask, revokeAddress, revokeTxId, path);
     
     }
 

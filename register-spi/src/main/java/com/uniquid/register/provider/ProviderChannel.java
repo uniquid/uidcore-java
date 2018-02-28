@@ -20,6 +20,7 @@ public class ProviderChannel implements Serializable {
 	private long creationTime;
 	private long since;
 	private long until;
+	private String path;
 
 	/**
      * Creates an empty instance
@@ -153,6 +154,14 @@ public class ProviderChannel implements Serializable {
 		this.until = until;
 	}
 	
+	public void setPath(String path) {
+		this.path = path;
+	}
+	
+	public String getPath() {
+		return path;
+	}
+	
 	public boolean isValid() {
 		
 		return (System.currentTimeMillis() >= since) && (System.currentTimeMillis() <= until);
@@ -163,8 +172,8 @@ public class ProviderChannel implements Serializable {
 	public String toString() {
 		
 		return String.format("Provider address %s; user address %s; bitmask %s; revoke address %s; revokeTxId %s; " +
-				"creation time %d; since %d; until %d", providerAddress, userAddress, bitmask, revokeAddress, revokeTxId,
-				creationTime, since, until);
+				"creation time %d; since %d; until %d; path %s", providerAddress, userAddress, bitmask, revokeAddress, revokeTxId,
+				creationTime, since, until, path);
 		
 	}
 	
@@ -186,13 +195,14 @@ public class ProviderChannel implements Serializable {
     			Objects.equals(revokeTxId, providerChannel.revokeTxId) &&
     			creationTime == providerChannel.creationTime &&
     			since == providerChannel.since &&
-    			until == providerChannel.until;
+    			until == providerChannel.until &&
+    			Objects.equals(path, providerChannel.path);
     }
     
     @Override
     public int hashCode() {
     	
-    	return Objects.hash(providerAddress, userAddress, revokeAddress, bitmask, revokeTxId, creationTime, since, until);
+    	return Objects.hash(providerAddress, userAddress, revokeAddress, bitmask, revokeTxId, creationTime, since, until, path);
     
     }
 

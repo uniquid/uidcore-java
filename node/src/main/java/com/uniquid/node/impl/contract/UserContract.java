@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bitcoinj.core.Address;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +17,6 @@ import org.spongycastle.util.encoders.Hex;
 import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.node.impl.utils.WalletUtils;
 import com.uniquid.register.exception.RegisterException;
-import com.uniquid.register.provider.ProviderChannel;
-import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 import com.uniquid.registry.RegistryDAO;
@@ -75,6 +75,12 @@ public class UserContract extends AbstractContract {
 			return;
 		}
 		
+		ECKey key = uniquidNodeStateContext.getUserWallet().findKeyFromPubHash(userAddress.getHash160());
+		String path = null;
+		if (key != null) {
+			path = ((DeterministicKey) key).getPathAsString();
+		}
+
 		LOGGER.info("Contract is valid. Inserting in register");
 
 		// Create channel
@@ -84,6 +90,7 @@ public class UserContract extends AbstractContract {
 		userChannel.setProviderName(providerName);
 		userChannel.setRevokeAddress(revoke.toBase58());
 		userChannel.setRevokeTxId(tx.getHashAsString());
+		userChannel.setPath(path);
 
 		String opreturn = WalletUtils.getOpReturn(tx);
 
