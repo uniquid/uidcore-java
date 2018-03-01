@@ -52,6 +52,8 @@ public class UniquidNodeImplTest {
 		builder.setRegisterFactory(dummyRegister);
 		builder.setNodeName(machineName);
 		
+		
+		// corresponding tpriv is tprv8ZgxMBicQKsPeUjbnmwN54rKdA1UCsoJsY3ngzhVxyqeTV5pPNo77heffPbSfWVy8vLkTcMwpQHTxJzjz8euKsdDzETM5WKyKFYNLxMAcmQ
 		UniquidNodeImpl uniquidNode = builder.buildFromHexSeed("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", 1487159470);
 		
 		Assert.assertNotNull(uniquidNode);
