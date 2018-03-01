@@ -26,6 +26,7 @@ public abstract class UserRegisterTest {
 		userChannel.setRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 		userChannel.setBitmask("00000");
 		userChannel.setProviderName("Test");
+		userChannel.setPath("");
 
 		try {
 
