@@ -3,8 +3,10 @@ package com.uniquid.node.impl.contract;
 import java.util.List;
 
 import org.bitcoinj.core.Address;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.crypto.DeterministicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +54,12 @@ public class ImprintingContract extends AbstractContract {
 
 				ProviderRegister providerRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getProviderRegister();
 
+				ECKey key = uniquidNodeStateContext.getProviderWallet().findKeyFromPubHash(uniquidNodeStateContext.getImprintingAddress().getHash160());
+				String path = null;
+				if (key != null) {
+					path = ((DeterministicKey) key).getPathAsString();
+				}
+				
 				// Create provider channel
 				final ProviderChannel providerChannel = new ProviderChannel();
 				providerChannel.setUserAddress(sender);
@@ -62,6 +70,7 @@ public class ImprintingContract extends AbstractContract {
 				providerChannel.setCreationTime(tx.getUpdateTime().getTime()/1000);
 				providerChannel.setSince(0);
 				providerChannel.setUntil(Long.MAX_VALUE);
+				providerChannel.setPath(path);
 
 				uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().startTransaction();
 				
