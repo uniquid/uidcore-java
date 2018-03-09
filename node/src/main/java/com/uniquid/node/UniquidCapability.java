@@ -132,6 +132,11 @@ public class UniquidCapability {
 			return this;
 		}
 		
+		public UniquidCapabilityBuilder setAssignerSignature(String assignerSignature) {
+			uniquidCapability.assignerSignature = assignerSignature;
+			return this;
+		}
+		
 		/**
 		 * Creates a new capablity. The rights must but 19 bytes
 		 * @return
