@@ -75,8 +75,9 @@ public class UniquidCapability {
 		
 		StringBuffer stringBuffer = new StringBuffer();
 		
-		stringBuffer.append(resourceID);
 		stringBuffer.append(assigner);
+		
+		stringBuffer.append(resourceID);
 		stringBuffer.append(assignee);
 		stringBuffer.append(Hex.toHexString(rights));
 		stringBuffer.append(since);

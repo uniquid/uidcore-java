@@ -343,11 +343,11 @@ public class UniquidNodeImplTest {
 				.setUntil(12345)
 				.build();
 		
-		Assert.assertEquals("1234muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP1234500000000000000000000000000000000000000123412345", uniquidCapability.prepareToSign());
+		Assert.assertEquals("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP12341234500000000000000000000000000000000000000123412345", uniquidCapability.prepareToSign());
 		
 		UniquidCapability capability = uniquidNode.createCapability("test", "12345", rights, 1234, 12345);
 		
-		Assert.assertEquals("H3oiR+ccQi6C+bR4JbLqRQoov+WH7AP3Ih5lbtTmAEx0X5oi0ivvL6TBR6tIrymLmjeRjWkf4NevstKZHPopwwk=", capability.getAssignerSignature());
+		Assert.assertEquals("IK9G0DS7d0Blh94YmcdaDJALan63ZNN1gL0SdVQ7fj94L9OkNmjs325Zx+jWSqYPxn4c61IhUXlY9FfwGnzwLQk=", capability.getAssignerSignature());
 		
 		ECKey signingKey = ECKey.signedMessageToKey(capability.prepareToSign(), capability.getAssignerSignature());
 		
