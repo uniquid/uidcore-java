@@ -142,6 +142,6 @@ public interface UniquidNode {
 	 * @param uniquidCapability
 	 * @throws NodeException
 	 */
-	public void receiveUserCapability(UniquidCapability uniquidCapability) throws NodeException;
+	public void receiveUserCapability(UniquidCapability uniquidCapability, String providerName) throws NodeException;
 	
 }

@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.node.UniquidCapability;
+import com.uniquid.node.UniquidCapability.UniquidCapabilityBuilder;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.params.UniquidRegTest;
@@ -329,9 +330,24 @@ public class UniquidNodeImplTest {
 		
 		dummyFactory.getUserRegister().insertChannel(new UserChannel("test", "1234", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", "1234"));
 		
-		UniquidCapability capability = uniquidNode.createCapability("test", "12345", new byte[] {}, 1234, 12345);
+		byte[] rights =  new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+				(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+				(byte) 0x00, (byte) 0x00, (byte) 0x00 };
 		
-		Assert.assertEquals("H95Y0u/IQTfAMJ69aH8Qyqfh2fpxYR9qUW87WPrR/b65X5/3C3YS89wz+bRawBPIodTxVF/XF76nJ1xWsb8xYv0=", capability.getAssignerSignature());
+		UniquidCapability uniquidCapability =  new UniquidCapability.UniquidCapabilityBuilder()
+				.setResourceID("1234")
+				.setAssigner("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP")
+				.setAssignee("12345")
+				.setRights(rights)
+				.setSince(1234)
+				.setUntil(12345)
+				.build();
+		
+		Assert.assertEquals("1234muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP1234500000000000000000000000000000000000000123412345", uniquidCapability.prepareToSign());
+		
+		UniquidCapability capability = uniquidNode.createCapability("test", "12345", rights, 1234, 12345);
+		
+		Assert.assertEquals("H3oiR+ccQi6C+bR4JbLqRQoov+WH7AP3Ih5lbtTmAEx0X5oi0ivvL6TBR6tIrymLmjeRjWkf4NevstKZHPopwwk=", capability.getAssignerSignature());
 		
 		ECKey signingKey = ECKey.signedMessageToKey(capability.prepareToSign(), capability.getAssignerSignature());
 		

@@ -109,7 +109,7 @@ public class DummyExceptionNode implements UniquidNode {
 	}
 
 	@Override
-	public void receiveUserCapability(UniquidCapability uniquidCapability) throws NodeException {
+	public void receiveUserCapability(UniquidCapability uniquidCapability, String providerName) throws NodeException {
 		throw new NodeException("Exception");
 	}
 

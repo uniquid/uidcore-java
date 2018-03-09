@@ -349,11 +349,12 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	}
 	
 	@Override
-	public void receiveUserCapability(UniquidCapability uniquidCapability) throws NodeException {
+	public void receiveUserCapability(UniquidCapability uniquidCapability, String providerName) throws NodeException {
 		
 		try {
 			
 			UserChannel userChannel = new UserChannel();
+			userChannel.setProviderName(providerName);
 			userChannel.setProviderAddress(uniquidCapability.getResourceID());
 			userChannel.setUserAddress(uniquidCapability.getAssignee());
 			userChannel.setRevokeAddress(uniquidCapability.getAssigner());
