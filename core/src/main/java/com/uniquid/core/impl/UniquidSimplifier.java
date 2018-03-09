@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.bitcoinj.utils.ContextPropagatingThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.core.Core;
 import com.uniquid.connector.Connector;
@@ -20,10 +21,12 @@ import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.core.provider.impl.ContractFunction;
 import com.uniquid.core.provider.impl.EchoFunction;
 import com.uniquid.core.provider.impl.FunctionConfigImpl;
+import com.uniquid.messages.CapabilityMessage;
 import com.uniquid.messages.FunctionRequestMessage;
 import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.messages.MessageType;
 import com.uniquid.messages.UniquidMessage;
+import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.register.RegisterFactory;
@@ -207,6 +210,32 @@ public class UniquidSimplifier extends Core {
 						if (MessageType.FUNCTION_REQUEST.equals(inputMessage.getMessageType())) {
 							
 							LOGGER.info("Received input message {}", inputMessage.getMessageType());
+							
+						} else if (MessageType.UNIQUID_CAPABILITY.equals(inputMessage.getMessageType())) {
+							
+							LOGGER.info("Received capability!");
+							
+							CapabilityMessage capabilityMessage = (CapabilityMessage) inputMessage;
+							
+							// transform inputMessage to uniquidCapability
+							UniquidCapability capability = new UniquidCapability.UniquidCapabilityBuilder()
+									.setResourceID(capabilityMessage.getResourceID())
+									.setAssigner(capabilityMessage.getAssigner())
+									.setAssignee(capabilityMessage.getAssignee())
+									.setRights(Hex.decode(capabilityMessage.getRights()))
+									.setSince(capabilityMessage.getSince())
+									.setUntil(capabilityMessage.getUntil())
+									.setAssignerSignature(capabilityMessage.getAssignerSignature())
+									.build();
+							
+							// tell node to receive provider capability
+							getNode().receiveProviderCapability(capability);
+							
+							// flush
+							endPoint.flush();
+							
+							// skip all following code!
+							continue;
 							
 						} else {
 							
