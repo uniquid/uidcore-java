@@ -132,15 +132,21 @@ public class UniquidCapability {
 			return this;
 		}
 		
+		/**
+		 * Creates a new capablity. The rights must but 19 bytes
+		 * @return
+		 * @throws Exception
+		 */
 		public UniquidCapability build() throws Exception {
 			
 			if (uniquidCapability.resourceID == null ||
 					uniquidCapability.assigner == null ||
 					uniquidCapability.assignee == null ||
 					uniquidCapability.rights == null ||
+					uniquidCapability.rights.length != 19 ||
 					uniquidCapability.since == 0 ||
 					uniquidCapability.until == 0) {
-				throw new Exception("Capability contains some null fields");
+				throw new Exception("Capability contains ivalid fields");
 			}
 
 			return uniquidCapability;

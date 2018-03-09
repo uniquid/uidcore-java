@@ -343,6 +343,25 @@ public class UniquidNodeImplTest {
 				.setUntil(12345)
 				.build();
 		
+		try {
+			
+			byte[] wrongRights =  new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+					(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+					(byte) 0x00, (byte) 0x00 };
+			
+			new UniquidCapability.UniquidCapabilityBuilder()
+				.setResourceID("1234")
+				.setAssigner("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP")
+				.setAssignee("12345")
+				.setRights(wrongRights)
+				.setSince(1234)
+				.setUntil(12345)
+				.build();
+			Assert.fail();
+		} catch (Exception ex) {
+			//Expected
+		}
+		
 		Assert.assertEquals("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP12341234500000000000000000000000000000000000000123412345", uniquidCapability.prepareToSign());
 		
 		UniquidCapability capability = uniquidNode.createCapability("test", "12345", rights, 1234, 12345);
