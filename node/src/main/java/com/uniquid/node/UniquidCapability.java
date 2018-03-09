@@ -7,12 +7,14 @@ import org.spongycastle.util.encoders.Hex;
 
 public class UniquidCapability {
 
-	private String resourceID;
-	private String assigner;
-	private String assignee;
+	private String assigner; // Authority (owner) Address
+
+	private String resourceID; // serviceProviderAddress
+	private String assignee; // serviceUserAddress
 	private byte[] rights;
 	private long since;
 	private long until;
+	
 	private String assignerSignature;
 	
 	private UniquidCapability() {}
