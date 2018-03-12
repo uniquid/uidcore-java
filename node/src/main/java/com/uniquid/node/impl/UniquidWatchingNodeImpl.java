@@ -344,16 +344,24 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 			}
 			
-			// we have a valid capability. we can insert in database
+			// provider address must be the same as the original provider channel!!!
+			if (!uniquidCapability.getResourceID().equals(channel.getProviderAddress())) {
+				
+				throw new Exception("Capability contains an invalid provider address!");
+				
+			}
 			
+			// we have a valid capability. we can insert in database
 			ProviderChannel providerChannel = new ProviderChannel();
 			providerChannel.setProviderAddress(uniquidCapability.getResourceID());
 			providerChannel.setUserAddress(uniquidCapability.getAssignee());
 			providerChannel.setRevokeAddress(uniquidCapability.getAssigner());
+			providerChannel.setRevokeTxId("unknown");
 			providerChannel.setBitmask(Hex.toHexString(uniquidCapability.getRights()));
 			providerChannel.setCreationTime(System.currentTimeMillis());
 			providerChannel.setSince(uniquidCapability.getSince());
 			providerChannel.setUntil(uniquidCapability.getUntil());
+			providerChannel.setPath(channel.getPath());
 			
 			uniquidNodeConfiguration.getRegisterFactory().getProviderRegister().insertChannel(providerChannel);
 			
