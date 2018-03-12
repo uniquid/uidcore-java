@@ -381,6 +381,22 @@ public class UniquidNodeImplTest {
 			// Expected
 		}
 		
+
+//		byte[] rights2 =  new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFE, (byte) 0x00, (byte) 0x00,
+//				(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+//				(byte) 0x00, (byte) 0x00, (byte) 0x00 };
+//		
+//		UniquidCapability uniquidCapability2 = new UniquidCapability.UniquidCapabilityBuilder()
+//			.setAssigner("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP")
+//			.setResourceID("mp246b2KBN5xncctJxtj7UHiEo5GfiewMT")
+//			.setAssignee("mvmmEz4nduzpLk4KR6JMQn3LyZuHYt6NTc")
+//			.setRights(rights2)
+//			.setSince(0xffffffffffffffffL)
+//			.setUntil(0xffffffffffffffffL)
+//			.build();
+//		
+//		Assert.assertEquals("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoPmp246b2KBN5xncctJxtj7UHiEo5GfiewMTmvmmEz4nduzpLk4KR6JMQn3LyZuHYt6NTc0000fe000000000000000000000000000000001844674407370955161518446744073709551615", uniquidCapability2.prepareToSign());
+
 		// Create fake ownership
 		ProviderChannel providerChannel = new ProviderChannel("providerAddr", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", "bitmask");
 		
