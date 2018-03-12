@@ -1,6 +1,8 @@
 package com.uniquid.node.impl;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
 import org.bitcoinj.core.Address;
@@ -200,7 +202,20 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 				throw new NodeException("Channel not found!");
 			}
 			
-			// Should verify that owner bit is set to one
+			// Should verify that 'owner bit' (29) is set to one
+			String bitmask = userChannel.getBitmask();
+			
+			// decode
+			byte[] b = Hex.decode(bitmask);
+			
+			// first byte at 0 means original contract with bitmask
+			BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
+			
+			if (!bitset.get(29)) {
+
+				throw new Exception("User not authorized to issue capabilites!");
+
+			}
 			
 			// Extract key from associated user address
 			ECKey key = userWallet.findKeyFromPubHash(Address.fromBase58(uniquidNodeConfiguration.getNetworkParameters(), userChannel.getUserAddress()).getHash160());

@@ -2,6 +2,7 @@ package com.uniquid.node.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 import org.bitcoinj.core.Address;
@@ -328,7 +329,21 @@ public class UniquidNodeImplTest {
 		
 		Assert.assertEquals("IOAhyp0at0puRgDZD3DJl0S2FjgLEo0q7nBdgzDrWpbDR+B3daIlN3R20lhcpQKZFWl8/ttxUXzQYS0EFso2VLo=", signedMessage);
 		
-		dummyFactory.getUserRegister().insertChannel(new UserChannel("test", "1234", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", "1234"));
+		
+		
+		// allow function 30
+        byte[] opreturn = new byte[80];
+		BitSet bitSet = new BitSet();
+		bitSet.set(29);
+		byte[] bitmask = bitSet.toByteArray();
+		
+		opreturn[0] = 0;
+		
+		// skip first byte!!!
+		// This will create the opreturn of 80 bytes containing the orchestration bit set to 1
+		System.arraycopy(bitmask, 0, opreturn, 1, bitmask.length);
+		
+		dummyFactory.getUserRegister().insertChannel(new UserChannel("test", "1234", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", Hex.toHexString(opreturn)));
 		
 		byte[] rights =  new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
 				(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -398,7 +413,7 @@ public class UniquidNodeImplTest {
 //		Assert.assertEquals("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoPmp246b2KBN5xncctJxtj7UHiEo5GfiewMTmvmmEz4nduzpLk4KR6JMQn3LyZuHYt6NTc0000fe000000000000000000000000000000001844674407370955161518446744073709551615", uniquidCapability2.prepareToSign());
 
 		// Create fake ownership
-		ProviderChannel providerChannel = new ProviderChannel("providerAddr", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", "bitmask");
+		ProviderChannel providerChannel = new ProviderChannel("providerAddr", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", Hex.toHexString(opreturn));
 		
 		dummyProvider.insertChannel(providerChannel);
 		

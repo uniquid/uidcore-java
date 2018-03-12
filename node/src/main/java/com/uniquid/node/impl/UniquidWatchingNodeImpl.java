@@ -2,6 +2,8 @@ package com.uniquid.node.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -325,6 +327,21 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 			
 			if (channel == null) {
 				throw new NodeException("Channel not found!");
+			}
+			
+			// Should verify that 'owner bit' (29) is set to one
+			String bitmask = channel.getBitmask();
+			
+			// decode
+			byte[] b = Hex.decode(bitmask);
+			
+			// first byte at 0 means original contract with bitmask
+			BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
+			
+			if (!bitset.get(29)) {
+
+				throw new Exception("User not authorized to issue capabilites!");
+
 			}
 			
 			// we have a valid capability. we can insert in database
