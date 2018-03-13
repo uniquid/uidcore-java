@@ -276,12 +276,6 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	}
 	
 	@Override
-	public String signMessage(String message, byte[] pubKeyHash) throws NodeException {
-		
-		throw new NodeException("This node can't sign messages");
-	}
-
-	@Override
 	public String broadCastTransaction(String serializedTx) throws NodeException {
 
 		LOGGER.info("Broadcasting TX");
@@ -311,6 +305,8 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	
 	@Override
 	public void receiveProviderCapability(UniquidCapability uniquidCapability) throws NodeException {
+		
+		LOGGER.info("Receiving capability");
 		
 		try {
 			// Verify signature and extract public key used to sign 
@@ -366,6 +362,8 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 			uniquidNodeConfiguration.getRegisterFactory().getProviderRegister().insertChannel(providerChannel);
 			
 			uniquidNodeEventService.onProviderContractCreated(providerChannel);
+			
+			LOGGER.info("Capability received correctly!");
 
 		} catch (Exception ex) {
 			throw new NodeException("Problem while validating capability", ex);
@@ -374,7 +372,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	}
 	
 	@Override
-	public void receiveUserCapability(UniquidCapability uniquidCapability, String providerName) throws NodeException {
+	public void receiveUserCapability(UniquidCapability uniquidCapability, String providerName, String path) throws NodeException {
 		
 		try {
 			
@@ -382,11 +380,13 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 			userChannel.setProviderName(providerName);
 			userChannel.setProviderAddress(uniquidCapability.getResourceID());
 			userChannel.setUserAddress(uniquidCapability.getAssignee());
-			userChannel.setRevokeAddress(uniquidCapability.getAssigner());
 			userChannel.setBitmask(Hex.toHexString(uniquidCapability.getRights()));
-	//		userChannel.setCreationTime(System.currentTimeMillis());
-	//		userChannel.setSince(uniquidCapability.getSince());
-	//		userChannel.setUntil(uniquidCapability.getUntil());
+			userChannel.setRevokeAddress(uniquidCapability.getAssigner());
+			userChannel.setRevokeTxId("unknown");
+			//userChannel.setCreationTime(System.currentTimeMillis());
+			//userChannel.setSince(uniquidCapability.getSince());
+			//userChannel.setUntil(uniquidCapability.getUntil());
+			userChannel.setPath(path);
 			
 			uniquidNodeConfiguration.getRegisterFactory().getUserRegister().insertChannel(userChannel);
 			

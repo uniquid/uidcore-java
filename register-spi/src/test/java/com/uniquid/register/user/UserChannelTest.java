@@ -36,7 +36,7 @@ public class UserChannelTest {
 		Assert.assertEquals(null, userChannel.getRevokeAddress());
 		Assert.assertEquals(null, userChannel.getRevokeTxId());
 		
-		Assert.assertEquals("provider address: providerAddress; user address: userAddress; bitmask: bitmask; revoke address: null; revokeTxId: null", userChannel.toString());
+		Assert.assertEquals("provider address: providerAddress; user address: userAddress; bitmask: bitmask; revoke address: null; revokeTxId: null; path: null", userChannel.toString());
 		Assert.assertEquals(2092310056, userChannel.hashCode());
 		
 	}

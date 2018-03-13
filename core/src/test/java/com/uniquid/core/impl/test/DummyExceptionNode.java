@@ -91,13 +91,6 @@ public class DummyExceptionNode implements UniquidNode {
 	}
 
 	@Override
-	public String signMessage(String message, byte[] pubKeyHash) throws NodeException {
-		
-		throw new NodeException("Exception");
-		
-	}
-
-	@Override
 	public UniquidCapability createCapability(String providerName, String userPublicKey, byte[] rights,
 			long since, long until) throws NodeException {
 		throw new NodeException("Exception");
@@ -109,7 +102,7 @@ public class DummyExceptionNode implements UniquidNode {
 	}
 
 	@Override
-	public void receiveUserCapability(UniquidCapability uniquidCapability, String providerName) throws NodeException {
+	public void receiveUserCapability(UniquidCapability uniquidCapability, String providerName, String path) throws NodeException {
 		throw new NodeException("Exception");
 	}
 

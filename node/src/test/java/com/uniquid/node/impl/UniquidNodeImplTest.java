@@ -325,11 +325,6 @@ public class UniquidNodeImplTest {
 		
 		Assert.assertEquals("mgXg8FWaYaDVcsvjJq4jW7vrxQCRtjPchs", key2.toAddress(UniquidRegTest.get()).toBase58());
 		
-		String signedMessage = uniquidNode.signMessage("Hello World!", Address.fromBase58(UniquidRegTest.get(), "mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb").getHash160());
-		
-		Assert.assertEquals("IOAhyp0at0puRgDZD3DJl0S2FjgLEo0q7nBdgzDrWpbDR+B3daIlN3R20lhcpQKZFWl8/ttxUXzQYS0EFso2VLo=", signedMessage);
-		
-		
 		
 		// allow function 30
         byte[] opreturn = new byte[80];

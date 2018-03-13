@@ -155,7 +155,7 @@ public class UserChannel implements Serializable, Comparable<Object> {
 	@Override
     public String toString() {
 		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
-				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId;
+				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId + "; path: " + path;
 	}
 
     @Override

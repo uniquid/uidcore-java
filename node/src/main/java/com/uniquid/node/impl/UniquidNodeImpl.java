@@ -163,36 +163,10 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	}
 	
 	@Override
-	public String signMessage(String message, byte[] pubKeyHash) throws NodeException {
-		
-		// First retrieve key from pub key hash
-		
-		// start with provider wallet
-		ECKey key = providerWallet.findKeyFromPubHash(pubKeyHash);
-		
-		if (key == null) {
-			
-			// fallback to user wallet
-			
-			key = userWallet.findKeyFromPubHash(pubKeyHash);
-			
-			if (key == null) {
-				
-				throw new NodeException("Can't find requested public key!");
-				
-			}
-
-		}
-		
-		String path = ((DeterministicKey) key).getPathAsString();
-		
-		return signMessage(message, path);
-		
-	}
-	
-	@Override
 	public UniquidCapability createCapability(String providerName, String userPublicKey, byte[] rights,
 			long since, long until)	throws NodeException {
+		
+		LOGGER.info("Creating capability");
 		
 		try {
 			// Retrieve contract
@@ -232,6 +206,8 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 			String signature = signMessage(capability.prepareToSign(), path);
 			
 			capability.setAssignerSignature(signature);
+			
+			LOGGER.info("Capability created correctly");
 			
 			return capability;
 		
