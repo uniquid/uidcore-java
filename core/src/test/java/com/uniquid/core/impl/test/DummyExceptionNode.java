@@ -105,5 +105,10 @@ public class DummyExceptionNode implements UniquidNode {
 	public void receiveUserCapability(UniquidCapability uniquidCapability, String providerName, String path) throws NodeException {
 		throw new NodeException("Exception");
 	}
+	
+	@Override
+	public String getAddressAtPath(String path) throws NodeException {
+		throw new NodeException("Exception");
+	}
 
 }

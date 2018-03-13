@@ -408,6 +408,11 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		
 	}
 	
+	@Override
+	public String getAddressAtPath(String path) throws NodeException {
+		throw new NodeException("This node can't sign");
+	}
+	
 	/*
 	 * End of public part for implementing UniquidNode
 	 *

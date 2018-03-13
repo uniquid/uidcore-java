@@ -102,6 +102,14 @@ public interface UniquidNode {
 	public String signMessage(String message, String path) throws NodeException;
 	
 	/**
+	 * Generates a new address representing the derived key from the requested path
+	 * 
+	 * @param path the path to use to derive the HD key
+	 * @return the address representing the derived key from the requested path
+	 */
+	public String getAddressAtPath(String path) throws NodeException;
+	
+	/**
 	 * Allow to propagate a serialized Tx on the peer2peer network
 	 * @param serializedTx
 	 * @return

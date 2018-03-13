@@ -325,6 +325,9 @@ public class UniquidNodeImplTest {
 		
 		Assert.assertEquals("mgXg8FWaYaDVcsvjJq4jW7vrxQCRtjPchs", key2.toAddress(UniquidRegTest.get()).toBase58());
 		
+		Assert.assertEquals("mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb", uniquidNode.getAddressAtPath("0/0/0"));
+		
+		Assert.assertEquals("mgXg8FWaYaDVcsvjJq4jW7vrxQCRtjPchs", uniquidNode.getAddressAtPath("1/0/0"));
 		
 		// allow function 30
         byte[] opreturn = new byte[80];
@@ -424,6 +427,8 @@ public class UniquidNodeImplTest {
 		} catch (Exception ex) {
 			// NOTHING TO DO
 		}
+		
+		
 		
 	}
 	

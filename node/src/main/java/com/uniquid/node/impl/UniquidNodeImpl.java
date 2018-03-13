@@ -219,6 +219,17 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		
 	}
 	
+	@Override
+	public String getAddressAtPath(String path) throws NodeException {
+
+		ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, path);
+
+		DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
+		
+		return signingKey.toAddress(uniquidNodeConfiguration.getNetworkParameters()).toBase58();
+		
+	}
+	
 	/**
 	 * Builder for UniquidNodeImpl
 	 */

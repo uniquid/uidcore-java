@@ -104,4 +104,9 @@ public class DummyNode implements UniquidNode {
 		
 	}
 
+	@Override
+	public String getAddressAtPath(String path) throws NodeException {
+		throw new NodeException("Exception");
+	}
+
 }
