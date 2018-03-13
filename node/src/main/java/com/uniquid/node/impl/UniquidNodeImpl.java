@@ -86,7 +86,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 
 			for (String path : paths) {
 				
-				ImmutableList<ChildNumber> list = NodeUtils.listFromPath(path);
+				ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, path);
 
 				DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
 			
@@ -154,7 +154,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	@Override
 	public String signMessage(String message, String path) throws NodeException {
 		
-		ImmutableList<ChildNumber> list = NodeUtils.listFromPath(path);
+		ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, path);
 
 		DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
 		
@@ -217,14 +217,8 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 
 			}
 			
-			// Extract key from associated user address
-			ECKey key = userWallet.findKeyFromPubHash(Address.fromBase58(uniquidNodeConfiguration.getNetworkParameters(), userChannel.getUserAddress()).getHash160());
-			
-			if (key == null) {
-				throw new NodeException("ECKey not found for user channel!");
-			}
-			
-			String path = ((DeterministicKey) key).getPathAsString();
+			// Extract path
+			String path = userChannel.getPath();
 			
 			UniquidCapability capability = new UniquidCapability.UniquidCapabilityBuilder()
 					.setResourceID(userChannel.getProviderAddress())
