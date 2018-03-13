@@ -40,6 +40,13 @@ public class UserChannel implements Serializable, Comparable<Object> {
         this.userAddress = userAddress;
         this.bitmask = bitmask;
     }
+    
+    public UserChannel(String providerName, String providerAddress, String userAddress, String bitmask, String path) {
+    	
+       this(providerName, providerAddress, userAddress, bitmask);
+       
+       this.path = path;
+    }
 
     /**
      * Set the provider name
