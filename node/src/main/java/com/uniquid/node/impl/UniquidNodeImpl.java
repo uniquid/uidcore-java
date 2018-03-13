@@ -207,7 +207,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 			
 			capability.setAssignerSignature(signature);
 			
-			LOGGER.info("Capability created correctly");
+			LOGGER.info("Capability created correctly {}", capability);
 			
 			return capability;
 		

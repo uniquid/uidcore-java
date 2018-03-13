@@ -1,6 +1,8 @@
 package com.uniquid.node;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Objects;
 
 import org.spongycastle.util.encoders.Hex;
@@ -68,6 +70,15 @@ public class UniquidCapability {
 				Arrays.equals(rights, other.rights) &&
 				Objects.equals(since, other.since) &&
 				Objects.equals(until, other.until);
+		
+	}
+	
+	@Override
+	public String toString() {
+		
+		SimpleDateFormat s = new SimpleDateFormat();
+		
+		return String.format("resourceID %s, assigner %s, assignee %s, rights %s, start %s end %s", resourceID, assigner, assignee, Hex.toHexString(rights), s.format(new Date(since)), s.format(new Date(until)));
 		
 	}
 	
