@@ -398,6 +398,16 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 			//userChannel.setUntil(uniquidCapability.getUntil());
 			userChannel.setPath(path);
 			
+			// check that an old capability with same providera name and useraddress exists...
+			if (uniquidNodeConfiguration.getRegisterFactory().getUserRegister().getChannelByName(providerName) != null) {
+				
+				// TODO check that the dates are validated!!!
+				LOGGER.info("Removing old capability!");
+				
+				uniquidNodeConfiguration.getRegisterFactory().getUserRegister().deleteChannel(userChannel);
+				
+			}
+			
 			uniquidNodeConfiguration.getRegisterFactory().getUserRegister().insertChannel(userChannel);
 			
 			uniquidNodeEventService.onUserContractCreated(userChannel);
