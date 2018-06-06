@@ -26,6 +26,8 @@ public abstract class UserRegisterTest {
 		userChannel.setRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 		userChannel.setBitmask("00000");
 		userChannel.setProviderName("Test");
+		userChannel.setSince(1528200741000L);		// 06/05/2018 @ 12:12pm (UTC)
+		userChannel.setUntil(1591367400000L);		// 06/05/2020 @ 2:30pm (UTC)
 		userChannel.setPath("");
 
 		try {
@@ -180,6 +182,14 @@ public abstract class UserRegisterTest {
 		channels = getUserRegister().getAllUserChannels();
 
 		Assert.assertEquals(channels.size(), 0);
+		
+		userChannel.setUntil(1528194600000L);
+		getUserRegister().insertChannel(userChannel);
+		
+		channels = getUserRegister().getAllUserChannels();
+		Assert.assertEquals(0, channels.size());
+		
+		getUserRegister().deleteChannel(userChannel);
 
 	}
 	

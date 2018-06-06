@@ -394,11 +394,11 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 			userChannel.setRevokeAddress(uniquidCapability.getAssigner());
 			userChannel.setRevokeTxId("unknown");
 			//userChannel.setCreationTime(System.currentTimeMillis());
-			//userChannel.setSince(uniquidCapability.getSince());
-			//userChannel.setUntil(uniquidCapability.getUntil());
+			userChannel.setSince(uniquidCapability.getSince());
+			userChannel.setUntil(uniquidCapability.getUntil());
 			userChannel.setPath(path);
 			
-			// check that an old capability with same providera name and useraddress exists...
+			// check that an old capability with same provider name and useraddress exists...
 			if (uniquidNodeConfiguration.getRegisterFactory().getUserRegister().getChannelByName(providerName) != null) {
 				
 				// TODO check that the dates are validated!!!

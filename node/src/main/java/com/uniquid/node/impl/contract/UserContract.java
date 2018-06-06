@@ -90,6 +90,8 @@ public class UserContract extends AbstractContract {
 		userChannel.setProviderName(providerName);
 		userChannel.setRevokeAddress(revoke.toBase58());
 		userChannel.setRevokeTxId(tx.getHashAsString());
+		userChannel.setSince(0);
+		userChannel.setUntil(Long.MAX_VALUE);
 		userChannel.setPath(path);
 
 		String opreturn = WalletUtils.getOpReturn(tx);

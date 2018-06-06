@@ -18,6 +18,8 @@ public class UserChannel implements Serializable, Comparable<Object> {
     private String revokeAddress;
     private String revokeTxId;
     private String path;
+    private long since;
+	private long until;
 
     /**
      * Creates an empty instance
@@ -142,6 +144,22 @@ public class UserChannel implements Serializable, Comparable<Object> {
 	 */
 	public String getRevokeTxId() {
 		return revokeTxId;
+	}	
+	
+	public long getSince() {
+		return since;
+	}
+
+	public void setSince(long since) {
+		this.since = since;
+	}
+
+	public long getUntil() {
+		return until;
+	}
+
+	public void setUntil(long until) {
+		this.until = until;
 	}
 	
 	public String getPath() {
@@ -151,11 +169,17 @@ public class UserChannel implements Serializable, Comparable<Object> {
 	public void setPath(String path) {
 		this.path = path;
 	}
+	
+	public boolean isValid() {
+		
+		return (System.currentTimeMillis() >= since) && (System.currentTimeMillis() <= until);
+		
+	}
 
 	@Override
     public String toString() {
 		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
-				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId + "; path: " + path;
+				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId + "; since: " + since + "; until: " + until + "; path: " + path;
 	}
 
     @Override
@@ -175,13 +199,15 @@ public class UserChannel implements Serializable, Comparable<Object> {
     			Objects.equals(bitmask, userChannel.bitmask) &&
     			Objects.equals(revokeAddress, userChannel.revokeAddress) &&
     			Objects.equals(revokeTxId, userChannel.revokeTxId) &&
+    			since == userChannel.since &&
+    			until == userChannel.until && 
     			Objects.equals(path, userChannel.path);
     }
     
     @Override
     public int hashCode() {
     	
-    	return Objects.hash(providerName, providerAddress, userAddress, bitmask, revokeAddress, revokeTxId, path);
+    	return Objects.hash(providerName, providerAddress, userAddress, bitmask, revokeAddress, revokeTxId, since, until, path);
     
     }
 
