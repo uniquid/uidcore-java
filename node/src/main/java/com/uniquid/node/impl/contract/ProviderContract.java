@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bitcoinj.core.Address;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +83,13 @@ public class ProviderContract extends AbstractContract {
 		}
 		
 		LOGGER.info("Contract is valid. Inserting in register");
-
+		
+		ECKey key = uniquidNodeStateContext.getProviderWallet().findKeyFromPubHash(providerAddress.getHash160());
+		String path = null;
+		if (key != null) {
+			path = ((DeterministicKey) key).getPathAsString();
+		}
+		
 		// Create provider channel
 		final ProviderChannel providerChannel = new ProviderChannel();
 		providerChannel.setProviderAddress(providerAddress.toBase58());
@@ -89,6 +97,9 @@ public class ProviderContract extends AbstractContract {
 		providerChannel.setRevokeAddress(revoke.toBase58());
 		providerChannel.setRevokeTxId(tx.getHashAsString());
 		providerChannel.setCreationTime(tx.getUpdateTime().getTime()/1000);
+		providerChannel.setSince(0);
+		providerChannel.setUntil(Long.MAX_VALUE);
+		providerChannel.setPath(path);
 
 		String opreturn = WalletUtils.getOpReturn(tx);
 

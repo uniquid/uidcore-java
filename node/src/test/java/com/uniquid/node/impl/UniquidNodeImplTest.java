@@ -2,14 +2,19 @@ package com.uniquid.node.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+import org.spongycastle.util.encoders.Hex;
 
+import com.uniquid.node.UniquidCapability;
+import com.uniquid.node.UniquidCapability.UniquidCapabilityBuilder;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.params.UniquidRegTest;
@@ -20,6 +25,7 @@ import com.uniquid.node.impl.utils.DummyUserRegister;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
 public class UniquidNodeImplTest {
@@ -48,6 +54,8 @@ public class UniquidNodeImplTest {
 		builder.setRegisterFactory(dummyRegister);
 		builder.setNodeName(machineName);
 		
+		
+		// corresponding tpriv is tprv8ZgxMBicQKsPeUjbnmwN54rKdA1UCsoJsY3ngzhVxyqeTV5pPNo77heffPbSfWVy8vLkTcMwpQHTxJzjz8euKsdDzETM5WKyKFYNLxMAcmQ
 		UniquidNodeImpl uniquidNode = builder.buildFromHexSeed("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", 1487159470);
 		
 		Assert.assertNotNull(uniquidNode);
@@ -317,9 +325,99 @@ public class UniquidNodeImplTest {
 		
 		Assert.assertEquals("mgXg8FWaYaDVcsvjJq4jW7vrxQCRtjPchs", key2.toAddress(UniquidRegTest.get()).toBase58());
 		
-		String signedMessage = uniquidNode.signMessage("Hello World!", Address.fromBase58(UniquidRegTest.get(), "mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb").getHash160());
+		Assert.assertEquals("mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb", uniquidNode.getAddressAtPath("0/0/0"));
 		
-		Assert.assertEquals("IOAhyp0at0puRgDZD3DJl0S2FjgLEo0q7nBdgzDrWpbDR+B3daIlN3R20lhcpQKZFWl8/ttxUXzQYS0EFso2VLo=", signedMessage);
+		Assert.assertEquals("mgXg8FWaYaDVcsvjJq4jW7vrxQCRtjPchs", uniquidNode.getAddressAtPath("1/0/0"));
+		
+		// allow function 30
+        byte[] opreturn = new byte[80];
+		BitSet bitSet = new BitSet();
+		bitSet.set(29);
+		byte[] bitmask = bitSet.toByteArray();
+		
+		opreturn[0] = 0;
+		
+		// skip first byte!!!
+		// This will create the opreturn of 80 bytes containing the orchestration bit set to 1
+		System.arraycopy(bitmask, 0, opreturn, 1, bitmask.length);
+		
+		dummyFactory.getUserRegister().insertChannel(new UserChannel("test", "1234", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", Hex.toHexString(opreturn), "M/1/1/1"));
+		
+		byte[] rights =  new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+				(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+				(byte) 0x00, (byte) 0x00, (byte) 0x00 };
+		
+		UniquidCapability uniquidCapability =  new UniquidCapability.UniquidCapabilityBuilder()
+				.setResourceID("1234")
+				.setAssigner("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP")
+				.setAssignee("12345")
+				.setRights(rights)
+				.setSince(1234)
+				.setUntil(12345)
+				.build();
+		
+		try {
+			
+			byte[] wrongRights =  new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+					(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+					(byte) 0x00, (byte) 0x00 };
+			
+			new UniquidCapability.UniquidCapabilityBuilder()
+				.setResourceID("1234")
+				.setAssigner("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP")
+				.setAssignee("12345")
+				.setRights(wrongRights)
+				.setSince(1234)
+				.setUntil(12345)
+				.build();
+			Assert.fail();
+		} catch (Exception ex) {
+			//Expected
+		}
+		
+		Assert.assertEquals("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP12341234500000000000000000000000000000000000000123412345", uniquidCapability.prepareToSign());
+		
+		UniquidCapability capability = uniquidNode.createCapability("test", "12345", rights, 1234, 12345);
+		
+		Assert.assertEquals("IK9G0DS7d0Blh94YmcdaDJALan63ZNN1gL0SdVQ7fj94L9OkNmjs325Zx+jWSqYPxn4c61IhUXlY9FfwGnzwLQk=", capability.getAssignerSignature());
+		
+		ECKey signingKey = ECKey.signedMessageToKey(capability.prepareToSign(), capability.getAssignerSignature());
+		
+		Address a = signingKey.toAddress(UniquidRegTest.get());
+		
+		Assert.assertEquals(capability.getAssigner(), a.toBase58());
+		
+		try {
+			uniquidNode.receiveProviderCapability(capability);
+			Assert.fail();
+		} catch (Exception ex) {
+			// Expected
+		}
+		
+
+//		byte[] rights2 =  new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFE, (byte) 0x00, (byte) 0x00,
+//				(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+//				(byte) 0x00, (byte) 0x00, (byte) 0x00 };
+//		
+//		UniquidCapability uniquidCapability2 = new UniquidCapability.UniquidCapabilityBuilder()
+//			.setAssigner("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP")
+//			.setResourceID("mp246b2KBN5xncctJxtj7UHiEo5GfiewMT")
+//			.setAssignee("mvmmEz4nduzpLk4KR6JMQn3LyZuHYt6NTc")
+//			.setRights(rights2)
+//			.setSince(0xffffffffffffffffL)
+//			.setUntil(0xffffffffffffffffL)
+//			.build();
+//		
+//		Assert.assertEquals("muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoPmp246b2KBN5xncctJxtj7UHiEo5GfiewMTmvmmEz4nduzpLk4KR6JMQn3LyZuHYt6NTc0000fe000000000000000000000000000000001844674407370955161518446744073709551615", uniquidCapability2.prepareToSign());
+
+		// Create fake ownership
+		ProviderChannel providerChannel = new ProviderChannel("1234", "muwk2Z1HiysDAADXC5UMvpvmmCjuZdFnoP", Hex.toHexString(opreturn));
+		
+		dummyProvider.insertChannel(providerChannel);
+		
+		uniquidNode.receiveProviderCapability(capability);
+		
+		Assert.assertNotNull(dummyProvider.getChannelByUserAddress(capability.getAssignee()));
 		
 		try {
 			List<String> invalid = new ArrayList<String>();
@@ -329,6 +427,8 @@ public class UniquidNodeImplTest {
 		} catch (Exception ex) {
 			// NOTHING TO DO
 		}
+		
+		
 		
 	}
 	

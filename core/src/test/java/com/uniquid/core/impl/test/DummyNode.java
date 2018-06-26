@@ -2,6 +2,7 @@ package com.uniquid.core.impl.test;
 
 import java.util.List;
 
+import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
@@ -87,10 +88,25 @@ public class DummyNode implements UniquidNode {
 	}
 	
 	@Override
-	public String signMessage(String message, byte[] pubKeyHash) throws NodeException {
-		
+	public UniquidCapability createCapability(String providerName, String userPublicKey, byte[] rights,
+			long since, long until) throws NodeException {
+		throw new NodeException("Exception");
+	}
+
+	@Override
+	public void receiveProviderCapability(UniquidCapability uniquidCapability) throws NodeException {
+		throw new NodeException("Exception");
+	}
+
+	@Override
+	public void receiveUserCapability(UniquidCapability uniquidCapability, String providerName, String path) throws NodeException {
 		throw new NodeException("Exception");
 		
+	}
+
+	@Override
+	public String getAddressAtPath(String path) throws NodeException {
+		throw new NodeException("Exception");
 	}
 
 }

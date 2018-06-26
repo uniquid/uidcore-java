@@ -31,6 +31,7 @@ public abstract class TransactionManagerTest {
 		providerChannel.setRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
 		providerChannel.setRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 		providerChannel.setBitmask("00000");
+		providerChannel.setPath("path");
 
 		getRegisterFactory().getProviderRegister().insertChannel(providerChannel);
 		
@@ -140,6 +141,7 @@ public abstract class TransactionManagerTest {
 					providerChannel.setRevokeAddress(String.valueOf(str));
 					providerChannel.setRevokeTxId(String.valueOf(str));
 					providerChannel.setBitmask(String.valueOf(str));
+					providerChannel.setPath(String.valueOf(str));
 					
 					System.out.println("Writing " + str);
 					

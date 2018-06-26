@@ -16,6 +16,8 @@ public class UserChannelTest {
 		Assert.assertEquals(null, userChannel.getBitmask());
 		Assert.assertEquals(null, userChannel.getRevokeAddress());
 		Assert.assertEquals(null, userChannel.getRevokeTxId());
+		Assert.assertEquals(0, userChannel.getSince());
+		Assert.assertEquals(0, userChannel.getUntil());
 		
 	}
 
@@ -35,9 +37,11 @@ public class UserChannelTest {
 		Assert.assertEquals(bitmask, userChannel.getBitmask());
 		Assert.assertEquals(null, userChannel.getRevokeAddress());
 		Assert.assertEquals(null, userChannel.getRevokeTxId());
+		Assert.assertEquals(0, userChannel.getSince());
+		Assert.assertEquals(0, userChannel.getUntil());
 		
-		Assert.assertEquals("provider address: providerAddress; user address: userAddress; bitmask: bitmask; revoke address: null; revokeTxId: null", userChannel.toString());
-		Assert.assertEquals(-763790120, userChannel.hashCode());
+		Assert.assertEquals("provider address: providerAddress; user address: userAddress; bitmask: bitmask; revoke address: null; revokeTxId: null; since: 0; until: 0; path: null", userChannel.toString());
+		Assert.assertEquals(665269288, userChannel.hashCode());
 		
 	}
 	

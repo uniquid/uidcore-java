@@ -2,12 +2,15 @@ package com.uniquid.node.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Coin;
+import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Peer;
 import org.bitcoinj.core.PeerAddress;
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
+import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.state.CreatedState;
@@ -36,6 +40,7 @@ import com.uniquid.node.impl.utils.NodeUtils;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.user.UserChannel;
 import com.uniquid.userclient.UserClientFactory;
 
 /**
@@ -271,12 +276,6 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	}
 	
 	@Override
-	public String signMessage(String message, byte[] pubKeyHash) throws NodeException {
-		
-		throw new NodeException("This node can't sign messages");
-	}
-
-	@Override
 	public String broadCastTransaction(String serializedTx) throws NodeException {
 
 		LOGGER.info("Broadcasting TX");
@@ -297,7 +296,133 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		}
 
 	}
+	
+	@Override
+	public UniquidCapability createCapability(String providerName, String userPublicKey, byte[] rights,
+			long since, long until) throws NodeException {
+		throw new NodeException("This node can't sign messages");
+	}
+	
+	@Override
+	public void receiveProviderCapability(UniquidCapability uniquidCapability) throws NodeException {
+		
+		LOGGER.info("Receiving capability");
+		
+		try {
+			// Verify signature and extract public key used to sign 
+			ECKey signingKey = ECKey.signedMessageToKey(uniquidCapability.prepareToSign(), uniquidCapability.getAssignerSignature());
+			
+			Address a = signingKey.toAddress(uniquidNodeConfiguration.getNetworkParameters());
+			
+			if (!uniquidCapability.getAssigner().equals(a.toBase58())) {
+				throw new NodeException("Assigner is not the one that signed the capability!");
+			}
+			
+			// find channel corresponding to owner (assigner)
+			ProviderChannel channel = uniquidNodeConfiguration.getRegisterFactory().getProviderRegister().getChannelByUserAddress(uniquidCapability.getAssigner());
+			
+			if (channel == null) {
+				throw new NodeException("Channel not found!");
+			}
+			
+			// Should verify that 'owner bit' (29) is set to one
+			String bitmask = channel.getBitmask();
+			
+			// decode
+			byte[] b = Hex.decode(bitmask);
+			
+			// first byte at 0 means original contract with bitmask
+			BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
+			
+			if (!bitset.get(29)) {
 
+				throw new Exception("User not authorized to issue capabilites!");
+
+			}
+			
+			// provider address must be the same as the original provider channel!!!
+			if (!uniquidCapability.getResourceID().equals(channel.getProviderAddress())) {
+				
+				throw new Exception("Capability contains an invalid provider address!");
+				
+			}
+			
+			// we have a valid capability. we can insert in database
+			ProviderChannel providerChannel = new ProviderChannel();
+			providerChannel.setProviderAddress(uniquidCapability.getResourceID());
+			providerChannel.setUserAddress(uniquidCapability.getAssignee());
+			providerChannel.setRevokeAddress(uniquidCapability.getAssigner());
+			providerChannel.setRevokeTxId("unknown");
+			providerChannel.setBitmask(Hex.toHexString(uniquidCapability.getRights()));
+			providerChannel.setCreationTime(System.currentTimeMillis());
+			providerChannel.setSince(uniquidCapability.getSince());
+			providerChannel.setUntil(uniquidCapability.getUntil());
+			providerChannel.setPath(channel.getPath());
+			
+			// check that an old capability with same provideraddress and useraddress exists...
+			if (uniquidNodeConfiguration.getRegisterFactory().getProviderRegister().getChannelByUserAddress(uniquidCapability.getAssignee()) != null) {
+				
+				// TODO check that the dates are validated!!!
+				LOGGER.info("Removing old capability!");
+				
+				uniquidNodeConfiguration.getRegisterFactory().getProviderRegister().deleteChannel(providerChannel);
+				
+			}
+			
+			uniquidNodeConfiguration.getRegisterFactory().getProviderRegister().insertChannel(providerChannel);
+			
+			uniquidNodeEventService.onProviderContractCreated(providerChannel);
+			
+			LOGGER.info("Capability received correctly!");
+
+		} catch (Exception ex) {
+			throw new NodeException("Problem while validating capability", ex);
+		}
+		
+	}
+	
+	@Override
+	public void receiveUserCapability(UniquidCapability uniquidCapability, String providerName, String path) throws NodeException {
+		
+		try {
+			
+			UserChannel userChannel = new UserChannel();
+			userChannel.setProviderName(providerName);
+			userChannel.setProviderAddress(uniquidCapability.getResourceID());
+			userChannel.setUserAddress(uniquidCapability.getAssignee());
+			userChannel.setBitmask(Hex.toHexString(uniquidCapability.getRights()));
+			userChannel.setRevokeAddress(uniquidCapability.getAssigner());
+			userChannel.setRevokeTxId("unknown");
+			//userChannel.setCreationTime(System.currentTimeMillis());
+			userChannel.setSince(uniquidCapability.getSince());
+			userChannel.setUntil(uniquidCapability.getUntil());
+			userChannel.setPath(path);
+			
+			// check that an old capability with same provider name and useraddress exists...
+			if (uniquidNodeConfiguration.getRegisterFactory().getUserRegister().getChannelByName(providerName) != null) {
+				
+				// TODO check that the dates are validated!!!
+				LOGGER.info("Removing old capability!");
+				
+				uniquidNodeConfiguration.getRegisterFactory().getUserRegister().deleteChannel(userChannel);
+				
+			}
+			
+			uniquidNodeConfiguration.getRegisterFactory().getUserRegister().insertChannel(userChannel);
+			
+			uniquidNodeEventService.onUserContractCreated(userChannel);
+		
+		} catch (Exception ex) {
+			throw new NodeException("Problem while inserting capability", ex);
+		}
+		
+	}
+	
+	@Override
+	public String getAddressAtPath(String path) throws NodeException {
+		throw new NodeException("This node can't sign");
+	}
+	
 	/*
 	 * End of public part for implementing UniquidNode
 	 *

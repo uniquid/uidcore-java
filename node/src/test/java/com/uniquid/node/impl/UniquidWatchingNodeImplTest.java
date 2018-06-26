@@ -80,13 +80,6 @@ public class UniquidWatchingNodeImplTest {
 		}
 		
 		try {
-			uniquidNode.signMessage("NOTHING", new byte[] {});
-			Assert.fail();
-		} catch (Exception e) {
-			// NOTHING TO DO
-		}
-		
-		try {
 			uniquidNode.broadCastTransaction("INVALIDTX");
 			Assert.fail();
 		} catch (Exception e) {

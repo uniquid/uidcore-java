@@ -42,6 +42,9 @@ import com.uniquid.node.impl.UniquidNodeConfiguration;
  * NodeUtils contains some static useful methods
  */
 public class NodeUtils {
+
+	public static final List<ChildNumber> M_BASE_PATH = Arrays.asList(new ChildNumber(44, true),
+			ChildNumber.ZERO_HARDENED, new ChildNumber(0, false));
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(NodeUtils.class.getName());
 	
@@ -268,12 +271,12 @@ public class NodeUtils {
 	}
 	
 	/**
-	 * Allow to return an ImmutableList<ChildNumber> from a string represeting path.
+	 * Allow to return an ImmutableList<ChildNumber> from a string representing path and its parent.
 	 * 
 	 * @param path
 	 * @return
 	 */
-	public static ImmutableList<ChildNumber> listFromPath(String path) {
+	public static ImmutableList<ChildNumber> listFromPath(List<ChildNumber> parent, String path) {
 		
 		// Remove M/ prefix
 		if (path.startsWith("M/")) {
@@ -282,23 +285,19 @@ public class NodeUtils {
 			
 		}
 		
+		ArrayList<ChildNumber> myPath = new ArrayList<ChildNumber>(parent);
+		
 		StringTokenizer tokenizer = new StringTokenizer(path, "/");
-		
-		List<ChildNumber> start = new ArrayList<ChildNumber>();
-		
-		start.add(new ChildNumber(44, true));
-		start.add(new ChildNumber(0, true));
-		start.add(new ChildNumber(0, false));
 		
 		while (tokenizer.hasMoreTokens()) {
 			
 			String next = tokenizer.nextToken();
 			
-			start.add(new ChildNumber(Integer.valueOf(next), false));
+			myPath.add(new ChildNumber(Integer.valueOf(next), false));
 			
 		}
 		
-		return ImmutableList.copyOf(start);
+		return ImmutableList.copyOf(myPath);
 		
 	}
 

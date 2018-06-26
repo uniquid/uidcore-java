@@ -18,6 +18,9 @@ public class ProviderChannel implements Serializable {
 	private String bitmask;
 	private String revokeTxId;
 	private long creationTime;
+	private long since;
+	private long until;
+	private String path;
 
 	/**
      * Creates an empty instance
@@ -134,11 +137,44 @@ public class ProviderChannel implements Serializable {
 	public void setCreationTime(long creationTime) {
 		this.creationTime = creationTime;
 	}
+	
+	public long getSince() {
+		return since;
+	}
 
+	public void setSince(long since) {
+		this.since = since;
+	}
+
+	public long getUntil() {
+		return until;
+	}
+
+	public void setUntil(long until) {
+		this.until = until;
+	}
+	
+	public void setPath(String path) {
+		this.path = path;
+	}
+	
+	public String getPath() {
+		return path;
+	}
+	
+	public boolean isValid() {
+		
+		return (System.currentTimeMillis() >= since) && (System.currentTimeMillis() <= until);
+		
+	}
+	
 	@Override
 	public String toString() {
-		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
-				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId + "; creationTime: " + creationTime;
+		
+		return String.format("Provider address %s; user address %s; bitmask %s; revoke address %s; revokeTxId %s; " +
+				"creation time %d; since %d; until %d; path %s", providerAddress, userAddress, bitmask, revokeAddress, revokeTxId,
+				creationTime, since, until, path);
+		
 	}
 	
 	@Override
@@ -157,13 +193,16 @@ public class ProviderChannel implements Serializable {
     			Objects.equals(revokeAddress, providerChannel.revokeAddress) &&
     			Objects.equals(bitmask, providerChannel.bitmask) &&
     			Objects.equals(revokeTxId, providerChannel.revokeTxId) &&
-    			creationTime == providerChannel.creationTime;
+    			creationTime == providerChannel.creationTime &&
+    			since == providerChannel.since &&
+    			until == providerChannel.until &&
+    			Objects.equals(path, providerChannel.path);
     }
     
     @Override
     public int hashCode() {
     	
-    	return Objects.hash(providerAddress, userAddress, revokeAddress, bitmask, revokeTxId, creationTime);
+    	return Objects.hash(providerAddress, userAddress, revokeAddress, bitmask, revokeTxId, creationTime, since, until, path);
     
     }
 

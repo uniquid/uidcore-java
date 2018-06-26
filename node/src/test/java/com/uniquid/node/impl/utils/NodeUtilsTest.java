@@ -69,19 +69,19 @@ public class NodeUtilsTest {
 	@Test
 	public void testList() throws Exception {
 		
-		ImmutableList<ChildNumber> list = NodeUtils.listFromPath("0/0/0");
+		ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, "0/0/0");
 		
 		Assert.assertEquals("[44H, 0H, 0, 0, 0, 0]", list.toString());
 		
-		ImmutableList<ChildNumber> list2 = NodeUtils.listFromPath("1/0/0");
+		ImmutableList<ChildNumber> list2 = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, "1/0/0");
 		
 		Assert.assertEquals("[44H, 0H, 0, 1, 0, 0]", list2.toString());
 		
-		ImmutableList<ChildNumber> list3 = NodeUtils.listFromPath("1/0/1");
+		ImmutableList<ChildNumber> list3 = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, "1/0/1");
 		
 		Assert.assertEquals("[44H, 0H, 0, 1, 0, 1]", list3.toString());
 		
-		ImmutableList<ChildNumber> list4 = NodeUtils.listFromPath("0/1/0");
+		ImmutableList<ChildNumber> list4 = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, "0/1/0");
 		
 		Assert.assertEquals("[44H, 0H, 0, 0, 1, 0]", list4.toString());
 		

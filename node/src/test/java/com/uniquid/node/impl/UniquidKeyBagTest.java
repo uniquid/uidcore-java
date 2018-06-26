@@ -25,7 +25,7 @@ public class UniquidKeyBagTest {
 		
 		DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 		
-		ImmutableList<ChildNumber> list = NodeUtils.listFromPath("0/0/0");
+		ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, "0/0/0");
 
 		DeterministicKey signingKey1 = deterministicHierarchy.get(list, true, true);
 	
@@ -33,7 +33,7 @@ public class UniquidKeyBagTest {
 
 		uniquidKeyBag.addDeterministicKey(signingKey1);
 		
-		list = NodeUtils.listFromPath("1/0/0");
+		list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, "1/0/0");
 		
 		DeterministicKey signingKey2 = deterministicHierarchy.get(list, true, true);
 		

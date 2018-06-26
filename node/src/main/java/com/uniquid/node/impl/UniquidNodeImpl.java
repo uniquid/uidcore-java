@@ -1,8 +1,11 @@
 package com.uniquid.node.impl;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
+import org.bitcoinj.core.Address;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
@@ -23,8 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import com.google.common.collect.ImmutableList;
+import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.utils.NodeUtils;
+import com.uniquid.register.user.UserChannel;
 
 /**
  * Implementation of an Uniquid Node with BitcoinJ library
@@ -81,7 +86,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 
 			for (String path : paths) {
 				
-				ImmutableList<ChildNumber> list = NodeUtils.listFromPath(path);
+				ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, path);
 
 				DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
 			
@@ -149,7 +154,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	@Override
 	public String signMessage(String message, String path) throws NodeException {
 		
-		ImmutableList<ChildNumber> list = NodeUtils.listFromPath(path);
+		ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, path);
 
 		DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
 		
@@ -158,30 +163,70 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 	}
 	
 	@Override
-	public String signMessage(String message, byte[] pubKeyHash) throws NodeException {
+	public UniquidCapability createCapability(String providerName, String userPublicKey, byte[] rights,
+			long since, long until)	throws NodeException {
 		
-		// First retrieve key from pub key hash
+		LOGGER.info("Creating capability");
 		
-		// start with provider wallet
-		ECKey key = providerWallet.findKeyFromPubHash(pubKeyHash);
-		
-		if (key == null) {
+		try {
+			// Retrieve contract
+			UserChannel userChannel = uniquidNodeConfiguration.getRegisterFactory().getUserRegister().getChannelByName(providerName);
 			
-			// fallback to user wallet
-			
-			key = userWallet.findKeyFromPubHash(pubKeyHash);
-			
-			if (key == null) {
-				
-				throw new NodeException("Can't find requested public key!");
-				
+			if (userChannel == null) {
+				throw new NodeException("Channel not found!");
 			}
+			
+			// Should verify that 'owner bit' (29) is set to one
+			String bitmask = userChannel.getBitmask();
+			
+			// decode
+			byte[] b = Hex.decode(bitmask);
+			
+			// first byte at 0 means original contract with bitmask
+			BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
+			
+			if (!bitset.get(29)) {
 
+				throw new Exception("User not authorized to issue capabilites!");
+
+			}
+			
+			// Extract path
+			String path = userChannel.getPath();
+			
+			UniquidCapability capability = new UniquidCapability.UniquidCapabilityBuilder()
+					.setResourceID(userChannel.getProviderAddress())
+					.setAssigner(userChannel.getUserAddress())
+					.setAssignee(userPublicKey)
+					.setRights(rights)
+					.setSince(since)
+					.setUntil(until)
+					.build();
+			
+			String signature = signMessage(capability.prepareToSign(), path);
+			
+			capability.setAssignerSignature(signature);
+			
+			LOGGER.info("Capability created correctly {}", capability);
+			
+			return capability;
+		
+		} catch (Exception ex) {
+			
+			throw new NodeException("Exception while creating capability", ex);
+			
 		}
 		
-		String path = ((DeterministicKey) key).getPathAsString();
+	}
+	
+	@Override
+	public String getAddressAtPath(String path) throws NodeException {
+
+		ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, path);
+
+		DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
 		
-		return signMessage(message, path);
+		return signingKey.toAddress(uniquidNodeConfiguration.getNetworkParameters()).toBase58();
 		
 	}
 	
