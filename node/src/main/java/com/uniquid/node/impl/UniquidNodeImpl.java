@@ -147,6 +147,55 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		}
 	}
 	
+	@Override
+	public synchronized void recoverUnspent(final String s_tx, final List<String> paths) throws NodeException {
+
+		try {
+
+			Wallet wallet = null;
+
+			if (paths.get(0).startsWith("0")) {
+				wallet = providerWallet;
+			} else if (paths.get(0).startsWith("1")) {
+				wallet = userWallet;
+			} else {
+				throw new NodeException("Unknown paths!");
+			}
+
+			
+			Transaction originalTransaction = uniquidNodeConfiguration.getNetworkParameters().getDefaultSerializer()
+					.makeTransaction(Hex.decode(s_tx));
+
+			SendRequest req = SendRequest.forTx(originalTransaction);
+
+			Transaction tx = req.tx;
+
+			int numInputs = tx.getInputs().size();
+			for (int i = 0; i < numInputs; i++) {
+				TransactionInput txIn = tx.getInput(i);
+
+				// Fetch input tx from proper wallet
+				Transaction inputTransaction = wallet.getTransaction(txIn.getOutpoint().getHash());
+
+				if (inputTransaction == null) {
+					
+					throw new NodeException("Input TX not found in any wallet!");
+
+				}
+
+				TransactionOutput outputToUse = inputTransaction.getOutput(txIn.getOutpoint().getIndex());
+
+				outputToUse.markAsUnspent();
+			
+			}
+
+		} catch (Exception ex) {
+
+			throw new NodeException("Exception while recovering", ex);
+
+		}
+	}
+	
 	public DeterministicSeed getDeterministicSeed() {
 		return deterministicSeed;
 	}

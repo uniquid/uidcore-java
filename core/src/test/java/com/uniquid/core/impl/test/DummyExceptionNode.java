@@ -111,4 +111,10 @@ public class DummyExceptionNode implements UniquidNode {
 		throw new NodeException("Exception");
 	}
 
+	@Override
+	public void recoverUnspent(String s_tx, List<String> paths) throws NodeException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

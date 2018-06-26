@@ -91,6 +91,8 @@ public interface UniquidNode {
 	 */
 	public String signTransaction(final String serializedTx, final List<String> paths) throws NodeException;
 	
+	public void recoverUnspent(final String s_tx, final List<String> paths) throws NodeException;
+	
 	/**
 	 * Sign the input message with the key derived from path specified
 	 * 

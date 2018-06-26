@@ -268,6 +268,11 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		throw new NodeException("This node can't sign transactions");
 
 	}
+	
+	@Override
+	public synchronized void recoverUnspent(final String s_tx, final List<String> paths) throws NodeException {
+		throw new NodeException("This node can't recover transactions");
+	}
 
 	@Override
 	public String signMessage(String message, String path) throws NodeException {
