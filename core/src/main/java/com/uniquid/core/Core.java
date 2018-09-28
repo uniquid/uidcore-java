@@ -33,7 +33,7 @@ public abstract class Core {
 	public static final String CONNECTOR_ATTRIBUTE = com.uniquid.connector.Connector.class.getName();
 
 	private RegisterFactory registerFactory;
-	private List<Connector> connectors;
+	private List<Connector> connectors = new ArrayList<>();
 	private ApplicationContext applicationContext;
 	private UniquidNode uniquidNode;
 
@@ -44,29 +44,10 @@ public abstract class Core {
 	 * @param node the {@link UniquidNode} to use
 	 * @throws Exception in case an error occurs
 	 */
-	public Core(RegisterFactory registerFactory, final Connector connector, UniquidNode node)
-			throws Exception {
-
-		this(registerFactory, new ArrayList<Connector>() {
-			{
-				add(connector);
-			}
-		}, node);
-
-	}
-	
-	/**
-	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
-	 * @param registerFactory the {@link RegisterFactory} to use
-	 * @param connector the {@link Connector} to use
-	 * @param node the {@link UniquidNode} to use
-	 * @throws Exception in case an error occurs
-	 */
-	public Core(RegisterFactory registerFactory, List<Connector> connectors, UniquidNode node)
+	public Core(RegisterFactory registerFactory, UniquidNode node)
 			throws Exception {
 
 		this.registerFactory = registerFactory;
-		this.connectors = connectors;
 		this.uniquidNode = node;
 
 		applicationContext = new ApplicationContext();
@@ -101,6 +82,10 @@ public abstract class Core {
 	 */
 	public List<Connector> getConnectors() {
 		return connectors;
+	}
+
+	public void addConnector(Connector connector) {
+		connectors.add(connector);
 	}
 	
 	/**
