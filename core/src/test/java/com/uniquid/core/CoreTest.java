@@ -59,13 +59,14 @@ public class CoreTest {
 		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
+		core.addConnector(connector);
 		
 		Assert.assertNotNull(core);
 		Assert.assertEquals(dummyFactory, core.getRegisterFactory());
@@ -110,13 +111,14 @@ public class CoreTest {
 		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return new EchoFunction();
 			}
 		};
+		core.addConnector(connector);
 		
 		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
 		providerRequest.setUser("userAddress");
@@ -166,7 +168,7 @@ public class CoreTest {
 		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
@@ -181,6 +183,7 @@ public class CoreTest {
 				};
 			}
 		};
+		core.addConnector(connector);
 		
 		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
 		providerRequest.setUser("userAddress");
@@ -230,13 +233,14 @@ public class CoreTest {
 		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
+		core.addConnector(connector);
 		
 		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
 		providerRequest.setUser("userAddress");
@@ -282,13 +286,14 @@ public class CoreTest {
 		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
+		core.addConnector(connector);
 		
 		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
 		providerRequest.setUser("userAddress");
@@ -347,13 +352,14 @@ public class CoreTest {
 		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
+		core.addConnector(connector);
 		
 		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
 		providerRequest.setUser("userAddress");
@@ -412,13 +418,14 @@ public class CoreTest {
 		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
+		core.addConnector(connector);
 		
 		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
 		providerRequest.setUser("userAddress");
@@ -477,13 +484,14 @@ public class CoreTest {
 		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
+		core.addConnector(connector);
 		
 		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
 		providerRequest.setUser("userAddress");
@@ -534,13 +542,14 @@ public class CoreTest {
 		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
+		core.addConnector(connector);
 		
 		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
 		providerRequest.setUser("userAddress");
@@ -598,13 +607,14 @@ public class CoreTest {
 		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
 				return null;
 			}
 		};
+		core.addConnector(connector);
 		
 		final FunctionRequestMessage providerRequest = new FunctionRequestMessage();
 		providerRequest.setUser("userAddress");
