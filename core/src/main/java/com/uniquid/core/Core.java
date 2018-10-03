@@ -30,43 +30,22 @@ public abstract class Core {
 
 	public static final String NODE_ATTRIBUTE = com.uniquid.node.UniquidNode.class.getName();
 	public static final String REGISTER_FACTORY_ATTRIBUTE = com.uniquid.register.RegisterFactory.class.getName();
-	public static final String CONNECTOR_ATTRIBUTE = com.uniquid.connector.Connector.class.getName();
 
 	private RegisterFactory registerFactory;
-	private List<Connector> connectors;
 	private ApplicationContext applicationContext;
 	private UniquidNode uniquidNode;
 
+	private List<Listener> listeners = new ArrayList<>();
+
 	/**
 	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
 	 * @param registerFactory the {@link RegisterFactory} to use
-	 * @param connector the {@link Connector} to use
 	 * @param node the {@link UniquidNode} to use
 	 * @throws Exception in case an error occurs
 	 */
-	public Core(RegisterFactory registerFactory, final Connector connector, UniquidNode node)
-			throws Exception {
-
-		this(registerFactory, new ArrayList<Connector>() {
-			{
-				add(connector);
-			}
-		}, node);
-
-	}
-	
-	/**
-	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
-	 * @param registerFactory the {@link RegisterFactory} to use
-	 * @param connector the {@link Connector} to use
-	 * @param node the {@link UniquidNode} to use
-	 * @throws Exception in case an error occurs
-	 */
-	public Core(RegisterFactory registerFactory, List<Connector> connectors, UniquidNode node)
-			throws Exception {
+	public Core(RegisterFactory registerFactory, UniquidNode node) {
 
 		this.registerFactory = registerFactory;
-		this.connectors = connectors;
 		this.uniquidNode = node;
 
 		applicationContext = new ApplicationContext();
@@ -74,8 +53,6 @@ public abstract class Core {
 		applicationContext.setAttributeReadOnly(NODE_ATTRIBUTE);
 		applicationContext.setAttribute(REGISTER_FACTORY_ATTRIBUTE, registerFactory);
 		applicationContext.setAttributeReadOnly(REGISTER_FACTORY_ATTRIBUTE);
-		applicationContext.setAttribute(CONNECTOR_ATTRIBUTE, connectors);
-		applicationContext.setAttributeReadOnly(CONNECTOR_ATTRIBUTE);
 
 	}
 	
@@ -94,15 +71,7 @@ public abstract class Core {
 	public RegisterFactory getRegisterFactory() {
 		return registerFactory;
 	}
-	
-	/**
-	 * Retrieve the {@link Connector} instance in use.
-	 * @return the {@link Connector} instance in use.
-	 */
-	public List<Connector> getConnectors() {
-		return connectors;
-	}
-	
+
 	/**
 	 * Retrieve the {@link FunctionContext} instance in use.
 	 * @return the {@link FunctionContext} instance in use.
@@ -118,6 +87,22 @@ public abstract class Core {
 	 */
 	protected abstract Function getFunction(FunctionRequestMessage providerRequest);
 
+    /**
+     * Add listener who can catch and handle incoming through the connector messages
+     * @param listener
+     * @return
+     */
+	protected boolean addListener(Listener listener) {
+		return listeners.add(listener);
+	}
+
+    /**
+     * Remove all existing listeners
+     */
+	protected void removeAllListeners() {
+		listeners.clear();
+	}
+
 	/**
 	 * Perform the execution of a {@link Function} related to the {@link ProviderRequest} received.
 	 * 
@@ -126,8 +111,9 @@ public abstract class Core {
 	 * 
 	 * @throws Exception in case a problem occurs.
 	 */
-	protected final void performProviderRequest(final FunctionRequestMessage providerRequest, final FunctionResponseMessage providerResponse, final byte[] payload) throws Exception {
+	public final FunctionResponseMessage performProviderRequest(final FunctionRequestMessage providerRequest, final byte[] payload) throws Exception {
 
+		FunctionResponseMessage providerResponse = new FunctionResponseMessage();
 		Function function = getFunction(providerRequest);
 
 		try {
@@ -167,7 +153,7 @@ public abstract class Core {
 			providerResponse.setProvider(providerChannel.getProviderAddress());
 
 		}
-
+		return providerResponse;
 	}
 
 	/**
@@ -178,7 +164,7 @@ public abstract class Core {
 	 * 
 	 * @throws Exception in case an error occurs.
 	 */
-	protected final byte[] checkSender(FunctionRequestMessage providerRequest) throws Exception {
+	public final byte[] checkSender(FunctionRequestMessage providerRequest) throws Exception {
 
 		// Retrieve sender
 		String sender = providerRequest.getUser();
