@@ -1,6 +1,8 @@
 package com.uniquid.core.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,7 +39,7 @@ public class UniquidSimplifier extends Core {
 	
 	private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("scheduledExecutorService"));
 
-
+	private List<Listener> listeners = new ArrayList<>();
 	private ExecutorService threadPool = Executors.newCachedThreadPool(new ContextPropagatingThreadFactory("threadPool"));
 	
 	/**
@@ -154,13 +156,18 @@ public class UniquidSimplifier extends Core {
 
 		scheduledExecutorService.shutdown();
 		threadPool.shutdownNow();
-		super.removeAllListeners();
+		listeners.clear();
 
 	}
 
-
-	public boolean startListener(Listener listener) {
-		if (super.addListener(listener)) {
+	/**
+	 * Add listener who can catch and handle incoming through the connector messages
+	 * @param listener
+	 * @return
+	 */
+	public boolean addListener(Listener listener) {
+		if (listeners.add(listener)) {
+			listener.setParentSimplifier(this);
 			threadPool.execute(listener);
 			return true;
 		}

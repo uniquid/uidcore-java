@@ -1,9 +1,7 @@
 package com.uniquid.core;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +32,6 @@ public abstract class Core {
 	private RegisterFactory registerFactory;
 	private ApplicationContext applicationContext;
 	private UniquidNode uniquidNode;
-
-	private List<Listener> listeners = new ArrayList<>();
 
 	/**
 	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
@@ -86,22 +82,6 @@ public abstract class Core {
 	 * @return the {@link Function} related to the {@link ProviderRequest} parameter.
 	 */
 	protected abstract Function getFunction(FunctionRequestMessage providerRequest);
-
-    /**
-     * Add listener who can catch and handle incoming through the connector messages
-     * @param listener
-     * @return
-     */
-	protected boolean addListener(Listener listener) {
-		return listeners.add(listener);
-	}
-
-    /**
-     * Remove all existing listeners
-     */
-	protected void removeAllListeners() {
-		listeners.clear();
-	}
 
 	/**
 	 * Perform the execution of a {@link Function} related to the {@link ProviderRequest} received.

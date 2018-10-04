@@ -3,6 +3,7 @@ package com.uniquid.core;
 import com.uniquid.connector.Connector;
 import com.uniquid.connector.ConnectorException;
 import com.uniquid.connector.EndPoint;
+import com.uniquid.core.impl.UniquidSimplifier;
 import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.messages.UniquidMessage;
 import org.slf4j.Logger;
@@ -14,10 +15,15 @@ public class Listener implements Runnable {
 
     private Connector connector;
     private MessageHandler handler;
+    private UniquidSimplifier parentSimplifier;
 
     public Listener(Connector connector, MessageHandler handler) {
         this.connector = connector;
         this.handler = handler;
+    }
+
+    public void setParentSimplifier(UniquidSimplifier parent) {
+        parentSimplifier = parent;
     }
 
     private boolean startConnector() {
@@ -57,7 +63,7 @@ public class Listener implements Runnable {
                     if (request != null) {
                         LOGGER.info("Received {} message!", request.getMessageType());
 
-                        FunctionResponseMessage response = handler.handleMessage(request);
+                        FunctionResponseMessage response = handler.handleMessage(parentSimplifier, request);
                         if (response != null) {
                             endPoint.setResponse(response);
                         }

@@ -11,7 +11,7 @@ public abstract class AnnounceMessageHandler implements MessageHandler {
     public abstract void handleAnnounceMessage(AnnounceMessage message);
 
     @Override
-    public FunctionResponseMessage handleMessage(UniquidMessage message) {
+    public FunctionResponseMessage handleMessage(UniquidSimplifier simplifier, UniquidMessage message) {
         if (isAnnounceMessage(message)) {
             handleAnnounceMessage((AnnounceMessage) message);
         }
