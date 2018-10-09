@@ -8,7 +8,7 @@ It allows to create an Uniquid node and manage smart contracts among nodes.
 ### Technologies
 
 * Java 7
-* [Maven 3+](http://maven.apache.org) - for building the project
+* [Gradle 3.4+](https://gradle.org/) - for building the project
 
 ### Getting started
 
