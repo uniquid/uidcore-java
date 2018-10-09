@@ -1,6 +1,7 @@
 package com.uniquid.node.impl;
 
 import org.bitcoinj.core.Address;
+import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.wallet.Wallet;
@@ -34,7 +35,7 @@ public class ImprintingContractTest {
 		
 		Transaction originalTransaction = UniquidRegTest.get().getDefaultSerializer().makeTransaction(Hex.decode(imprinttx));
 		
-		final Address address = Address.fromBase58(UniquidRegTest.get(), "mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb");
+		final LegacyAddress address = LegacyAddress.fromBase58(UniquidRegTest.get(), "mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb");
 		
 		ImprintingContract contract = new ImprintingContract(new UniquidNodeStateContext() {
 			
@@ -64,7 +65,7 @@ public class ImprintingContractTest {
 			}
 			
 			@Override
-			public Address getImprintingAddress() {
+			public LegacyAddress getImprintingAddress() {
 				return address;
 			}
 

@@ -1,0 +1,8 @@
+
+description = ''
+dependencies {
+  compile project(':core')
+  compile project(':register-spi')
+  compile project(':register-sqlite')
+  compile project(':node')
+}

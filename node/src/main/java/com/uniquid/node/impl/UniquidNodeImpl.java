@@ -5,12 +5,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.TransactionInput;
-import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
@@ -274,9 +269,10 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 		ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, path);
 
 		DeterministicKey signingKey = deterministicHierarchy.get(list, true, true);
-		
-		return signingKey.toAddress(uniquidNodeConfiguration.getNetworkParameters()).toBase58();
-		
+
+		return LegacyAddress.fromKey(uniquidNodeConfiguration.getNetworkParameters(), signingKey).toBase58();
+
+
 	}
 	
 	/**

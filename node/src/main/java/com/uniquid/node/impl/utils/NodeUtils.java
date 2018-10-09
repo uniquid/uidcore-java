@@ -1,23 +1,8 @@
 package com.uniquid.node.impl.utils;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.BlockChain;
-import org.bitcoinj.core.CheckpointManager;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.PeerGroup;
-import org.bitcoinj.core.StoredBlock;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.Utils;
+import com.google.common.collect.ImmutableList;
+import com.uniquid.node.impl.UniquidNodeConfiguration;
+import org.bitcoinj.core.*;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
@@ -35,8 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import com.google.common.collect.ImmutableList;
-import com.uniquid.node.impl.UniquidNodeConfiguration;
+import java.io.File;
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * NodeUtils contains some static useful methods
@@ -65,7 +53,7 @@ public class NodeUtils {
 	/**
 	 * Synchronize a list of {@code Wallet} against the BlockChain.
 	 * 
-	 * @param params the NetworkParameters to use
+	 * @param configuration the configuration of the node
 	 * @param wallets the list of Wallet
 	 * @param chainFile the chain file to use
 	 * @param listener the listener to inform for status changes
@@ -143,7 +131,7 @@ public class NodeUtils {
 	/**
 	 * Synchronize a single of {@code Wallet} against the BlockChain.
 	 * 
-	 * @param params the NetworkParameters to use
+	 * @param configuration the configuration of the node
 	 * @param wallet the Wallet to synchronize
 	 * @param chainFile the chain file to use
 	 * @param listener the listener to inform for status changes
@@ -231,7 +219,7 @@ public class NodeUtils {
 	 * @param networkParameters the network parameters to use
 	 * @return the imprint address of the node
 	 */
-	public static Address calculateImprintAddress(final String xpub, final NetworkParameters networkParameters) {
+	public static LegacyAddress calculateImprintAddress(final String xpub, final NetworkParameters networkParameters) {
 
 		final DeterministicKey deterministicKey = DeterministicKey.deserializeB58(xpub, networkParameters);
 
@@ -246,7 +234,7 @@ public class NodeUtils {
 	 * @param networkParameters the network parameters to use
 	 * @return the imprint address of the node
 	 */
-	public static Address calculateImprintAddress(final DeterministicKey deterministicKey, final NetworkParameters networkParameters) {
+	public static LegacyAddress calculateImprintAddress(final DeterministicKey deterministicKey, final NetworkParameters networkParameters) {
 
 		final DeterministicHierarchy deterministicHierarchy = new DeterministicHierarchy(deterministicKey);
 
@@ -266,7 +254,8 @@ public class NodeUtils {
 		}
 
 		DeterministicKey imprintingKey = deterministicHierarchy.get(imprintingChild, true, true);
-		return imprintingKey.toAddress(networkParameters);
+
+		return LegacyAddress.fromKey(networkParameters, imprintingKey);
 
 	}
 	

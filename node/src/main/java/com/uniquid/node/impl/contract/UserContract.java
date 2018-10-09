@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
+import org.bitcoinj.script.ScriptPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -46,12 +44,12 @@ public class UserContract extends AbstractContract {
 		}
 
 		Script script = tx.getInput(0).getScriptSig();
-		Address providerAddress = new Address(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
-				org.bitcoinj.core.Utils.sha256hash160(script.getPubKey()));
+		LegacyAddress providerAddress = new LegacyAddress(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
+				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractKeyFromPayToPubKey(script)));
 
 		List<TransactionOutput> ts = new ArrayList<>(transactionOutputs);
 
-		Address userAddress = ts.get(0).getAddressFromP2PKHScript(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
+		LegacyAddress userAddress = ts.get(0).getAddressFromP2PKHScript(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
 
 		if (userAddress == null || !uniquidNodeStateContext.getUserWallet().isPubKeyHashMine(userAddress.getHash160())) {
 			LOGGER.error("Contract not valid! User address is null or we are not the user");
@@ -63,7 +61,7 @@ public class UserContract extends AbstractContract {
 			return;
 		}
 
-		Address revoke = ts.get(2).getAddressFromP2PKHScript(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
+		LegacyAddress revoke = ts.get(2).getAddressFromP2PKHScript(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
 		if (revoke == null /*|| !WalletUtils.isUnspent(tx.getHashAsString(), revoke.toBase58())*/) {
 			LOGGER.error("Contract not valid! Revoke address is null or contract revoked");
 			return;
@@ -136,8 +134,11 @@ public class UserContract extends AbstractContract {
 	@Override
 	public void revokeRealContract(final Transaction tx) throws Exception {
 
+		LegacyAddress address = new LegacyAddress(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
+				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractKeyFromPayToPubKey(tx.getInput(0).getScriptSig())));
+
 		// Retrieve sender
-		String sender = tx.getInput(0).getFromAddress().toBase58();
+		String sender = address.toBase58();
 
 		UserRegister userRegister;
 		try {
@@ -169,7 +170,7 @@ public class UserContract extends AbstractContract {
 
 	}
 	
-	protected String retrieveNameFromProvider(Address providerAddress, UniquidNodeStateContext uniquidNodeStateContext) throws RegistryException {
+	protected String retrieveNameFromProvider(LegacyAddress providerAddress, UniquidNodeStateContext uniquidNodeStateContext) throws RegistryException {
 		
 		RegistryDAO registryDAO = new RegistryDAOImpl(uniquidNodeStateContext.getUniquidNodeConfiguration().getRegistryUrl());
 		

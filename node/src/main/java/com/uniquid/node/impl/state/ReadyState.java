@@ -89,7 +89,7 @@ public class ReadyState<T extends UniquidNodeConfiguration> implements UniquidNo
 				// imprint!
 				LOGGER.warn("Attention! Another machine tried to imprint US! Skip request!");
 
-			} else if (UniquidNodeStateUtils.isValidRevokeContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
+			} else if (UniquidNodeStateUtils.isValidRevokeContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
 
 				try {
 					// Revoking a contract will move coins from provider wallet to another provider address
@@ -114,7 +114,7 @@ public class ReadyState<T extends UniquidNodeConfiguration> implements UniquidNo
 
 			LOGGER.info("Received coins on user wallet");
 
-			if (UniquidNodeStateUtils.isValidRevokeUserContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
+			if (UniquidNodeStateUtils.isValidRevokeUserContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
 
 				try {
 

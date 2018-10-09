@@ -1,6 +1,7 @@
 package com.uniquid.node.impl;
 
 import org.bitcoinj.core.Address;
+import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.wallet.Wallet;
 
 import com.uniquid.node.impl.state.UniquidNodeState;
@@ -39,7 +40,7 @@ public interface UniquidNodeStateContext<T extends UniquidNodeConfiguration> {
 	 * Returns imprinting address
 	 * @return
 	 */
-	public Address getImprintingAddress();
+	public LegacyAddress getImprintingAddress();
 	
 	/**
 	 * Return Event Service

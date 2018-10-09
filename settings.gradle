@@ -1,0 +1,12 @@
+rootProject.name = 'uidcore-java'
+include ':node'
+include ':core'
+include ':register-spi'
+include ':register-sqlite'
+include ':java-package'
+
+project(':node').projectDir = "$rootDir/node" as File
+project(':core').projectDir = "$rootDir/core" as File
+project(':register-spi').projectDir = "$rootDir/register-spi" as File
+project(':register-sqlite').projectDir = "$rootDir/register-sqlite" as File
+project(':java-package').projectDir = "$rootDir/java-package" as File

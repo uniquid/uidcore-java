@@ -1,33 +1,5 @@
 package com.uniquid.node.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Peer;
-import org.bitcoinj.core.PeerAddress;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.listeners.DownloadProgressTracker;
-import org.bitcoinj.crypto.ChildNumber;
-import org.bitcoinj.crypto.DeterministicHierarchy;
-import org.bitcoinj.crypto.DeterministicKey;
-import org.bitcoinj.jni.NativePeerEventListener;
-import org.bitcoinj.wallet.SendRequest;
-import org.bitcoinj.wallet.Wallet;
-import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
-import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
-
 import com.google.common.collect.ImmutableList;
 import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
@@ -42,6 +14,23 @@ import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.userclient.UserClientFactory;
+import org.bitcoinj.core.*;
+import org.bitcoinj.core.listeners.DownloadProgressTracker;
+import org.bitcoinj.crypto.ChildNumber;
+import org.bitcoinj.crypto.DeterministicHierarchy;
+import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.jni.NativePeerEventListener;
+import org.bitcoinj.wallet.SendRequest;
+import org.bitcoinj.wallet.Wallet;
+import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
+import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Implementation of an Uniquid Node with BitcoinJ library
@@ -56,7 +45,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	protected Wallet providerWallet;
 	protected Wallet userWallet;
 
-	protected Address imprintingAddress;
+	protected LegacyAddress imprintingAddress;
 
 	protected final T uniquidNodeConfiguration;
 
@@ -136,8 +125,8 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 				DeterministicKey key = DeterministicKey.deserializeB58(null, uniquidNodeConfiguration.getPublicKey(),
 						uniquidNodeConfiguration.getNetworkParameters());
-				
-				LOGGER.trace("key: {}", key.toAddress(uniquidNodeConfiguration.getNetworkParameters()).toBase58());
+
+				LOGGER.trace("key: {}", LegacyAddress.fromKey(uniquidNodeConfiguration.getNetworkParameters(), key).toBase58());
 				
 				DeterministicHierarchy hierarchy = new DeterministicHierarchy(key);
 
@@ -316,8 +305,8 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		try {
 			// Verify signature and extract public key used to sign 
 			ECKey signingKey = ECKey.signedMessageToKey(uniquidCapability.prepareToSign(), uniquidCapability.getAssignerSignature());
-			
-			Address a = signingKey.toAddress(uniquidNodeConfiguration.getNetworkParameters());
+
+			LegacyAddress a = LegacyAddress.fromKey(uniquidNodeConfiguration.getNetworkParameters(), signingKey);
 			
 			if (!uniquidCapability.getAssigner().equals(a.toBase58())) {
 				throw new NodeException("Assigner is not the one that signed the capability!");
@@ -451,7 +440,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 	/**
 	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
-	 * {@link com.uniquid.node.UniquidNodeState.CREATED}
+	 * {@code com.uniquid.node.UniquidNodeState.CREATED}
 	 * 
 	 * @return
 	 */
@@ -463,7 +452,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 	/**
 	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
-	 * {@link com.uniquid.node.UniquidNodeState.READY}
+	 * {@code com.uniquid.node.UniquidNodeState.READY}
 	 * 
 	 * @return
 	 */
@@ -475,7 +464,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 	/**
 	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
-	 * {@link com.uniquid.node.UniquidNodeState.IMPRINTING}
+	 * {@code com.uniquid.node.UniquidNodeState.IMPRINTING}
 	 * 
 	 * @return
 	 */
@@ -736,7 +725,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		}
 		
 		@Override
-		public Address getImprintingAddress() {
+		public LegacyAddress getImprintingAddress() {
 			return UniquidWatchingNodeImpl.this.imprintingAddress;
 		}
 

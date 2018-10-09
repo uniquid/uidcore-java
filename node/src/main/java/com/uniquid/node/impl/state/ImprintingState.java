@@ -74,7 +74,7 @@ public class ImprintingState<T extends UniquidNodeConfiguration> implements Uniq
 
 			LOGGER.info("Received coins on user wallet");
 
-			if (UniquidNodeStateUtils.isValidRevokeUserContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
+			if (UniquidNodeStateUtils.isValidRevokeUserContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
 
 				try {
 

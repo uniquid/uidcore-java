@@ -67,7 +67,7 @@ public class UniquidSimplifier extends Core {
 	/**
 	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
 	 * @param registerFactory the {@link RegisterFactory} to use
-	 * @param connectorServiceFactory the {@link Connector} to use
+	 * @param connectorServiceFactories the {@link Connector} to use
 	 * @param node the {@link UniquidNode} to use
 	 * @throws Exception in case an error occurs
 	 */

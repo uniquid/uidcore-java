@@ -1,9 +1,6 @@
 package com.uniquid.node.impl;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.Context;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.*;
 import org.bitcoinj.wallet.Wallet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -66,7 +63,7 @@ public class ProviderContractTest {
 			}
 			
 			@Override
-			public Address getImprintingAddress() {
+			public LegacyAddress getImprintingAddress() {
 				return null;
 			}
 			

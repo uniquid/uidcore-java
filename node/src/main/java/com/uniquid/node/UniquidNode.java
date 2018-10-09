@@ -85,7 +85,7 @@ public interface UniquidNode {
 	 * Allow to sign an unsigned serialized blockchain transaction.
 	 * 
 	 * @param serializedTx the unsigned serialized transaction to sign
-	 * @param path the bip32 path to use to sign
+	 * @param paths the bip32 path to use to sign
 	 * @return the serialized signed transaction
 	 * @throws NodeException in case a problem occurs.
 	 */

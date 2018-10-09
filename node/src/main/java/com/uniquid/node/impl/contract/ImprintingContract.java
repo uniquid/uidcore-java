@@ -2,11 +2,9 @@ package com.uniquid.node.impl.contract;
 
 import java.util.List;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.script.ScriptPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +36,11 @@ public class ImprintingContract extends AbstractContract {
 		
 		LOGGER.info("Making imprint contract from TX {}", tx.getHashAsString());
 
+		LegacyAddress legacyAddress = new LegacyAddress(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
+				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractKeyFromPayToPubKey(tx.getInput(0).getScriptSig())));
+
 		// Retrieve sender
-		String sender = tx.getInput(0).getFromAddress().toBase58();
+		String sender = legacyAddress.toBase58();
 		
 		// Check output
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();

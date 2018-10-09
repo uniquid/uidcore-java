@@ -2,10 +2,8 @@ package com.uniquid.node.impl.utils;
 
 import java.util.List;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.core.*;
+import org.bitcoinj.script.ScriptPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +29,6 @@ public class UniquidNodeStateUtils {
 	 * @return true if it's an imprinting transaction otherwise false
 	 */
 	public static boolean isValidImprintingTransaction(Transaction tx, NetworkParameters networkParameters, Address imprintingAddress) {
-		// Retrieve sender
-		String sender = tx.getInput(0).getFromAddress().toBase58();
 
 		// Check output
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();
@@ -52,10 +48,13 @@ public class UniquidNodeStateUtils {
 	 * @param registerFactory the {@link RegisterFactory} to use to access the data store
 	 * @return true if the revoke address is present in the data store
 	 */
-	public static boolean isValidRevokeContract(Transaction tx, RegisterFactory registerFactory) {
+	public static boolean isValidRevokeContract(Transaction tx, NetworkParameters parameters, RegisterFactory registerFactory) {
+
+		LegacyAddress address = new LegacyAddress(parameters,
+				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractKeyFromPayToPubKey(tx.getInput(0).getScriptSig())));
 
 		// Retrieve sender
-		String sender = tx.getInput(0).getFromAddress().toBase58();
+		String sender = address.toBase58();
 
 		ProviderRegister providerRegister;
 		try {
@@ -82,10 +81,13 @@ public class UniquidNodeStateUtils {
 	 * @param registerFactory the {@link RegisterFactory} to use to access the data store
 	 * @return true if the revoke address is present in the data store
 	 */
-	public static boolean isValidRevokeUserContract(Transaction tx, RegisterFactory registerFactory) {
+	public static boolean isValidRevokeUserContract(Transaction tx, NetworkParameters parameters, RegisterFactory registerFactory) {
+
+		LegacyAddress address = new LegacyAddress(parameters,
+				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractKeyFromPayToPubKey(tx.getInput(0).getScriptSig())));
 
 		// Retrieve sender
-		String sender = tx.getInput(0).getFromAddress().toBase58();
+		String sender = address.toBase58();
 
 		UserRegister userRegister;
 		try {
