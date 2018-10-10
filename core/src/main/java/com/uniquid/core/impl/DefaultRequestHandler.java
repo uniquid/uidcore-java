@@ -14,33 +14,32 @@ import org.slf4j.LoggerFactory;
 public class DefaultRequestHandler extends RequestMessageHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRequestHandler.class.getName());
-    private static final String CONSOLE = "CONSOLE";
 
     @Override
     public FunctionResponseMessage handleFunctionRequest(FunctionRequestMessage message) {
-        LOGGER.info(CONSOLE, "Received FunctionRequest!");
+        LOGGER.info("Received FunctionRequest!");
 
         try {
             // Check if sender is authorized or throw exception
             byte[] payload = simplifier.checkSender(message);
 
-            LOGGER.info(CONSOLE, "Performing function...");
+            LOGGER.info("Performing function...");
             return simplifier.performProviderRequest(message, payload);
 
         } catch (Exception e) {
-            LOGGER.error(CONSOLE, "Error performing function: ", e);
+            LOGGER.error("Error performing function: ", e);
         }
         return null;
     }
 
     @Override
     public void handleUniquidCapability(CapabilityMessage message) {
-        LOGGER.info(CONSOLE, "Received capability!");
+        LOGGER.info("Received capability!");
 
         UniquidNode node = simplifier.getNode();
 
         if (!UniquidNodeState.READY.equals(node.getNodeState())) {
-            LOGGER.warn(CONSOLE, "Node is not yet READY! Skipping request");
+            LOGGER.warn("Node is not yet READY! Skipping request");
             return;
         }
 
@@ -57,14 +56,14 @@ public class DefaultRequestHandler extends RequestMessageHandler {
                     .setAssignerSignature(message.getAssignerSignature())
                     .build();
         } catch (Exception e) {
-            LOGGER.error(CONSOLE, "Error creating capability: ", e);
+            LOGGER.error("Error creating capability: ", e);
         }
 
         try {
             // tell node to receive provider capability
             node.receiveProviderCapability(capability);
         } catch (NodeException e) {
-            LOGGER.error(CONSOLE, "Error receiving provider capability: ", e);
+            LOGGER.error("Error receiving provider capability: ", e);
         }
     }
 }
