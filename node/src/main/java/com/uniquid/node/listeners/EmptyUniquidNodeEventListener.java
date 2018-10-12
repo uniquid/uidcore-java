@@ -1,14 +1,13 @@
 package com.uniquid.node.listeners;
 
-import java.util.Date;
-import java.util.Set;
-
-import org.bitcoinj.core.Peer;
-import org.bitcoinj.core.PeerAddress;
-
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.user.UserChannel;
+import org.bitcoinj.core.Peer;
+import org.bitcoinj.core.PeerAddress;
+
+import java.util.Date;
+import java.util.Set;
 
 /**
  * Utility class that implements UniquidNodeEventListener but doesn't provide any implementation for the callbacks.

@@ -1,11 +1,11 @@
 package com.uniquid.node;
 
+import org.spongycastle.util.encoders.Hex;
+
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
-
-import org.spongycastle.util.encoders.Hex;
 
 public class UniquidCapability {
 

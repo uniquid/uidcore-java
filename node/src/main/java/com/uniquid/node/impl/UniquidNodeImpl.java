@@ -1,10 +1,10 @@
 package com.uniquid.node.impl;
 
-import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
+import com.uniquid.node.UniquidCapability;
+import com.uniquid.node.exception.NodeException;
+import com.uniquid.node.impl.utils.NodeUtils;
+import com.uniquid.register.user.UserChannel;
 import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
@@ -20,11 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import com.google.common.collect.ImmutableList;
-import com.uniquid.node.UniquidCapability;
-import com.uniquid.node.exception.NodeException;
-import com.uniquid.node.impl.utils.NodeUtils;
-import com.uniquid.register.user.UserChannel;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
 
 /**
  * Implementation of an Uniquid Node with BitcoinJ library
@@ -67,7 +66,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 
 		try {
 
-			Wallet wallet = null;
+			Wallet wallet;
 
 			if (paths.get(0).startsWith("0")) {
 				wallet = providerWallet;
@@ -147,7 +146,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 
 		try {
 
-			Wallet wallet = null;
+			Wallet wallet;
 
 			if (paths.get(0).startsWith("0")) {
 				wallet = providerWallet;

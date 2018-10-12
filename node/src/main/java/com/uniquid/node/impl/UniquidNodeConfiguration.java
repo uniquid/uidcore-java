@@ -1,11 +1,10 @@
 package com.uniquid.node.impl;
 
-import java.io.File;
-
-import org.bitcoinj.core.NetworkParameters;
-
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.userclient.UserClientFactory;
+import org.bitcoinj.core.NetworkParameters;
+
+import java.io.File;
 
 /**
  * Bean to encapsulate Node configuration data

@@ -11,6 +11,7 @@ import org.bitcoinj.crypto.HDKeyDerivation;
 import org.bitcoinj.jni.NativePeerEventListener;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.net.discovery.SeedPeers;
+import org.bitcoinj.script.ScriptPattern;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.SPVBlockStore;
 import org.bitcoinj.wallet.DeterministicSeed;
@@ -274,7 +275,7 @@ public class NodeUtils {
 			
 		}
 		
-		ArrayList<ChildNumber> myPath = new ArrayList<ChildNumber>(parent);
+		ArrayList<ChildNumber> myPath = new ArrayList<>(parent);
 		
 		StringTokenizer tokenizer = new StringTokenizer(path, "/");
 		
@@ -288,6 +289,13 @@ public class NodeUtils {
 		
 		return ImmutableList.copyOf(myPath);
 		
+	}
+
+	public static LegacyAddress getAddressFromTransactionOutput(TransactionOutput transactionOutput, NetworkParameters params) {
+		if (ScriptPattern.isPayToPubKeyHash(transactionOutput.getScriptPubKey()))
+			return LegacyAddress.fromPubKeyHash(params,
+					ScriptPattern.extractHashFromPayToPubKeyHash(transactionOutput.getScriptPubKey()));
+		return null;
 	}
 
 }

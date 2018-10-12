@@ -1,17 +1,18 @@
 package com.uniquid.node.impl.contract;
 
-import java.util.List;
-
+import com.uniquid.node.impl.UniquidNodeStateContext;
+import com.uniquid.register.exception.RegisterException;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.provider.ProviderRegister;
 import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.ScriptPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.node.impl.UniquidNodeStateContext;
-import com.uniquid.register.exception.RegisterException;
-import com.uniquid.register.provider.ProviderChannel;
-import com.uniquid.register.provider.ProviderRegister;
+import java.util.List;
+
+import static com.uniquid.node.impl.utils.NodeUtils.getAddressFromTransactionOutput;
 
 /**
  * Class that manage imprinting contracts
@@ -36,8 +37,8 @@ public class ImprintingContract extends AbstractContract {
 		
 		LOGGER.info("Making imprint contract from TX {}", tx.getHashAsString());
 
-		LegacyAddress legacyAddress = new LegacyAddress(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
-				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractKeyFromPayToPubKey(tx.getInput(0).getScriptSig())));
+		LegacyAddress legacyAddress = LegacyAddress.fromPubKeyHash(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
+				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
 
 		// Retrieve sender
 		String sender = legacyAddress.toBase58();
@@ -46,7 +47,7 @@ public class ImprintingContract extends AbstractContract {
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();
 		for (TransactionOutput to : transactionOutputs) {
 
-			Address address = to.getAddressFromP2PKHScript(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
+			Address address = getAddressFromTransactionOutput(to, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
 			if (address != null && address.equals(uniquidNodeStateContext.getImprintingAddress())) {
 
 				// This is our imprinter!!!
@@ -55,7 +56,7 @@ public class ImprintingContract extends AbstractContract {
 
 				ProviderRegister providerRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getProviderRegister();
 
-				ECKey key = uniquidNodeStateContext.getProviderWallet().findKeyFromPubHash(uniquidNodeStateContext.getImprintingAddress().getHash160());
+				ECKey key = uniquidNodeStateContext.getProviderWallet().findKeyFromPubHash(uniquidNodeStateContext.getImprintingAddress().getHash());
 				String path = null;
 				if (key != null) {
 					path = ((DeterministicKey) key).getPathAsString();

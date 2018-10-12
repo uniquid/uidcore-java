@@ -1,15 +1,15 @@
 package com.uniquid.node.impl.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.script.Script;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Utility class that contains useful methods for managing wallets
@@ -27,15 +27,7 @@ public abstract class WalletUtils {
 
 		byte[] opreturn = getOpReturnAsByteArray(tx);
 
-		if (opreturn != null && opreturn.length == 80) {
-
-			return true;
-
-		} else {
-
-			return false;
-
-		}
+		return (opreturn != null && opreturn.length == 80);
 	}
 
 	/**
@@ -57,8 +49,8 @@ public abstract class WalletUtils {
 
 	/**
 	 * Retrieve OP_RETURN from a Transaction as byte array
-	 * @param tx
-	 * @return
+	 * @param tx the transaction
+	 * @return the OP_RETURN
 	 * @throws Exception
 	 */
 	public static byte[] getOpReturnAsByteArray(Transaction tx) {

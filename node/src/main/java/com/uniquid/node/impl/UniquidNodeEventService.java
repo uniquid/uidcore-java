@@ -1,5 +1,14 @@
 package com.uniquid.node.impl;
 
+import com.uniquid.node.UniquidNodeState;
+import com.uniquid.node.listeners.UniquidNodeEventListener;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.user.UserChannel;
+import org.bitcoinj.core.Peer;
+import org.bitcoinj.core.PeerAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -7,16 +16,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-
-import org.bitcoinj.core.Peer;
-import org.bitcoinj.core.PeerAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.uniquid.node.UniquidNodeState;
-import com.uniquid.node.listeners.UniquidNodeEventListener;
-import com.uniquid.register.provider.ProviderChannel;
-import com.uniquid.register.user.UserChannel;
 
 /**
  * UniquidNodeEventService allow to manage events asynchronously and split the logic for the subscriber/publisher.
@@ -37,7 +36,7 @@ public class UniquidNodeEventService {
 	public UniquidNodeEventService() {
 
 		this.threadGroup = new ThreadGroup("UniquidNodeEventService");
-		this.observers = new CopyOnWriteArrayList<UniquidNodeEventListener>();
+		this.observers = new CopyOnWriteArrayList<>();
 		this.executorService = Executors.newCachedThreadPool(new ThreadFactory() {
 
 			@Override

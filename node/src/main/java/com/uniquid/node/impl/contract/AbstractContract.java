@@ -1,13 +1,12 @@
 package com.uniquid.node.impl.contract;
 
+import com.uniquid.node.impl.UniquidNodeConfiguration;
+import com.uniquid.node.impl.UniquidNodeStateContext;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionConfidence;
 import org.bitcoinj.core.TransactionConfidence.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.uniquid.node.impl.UniquidNodeConfiguration;
-import com.uniquid.node.impl.UniquidNodeStateContext;
 
 /**
  * Abstract implementation of State pattern with some boilerplate code for
@@ -90,16 +89,16 @@ public abstract class AbstractContract<T extends UniquidNodeConfiguration> imple
 	/**
 	 * Delegate to subclass the real contract creation
 	 * 
-	 * @param tx
-	 * @throws Exception
+	 * @param tx transaction
+	 * @throws Exception in case a problem occurs
 	 */
 	public abstract void doRealContract(final Transaction tx) throws Exception;
 
 	/**
 	 * Delegate to subclass the real contract revocation
 	 * 
-	 * @param tx
-	 * @throws Exception
+	 * @param tx transaction
+	 * @throws Exception in case a problem occurs
 	 */
 	public abstract void revokeRealContract(final Transaction tx) throws Exception;
 

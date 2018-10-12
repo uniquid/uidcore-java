@@ -1,10 +1,14 @@
 package com.uniquid.node.impl.contract;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.bitcoinj.core.*;
+import com.uniquid.node.impl.UniquidNodeStateContext;
+import com.uniquid.node.impl.utils.WalletUtils;
+import com.uniquid.register.exception.RegisterException;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.provider.ProviderRegister;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.core.LegacyAddress;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.script.ScriptPattern;
@@ -12,11 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-import com.uniquid.node.impl.UniquidNodeStateContext;
-import com.uniquid.node.impl.utils.WalletUtils;
-import com.uniquid.register.exception.RegisterException;
-import com.uniquid.register.provider.ProviderChannel;
-import com.uniquid.register.provider.ProviderRegister;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.uniquid.node.impl.utils.NodeUtils.getAddressFromTransactionOutput;
 
 /**
  * Class that manage provider contracts
@@ -47,17 +51,17 @@ public class ProviderContract extends AbstractContract {
 		}
 
 		Script script = tx.getInput(0).getScriptSig();
-		LegacyAddress providerAddress = new LegacyAddress(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
-				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractKeyFromPayToPubKey(script)));
+		LegacyAddress providerAddress = LegacyAddress.fromPubKeyHash(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
+				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(script)));
 
-		if (!uniquidNodeStateContext.getProviderWallet().isPubKeyHashMine(providerAddress.getHash160())) {
+		if (!uniquidNodeStateContext.getProviderWallet().isPubKeyHashMine(providerAddress.getHash())) {
 			LOGGER.error("Contract not valid! We are not the provider");
 			return;
 		}
 
 		List<TransactionOutput> ts = new ArrayList<>(transactionOutputs);
 
-		LegacyAddress userAddress = ts.get(0).getAddressFromP2PKHScript(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
+		LegacyAddress userAddress = getAddressFromTransactionOutput(ts.get(0), uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
 
 		// We are provider!!!
 		if (userAddress == null) {
@@ -70,7 +74,8 @@ public class ProviderContract extends AbstractContract {
 			return;
 		}
 
-		LegacyAddress revoke = ts.get(2).getAddressFromP2PKHScript(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
+		LegacyAddress revoke = getAddressFromTransactionOutput(ts.get(2), uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
+
 		if (revoke == null /*
 							 * ||
 							 * !WalletUtils.isUnspent(tx.getHashAsString(),
@@ -82,7 +87,7 @@ public class ProviderContract extends AbstractContract {
 		
 		LOGGER.info("Contract is valid. Inserting in register");
 		
-		ECKey key = uniquidNodeStateContext.getProviderWallet().findKeyFromPubHash(providerAddress.getHash160());
+		ECKey key = uniquidNodeStateContext.getProviderWallet().findKeyFromPubHash(providerAddress.getHash());
 		String path = null;
 		if (key != null) {
 			path = ((DeterministicKey) key).getPathAsString();
@@ -153,8 +158,8 @@ public class ProviderContract extends AbstractContract {
 	@Override
 	public void revokeRealContract(final Transaction tx) throws Exception {
 
-		LegacyAddress address = new LegacyAddress(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
-				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractKeyFromPayToPubKey(tx.getInput(0).getScriptSig())));
+		LegacyAddress address = LegacyAddress.fromPubKeyHash(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
+				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
 
 		// Retrieve sender
 		String sender = address.toBase58();

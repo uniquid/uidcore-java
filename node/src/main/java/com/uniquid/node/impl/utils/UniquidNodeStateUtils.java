@@ -1,17 +1,18 @@
 package com.uniquid.node.impl.utils;
 
-import java.util.List;
-
-import org.bitcoinj.core.*;
-import org.bitcoinj.script.ScriptPattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
+import org.bitcoinj.core.*;
+import org.bitcoinj.script.ScriptPattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
+import static com.uniquid.node.impl.utils.NodeUtils.getAddressFromTransactionOutput;
 
 /**
  * UniquidNodeStateUtils contains some useful methods used by UniquidNodeState class
@@ -33,7 +34,7 @@ public class UniquidNodeStateUtils {
 		// Check output
 		List<TransactionOutput> transactionOutputs = tx.getOutputs();
 		for (TransactionOutput to : transactionOutputs) {
-			Address address = to.getAddressFromP2PKHScript(networkParameters);
+			Address address = getAddressFromTransactionOutput(to, networkParameters);
 			if (address != null && address.equals(imprintingAddress)) {
 				return true;
 			}
@@ -50,8 +51,8 @@ public class UniquidNodeStateUtils {
 	 */
 	public static boolean isValidRevokeContract(Transaction tx, NetworkParameters parameters, RegisterFactory registerFactory) {
 
-		LegacyAddress address = new LegacyAddress(parameters,
-				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractKeyFromPayToPubKey(tx.getInput(0).getScriptSig())));
+		LegacyAddress address = LegacyAddress.fromPubKeyHash(parameters,
+				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
 
 		// Retrieve sender
 		String sender = address.toBase58();
@@ -83,8 +84,8 @@ public class UniquidNodeStateUtils {
 	 */
 	public static boolean isValidRevokeUserContract(Transaction tx, NetworkParameters parameters, RegisterFactory registerFactory) {
 
-		LegacyAddress address = new LegacyAddress(parameters,
-				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractKeyFromPayToPubKey(tx.getInput(0).getScriptSig())));
+		LegacyAddress address = LegacyAddress.fromPubKeyHash(parameters,
+				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
 
 		// Retrieve sender
 		String sender = address.toBase58();

@@ -1,10 +1,8 @@
 package com.uniquid.node.impl;
 
-import org.bitcoinj.core.Address;
+import com.uniquid.node.impl.state.UniquidNodeState;
 import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.wallet.Wallet;
-
-import com.uniquid.node.impl.state.UniquidNodeState;
 
 /**
  * {@link UniquidNodeStateContext} allows to implement State design Pattern: it present a single interface to the
@@ -16,42 +14,42 @@ public interface UniquidNodeStateContext<T extends UniquidNodeConfiguration> {
 	 * Change internal state
 	 * @param nodeState new internal state
 	 */
-	public void setUniquidNodeState(final UniquidNodeState nodeState);
+	void setUniquidNodeState(final UniquidNodeState nodeState);
 	
 	/**
 	 * Return provider wallet
 	 * @return provider wallet
 	 */
-	public Wallet getProviderWallet();
+	Wallet getProviderWallet();
 	
 	/**
 	 * Return user wallet
-	 * @return
+	 * @return user wallet
 	 */
-	public Wallet getUserWallet();
+	Wallet getUserWallet();
 	
 	/**
 	 * Return UniquidNodeConfiguration
-	 * @return
+	 * @return node configuration
 	 */
-	public T getUniquidNodeConfiguration();
+	T getUniquidNodeConfiguration();
 	
 	/**
 	 * Returns imprinting address
-	 * @return
+	 * @return address to the imprinting path
 	 */
-	public LegacyAddress getImprintingAddress();
+	LegacyAddress getImprintingAddress();
 	
 	/**
 	 * Return Event Service
-	 * @return
+	 * @return event service
 	 */
-	public UniquidNodeEventService getUniquidNodeEventService();
+	UniquidNodeEventService getUniquidNodeEventService();
 	
 	/**
-	 * Return node publick key
-	 * @return
+	 * Return node public key
+	 * @return node public key
 	 */
-	public String getPublicKey();
+	String getPublicKey();
 	
 }

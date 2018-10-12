@@ -1,14 +1,14 @@
 package com.uniquid.node.listeners;
 
-import java.util.Date;
-import java.util.Set;
-
-import org.bitcoinj.core.Peer;
-import org.bitcoinj.core.PeerAddress;
-
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.user.UserChannel;
+import org.bitcoinj.core.Peer;
+import org.bitcoinj.core.PeerAddress;
+import org.bitcoinj.core.PeerGroup;
+
+import java.util.Date;
+import java.util.Set;
 
 /**
  * UniquidNodeEventListener allows to receive callbacks from Uniquid Node when something happens.

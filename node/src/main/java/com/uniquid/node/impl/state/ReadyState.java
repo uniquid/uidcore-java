@@ -1,16 +1,15 @@
 package com.uniquid.node.impl.state;
 
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.wallet.Wallet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.uniquid.node.impl.UniquidNodeConfiguration;
 import com.uniquid.node.impl.UniquidNodeStateContext;
 import com.uniquid.node.impl.contract.ContractStrategy;
 import com.uniquid.node.impl.contract.ProviderContract;
 import com.uniquid.node.impl.contract.UserContract;
 import com.uniquid.node.impl.utils.UniquidNodeStateUtils;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.wallet.Wallet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * State that represents a Node ready to work.
