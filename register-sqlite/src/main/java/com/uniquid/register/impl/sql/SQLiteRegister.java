@@ -127,7 +127,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 			
 			@Override
 			public List<ProviderChannel> handle(ResultSet rs) throws SQLException {
-				List<ProviderChannel> providerChannels = new ArrayList<ProviderChannel>();
+				List<ProviderChannel> providerChannels = new ArrayList<>();
 				
 				while (rs.next()) {
 
@@ -340,7 +340,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 		
 		ResultSetHandler<List<UserChannel>> handler = new ResultSetHandler<List<UserChannel>>() {
 			
-			List<UserChannel> userChannels = new ArrayList<UserChannel>();
+			List<UserChannel> userChannels = new ArrayList<>();
 			
 			@Override
 			public List<UserChannel> handle(ResultSet rs) throws SQLException {

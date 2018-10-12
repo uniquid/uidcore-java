@@ -16,7 +16,7 @@ public class TransactionAwareBasicDataSource extends BasicDataSource implements 
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionAwareBasicDataSource.class);
 	
-	private static final ThreadLocal<TransactionAwareConnection> context = new ThreadLocal<TransactionAwareConnection>();
+	private static final ThreadLocal<TransactionAwareConnection> context = new ThreadLocal<>();
 	
 	// This will prevent multiple writer to be active
 	private final Lock writerLock;
