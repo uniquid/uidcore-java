@@ -1,6 +1,5 @@
 package com.uniquid.core.impl;
 
-import com.subgraph.orchid.encoders.Hex;
 import com.uniquid.messages.CapabilityMessage;
 import com.uniquid.messages.FunctionRequestMessage;
 import com.uniquid.messages.FunctionResponseMessage;
@@ -10,6 +9,7 @@ import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 public class DefaultRequestHandler extends RequestMessageHandler {
 
