@@ -10,26 +10,20 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.uniquid.core.Listener;
+import com.uniquid.node.exception.NodeException;
 import org.bitcoinj.utils.ContextPropagatingThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import com.uniquid.core.Core;
 import com.uniquid.connector.Connector;
-import com.uniquid.connector.ConnectorException;
-import com.uniquid.connector.EndPoint;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.core.provider.impl.ContractFunction;
 import com.uniquid.core.provider.impl.EchoFunction;
 import com.uniquid.core.provider.impl.FunctionConfigImpl;
-import com.uniquid.messages.CapabilityMessage;
 import com.uniquid.messages.FunctionRequestMessage;
-import com.uniquid.messages.FunctionResponseMessage;
-import com.uniquid.messages.MessageType;
-import com.uniquid.messages.UniquidMessage;
-import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.register.RegisterFactory;
@@ -43,39 +37,22 @@ public class UniquidSimplifier extends Core {
 
 	private final Map<Integer, Function> functionsMap = new HashMap<>();
 	
-	private ScheduledExecutorService scheduledExecutorService;
-	private ExecutorService receiverExecutorService;
+	private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("scheduledExecutorService"));
 
-	/**
-	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
-	 * @param registerFactory the {@link RegisterFactory} to use
-	 * @param connectorServiceFactory the {@link Connector} to use
-	 * @param node the {@link UniquidNode} to use
-	 * @throws Exception in case an error occurs
-	 */
-	public UniquidSimplifier(RegisterFactory registerFactory, final Connector connectorServiceFactory, UniquidNode node)
-			throws Exception {
-
-		this(registerFactory, new ArrayList<Connector>() {
-			{
-				add(connectorServiceFactory);
-			}
-		}, node);
-		
-	}
+	private List<Listener> listeners = new ArrayList<>();
+	private ExecutorService threadPool = Executors.newCachedThreadPool(new ContextPropagatingThreadFactory("threadPool"));
 	
 	/**
 	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
 	 * @param registerFactory the {@link RegisterFactory} to use
-	 * @param connectorServiceFactories the {@link Connector} to use
 	 * @param node the {@link UniquidNode} to use
 	 * @throws Exception in case an error occurs
 	 */
-	public UniquidSimplifier(RegisterFactory registerFactory, List<Connector> connectorServiceFactories, UniquidNode node)
+	public UniquidSimplifier(RegisterFactory registerFactory, UniquidNode node)
 			throws Exception {
 
 		// Call superclass
-		super(registerFactory, connectorServiceFactories, node);
+		super(registerFactory, node);
 
 		// Register core functions
 		try {
@@ -146,165 +123,27 @@ public class UniquidSimplifier extends Core {
 
 	}
 
-	/**
-	 * 
-	 * Initialize the library and start the processing
-	 * 
-	 * @throws Exception in case a problem occurs.
-	 */
-	public void start() throws Exception {
-
-		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("scheduledExecutorService"));
-		receiverExecutorService = Executors.newCachedThreadPool(new ContextPropagatingThreadFactory("receiverExecutorService"));
-
+	public void syncBlockchain() throws NodeException {
 		// initialize node if not yet initilized
 		if (UniquidNodeState.CREATED.equals(getNode().getNodeState())) {
-			
+
 			LOGGER.info("Initializing node");
 			getNode().initNode();
-		
+
 		}
-		
-		final Runnable walletSyncher = new Runnable() {
-			
-			public void run() {
-				
-				try {
-					
-					LOGGER.info("Updating node from the BlockChain");
-					
-					// Update node from blockchain
-					getNode().updateNode();
 
-				} catch (Exception e) {
-					
-					LOGGER.error("Exception while updating node from the BlockChain", e);
-				}
-
-			}
-		};
+		final Runnable walletSyncher = () -> {
+            try {
+                LOGGER.info("Updating node from the BlockChain");
+                // Update node from blockchain
+                getNode().updateNode();
+            } catch (Exception e) {
+                LOGGER.error("Exception while updating node from the BlockChain", e);
+            }
+        };
 
 		final ScheduledFuture<?> walletSyncherFuture = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 1,
 				TimeUnit.MINUTES);
-
-		try {
-			
-			LOGGER.info("Starting connector");
-
-			// start connector
-			for (Connector c : getConnectors()) {
-				c.start();
-			}
-
-		} catch (ConnectorException e) {
-			
-			LOGGER.error("Exception while starting the connector", e);
-			
-			throw e;
-			
-		}
-
-		for (final Connector c : getConnectors()) {
-			
-			// Create a thread to wait for messages
-			final Runnable receiver = new Runnable() {
-
-				@Override
-				public void run() {
-
-					// until not interrupted
-					while (!Thread.currentThread().isInterrupted()) {
-
-						try {
-							
-							LOGGER.info("Wait to receive request...");
-
-							// this will block until a message is received
-							EndPoint endPoint = c.accept();
-							
-							LOGGER.info("Request received!");
-
-							UniquidMessage inputMessage = endPoint.getInputMessage();
-
-							UniquidMessage outputMessage = endPoint.getOutputMessage();
-							
-							if (!UniquidNodeState.READY.equals(getNode().getNodeState())) {
-								LOGGER.warn("Node is not yet READY! Skipping request");
-								
-								continue;
-							}
-							
-							if (MessageType.FUNCTION_REQUEST.equals(inputMessage.getMessageType())) {
-								
-								LOGGER.info("Received input message {}", inputMessage.getMessageType());
-								
-							} else if (MessageType.UNIQUID_CAPABILITY.equals(inputMessage.getMessageType())) {
-								
-								LOGGER.info("Received capability!");
-								
-								CapabilityMessage capabilityMessage = (CapabilityMessage) inputMessage;
-								
-								// transform inputMessage to uniquidCapability
-								UniquidCapability capability = new UniquidCapability.UniquidCapabilityBuilder()
-										.setResourceID(capabilityMessage.getResourceID())
-										.setAssigner(capabilityMessage.getAssigner())
-										.setAssignee(capabilityMessage.getAssignee())
-										.setRights(Hex.decode(capabilityMessage.getRights()))
-										.setSince(capabilityMessage.getSince())
-										.setUntil(capabilityMessage.getUntil())
-										.setAssignerSignature(capabilityMessage.getAssignerSignature())
-										.build();
-								
-								// tell node to receive provider capability
-								getNode().receiveProviderCapability(capability);
-								
-								// flush
-								endPoint.flush();
-								
-								// skip all following code!
-								continue;
-								
-							} else {
-								
-								LOGGER.info("Unknown message type {} received", inputMessage.getMessageType());
-								
-								throw new Exception("Unknown message type");
-								
-							}
-
-							// Check if sender is authorized or throw exception
-							byte[] payload = checkSender((FunctionRequestMessage) inputMessage);
-
-							LOGGER.info("Performing function...");
-							performProviderRequest((FunctionRequestMessage) inputMessage, (FunctionResponseMessage) outputMessage, payload);
-
-							endPoint.flush();
-							
-							LOGGER.info("Done!");
-
-						} catch (InterruptedException ex) {
-							
-							LOGGER.info("Received request to stop. Exiting");
-							
-							return;
-							
-						} catch (Throwable t) {
-
-							LOGGER.error("Throwable catched", t);
-
-						}
-
-					}
-
-				}
-
-			};
-
-			// Start receiver
-			receiverExecutorService.execute(receiver);
-			
-		}
-
 	}
 
 	/**
@@ -312,26 +151,26 @@ public class UniquidSimplifier extends Core {
 	 * 
 	 * @throws Exception in case a problem occurs
 	 */
-	public void shutdown() throws Exception {
-		
+	public void shutdown() {
 		LOGGER.info("Shutting down!");
-		
-		try {
-			
-			LOGGER.info("Stopping connector");
-			for (Connector c : getConnectors()) {
-				c.stop();
-			}
-			
-		} catch (ConnectorException e) {
-			
-			LOGGER.error("Exception while stopping the connector", e);
-			
-		}
 
 		scheduledExecutorService.shutdown();
-		receiverExecutorService.shutdownNow();
+		threadPool.shutdownNow();
+		listeners.clear();
 
 	}
 
+	/**
+	 * Add listener who can catch and handle incoming through the connector messages
+	 * @param listener
+	 * @return
+	 */
+	public boolean addListener(Listener listener) {
+		if (listeners.add(listener)) {
+			listener.setParentSimplifier(this);
+			threadPool.execute(listener);
+			return true;
+		}
+		return false;
+	}
 }
