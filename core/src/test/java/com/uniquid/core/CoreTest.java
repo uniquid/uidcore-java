@@ -54,12 +54,10 @@ public class CoreTest {
 			}
 			
 		};
-		
-		final Connector connector = createDummyConnector();
-		
+
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
@@ -69,7 +67,6 @@ public class CoreTest {
 		
 		Assert.assertNotNull(core);
 		Assert.assertEquals(dummyFactory, core.getRegisterFactory());
-		Assert.assertEquals(connector, core.getConnectors().get(0));
 		Assert.assertEquals(node, core.getNode());
 		Assert.assertNotNull(core.getFunctionContext());
 		Assert.assertNull(core.getFunction(null));
@@ -106,11 +103,9 @@ public class CoreTest {
 			
 		};
 		
-		final Connector connector = createDummyConnector();
-		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
@@ -122,10 +117,8 @@ public class CoreTest {
 		providerRequest.setUser("userAddress");
 		providerRequest.setFunction(30);
 		providerRequest.setParameters("params");
-		
-		final FunctionResponseMessage providerResponse = new FunctionResponseMessage();
-		
-		core.performProviderRequest(providerRequest, providerResponse, null);
+
+		FunctionResponseMessage providerResponse = core.performProviderRequest(providerRequest, null);
 		
 		Assert.assertEquals(FunctionResponseMessage.RESULT_OK, providerResponse.getError());
 		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getProvider());
@@ -162,11 +155,9 @@ public class CoreTest {
 			
 		};
 		
-		final Connector connector = createDummyConnector();
-		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
@@ -186,10 +177,8 @@ public class CoreTest {
 		providerRequest.setUser("userAddress");
 		providerRequest.setFunction(30);
 		providerRequest.setParameters("params");
-		
-		final FunctionResponseMessage providerResponse = new FunctionResponseMessage();
-		
-		core.performProviderRequest(providerRequest, providerResponse, null);
+
+		FunctionResponseMessage providerResponse = core.performProviderRequest(providerRequest, null);
 		
 		Assert.assertEquals(FunctionResponseMessage.RESULT_ERROR, providerResponse.getError());
 		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getProvider());
@@ -226,11 +215,9 @@ public class CoreTest {
 			
 		};
 		
-		final Connector connector = createDummyConnector();
-		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
@@ -242,10 +229,8 @@ public class CoreTest {
 		providerRequest.setUser("userAddress");
 		providerRequest.setFunction(30);
 		providerRequest.setParameters("params");
-		
-		final FunctionResponseMessage providerResponse = new FunctionResponseMessage();
-		
-		core.performProviderRequest(providerRequest, providerResponse, null);
+
+		FunctionResponseMessage providerResponse = core.performProviderRequest(providerRequest, null);
 		
 		Assert.assertEquals(FunctionResponseMessage.RESULT_FUNCTION_NOT_AVAILABLE, providerResponse.getError());
 		Assert.assertEquals(providerChannel.getProviderAddress(), providerResponse.getProvider());
@@ -278,11 +263,9 @@ public class CoreTest {
 			
 		};
 		
-		final Connector connector = createDummyConnector();
-		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
@@ -343,11 +326,9 @@ public class CoreTest {
 			
 		};
 		
-		final Connector connector = createDummyConnector();
-		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
@@ -408,11 +389,9 @@ public class CoreTest {
 			
 		};
 		
-		final Connector connector = createDummyConnector();
-		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
@@ -473,11 +452,9 @@ public class CoreTest {
 			
 		};
 		
-		final Connector connector = createDummyConnector();
-		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
@@ -530,11 +507,9 @@ public class CoreTest {
 			
 		};
 		
-		final Connector connector = createDummyConnector();
-		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
@@ -594,11 +569,9 @@ public class CoreTest {
 			
 		};
 		
-		final Connector connector = createDummyConnector();
-		
 		final UniquidNode node = new DummyNode();
 		
-		Core core = new Core(dummyFactory, connector, node) {
+		Core core = new Core(dummyFactory, node) {
 			
 			@Override
 			protected Function getFunction(FunctionRequestMessage inputMessage) {
