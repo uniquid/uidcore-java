@@ -1,9 +1,8 @@
 package com.uniquid.core.impl.provider;
 
+import com.uniquid.core.provider.impl.ApplicationContext;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.uniquid.core.provider.impl.ApplicationContext;
 
 public class ApplicationContextTest {
 
@@ -14,7 +13,7 @@ public class ApplicationContextTest {
 		
 		Assert.assertNotNull(context);
 		Assert.assertEquals("Uniquid Library", context.getServerInfo());
-		Assert.assertEquals(null, context.getAttribute(null));
+		Assert.assertNull(context.getAttribute(null));
 		Assert.assertNotNull(context.getAttributeNames());
 		
 	}
@@ -43,7 +42,7 @@ public class ApplicationContextTest {
 		
 		context.setAttribute("test", null);
 		
-		Assert.assertEquals(null, context.getAttribute("test"));
+		Assert.assertNull(context.getAttribute("test"));
 		
 		context.setAttribute("test", o);
 		
@@ -51,7 +50,7 @@ public class ApplicationContextTest {
 		
 		context.removeAttribute("test");
 		
-		Assert.assertEquals(null, context.getAttribute("test"));
+		Assert.assertNull(context.getAttribute("test"));
 		
 		context.setAttribute("test", o);
 		

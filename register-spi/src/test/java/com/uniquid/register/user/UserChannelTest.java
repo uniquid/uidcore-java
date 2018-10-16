@@ -10,12 +10,12 @@ public class UserChannelTest {
 		
 		UserChannel userChannel = new UserChannel();
 		
-		Assert.assertEquals(null, userChannel.getProviderName());
-		Assert.assertEquals(null, userChannel.getProviderAddress());
-		Assert.assertEquals(null, userChannel.getUserAddress());
-		Assert.assertEquals(null, userChannel.getBitmask());
-		Assert.assertEquals(null, userChannel.getRevokeAddress());
-		Assert.assertEquals(null, userChannel.getRevokeTxId());
+		Assert.assertNull(userChannel.getProviderName());
+		Assert.assertNull(userChannel.getProviderAddress());
+		Assert.assertNull(userChannel.getUserAddress());
+		Assert.assertNull(userChannel.getBitmask());
+		Assert.assertNull(userChannel.getRevokeAddress());
+		Assert.assertNull(userChannel.getRevokeTxId());
 		Assert.assertEquals(0, userChannel.getSince());
 		Assert.assertEquals(0, userChannel.getUntil());
 		
@@ -35,8 +35,8 @@ public class UserChannelTest {
 		Assert.assertEquals(providerAddress, userChannel.getProviderAddress());
 		Assert.assertEquals(userAddress, userChannel.getUserAddress());
 		Assert.assertEquals(bitmask, userChannel.getBitmask());
-		Assert.assertEquals(null, userChannel.getRevokeAddress());
-		Assert.assertEquals(null, userChannel.getRevokeTxId());
+		Assert.assertNull(userChannel.getRevokeAddress());
+		Assert.assertNull(userChannel.getRevokeTxId());
 		Assert.assertEquals(0, userChannel.getSince());
 		Assert.assertEquals(0, userChannel.getUntil());
 		
@@ -50,7 +50,7 @@ public class UserChannelTest {
 		
 		UserChannel userChannel = new UserChannel();
 		
-		Assert.assertEquals(null, userChannel.getProviderName());
+		Assert.assertNull(userChannel.getProviderName());
 		
 		String providerName = "providerName";
 		
@@ -65,7 +65,7 @@ public class UserChannelTest {
 		
 		UserChannel userChannel = new UserChannel();
 		
-		Assert.assertEquals(null, userChannel.getProviderAddress());
+		Assert.assertNull(userChannel.getProviderAddress());
 		
 		String providerAddress = "providerAddress";
 		
@@ -80,7 +80,7 @@ public class UserChannelTest {
 		
 		UserChannel userChannel = new UserChannel();
 		
-		Assert.assertEquals(null, userChannel.getUserAddress());
+		Assert.assertNull(userChannel.getUserAddress());
 		
 		String userAddress = "userAddress";
 		
@@ -95,7 +95,7 @@ public class UserChannelTest {
 		
 		UserChannel userChannel = new UserChannel();
 		
-		Assert.assertEquals(null, userChannel.getBitmask());
+		Assert.assertNull(userChannel.getBitmask());
 		
 		String bitmask = "bitmask";
 		
@@ -110,7 +110,7 @@ public class UserChannelTest {
 		
 		UserChannel userChannel = new UserChannel();
 		
-		Assert.assertEquals(null, userChannel.getRevokeAddress());
+		Assert.assertNull(userChannel.getRevokeAddress());
 		
 		String revokeAddress = "revokeAddress";
 		
@@ -125,7 +125,7 @@ public class UserChannelTest {
 		
 		UserChannel userChannel = new UserChannel();
 		
-		Assert.assertEquals(null, userChannel.getRevokeTxId());
+		Assert.assertNull(userChannel.getRevokeTxId());
 		
 		String revokeTxid = "revokeTxid";
 		
@@ -142,15 +142,15 @@ public class UserChannelTest {
 		
 		UserChannel userChannel2 = new UserChannel();
 		
-		Assert.assertEquals(true, userChannel1.equals(userChannel2));
+		Assert.assertEquals(userChannel1, userChannel2);
 		
 		userChannel2.setProviderName("other");
 		
-		Assert.assertEquals(false, userChannel1.equals(userChannel2));
+		Assert.assertNotEquals(userChannel1, userChannel2);
 		
-		Assert.assertEquals(false, userChannel1.equals(null));
+		Assert.assertNotNull(userChannel1);
 		
-		Assert.assertEquals(true, userChannel1.equals(userChannel1));
+		Assert.assertEquals(userChannel1, userChannel1);
 		
 	}
 	

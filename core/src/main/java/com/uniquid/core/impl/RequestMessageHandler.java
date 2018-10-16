@@ -1,7 +1,10 @@
 package com.uniquid.core.impl;
 
 import com.uniquid.core.MessageHandler;
-import com.uniquid.messages.*;
+import com.uniquid.messages.CapabilityMessage;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
+import com.uniquid.messages.UniquidMessage;
 
 public abstract class RequestMessageHandler implements MessageHandler {
 

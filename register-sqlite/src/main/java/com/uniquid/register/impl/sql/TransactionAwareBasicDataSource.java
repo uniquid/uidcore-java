@@ -1,16 +1,15 @@
 package com.uniquid.register.impl.sql;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
+import com.uniquid.register.transaction.TransactionException;
+import com.uniquid.register.transaction.TransactionManager;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.register.transaction.TransactionException;
-import com.uniquid.register.transaction.TransactionManager;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class TransactionAwareBasicDataSource extends BasicDataSource implements TransactionManager {
 	

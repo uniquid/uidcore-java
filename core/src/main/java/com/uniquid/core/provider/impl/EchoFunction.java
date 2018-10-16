@@ -1,11 +1,11 @@
 package com.uniquid.core.provider.impl;
 
-import java.io.IOException;
-
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.messages.FunctionRequestMessage;
 import com.uniquid.messages.FunctionResponseMessage;
+
+import java.io.IOException;
 
 /**
  * {@link Function} designed to echo with the content received from the User 

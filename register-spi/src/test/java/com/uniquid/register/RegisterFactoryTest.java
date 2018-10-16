@@ -1,10 +1,9 @@
 package com.uniquid.register;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserRegister;
+import org.junit.Assert;
+import org.junit.Test;
 
 public abstract class RegisterFactoryTest {
 	

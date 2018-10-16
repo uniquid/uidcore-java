@@ -1,13 +1,13 @@
 package com.uniquid.core.provider.impl;
 
-import java.io.IOException;
-
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.FunctionConfig;
 import com.uniquid.core.provider.FunctionContext;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.messages.FunctionRequestMessage;
 import com.uniquid.messages.FunctionResponseMessage;
+
+import java.io.IOException;
 
 /**
  * Defines a generic, protocol-independent function.

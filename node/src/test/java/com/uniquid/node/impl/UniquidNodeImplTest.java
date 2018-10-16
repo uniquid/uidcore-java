@@ -1,32 +1,29 @@
 package com.uniquid.node.impl;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
-
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.NetworkParameters;
-import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
-import org.spongycastle.util.encoders.Hex;
-
 import com.uniquid.node.UniquidCapability;
-import com.uniquid.node.UniquidCapability.UniquidCapabilityBuilder;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
-import com.uniquid.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
 import com.uniquid.node.impl.utils.DummyRegisterFactory;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.node.impl.utils.DummyUserRegister;
+import com.uniquid.params.UniquidRegTest;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.core.LegacyAddress;
+import org.bitcoinj.core.NetworkParameters;
+import org.junit.Assert;
+import org.junit.Test;
+import org.spongycastle.util.encoders.Hex;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
 
 public class UniquidNodeImplTest {
 
@@ -160,8 +157,8 @@ public class UniquidNodeImplTest {
 		Assert.assertEquals(providerAddress, providerChannel.getProviderAddress());
 		Assert.assertEquals(userAddress, providerChannel.getUserAddress());
 		Assert.assertEquals(bitmask, providerChannel.getBitmask());
-		Assert.assertEquals(null, providerChannel.getRevokeAddress());
-		Assert.assertEquals(null, providerChannel.getRevokeTxId());
+		Assert.assertNull(providerChannel.getRevokeAddress());
+		Assert.assertNull(providerChannel.getRevokeTxId());
 		
 		dummyProvider.insertChannel(providerChannel);
 		
@@ -234,9 +231,9 @@ public class UniquidNodeImplTest {
 		UniquidNodeImpl uniquidNode = builder.buildFromHexSeed("01b30b9f68e59936712f0c416ceb1c73f01fa97f665acfa898e6e3c19c5ab577", 1487159470);
 		
 		Assert.assertNotNull(uniquidNode);
-		
+
 		uniquidNode.initNode();
-		
+
 		Assert.assertEquals(UniquidNodeState.IMPRINTING, uniquidNode.getNodeState());
 		
 		Assert.assertEquals("mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb", uniquidNode.getImprintingAddress());
@@ -248,9 +245,9 @@ public class UniquidNodeImplTest {
 		Assert.assertNotNull(uniquidNode.getProviderWallet());
 		
 		Assert.assertNotNull(uniquidNode.getUserWallet());
-		
+
 		uniquidNode.updateNode();
-		
+
 		Thread.sleep(5000); // wait to update
 		
 		Assert.assertEquals(1, dummyProvider.getAllChannels().size());
@@ -271,7 +268,7 @@ public class UniquidNodeImplTest {
 		
 		Assert.assertEquals("7.00 BTC", uniquidNodeReloaded.getSpendableBalance());
 		
-		List<String> paths = new ArrayList<String>();
+		List<String> paths = new ArrayList<>();
 		paths.add("0/0/0");
 		paths.add("0/0/1");
 		
@@ -282,7 +279,7 @@ public class UniquidNodeImplTest {
 		Assert.assertEquals(signed_tx, uniquidNode.signTransaction(unsigned_tx, paths));
 		
 		
-		List<String> paths2 = new ArrayList<String>();
+		List<String> paths2 = new ArrayList<>();
 		paths2.add("1/1/1");
 		
 		String unsigned_tx2 = "010000000144106042786d7b5f3bb24777ce51024e8de51a8845dfd05f59f04fcb78331f6a0100000000ffffffff010084d717000000001976a9141686d60b9db2bd5646b493ce17dd7bb0731cb50788ac00000000";
@@ -300,7 +297,7 @@ public class UniquidNodeImplTest {
 			// NOTHING TO DO.
 		}
 		
-		List<String> paths3 = new ArrayList<String>();
+		List<String> paths3 = new ArrayList<>();
 		paths3.add("1/0/0");
 		
 		try {
@@ -317,13 +314,13 @@ public class UniquidNodeImplTest {
 		
 		final ECKey key = ECKey.signedMessageToKey("Hello World!", "IOAhyp0at0puRgDZD3DJl0S2FjgLEo0q7nBdgzDrWpbDR+B3daIlN3R20lhcpQKZFWl8/ttxUXzQYS0EFso2VLo=");
 		
-		Assert.assertEquals("mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb", key.toAddress(UniquidRegTest.get()).toBase58());
+		Assert.assertEquals("mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb", LegacyAddress.fromKey(UniquidRegTest.get(), key).toBase58());
 		
 		Assert.assertEquals("H3UHssQig0Vef9VIzUmDW0HV37vpm5ZZGF0zbw6xxMMoTTbUm/efPIQDcx5IlOgflC7BcR90aXHsV7BBaQx+b9Q=", uniquidNode.signMessage("Hello World!", "1/0/0"));
 		
 		final ECKey key2 = ECKey.signedMessageToKey("Hello World!", "H3UHssQig0Vef9VIzUmDW0HV37vpm5ZZGF0zbw6xxMMoTTbUm/efPIQDcx5IlOgflC7BcR90aXHsV7BBaQx+b9Q=");
 		
-		Assert.assertEquals("mgXg8FWaYaDVcsvjJq4jW7vrxQCRtjPchs", key2.toAddress(UniquidRegTest.get()).toBase58());
+		Assert.assertEquals("mgXg8FWaYaDVcsvjJq4jW7vrxQCRtjPchs", LegacyAddress.fromKey(UniquidRegTest.get(), key2).toBase58());
 		
 		Assert.assertEquals("mj3Ggr43QMSea1s6H3nYJRE3m5GjhGFcLb", uniquidNode.getAddressAtPath("0/0/0"));
 		
@@ -383,7 +380,7 @@ public class UniquidNodeImplTest {
 		
 		ECKey signingKey = ECKey.signedMessageToKey(capability.prepareToSign(), capability.getAssignerSignature());
 		
-		Address a = signingKey.toAddress(UniquidRegTest.get());
+		LegacyAddress a = LegacyAddress.fromKey(UniquidRegTest.get(), signingKey);
 		
 		Assert.assertEquals(capability.getAssigner(), a.toBase58());
 		
@@ -420,7 +417,7 @@ public class UniquidNodeImplTest {
 		Assert.assertNotNull(dummyProvider.getChannelByUserAddress(capability.getAssignee()));
 		
 		try {
-			List<String> invalid = new ArrayList<String>();
+			List<String> invalid = new ArrayList<>();
 			invalid.add("2/0/0");
 			uniquidNode.signTransaction(unsigned_tx, invalid);
 			Assert.fail();

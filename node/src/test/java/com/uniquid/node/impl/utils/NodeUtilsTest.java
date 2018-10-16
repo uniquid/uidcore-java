@@ -1,6 +1,8 @@
 package com.uniquid.node.impl.utils;
 
-import org.bitcoinj.core.Address;
+import com.google.common.collect.ImmutableList;
+import com.uniquid.params.UniquidRegTest;
+import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicKey;
@@ -9,9 +11,6 @@ import org.bitcoinj.wallet.SendRequest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
-
-import com.google.common.collect.ImmutableList;
-import com.uniquid.params.UniquidRegTest;
 
 
 public class NodeUtilsTest {
@@ -54,7 +53,7 @@ public class NodeUtilsTest {
 
 		String expectedImprintAddress = "mvMD34qjTuMSoaHifCmjtjiPLXgfFNtCiV";
 
-		Address address = NodeUtils.calculateImprintAddress(tpub, UniquidRegTest.get());
+		LegacyAddress address = NodeUtils.calculateImprintAddress(tpub, UniquidRegTest.get());
 
 		Assert.assertEquals(expectedImprintAddress, address.toBase58());
 

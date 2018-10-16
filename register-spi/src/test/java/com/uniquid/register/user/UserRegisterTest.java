@@ -1,11 +1,10 @@
 package com.uniquid.register.user;
 
-import java.util.List;
-
+import com.uniquid.register.exception.RegisterException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.uniquid.register.exception.RegisterException;
+import java.util.List;
 
 public abstract class UserRegisterTest {
 	
@@ -53,7 +52,7 @@ public abstract class UserRegisterTest {
 
 		Assert.assertEquals(channels.size(), 1);
 
-		Assert.assertEquals(true, userChannel.equals(channels.get(0)));
+		Assert.assertEquals(userChannel, channels.get(0));
 
 		try {
 
@@ -79,7 +78,7 @@ public abstract class UserRegisterTest {
 
 		UserChannel provider2 = getUserRegister().getChannelByName("Test");
 
-		Assert.assertEquals(true, userChannel.equals(provider2));
+		Assert.assertEquals(userChannel,  provider2);
 
 		try {
 
@@ -105,7 +104,7 @@ public abstract class UserRegisterTest {
 
 		provider2 = getUserRegister().getChannelByProviderAddress("mfuta5iXJNe7yzCaPtmm4W2saiqTbTfxNG");
 
-		Assert.assertEquals(true, userChannel.equals(provider2));
+		Assert.assertEquals(userChannel, provider2);
 
 		try {
 
@@ -132,7 +131,7 @@ public abstract class UserRegisterTest {
 		provider2 = getUserRegister()
 				.getUserChannelByRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 
-		Assert.assertEquals(true, userChannel.equals(provider2));
+		Assert.assertEquals(userChannel, provider2);
 
 		try {
 
@@ -158,7 +157,7 @@ public abstract class UserRegisterTest {
 
 		provider2 = getUserRegister().getUserChannelByRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
 
-		Assert.assertEquals(true, userChannel.equals(provider2));
+		Assert.assertEquals(userChannel, provider2);
 
 		try {
 

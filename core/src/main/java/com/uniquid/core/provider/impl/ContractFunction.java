@@ -1,21 +1,20 @@
 package com.uniquid.core.provider.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.uniquid.core.Core;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.messages.FunctionRequestMessage;
 import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.node.UniquidNode;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@link Function} designed to manage Contract signing from Orchestrator 
@@ -31,7 +30,7 @@ public class ContractFunction extends GenericFunction {
 		String params = inputMessage.getParameters();
 		String tx;
 		
-		List<String> path = new ArrayList<String>();
+		List<String> path = new ArrayList<>();
 		
 		LOGGER.trace("Received input {}", inputMessage);
 		

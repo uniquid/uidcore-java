@@ -1,9 +1,8 @@
 package com.uniquid.core.impl;
 
+import com.uniquid.core.provider.impl.ApplicationContext;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.uniquid.core.provider.impl.ApplicationContext;
 
 public class UniquidSimplifierTest {
 	
