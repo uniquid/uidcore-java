@@ -1,12 +1,5 @@
 package com.uniquid.node.impl.utils;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Transaction;
-import org.junit.Assert;
-import org.junit.Test;
-import org.spongycastle.util.encoders.Hex;
-
 import com.uniquid.params.UniquidRegTest;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
@@ -14,6 +7,12 @@ import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
+import org.bitcoinj.core.LegacyAddress;
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.Transaction;
+import org.junit.Assert;
+import org.junit.Test;
+import org.spongycastle.util.encoders.Hex;
 
 public class UniquidNodeStateUtilsTest {
 	
@@ -29,9 +28,9 @@ public class UniquidNodeStateUtilsTest {
 		
 		Assert.assertNotNull(originalTransaction);
 		
-		Assert.assertTrue(UniquidNodeStateUtils.isValidImprintingTransaction(originalTransaction, networkParameters, Address.fromBase58(networkParameters, "msgV5jvGCFWevX6UeqEmYXgAJTpZ1BLHh6")));
+		Assert.assertTrue(UniquidNodeStateUtils.isValidImprintingTransaction(originalTransaction, networkParameters, LegacyAddress.fromBase58(networkParameters, "msgV5jvGCFWevX6UeqEmYXgAJTpZ1BLHh6")));
 		
-		Assert.assertFalse(UniquidNodeStateUtils.isValidImprintingTransaction(originalTransaction, networkParameters, Address.fromBase58(networkParameters, "n1CiwrPuM6aYt2NQYnfbaqCQzsTm7WKPgX")));
+		Assert.assertFalse(UniquidNodeStateUtils.isValidImprintingTransaction(originalTransaction, networkParameters, LegacyAddress.fromBase58(networkParameters, "n1CiwrPuM6aYt2NQYnfbaqCQzsTm7WKPgX")));
 		
 	}
 	
@@ -95,9 +94,9 @@ public class UniquidNodeStateUtilsTest {
 			
 		};
 		
-		Assert.assertTrue(UniquidNodeStateUtils.isValidRevokeContract(originalTransaction, dummyRegister));
+		Assert.assertTrue(UniquidNodeStateUtils.isValidRevokeContract(originalTransaction, UniquidRegTest.get(), dummyRegister));
 		
-		Assert.assertFalse(UniquidNodeStateUtils.isValidRevokeContract(originalTransaction, dummyRegister2));
+		Assert.assertFalse(UniquidNodeStateUtils.isValidRevokeContract(originalTransaction, UniquidRegTest.get(), dummyRegister2));
 		
 	}
 

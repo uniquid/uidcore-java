@@ -1,10 +1,9 @@
 package com.uniquid.register.impl.sql;
 
-import org.junit.BeforeClass;
-
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.transaction.TransactionManagerTest;
+import org.junit.BeforeClass;
 
 public class SqliteTransactionManagerTest extends TransactionManagerTest {
 

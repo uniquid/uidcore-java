@@ -1,22 +1,21 @@
 package com.uniquid.node.impl;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import org.bitcoinj.core.NetworkParameters;
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.uniquid.node.UniquidNodeState;
-import com.uniquid.params.UniquidRegTest;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
 import com.uniquid.node.impl.utils.DummyRegisterFactory;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.node.impl.utils.DummyUserRegister;
+import com.uniquid.params.UniquidRegTest;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserRegister;
+import org.bitcoinj.core.NetworkParameters;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.File;
+import java.util.ArrayList;
 
 public class UniquidWatchingNodeImplTest {
 
@@ -66,7 +65,7 @@ public class UniquidWatchingNodeImplTest {
 		}
 		
 		try {
-			uniquidNode.signTransaction("NOTHING", new ArrayList<String>());
+			uniquidNode.signTransaction("NOTHING", new ArrayList<>());
 			Assert.fail();
 		} catch (Exception e) {
 			// NOTHING TO DO
@@ -165,8 +164,8 @@ public class UniquidWatchingNodeImplTest {
 		Assert.assertEquals(providerAddress, providerChannel.getProviderAddress());
 		Assert.assertEquals(userAddress, providerChannel.getUserAddress());
 		Assert.assertEquals(bitmask, providerChannel.getBitmask());
-		Assert.assertEquals(null, providerChannel.getRevokeAddress());
-		Assert.assertEquals(null, providerChannel.getRevokeTxId());
+		Assert.assertNull(providerChannel.getRevokeAddress());
+		Assert.assertNull(providerChannel.getRevokeTxId());
 		
 		dummyProvider.insertChannel(providerChannel);
 		

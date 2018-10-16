@@ -1,12 +1,11 @@
 package com.uniquid.core.impl.provider;
 
-import java.util.Enumeration;
-
+import com.uniquid.core.provider.FunctionContext;
+import com.uniquid.core.provider.impl.FunctionConfigImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.uniquid.core.provider.FunctionContext;
-import com.uniquid.core.provider.impl.FunctionConfigImpl;
+import java.util.Enumeration;
 
 public class FunctionConfigImplTest {
 	

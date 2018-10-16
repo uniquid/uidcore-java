@@ -1,13 +1,9 @@
 package com.uniquid.core.provider.impl;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.uniquid.core.provider.FunctionContext;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation of {@link FunctionContext}
@@ -66,7 +62,7 @@ public class ApplicationContext implements FunctionContext {
 
 	@Override
 	public void removeAttribute(String name) {
-		Object value = null;
+		Object value;
 
         // Remove the specified attribute
         // Check for read only attribute

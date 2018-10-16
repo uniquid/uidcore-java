@@ -1,14 +1,13 @@
 package com.uniquid.node.impl;
 
+import com.google.common.collect.ImmutableList;
+import com.uniquid.node.impl.utils.NodeUtils;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.common.collect.ImmutableList;
-import com.uniquid.node.impl.utils.NodeUtils;
 
 public class UniquidKeyBagTest {
 	
@@ -43,13 +42,13 @@ public class UniquidKeyBagTest {
 		
 		Assert.assertEquals(signingKey1, uniquidKeyBag.findKeyFromPubKey(signingKey1.getPubKey()));
 		
-		Assert.assertEquals(null, uniquidKeyBag.findRedeemDataFromScriptHash(signingKey1.getPubKey()));
+		Assert.assertNull(uniquidKeyBag.findRedeemDataFromScriptHash(signingKey1.getPubKey()));
 		
 		Assert.assertEquals(signingKey2, uniquidKeyBag.findKeyFromPubHash(signingKey2.getPubKeyHash()));
 		
 		Assert.assertEquals(signingKey2, uniquidKeyBag.findKeyFromPubKey(signingKey2.getPubKey()));
 		
-		Assert.assertEquals(null, uniquidKeyBag.findRedeemDataFromScriptHash(signingKey2.getPubKey()));
+		Assert.assertNull(uniquidKeyBag.findRedeemDataFromScriptHash(signingKey2.getPubKey()));
 		
 	}
 

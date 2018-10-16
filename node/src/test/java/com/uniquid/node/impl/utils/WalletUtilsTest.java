@@ -1,11 +1,10 @@
 package com.uniquid.node.impl.utils;
 
+import com.uniquid.params.UniquidRegTest;
 import org.bitcoinj.core.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
-
-import com.uniquid.params.UniquidRegTest;
 
 public class WalletUtilsTest {
 	

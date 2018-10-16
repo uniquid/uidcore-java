@@ -1,24 +1,21 @@
 package com.uniquid.node.impl;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.LegacyAddress;
-import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.wallet.Wallet;
-import org.junit.Assert;
-import org.junit.Test;
-import org.spongycastle.util.encoders.Hex;
-
 import com.uniquid.node.impl.contract.ImprintingContract;
-import com.uniquid.params.UniquidRegTest;
 import com.uniquid.node.impl.state.UniquidNodeState;
 import com.uniquid.node.impl.utils.DummyProviderRegister;
 import com.uniquid.node.impl.utils.DummyRegisterFactory;
 import com.uniquid.node.impl.utils.DummyTransactionManager;
 import com.uniquid.node.impl.utils.DummyUserRegister;
+import com.uniquid.params.UniquidRegTest;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserRegister;
+import org.bitcoinj.core.LegacyAddress;
+import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.wallet.Wallet;
+import org.junit.Assert;
+import org.spongycastle.util.encoders.Hex;
 
 public class ImprintingContractTest {
 	

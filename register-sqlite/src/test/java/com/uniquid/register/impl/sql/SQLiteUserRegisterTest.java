@@ -1,9 +1,8 @@
 package com.uniquid.register.impl.sql;
 
-import org.junit.BeforeClass;
-
 import com.uniquid.register.user.UserRegister;
 import com.uniquid.register.user.UserRegisterTest;
+import org.junit.BeforeClass;
 
 public class SQLiteUserRegisterTest extends UserRegisterTest {
 

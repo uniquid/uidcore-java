@@ -1,13 +1,12 @@
 package com.uniquid.register.transaction;
 
-import java.util.List;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.List;
 
 public abstract class TransactionManagerTest {
 	
@@ -39,7 +38,7 @@ public abstract class TransactionManagerTest {
 
 		Assert.assertEquals(channels.size(), 1);
 
-		Assert.assertEquals(true, providerChannel.equals(channels.get(0)));
+		Assert.assertEquals(providerChannel, channels.get(0));
 		
 		transactionManager.rollbackTransaction();
 		
@@ -61,7 +60,7 @@ public abstract class TransactionManagerTest {
 
 		Assert.assertEquals(channels.size(), 1);
 
-		Assert.assertEquals(true, providerChannel.equals(channels.get(0)));
+		Assert.assertEquals(providerChannel, channels.get(0));
 		
 		transactionManager.commitTransaction();
 		
@@ -198,9 +197,7 @@ public abstract class TransactionManagerTest {
 				long now = System.currentTimeMillis();
 				
 				while (System.currentTimeMillis() < (now + duration)) {
-					
-					String str = Thread.currentThread().getName();
-					
+
 					long size = registerFactory.getProviderRegister().getAllChannels().size();
 					
 					System.out.println(Thread.currentThread().getName() + " Read elements : " + size);

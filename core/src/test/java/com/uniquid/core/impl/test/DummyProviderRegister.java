@@ -1,15 +1,15 @@
 package com.uniquid.core.impl.test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DummyProviderRegister implements ProviderRegister {
 
-	private ArrayList<ProviderChannel> channels = new ArrayList<ProviderChannel>();
+	private ArrayList<ProviderChannel> channels = new ArrayList<>();
 	
 	@Override
 	public void insertChannel(ProviderChannel providerChannel) throws RegisterException {

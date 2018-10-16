@@ -1,12 +1,5 @@
 package com.uniquid.core;
 
-import java.io.IOException;
-import java.util.Arrays;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.spongycastle.util.encoders.Hex;
-
 import com.uniquid.connector.Connector;
 import com.uniquid.connector.ConnectorException;
 import com.uniquid.connector.EndPoint;
@@ -26,6 +19,12 @@ import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
+import org.junit.Assert;
+import org.junit.Test;
+import org.spongycastle.util.encoders.Hex;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 public class CoreTest {
 	

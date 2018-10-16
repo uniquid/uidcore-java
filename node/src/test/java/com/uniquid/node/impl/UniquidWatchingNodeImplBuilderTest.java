@@ -1,15 +1,14 @@
 package com.uniquid.node.impl;
 
-import java.io.File;
-
+import com.uniquid.node.impl.utils.DummyRegisterFactory;
+import com.uniquid.node.impl.utils.DummyTransactionManager;
+import com.uniquid.params.UniquidRegTest;
+import com.uniquid.register.RegisterFactory;
 import org.bitcoinj.core.NetworkParameters;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.uniquid.params.UniquidRegTest;
-import com.uniquid.node.impl.utils.DummyRegisterFactory;
-import com.uniquid.node.impl.utils.DummyTransactionManager;
-import com.uniquid.register.RegisterFactory;
+import java.io.File;
 
 public class UniquidWatchingNodeImplBuilderTest {
 	

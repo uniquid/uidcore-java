@@ -1,12 +1,12 @@
 package com.uniquid.core.impl.test;
 
-import java.util.List;
-
 import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
+
+import java.util.List;
 
 public class DummyNode implements UniquidNode {
 

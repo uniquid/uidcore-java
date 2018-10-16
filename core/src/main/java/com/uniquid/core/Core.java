@@ -1,12 +1,5 @@
 package com.uniquid.core;
 
-import java.util.Arrays;
-import java.util.BitSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
-
 import com.uniquid.connector.Connector;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.FunctionContext;
@@ -17,6 +10,12 @@ import com.uniquid.node.UniquidNode;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+
+import java.util.Arrays;
+import java.util.BitSet;
 
 /**
  * This is the core of Uniquid library. It contains a collection of functionalities
@@ -77,17 +76,17 @@ public abstract class Core {
 	}
 
 	/**
-	 * Retrieve the {@link Function} related to the {@link ProviderRequest} parameter.
-	 * @param providerRequest the {@link ProviderRequest} to fetch the function number from.
-	 * @return the {@link Function} related to the {@link ProviderRequest} parameter.
+	 * Retrieve the {@link Function} related to the {@link FunctionRequestMessage} parameter.
+	 * @param providerRequest the {@link FunctionRequestMessage} to fetch the function number from.
+	 * @return the {@link Function} related to the {@link FunctionRequestMessage} parameter.
 	 */
 	protected abstract Function getFunction(FunctionRequestMessage providerRequest);
 
 	/**
-	 * Perform the execution of a {@link Function} related to the {@link ProviderRequest} received.
+	 * Perform the execution of a {@link Function} related to the {@link FunctionRequestMessage} received.
 	 * 
-	 * @param providerRequest the {@link ProviderRequest} received from the User
-	 * @param providerResponse the {@link ProviderResponse} the response to provide to the User
+	 * @param providerRequest the {@link FunctionRequestMessage} received from the User
+	 * @param payload the payload from the contract
 	 * 
 	 * @throws Exception in case a problem occurs.
 	 */

@@ -1,8 +1,5 @@
 package com.uniquid.core.impl.provider;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.uniquid.core.Core;
 import com.uniquid.core.impl.test.DummyExceptionNode;
 import com.uniquid.core.impl.test.DummyNode;
@@ -13,6 +10,8 @@ import com.uniquid.core.provider.impl.ApplicationContext;
 import com.uniquid.core.provider.impl.ContractFunction;
 import com.uniquid.messages.FunctionRequestMessage;
 import com.uniquid.messages.FunctionResponseMessage;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ContractFunctionTest {
 

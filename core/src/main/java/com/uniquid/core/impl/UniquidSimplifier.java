@@ -1,23 +1,8 @@
 package com.uniquid.core.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import com.uniquid.core.Listener;
-import com.uniquid.node.exception.NodeException;
-import org.bitcoinj.utils.ContextPropagatingThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.uniquid.core.Core;
 import com.uniquid.connector.Connector;
+import com.uniquid.core.Core;
+import com.uniquid.core.Listener;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.core.provider.impl.ContractFunction;
@@ -26,7 +11,17 @@ import com.uniquid.core.provider.impl.FunctionConfigImpl;
 import com.uniquid.messages.FunctionRequestMessage;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
+import com.uniquid.node.exception.NodeException;
 import com.uniquid.register.RegisterFactory;
+import org.bitcoinj.utils.ContextPropagatingThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * Uniquid reference implementation of {@link Core}.

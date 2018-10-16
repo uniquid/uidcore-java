@@ -1,10 +1,10 @@
 package com.uniquid.register.impl.sql;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.uniquid.register.exception.RegisterException;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.provider.ProviderRegister;
+import com.uniquid.register.user.UserChannel;
+import com.uniquid.register.user.UserRegister;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang.StringUtils;
@@ -12,11 +12,10 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.uniquid.register.exception.RegisterException;
-import com.uniquid.register.provider.ProviderChannel;
-import com.uniquid.register.provider.ProviderRegister;
-import com.uniquid.register.user.UserChannel;
-import com.uniquid.register.user.UserRegister;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Data Access Object concrete class implementation of {@code ProviderRegister} and {@code UserRegister} that uses
@@ -73,9 +72,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	
 	/**
 	 * Helper method
-	 * @param rs
-	 * @return
-	 * @throws SQLException
+	 * @param rs the result set of the query
+	 * @return a {@link ProviderChannel}
+	 * @throws SQLException in case a problem occurs
 	 */
 	private ProviderChannel providerChannelFromResultSet(ResultSet rs) throws SQLException {
 		
@@ -289,9 +288,9 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 	
 	/**
 	 * Helper method
-	 * @param rs
-	 * @return
-	 * @throws SQLException
+	 * @param rs the ResultSet of the query
+	 * @return a {@link UserChannel}
+	 * @throws SQLException in case a problem occurs
 	 */
 	private UserChannel userChannelFromResultSet(ResultSet rs) throws SQLException {
 		

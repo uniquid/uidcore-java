@@ -1,15 +1,15 @@
 package com.uniquid.core.impl.test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.register.user.UserRegister;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DummyUserRegister implements UserRegister {
 
-	private ArrayList<UserChannel> channels = new ArrayList<UserChannel>();
+	private ArrayList<UserChannel> channels = new ArrayList<>();
 	
 	@Override
 	public void insertChannel(UserChannel userChannel) throws RegisterException {

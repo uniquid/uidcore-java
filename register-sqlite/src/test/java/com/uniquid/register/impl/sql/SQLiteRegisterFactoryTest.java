@@ -1,14 +1,13 @@
 package com.uniquid.register.impl.sql;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.RegisterFactoryTest;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserRegister;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 
 public class SQLiteRegisterFactoryTest extends RegisterFactoryTest {
 

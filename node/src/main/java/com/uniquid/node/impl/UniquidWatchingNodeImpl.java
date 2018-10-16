@@ -54,8 +54,8 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	/**
 	 * Creates a new instance
 	 * 
-	 * @param uniquidNodeConfiguration
-	 * @throws NodeException
+	 * @param uniquidNodeConfiguration the {@link UniquidNodeConfiguration} of the Node
+	 * @throws NodeException in case a problem occurs
 	 */
 	protected UniquidWatchingNodeImpl(T uniquidNodeConfiguration) throws NodeException {
 
@@ -424,7 +424,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	
 	/**
 	 * Returns the Provider Wallet
-	 * @return
+	 * @return provider wallet
 	 */
 	public Wallet getProviderWallet() {
 		return providerWallet;
@@ -432,7 +432,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
 	/**
 	 * Return the User Wallet
-	 * @return
+	 * @return user wallet
 	 */
 	public Wallet getUserWallet() {
 		return userWallet;
@@ -442,7 +442,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
 	 * {@code com.uniquid.node.UniquidNodeState.CREATED}
 	 * 
-	 * @return
+	 * @return the UniquidNodeState that manages the CREATED state
 	 */
 	protected UniquidNodeState getCreatedState() {
 
@@ -454,11 +454,11 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
 	 * {@code com.uniquid.node.UniquidNodeState.READY}
 	 * 
-	 * @return
+	 * @return the UniquidNodeState that manages the READY state
 	 */
 	protected UniquidNodeState getReadyState() {
 
-		return new ReadyState<T>(new UniquidNodeStateContextImpl());
+		return new ReadyState<>(new UniquidNodeStateContextImpl());
 
 	}
 
@@ -466,11 +466,11 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 	 * Return the {@link com.uniquid.node.UniquidNodeState} that manages the
 	 * {@code com.uniquid.node.UniquidNodeState.IMPRINTING}
 	 * 
-	 * @return
+	 * @return the UniquidNodeState that manages the IMPRINTING state
 	 */
 	protected UniquidNodeState getImprintingState() {
 
-		return new ImprintingState<T>(new UniquidNodeStateContextImpl(), getReadyState());
+		return new ImprintingState<>(new UniquidNodeStateContextImpl(), getReadyState());
 
 	}
 	
@@ -560,7 +560,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		/**
 		 * Build a new instance
 		 * 
-		 * @return
+		 * @return a new instance of UniquidWatchingNodeImpl
 		 * @throws Exception
 		 */
 		@SuppressWarnings("unchecked")
@@ -579,7 +579,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 		}
 
 		protected UniquidWatchingNodeImpl<T> createUniquidNode(T uniquidNodeConfiguration) throws NodeException {
-			return new UniquidWatchingNodeImpl<T>(uniquidNodeConfiguration);
+			return new UniquidWatchingNodeImpl<>(uniquidNodeConfiguration);
 		}
 
 	}

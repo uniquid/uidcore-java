@@ -1,17 +1,16 @@
 package com.uniquid.node.impl;
 
-import java.util.Date;
-import java.util.Set;
-
+import com.uniquid.node.UniquidNodeState;
+import com.uniquid.node.listeners.UniquidNodeEventListener;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.user.UserChannel;
 import org.bitcoinj.core.Peer;
 import org.bitcoinj.core.PeerAddress;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.uniquid.node.UniquidNodeState;
-import com.uniquid.node.listeners.UniquidNodeEventListener;
-import com.uniquid.register.provider.ProviderChannel;
-import com.uniquid.register.user.UserChannel;
+import java.util.Date;
+import java.util.Set;
 
 class UniquidNodeEventListenerTest implements UniquidNodeEventListener {
 	

@@ -1,18 +1,17 @@
 package com.uniquid.register.impl.sql;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.transaction.TransactionManager;
 import com.uniquid.register.user.UserRegister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Concrete class implementation of {@code RegisterFactory} that uses SQLite as data store.
@@ -119,8 +118,8 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 	
 	/**
 	 * Initialize the database
-	 * @param connection
-	 * @throws RegisterException
+	 * @param connection the connection to the database
+	 * @throws RegisterException in case a problem occurs
 	 */
 	protected void initDb(Connection connection) throws RegisterException {
 		
@@ -143,10 +142,10 @@ public class SQLiteRegisterFactory implements RegisterFactory {
 	
 	/**
 	 * This is an utility method that checks if a table exists in the database
-	 * @param conn
-	 * @param tableName
-	 * @return
-	 * @throws SQLException
+	 * @param conn the connection to the database
+	 * @param tableName name of table to check
+	 * @return true or false
+	 * @throws SQLException in case a problem occurs
 	 */
 	private static boolean tableExist(Connection conn, String tableName) throws SQLException {
 		
