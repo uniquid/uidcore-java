@@ -10,46 +10,46 @@ import org.bitcoinj.wallet.Wallet;
  */
 public interface UniquidNodeStateContext<T extends UniquidNodeConfiguration> {
 
-	/**
-	 * Change internal state
-	 * @param nodeState new internal state
-	 */
-	void setUniquidNodeState(final UniquidNodeState nodeState);
-	
-	/**
-	 * Return provider wallet
-	 * @return provider wallet
-	 */
-	Wallet getProviderWallet();
-	
-	/**
-	 * Return user wallet
-	 * @return user wallet
-	 */
-	Wallet getUserWallet();
-	
-	/**
-	 * Return UniquidNodeConfiguration
-	 * @return node configuration
-	 */
-	T getUniquidNodeConfiguration();
-	
-	/**
-	 * Returns imprinting address
-	 * @return address to the imprinting path
-	 */
-	LegacyAddress getImprintingAddress();
-	
-	/**
-	 * Return Event Service
-	 * @return event service
-	 */
-	UniquidNodeEventService getUniquidNodeEventService();
-	
-	/**
-	 * Return node public key
-	 * @return node public key
-	 */
-	String getPublicKey();
-	
+    /**
+     * Change internal state
+     * @param nodeState new internal state
+     */
+    void setUniquidNodeState(final UniquidNodeState nodeState);
+
+    /**
+     * Return provider wallet
+     * @return provider wallet
+     */
+    Wallet getProviderWallet();
+
+    /**
+     * Return user wallet
+     * @return user wallet
+     */
+    Wallet getUserWallet();
+
+    /**
+     * Return UniquidNodeConfiguration
+     * @return node configuration
+     */
+    T getUniquidNodeConfiguration();
+
+    /**
+     * Returns imprinting address
+     * @return address to the imprinting path
+     */
+    LegacyAddress getImprintingAddress();
+
+    /**
+     * Return Event Service
+     * @return event service
+     */
+    UniquidNodeEventService getUniquidNodeEventService();
+
+    /**
+     * Return node public key
+     * @return node public key
+     */
+    String getPublicKey();
+
 }

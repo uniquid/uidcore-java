@@ -10,8 +10,8 @@ import java.util.Objects;
  */
 public class UserChannel implements Serializable, Comparable<Object> {
 
-	private static final long serialVersionUID = 1L;
-	private String providerName;
+    private static final long serialVersionUID = 1L;
+    private String providerName;
     private String providerAddress;
     private String userAddress;
     private String bitmask;
@@ -19,18 +19,18 @@ public class UserChannel implements Serializable, Comparable<Object> {
     private String revokeTxId;
     private String path;
     private long since;
-	private long until;
+    private long until;
 
     /**
      * Creates an empty instance
      */
     public UserChannel() {
-    	// DO NOTHING
+        // DO NOTHING
     }
 
     /**
      * Creates an instance from provider name, provider address, user address and bitmask.
-     * 
+     *
      * @param providerName the name of the provider
      * @param providerAddress the address of the provider
      * @param userAddress the address of the user
@@ -42,12 +42,12 @@ public class UserChannel implements Serializable, Comparable<Object> {
         this.userAddress = userAddress;
         this.bitmask = bitmask;
     }
-    
+
     public UserChannel(String providerName, String providerAddress, String userAddress, String bitmask, String path) {
-    	
-       this(providerName, providerAddress, userAddress, bitmask);
-       
-       this.path = path;
+
+        this(providerName, providerAddress, userAddress, bitmask);
+
+        this.path = path;
     }
 
     /**
@@ -113,134 +113,134 @@ public class UserChannel implements Serializable, Comparable<Object> {
     public void setBitmask(String bitmask) {
         this.bitmask = bitmask;
     }
-    
+
     /**
      * Retrieve the revoke address
      * @return the revoke address
      */
     public String getRevokeAddress() {
-		return revokeAddress;
-	}
+        return revokeAddress;
+    }
 
     /**
      * Set the revoke address
      * @param revokeAddress the revoke address
      */
-	public void setRevokeAddress(String revokeAddress) {
-		this.revokeAddress = revokeAddress;
-	}
-	
-	/**
-	 * Set the revoke transaction id
-	 * @param revokeTxId the revoke transaction id
-	 */
-	public void setRevokeTxId(String revokeTxId) {
-		this.revokeTxId = revokeTxId;
-	}
-	
-	/**
-	 * Retrieve the revoke transaction id
-	 * @return the revoke transaction id
-	 */
-	public String getRevokeTxId() {
-		return revokeTxId;
-	}	
-	
-	public long getSince() {
-		return since;
-	}
+    public void setRevokeAddress(String revokeAddress) {
+        this.revokeAddress = revokeAddress;
+    }
 
-	public void setSince(long since) {
-		this.since = since;
-	}
+    /**
+     * Set the revoke transaction id
+     * @param revokeTxId the revoke transaction id
+     */
+    public void setRevokeTxId(String revokeTxId) {
+        this.revokeTxId = revokeTxId;
+    }
 
-	public long getUntil() {
-		return until;
-	}
+    /**
+     * Retrieve the revoke transaction id
+     * @return the revoke transaction id
+     */
+    public String getRevokeTxId() {
+        return revokeTxId;
+    }
 
-	public void setUntil(long until) {
-		this.until = until;
-	}
-	
-	public String getPath() {
-		return path;
-	}
+    public long getSince() {
+        return since;
+    }
 
-	public void setPath(String path) {
-		this.path = path;
-	}
-	
-	public boolean isValid() {
-		
-		return (System.currentTimeMillis() >= since) && (System.currentTimeMillis() <= until);
-		
-	}
+    public void setSince(long since) {
+        this.since = since;
+    }
 
-	@Override
+    public long getUntil() {
+        return until;
+    }
+
+    public void setUntil(long until) {
+        this.until = until;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public boolean isValid() {
+
+        return (System.currentTimeMillis() >= since) && (System.currentTimeMillis() <= until);
+
+    }
+
+    @Override
     public String toString() {
-		return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
-				"; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId + "; since: " + since + "; until: " + until + "; path: " + path;
-	}
+        return "provider address: " + providerAddress + "; user address: " + userAddress + "; bitmask: " + bitmask +
+                "; revoke address: " + revokeAddress + "; revokeTxId: " + revokeTxId + "; since: " + since + "; until: " + until + "; path: " + path;
+    }
 
     @Override
     public boolean equals(Object object) {
 
-    	if (!(object instanceof UserChannel))
-    		return false;
-    	
-    	if (this == object)
-    		return true;
-    	
-    	UserChannel userChannel = (UserChannel) object;
-    	
-    	return Objects.equals(providerName, userChannel.providerName) &&
-    			Objects.equals(providerAddress, userChannel.providerAddress) &&
-    			Objects.equals(userAddress, userChannel.userAddress) &&
-    			Objects.equals(bitmask, userChannel.bitmask) &&
-    			Objects.equals(revokeAddress, userChannel.revokeAddress) &&
-    			Objects.equals(revokeTxId, userChannel.revokeTxId) &&
-    			since == userChannel.since &&
-    			until == userChannel.until && 
-    			Objects.equals(path, userChannel.path);
+        if (!(object instanceof UserChannel))
+            return false;
+
+        if (this == object)
+            return true;
+
+        UserChannel userChannel = (UserChannel) object;
+
+        return Objects.equals(providerName, userChannel.providerName) &&
+                Objects.equals(providerAddress, userChannel.providerAddress) &&
+                Objects.equals(userAddress, userChannel.userAddress) &&
+                Objects.equals(bitmask, userChannel.bitmask) &&
+                Objects.equals(revokeAddress, userChannel.revokeAddress) &&
+                Objects.equals(revokeTxId, userChannel.revokeTxId) &&
+                since == userChannel.since &&
+                until == userChannel.until &&
+                Objects.equals(path, userChannel.path);
     }
-    
+
     @Override
     public int hashCode() {
-    	
-    	return Objects.hash(providerName, providerAddress, userAddress, bitmask, revokeAddress, revokeTxId, since, until, path);
-    
+
+        return Objects.hash(providerName, providerAddress, userAddress, bitmask, revokeAddress, revokeTxId, since, until, path);
+
     }
 
     @Override
     public int compareTo(Object object) {
 
         UserChannel userChannel = (UserChannel) object;
-        
+
         return compareStrings(providerName, userChannel.getProviderName());
     }
-    
+
     private static int compareStrings(String first, String second) {
-    	final int BEFORE = -1;
+        final int BEFORE = -1;
         final int EQUALS = 0;
         final int AFTER = 1;
-    	
-    	if (first == null && second == null) {
-    		
-    		return EQUALS;
-    	
-    	} else if (first == null && second != null) {
-    		
-    		return BEFORE;
-    				
-    	} else if (first != null && second != null) {
-    		
-    		return first.compareTo(second);
-    	
-    	} else /* if (first != null && second == null) */ {
-    		
-    		return AFTER;
-    	}
-    	
+
+        if (first == null && second == null) {
+
+            return EQUALS;
+
+        } else if (first == null && second != null) {
+
+            return BEFORE;
+
+        } else if (first != null && second != null) {
+
+            return first.compareTo(second);
+
+        } else /* if (first != null && second == null) */ {
+
+            return AFTER;
+        }
+
     }
 
 }

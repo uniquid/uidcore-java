@@ -28,106 +28,106 @@ import java.util.concurrent.*;
  */
 public class UniquidSimplifier extends Core {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Core.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(Core.class.getName());
 
-	private final Map<Integer, Function> functionsMap = new HashMap<>();
-	
-	private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("scheduledExecutorService"));
+    private final Map<Integer, Function> functionsMap = new HashMap<>();
 
-	private List<Listener> listeners = new ArrayList<>();
-	private ExecutorService threadPool = Executors.newCachedThreadPool(new ContextPropagatingThreadFactory("threadPool"));
-	
-	/**
-	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
-	 * @param registerFactory the {@link RegisterFactory} to use
-	 * @param node the {@link UniquidNode} to use
-	 * @throws Exception in case an error occurs
-	 */
-	public UniquidSimplifier(RegisterFactory registerFactory, UniquidNode node)
-			throws Exception {
+    private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new ContextPropagatingThreadFactory("scheduledExecutorService"));
 
-		// Call superclass
-		super(registerFactory, node);
+    private List<Listener> listeners = new ArrayList<>();
+    private ExecutorService threadPool = Executors.newCachedThreadPool(new ContextPropagatingThreadFactory("threadPool"));
 
-		// Register core functions
-		try {
+    /**
+     * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
+     * @param registerFactory the {@link RegisterFactory} to use
+     * @param node the {@link UniquidNode} to use
+     * @throws Exception in case an error occurs
+     */
+    public UniquidSimplifier(RegisterFactory registerFactory, UniquidNode node)
+            throws Exception {
 
-			addUniquidFunction(new ContractFunction(), 30);
-			addUniquidFunction(new EchoFunction(), 31);
+        // Call superclass
+        super(registerFactory, node);
 
-		} catch (FunctionException ex) {
-			// This will never happens!
-		}
-	}
-	
-	@Override
-	protected Function getFunction(FunctionRequestMessage inputMessage) {
+        // Register core functions
+        try {
 
-		int rpcMethod = inputMessage.getFunction();
+            addUniquidFunction(new ContractFunction(), 30);
+            addUniquidFunction(new EchoFunction(), 31);
 
-		return functionsMap.get(rpcMethod);
+        } catch (FunctionException ex) {
+            // This will never happens!
+        }
+    }
 
-	}
+    @Override
+    protected Function getFunction(FunctionRequestMessage inputMessage) {
 
-	/**
-	 * Register a {@link Function} inside the library with the specified number.
-	 * @param function the {@link Function} to register inside the library.
-	 * @param functionNumber the number to assign to the {@link Function}
-	 * @throws FunctionException in case a problem occurs.
-	 */
-	public void addFunction(Function function, int functionNumber) throws FunctionException {
-		
-		LOGGER.trace("Associating function {} with number {}", function.toString(), functionNumber );
+        int rpcMethod = inputMessage.getFunction();
 
-		if (functionNumber >= 32) {
+        return functionsMap.get(rpcMethod);
 
-			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(getFunctionContext());
+    }
 
-			function.init(functionConfigImpl);
+    /**
+     * Register a {@link Function} inside the library with the specified number.
+     * @param function the {@link Function} to register inside the library.
+     * @param functionNumber the number to assign to the {@link Function}
+     * @throws FunctionException in case a problem occurs.
+     */
+    public void addFunction(Function function, int functionNumber) throws FunctionException {
 
-			functionsMap.put(functionNumber, function);
+        LOGGER.trace("Associating function {} with number {}", function.toString(), functionNumber );
 
-		} else {
+        if (functionNumber >= 32) {
 
-			throw new FunctionException("Invalid function number!");
+            FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(getFunctionContext());
 
-		}
+            function.init(functionConfigImpl);
 
-	}
+            functionsMap.put(functionNumber, function);
 
-	/*
-	 * Register an internal Function
-	 */
-	private void addUniquidFunction(Function function, int value) throws FunctionException {
-		
-		LOGGER.trace("Associating internal function {} with number {}", function.toString(), value );
+        } else {
 
-		if (value >= 0 && value <= 31) {
+            throw new FunctionException("Invalid function number!");
 
-			FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(getFunctionContext());
+        }
 
-			function.init(functionConfigImpl);
+    }
 
-			functionsMap.put(value, function);
+    /*
+     * Register an internal Function
+     */
+    private void addUniquidFunction(Function function, int value) throws FunctionException {
 
-		} else {
+        LOGGER.trace("Associating internal function {} with number {}", function.toString(), value );
 
-			throw new FunctionException("Invalid function number!");
+        if (value >= 0 && value <= 31) {
 
-		}
+            FunctionConfigImpl functionConfigImpl = new FunctionConfigImpl(getFunctionContext());
 
-	}
+            function.init(functionConfigImpl);
 
-	public void syncBlockchain() throws NodeException {
-		// initialize node if not yet initilized
-		if (UniquidNodeState.CREATED.equals(getNode().getNodeState())) {
+            functionsMap.put(value, function);
 
-			LOGGER.info("Initializing node");
-			getNode().initNode();
+        } else {
 
-		}
+            throw new FunctionException("Invalid function number!");
 
-		final Runnable walletSyncher = () -> {
+        }
+
+    }
+
+    public void syncBlockchain() throws NodeException {
+        // initialize node if not yet initilized
+        if (UniquidNodeState.CREATED.equals(getNode().getNodeState())) {
+
+            LOGGER.info("Initializing node");
+            getNode().initNode();
+
+        }
+
+        final Runnable walletSyncher = () -> {
             try {
                 LOGGER.info("Updating node from the BlockChain");
                 // Update node from blockchain
@@ -137,35 +137,35 @@ public class UniquidSimplifier extends Core {
             }
         };
 
-		final ScheduledFuture<?> walletSyncherFuture = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 1,
-				TimeUnit.MINUTES);
-	}
+        final ScheduledFuture<?> walletSyncherFuture = scheduledExecutorService.scheduleWithFixedDelay(walletSyncher, 0, 1,
+                TimeUnit.MINUTES);
+    }
 
-	/**
-	 * Stop the library and stop the processing
-	 * 
-	 * @throws Exception in case a problem occurs
-	 */
-	public void shutdown() {
-		LOGGER.info("Shutting down!");
+    /**
+     * Stop the library and stop the processing
+     *
+     * @throws Exception in case a problem occurs
+     */
+    public void shutdown() {
+        LOGGER.info("Shutting down!");
 
-		scheduledExecutorService.shutdown();
-		threadPool.shutdownNow();
-		listeners.clear();
+        scheduledExecutorService.shutdown();
+        threadPool.shutdownNow();
+        listeners.clear();
 
-	}
+    }
 
-	/**
-	 * Add listener who can catch and handle incoming through the connector messages
-	 * @param listener
-	 * @return
-	 */
-	public boolean addListener(Listener listener) {
-		if (listeners.add(listener)) {
-			listener.setParentSimplifier(this);
-			threadPool.execute(listener);
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Add listener who can catch and handle incoming through the connector messages
+     * @param listener
+     * @return
+     */
+    public boolean addListener(Listener listener) {
+        if (listeners.add(listener)) {
+            listener.setParentSimplifier(this);
+            threadPool.execute(listener);
+            return true;
+        }
+        return false;
+    }
 }

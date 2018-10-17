@@ -13,93 +13,93 @@ import org.slf4j.LoggerFactory;
  * transactions callback
  */
 public abstract class AbstractContract<T extends UniquidNodeConfiguration> implements ContractStrategy {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractContract.class);
-	
-	protected UniquidNodeStateContext<T> uniquidNodeStateContext;
-	
-	public AbstractContract(UniquidNodeStateContext<T> uniquidNodeStateContext) {
-		this.uniquidNodeStateContext = uniquidNodeStateContext;
-	}
-	
-	@Override
-	public void manageContractCreation(final Transaction tx) throws Exception {
 
-		// Transaction already confirmed
-		if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
-			
-			LOGGER.info("TX {} was included in a block. Checking for a contract", tx.getHashAsString());
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractContract.class);
 
-			doRealContract(tx);
+    protected UniquidNodeStateContext<T> uniquidNodeStateContext;
 
-			// DONE
+    public AbstractContract(UniquidNodeStateContext<T> uniquidNodeStateContext) {
+        this.uniquidNodeStateContext = uniquidNodeStateContext;
+    }
 
-		} else {
+    @Override
+    public void manageContractCreation(final Transaction tx) throws Exception {
 
-			final Listener listener = new Listener() {
+        // Transaction already confirmed
+        if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
 
-				@Override
-				public void onConfidenceChanged(TransactionConfidence confidence, ChangeReason reason) {
+            LOGGER.info("TX {} was included in a block. Checking for a contract", tx.getHashAsString());
 
-					try {
+            doRealContract(tx);
 
-						if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)
-								&& reason.equals(ChangeReason.TYPE)) {
-							
-							LOGGER.info("TX {} was included in a block. Checking for a contract", tx.getHashAsString());
+            // DONE
 
-							doRealContract(tx);
+        } else {
 
-							tx.getConfidence().removeEventListener(this);
+            final Listener listener = new Listener() {
 
-							LOGGER.info("Contract Done!");
+                @Override
+                public void onConfidenceChanged(TransactionConfidence confidence, ChangeReason reason) {
 
-						} else if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.DEAD)
-								&& reason.equals(ChangeReason.TYPE)) {
+                    try {
 
-							LOGGER.warn("Something bad happened! TX {} is DEAD!", tx.getHashAsString());
+                        if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)
+                                && reason.equals(ChangeReason.TYPE)) {
 
-							tx.getConfidence().removeEventListener(this);
+                            LOGGER.info("TX {} was included in a block. Checking for a contract", tx.getHashAsString());
 
-						}
+                            doRealContract(tx);
 
-					} catch (Exception ex) {
+                            tx.getConfidence().removeEventListener(this);
 
-						LOGGER.error("Exception while populating Register", ex);
+                            LOGGER.info("Contract Done!");
 
-					}
+                        } else if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.DEAD)
+                                && reason.equals(ChangeReason.TYPE)) {
 
-				}
+                            LOGGER.warn("Something bad happened! TX {} is DEAD!", tx.getHashAsString());
 
-			};
+                            tx.getConfidence().removeEventListener(this);
 
-			// Transaction not yet confirmed! Register callback!
-			tx.getConfidence().addEventListener(listener);
+                        }
 
-		}
-	}
+                    } catch (Exception ex) {
 
-	@Override
-	public void manageContractRevocation(final Transaction tx) throws Exception {
+                        LOGGER.error("Exception while populating Register", ex);
 
-		revokeRealContract(tx);
+                    }
 
-	}
+                }
 
-	/**
-	 * Delegate to subclass the real contract creation
-	 * 
-	 * @param tx transaction
-	 * @throws Exception in case a problem occurs
-	 */
-	public abstract void doRealContract(final Transaction tx) throws Exception;
+            };
 
-	/**
-	 * Delegate to subclass the real contract revocation
-	 * 
-	 * @param tx transaction
-	 * @throws Exception in case a problem occurs
-	 */
-	public abstract void revokeRealContract(final Transaction tx) throws Exception;
+            // Transaction not yet confirmed! Register callback!
+            tx.getConfidence().addEventListener(listener);
+
+        }
+    }
+
+    @Override
+    public void manageContractRevocation(final Transaction tx) throws Exception {
+
+        revokeRealContract(tx);
+
+    }
+
+    /**
+     * Delegate to subclass the real contract creation
+     *
+     * @param tx transaction
+     * @throws Exception in case a problem occurs
+     */
+    public abstract void doRealContract(final Transaction tx) throws Exception;
+
+    /**
+     * Delegate to subclass the real contract revocation
+     *
+     * @param tx transaction
+     * @throws Exception in case a problem occurs
+     */
+    public abstract void revokeRealContract(final Transaction tx) throws Exception;
 
 }

@@ -19,94 +19,94 @@ import static com.uniquid.node.impl.utils.NodeUtils.getAddressFromTransactionOut
  */
 public class UniquidNodeStateUtils {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeStateUtils.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeStateUtils.class.getName());
 
-	/**
-	 * Return true if the transaction in input is a valid imprinting transaction and contains the specified address in
-	 * one of its output, otherwise false.
-	 * @param tx the transaction to check if is valid imprinting
-	 * @param networkParameters the {@link NetworkParameters}
-	 * @param imprintingAddress the address to check for
-	 * @return true if it's an imprinting transaction otherwise false
-	 */
-	public static boolean isValidImprintingTransaction(Transaction tx, NetworkParameters networkParameters, Address imprintingAddress) {
+    /**
+     * Return true if the transaction in input is a valid imprinting transaction and contains the specified address in
+     * one of its output, otherwise false.
+     * @param tx the transaction to check if is valid imprinting
+     * @param networkParameters the {@link NetworkParameters}
+     * @param imprintingAddress the address to check for
+     * @return true if it's an imprinting transaction otherwise false
+     */
+    public static boolean isValidImprintingTransaction(Transaction tx, NetworkParameters networkParameters, Address imprintingAddress) {
 
-		// Check output
-		List<TransactionOutput> transactionOutputs = tx.getOutputs();
-		for (TransactionOutput to : transactionOutputs) {
-			Address address = getAddressFromTransactionOutput(to, networkParameters);
-			if (address != null && address.equals(imprintingAddress)) {
-				return true;
-			}
-		}
+        // Check output
+        List<TransactionOutput> transactionOutputs = tx.getOutputs();
+        for (TransactionOutput to : transactionOutputs) {
+            Address address = getAddressFromTransactionOutput(to, networkParameters);
+            if (address != null && address.equals(imprintingAddress)) {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Returns true if the transaction is a valid revoke transaction
-	 * @param tx the transaction to check
-	 * @param registerFactory the {@link RegisterFactory} to use to access the data store
-	 * @return true if the revoke address is present in the data store
-	 */
-	public static boolean isValidRevokeContract(Transaction tx, NetworkParameters parameters, RegisterFactory registerFactory) {
+    /**
+     * Returns true if the transaction is a valid revoke transaction
+     * @param tx the transaction to check
+     * @param registerFactory the {@link RegisterFactory} to use to access the data store
+     * @return true if the revoke address is present in the data store
+     */
+    public static boolean isValidRevokeContract(Transaction tx, NetworkParameters parameters, RegisterFactory registerFactory) {
 
-		LegacyAddress address = LegacyAddress.fromPubKeyHash(parameters,
-				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
+        LegacyAddress address = LegacyAddress.fromPubKeyHash(parameters,
+                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
 
-		// Retrieve sender
-		String sender = address.toBase58();
+        // Retrieve sender
+        String sender = address.toBase58();
 
-		ProviderRegister providerRegister;
-		try {
-			providerRegister = registerFactory.getProviderRegister();
-			ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
+        ProviderRegister providerRegister;
+        try {
+            providerRegister = registerFactory.getProviderRegister();
+            ProviderChannel channel = providerRegister.getChannelByRevokeAddress(sender);
 
-			if (channel != null) {
-				return true;
-			}
+            if (channel != null) {
+                return true;
+            }
 
-		} catch (Exception e) {
+        } catch (Exception e) {
 
-			LOGGER.error("Exception", e);
+            LOGGER.error("Exception", e);
 
-		}
+        }
 
-		return false;
+        return false;
 
-	}
+    }
 
-	/**
-	 * Returns true if the transaction is a valid revoke transaction
-	 * @param tx the transaction to check
-	 * @param registerFactory the {@link RegisterFactory} to use to access the data store
-	 * @return true if the revoke address is present in the data store
-	 */
-	public static boolean isValidRevokeUserContract(Transaction tx, NetworkParameters parameters, RegisterFactory registerFactory) {
+    /**
+     * Returns true if the transaction is a valid revoke transaction
+     * @param tx the transaction to check
+     * @param registerFactory the {@link RegisterFactory} to use to access the data store
+     * @return true if the revoke address is present in the data store
+     */
+    public static boolean isValidRevokeUserContract(Transaction tx, NetworkParameters parameters, RegisterFactory registerFactory) {
 
-		LegacyAddress address = LegacyAddress.fromPubKeyHash(parameters,
-				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
+        LegacyAddress address = LegacyAddress.fromPubKeyHash(parameters,
+                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
 
-		// Retrieve sender
-		String sender = address.toBase58();
+        // Retrieve sender
+        String sender = address.toBase58();
 
-		UserRegister userRegister;
-		try {
-			userRegister = registerFactory.getUserRegister();
-			UserChannel channel = userRegister.getUserChannelByRevokeAddress(sender);
+        UserRegister userRegister;
+        try {
+            userRegister = registerFactory.getUserRegister();
+            UserChannel channel = userRegister.getUserChannelByRevokeAddress(sender);
 
-			if (channel != null) {
-				return true;
-			}
+            if (channel != null) {
+                return true;
+            }
 
-		} catch (Exception e) {
+        } catch (Exception e) {
 
-			LOGGER.error("Exception", e);
+            LOGGER.error("Exception", e);
 
-		}
+        }
 
-		return false;
+        return false;
 
-	}
+    }
 
 }

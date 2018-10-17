@@ -11,26 +11,26 @@ import java.io.File;
  */
 public interface UniquidNodeConfiguration {
 
-	public File getProviderChainFile();
+    File getProviderChainFile();
 
-	public File getUserChainFile();
+    File getUserChainFile();
 
-	public String getNodeName();
+    String getNodeName();
 
-	public NetworkParameters getNetworkParameters();
+    NetworkParameters getNetworkParameters();
 
-	public File getProviderFile();
+    File getProviderFile();
 
-	public File getUserFile();
+    File getUserFile();
 
-	public String getPublicKey();
+    String getPublicKey();
 
-	public long getCreationTime();
+    long getCreationTime();
 
-	public RegisterFactory getRegisterFactory();
+    RegisterFactory getRegisterFactory();
 
-	public String getRegistryUrl();
-	
-	public UserClientFactory getUserClientFactory();
-	
+    String getRegistryUrl();
+
+    UserClientFactory getUserClientFactory();
+
 }

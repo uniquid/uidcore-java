@@ -7,39 +7,39 @@ import org.junit.Test;
 import java.util.List;
 
 public abstract class ProviderRegisterTest {
-	
-	protected abstract ProviderRegister getProviderRegister() throws Exception;
 
-	@Test
-	public void testProvider() throws Exception {
+    protected abstract ProviderRegister getProviderRegister() throws Exception;
 
-		List<ProviderChannel> channels = getProviderRegister().getAllChannels();
+    @Test
+    public void testProvider() throws Exception {
 
-		Assert.assertNotNull(channels);
-		Assert.assertEquals(0, channels.size());
+        List<ProviderChannel> channels = getProviderRegister().getAllChannels();
 
-		ProviderChannel providerChannel = new ProviderChannel();
-		providerChannel.setProviderAddress("mfuta5iXJNe7yzCaPtmm4W2saiqTbTfxNG");
-		providerChannel.setUserAddress("mkw5u34vDegrah5GasD5gKCJQ1NhNGG8tJ");
-		providerChannel.setRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
-		providerChannel.setRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
-		providerChannel.setBitmask("00000");
-		providerChannel.setPath("path");
+        Assert.assertNotNull(channels);
+        Assert.assertEquals(0, channels.size());
 
-		try {
+        ProviderChannel providerChannel = new ProviderChannel();
+        providerChannel.setProviderAddress("mfuta5iXJNe7yzCaPtmm4W2saiqTbTfxNG");
+        providerChannel.setUserAddress("mkw5u34vDegrah5GasD5gKCJQ1NhNGG8tJ");
+        providerChannel.setRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
+        providerChannel.setRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
+        providerChannel.setBitmask("00000");
+        providerChannel.setPath("path");
 
-			getProviderRegister().insertChannel(null);
-			Assert.fail();
+        try {
 
-		} catch (RegisterException ex) {
+            getProviderRegister().insertChannel(null);
+            Assert.fail();
 
-			Assert.assertEquals("providerChannel is null!", ex.getLocalizedMessage());
+        } catch (RegisterException ex) {
 
-		}
+            Assert.assertEquals("providerChannel is null!", ex.getLocalizedMessage());
 
-		getProviderRegister().insertChannel(providerChannel);
-		
-		try {
+        }
+
+        getProviderRegister().insertChannel(providerChannel);
+
+        try {
 
             getProviderRegister().insertChannel(providerChannel);
             Assert.fail();
@@ -50,110 +50,110 @@ public abstract class ProviderRegisterTest {
 
         }
 
-		channels = getProviderRegister().getAllChannels();
+        channels = getProviderRegister().getAllChannels();
 
-		Assert.assertEquals(channels.size(), 1);
+        Assert.assertEquals(channels.size(), 1);
 
-		Assert.assertEquals(providerChannel, channels.get(0));
+        Assert.assertEquals(providerChannel, channels.get(0));
 
-		Assert.assertNull(getProviderRegister().getChannelByUserAddress("none"));
+        Assert.assertNull(getProviderRegister().getChannelByUserAddress("none"));
 
-		try {
+        try {
 
-			getProviderRegister().getChannelByUserAddress(null);
-			Assert.fail();
+            getProviderRegister().getChannelByUserAddress(null);
+            Assert.fail();
 
-		} catch (RegisterException ex) {
+        } catch (RegisterException ex) {
 
-			Assert.assertEquals("address is not valid", ex.getLocalizedMessage());
-		}
+            Assert.assertEquals("address is not valid", ex.getLocalizedMessage());
+        }
 
-		try {
+        try {
 
-			getProviderRegister().getChannelByUserAddress("");
-			Assert.fail();
+            getProviderRegister().getChannelByUserAddress("");
+            Assert.fail();
 
-		} catch (RegisterException ex) {
+        } catch (RegisterException ex) {
 
-			Assert.assertEquals("address is not valid", ex.getLocalizedMessage());
-		}
-		
+            Assert.assertEquals("address is not valid", ex.getLocalizedMessage());
+        }
 
-		ProviderChannel provider2 = getProviderRegister()
-				.getChannelByUserAddress("mkw5u34vDegrah5GasD5gKCJQ1NhNGG8tJ");
 
-		Assert.assertEquals(providerChannel, provider2);
+        ProviderChannel provider2 = getProviderRegister()
+                .getChannelByUserAddress("mkw5u34vDegrah5GasD5gKCJQ1NhNGG8tJ");
 
-		Assert.assertNull(getProviderRegister().getChannelByRevokeAddress("none"));
+        Assert.assertEquals(providerChannel, provider2);
 
-		try {
+        Assert.assertNull(getProviderRegister().getChannelByRevokeAddress("none"));
 
-			getProviderRegister().getChannelByRevokeAddress(null);
-			Assert.fail();
+        try {
 
-		} catch (RegisterException ex) {
+            getProviderRegister().getChannelByRevokeAddress(null);
+            Assert.fail();
 
-			Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
-		}
+        } catch (RegisterException ex) {
 
-		try {
+            Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
+        }
 
-			getProviderRegister().getChannelByRevokeAddress("");
-			Assert.fail();
+        try {
 
-		} catch (RegisterException ex) {
+            getProviderRegister().getChannelByRevokeAddress("");
+            Assert.fail();
 
-			Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
-		}
+        } catch (RegisterException ex) {
 
-		provider2 = getProviderRegister().getChannelByRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
+            Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
+        }
 
-		Assert.assertEquals(providerChannel, provider2);
+        provider2 = getProviderRegister().getChannelByRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
 
-		try {
+        Assert.assertEquals(providerChannel, provider2);
 
-			getProviderRegister().getChannelByRevokeTxId(null);
-			Assert.fail();
+        try {
 
-		} catch (RegisterException ex) {
+            getProviderRegister().getChannelByRevokeTxId(null);
+            Assert.fail();
 
-			Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
-		}
+        } catch (RegisterException ex) {
 
-		try {
+            Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
+        }
 
-			getProviderRegister().getChannelByRevokeTxId("");
-			Assert.fail();
+        try {
 
-		} catch (RegisterException ex) {
+            getProviderRegister().getChannelByRevokeTxId("");
+            Assert.fail();
 
-			Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
-		}
+        } catch (RegisterException ex) {
 
-		Assert.assertNull(getProviderRegister().getChannelByRevokeTxId("none"));
+            Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
+        }
 
-		provider2 = getProviderRegister()
-				.getChannelByRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
+        Assert.assertNull(getProviderRegister().getChannelByRevokeTxId("none"));
 
-		Assert.assertEquals(providerChannel, provider2);
+        provider2 = getProviderRegister()
+                .getChannelByRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 
-		try {
+        Assert.assertEquals(providerChannel, provider2);
 
-			getProviderRegister().deleteChannel(null);
-			Assert.fail();
+        try {
 
-		} catch (RegisterException ex) {
+            getProviderRegister().deleteChannel(null);
+            Assert.fail();
 
-			Assert.assertEquals("providerChannel is null!", ex.getLocalizedMessage());
-		}
+        } catch (RegisterException ex) {
 
-		getProviderRegister().deleteChannel(providerChannel);
-		
+            Assert.assertEquals("providerChannel is null!", ex.getLocalizedMessage());
+        }
 
-		channels = getProviderRegister().getAllChannels();
+        getProviderRegister().deleteChannel(providerChannel);
 
-		Assert.assertEquals(channels.size(), 0);
 
-	}
+        channels = getProviderRegister().getAllChannels();
+
+        Assert.assertEquals(channels.size(), 0);
+
+    }
 
 }

@@ -16,85 +16,84 @@ import java.util.List;
  */
 public abstract class WalletUtils {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(WalletUtils.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(WalletUtils.class.getName());
 
-	private static final int OP_RETURN_INDEX = 1;
+    private static final int OP_RETURN_INDEX = 1;
 
-	/**
-	 * Check if a Transaction has a valid (Uniquid) OP_RETURN
-	 */
-	public static boolean isValidOpReturn(Transaction tx) {
+    /**
+     * Check if a Transaction has a valid (Uniquid) OP_RETURN
+     */
+    public static boolean isValidOpReturn(Transaction tx) {
 
-		byte[] opreturn = getOpReturnAsByteArray(tx);
+        byte[] opreturn = getOpReturnAsByteArray(tx);
 
-		return (opreturn != null && opreturn.length == 80);
-	}
+        return (opreturn != null && opreturn.length == 80);
+    }
 
-	/**
-	 * Retrieve OP_RETURN from a Transaction as Hex String
-	 */
-	public static String getOpReturn(Transaction tx) {
+    /**
+     * Retrieve OP_RETURN from a Transaction as Hex String
+     */
+    public static String getOpReturn(Transaction tx) {
 
-		byte[] opreturn = getOpReturnAsByteArray(tx);
+        byte[] opreturn = getOpReturnAsByteArray(tx);
 
-		if (opreturn != null) {
+        if (opreturn != null) {
 
-			return org.bitcoinj.core.Utils.HEX.encode(opreturn);
+            return org.bitcoinj.core.Utils.HEX.encode(opreturn);
 
-		}
+        }
 
-		return null;
+        return null;
 
-	}
+    }
 
-	/**
-	 * Retrieve OP_RETURN from a Transaction as byte array
-	 * @param tx the transaction
-	 * @return the OP_RETURN
-	 * @throws Exception
-	 */
-	public static byte[] getOpReturnAsByteArray(Transaction tx) {
+    /**
+     * Retrieve OP_RETURN from a Transaction as byte array
+     * @param tx the transaction
+     * @return the OP_RETURN
+     */
+    public static byte[] getOpReturnAsByteArray(Transaction tx) {
 
-		List<TransactionOutput> to = tx.getOutputs();
+        List<TransactionOutput> to = tx.getOutputs();
 
-		if (to.size() == 4) {
+        if (to.size() == 4) {
 
-			Script script = to.get(OP_RETURN_INDEX).getScriptPubKey();
+            Script script = to.get(OP_RETURN_INDEX).getScriptPubKey();
 
-			if (script.isOpReturn()) {
+            if (script.isOpReturn()) {
 
-				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-				try {
-					
-					script.getChunks().get(1).write(byteArrayOutputStream);
-				
-				} catch (IOException ex) {
-					
-					LOGGER.error("Exception while writing to ByteArrayOutputStream", ex);
-					
-					return null;
-					
-				}
+                try {
 
-				// FIRST BYTE IS OPCODE
-				// SECOND BYTE IS TOTAL LENGHT OF OPRETURN
-				// THIRD BYTE IS FIRST ELEMENT OP OPRETURN
+                    script.getChunks().get(1).write(byteArrayOutputStream);
 
-				byte[] opreturn = byteArrayOutputStream.toByteArray();
+                } catch (IOException ex) {
 
-				return Arrays.copyOfRange(opreturn, 2, opreturn[1] + 2);
+                    LOGGER.error("Exception while writing to ByteArrayOutputStream", ex);
 
-			}
+                    return null;
 
-			return null;
+                }
 
-		} else {
+                // FIRST BYTE IS OPCODE
+                // SECOND BYTE IS TOTAL LENGHT OF OPRETURN
+                // THIRD BYTE IS FIRST ELEMENT OP OPRETURN
 
-			return null;
+                byte[] opreturn = byteArrayOutputStream.toByteArray();
 
-		}
-		
-	}
+                return Arrays.copyOfRange(opreturn, 2, opreturn[1] + 2);
+
+            }
+
+            return null;
+
+        } else {
+
+            return null;
+
+        }
+
+    }
 
 }

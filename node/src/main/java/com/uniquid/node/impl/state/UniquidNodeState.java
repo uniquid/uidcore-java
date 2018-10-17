@@ -9,24 +9,24 @@ import org.bitcoinj.wallet.Wallet;
  */
 public interface UniquidNodeState {
 
-	/**
-	 * Allow to implement logic to send coins to blockchain
-	 * @param wallet
-	 * @param tx
-	 */
-	public void onCoinsSent(final Wallet wallet, final Transaction tx);
+    /**
+     * Allow to implement logic to send coins to blockchain
+     * @param wallet
+     * @param tx
+     */
+    public void onCoinsSent(final Wallet wallet, final Transaction tx);
 
-	/**
-	 * Allow to implement logic to receive from from blockchain
-	 * @param wallet
-	 * @param tx
-	 */
-	public void onCoinsReceived(final Wallet wallet, final Transaction tx);
+    /**
+     * Allow to implement logic to receive from from blockchain
+     * @param wallet
+     * @param tx
+     */
+    public void onCoinsReceived(final Wallet wallet, final Transaction tx);
 
-	/**
-	 * Returns the {@link com.uniquid.node.UniquidNodeState} related to this state. 
-	 * @return
-	 */
-	public com.uniquid.node.UniquidNodeState getNodeState();
-	
+    /**
+     * Returns the {@link com.uniquid.node.UniquidNodeState} related to this state.
+     * @return
+     */
+    public com.uniquid.node.UniquidNodeState getNodeState();
+
 }

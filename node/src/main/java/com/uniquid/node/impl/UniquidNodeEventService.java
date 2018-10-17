@@ -21,328 +21,328 @@ import java.util.concurrent.ThreadFactory;
  * UniquidNodeEventService allow to manage events asynchronously and split the logic for the subscriber/publisher.
  */
 public class UniquidNodeEventService {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeEventService.class);
-	
-	private List<UniquidNodeEventListener> observers;
-	
-	private ExecutorService executorService;
-	
-	private ThreadGroup threadGroup;
 
-	/**
-	 * Return a new UniquidNodeEventService instance 
-	 */
-	public UniquidNodeEventService() {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UniquidNodeEventService.class);
 
-		this.threadGroup = new ThreadGroup("UniquidNodeEventService");
-		this.observers = new CopyOnWriteArrayList<>();
-		this.executorService = Executors.newCachedThreadPool(new ThreadFactory() {
+    private List<UniquidNodeEventListener> observers;
 
-			@Override
-			public Thread newThread(Runnable runnable) {
+    private ExecutorService executorService;
 
-				return new Thread(threadGroup, runnable);
+    private ThreadGroup threadGroup;
 
-			}
-		});
-	
-	}
-	
-	/**
-	 * Register an event listener
-	 * 
-	 * @param uniquidNodeEventListener the event listener that will receive callbacks
-	 */
-	public synchronized void addUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
-		observers.add(uniquidNodeEventListener);
-	}
+    /**
+     * Return a new UniquidNodeEventService instance
+     */
+    public UniquidNodeEventService() {
 
-	/**
-	 * Unregister an event listener
-	 * 
-	 * @param uniquidNodeEventListener the event listener that will be removed
-	 */
-	public synchronized void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
-		observers.remove(uniquidNodeEventListener);
-	}
-	
-	/**
-	 * Allow to publish the onProviderContractCreated event.
-	 * 
-	 * @param providerChannel the parameter to pass to subscribers.
-	 */
-	public void onProviderContractCreated(final ProviderChannel providerChannel) {
-		
-		executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onProviderContractCreated(providerChannel);
-					
-				}
-				
-			}
-			
-		});
-	}
-	
-	/**
-	 * Allow to publish the onProviderContractRevoked event.
-	 * 
-	 * @param providerChannel the parameter to pass to subscribers.
-	 */
-	public void onProviderContractRevoked(final ProviderChannel providerChannel) {
-		
-		executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onProviderContractRevoked(providerChannel);
-					
-				}
-				
-			}
-			
-		});
-	}
-	
-	/**
-	 * Allow to publish the onUserContractCreated event.
-	 * 
-	 * @param userChannel the parameter to pass to subscribers.
-	 */
-	public void onUserContractCreated(final UserChannel userChannel) {
-		
-		executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onUserContractCreated(userChannel);
-					
-				}
-				
-			}
-			
-		});
-	}
-	
-	/**
-	 * Allow to publish the onUserContractRevoked event.
-	 * 
-	 * @param userChannel the parameter to pass to subscribers.
-	 */
-	public void onUserContractRevoked(final UserChannel userChannel) {
-		
-		executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onUserContractRevoked(userChannel);
-					
-				}
-				
-			}
-			
-		});
-	}
-	
-	/**
-	 * Allow to publish the onSyncNodeStart event.
-	 */
-	public void onSyncNodeStart() {
-		
-		executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onSyncNodeStart();
-					
-				}
-				
-			}
-			
-		});
-	}
-	
-	/**
-	 * Allow to publish the onSyncNodeEnd event.
-	 */
-	public void onSyncNodeEnd() {
-		
-		executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onSyncNodeEnd();
-					
-				}
-				
-			}
-			
-		});
-	}
-	
-	/**
-	 * Allow to publish the onSyncStarted event.
-	 * 
-	 * @param blocks the parameter to pass to subscribers.
-	 */
-	public void onSyncStarted(final int blocks) {
-		
-		executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onSyncStarted(blocks);
-					
-				}
-				
-			}
-			
-		});
-	}
-	
-	/**
-	 * Allow to publish the onSyncProgress event.
-	 * @param pct
-	 * @param blocksSoFar
-	 * @param date
-	 */
-	public void onSyncProgress(final double pct, final int blocksSoFar, final Date date) {
-		
-		executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onSyncProgress(pct, blocksSoFar, date);
-					
-				}
-				
-			}
-			
-		});
-	}
-	
-	/**
-	 * Allow to publish the onSyncEnded event.
-	 */
-	public void onSyncEnded() {
-		
-		executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onSyncEnded();
-					
-				}
-				
-			}
-			
-		});
-	}
-	
-	/**
-	 * Allow to publish the onNodeStateChange event.
-	 * 
-	 * @param newState the parameter to pass to subscribers.
-	 */
-	public void onNodeStateChange(final UniquidNodeState newState) {
-		
-		executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onNodeStateChange(newState);
-					
-				}
-				
-			}
-			
-		});
-	}
+        this.threadGroup = new ThreadGroup("UniquidNodeEventService");
+        this.observers = new CopyOnWriteArrayList<>();
+        this.executorService = Executors.newCachedThreadPool(new ThreadFactory() {
 
-	public void onPeerConnected(final Peer peer, final int peerCount) {
-			executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onPeerConnected(peer, peerCount);
-					
-				}
-				
-			}
-			
-		});
-	}
+            @Override
+            public Thread newThread(Runnable runnable) {
 
-	
-	public void onPeerDisconnected(final Peer peer, final int peerCount) {
-			executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onPeerDisconnected(peer, peerCount);
-					
-				}
-				
-			}
-			
-		});		
-	}
+                return new Thread(threadGroup, runnable);
 
-	public void onPeersDiscovered(final Set<PeerAddress> peerAddresses) {
-			executorService.submit(new Runnable() {
-			
-			@Override
-			public void run() {
-				
-				for (UniquidNodeEventListener listener : observers) {
-					
-					listener.onPeersDiscovered(peerAddresses);
-					
-				}
-				
-			}
-			
-		});	
-		
-	}
+            }
+        });
+
+    }
+
+    /**
+     * Register an event listener
+     *
+     * @param uniquidNodeEventListener the event listener that will receive callbacks
+     */
+    public synchronized void addUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
+        observers.add(uniquidNodeEventListener);
+    }
+
+    /**
+     * Unregister an event listener
+     *
+     * @param uniquidNodeEventListener the event listener that will be removed
+     */
+    public synchronized void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener) {
+        observers.remove(uniquidNodeEventListener);
+    }
+
+    /**
+     * Allow to publish the onProviderContractCreated event.
+     *
+     * @param providerChannel the parameter to pass to subscribers.
+     */
+    public void onProviderContractCreated(final ProviderChannel providerChannel) {
+
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onProviderContractCreated(providerChannel);
+
+                }
+
+            }
+
+        });
+    }
+
+    /**
+     * Allow to publish the onProviderContractRevoked event.
+     *
+     * @param providerChannel the parameter to pass to subscribers.
+     */
+    public void onProviderContractRevoked(final ProviderChannel providerChannel) {
+
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onProviderContractRevoked(providerChannel);
+
+                }
+
+            }
+
+        });
+    }
+
+    /**
+     * Allow to publish the onUserContractCreated event.
+     *
+     * @param userChannel the parameter to pass to subscribers.
+     */
+    public void onUserContractCreated(final UserChannel userChannel) {
+
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onUserContractCreated(userChannel);
+
+                }
+
+            }
+
+        });
+    }
+
+    /**
+     * Allow to publish the onUserContractRevoked event.
+     *
+     * @param userChannel the parameter to pass to subscribers.
+     */
+    public void onUserContractRevoked(final UserChannel userChannel) {
+
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onUserContractRevoked(userChannel);
+
+                }
+
+            }
+
+        });
+    }
+
+    /**
+     * Allow to publish the onSyncNodeStart event.
+     */
+    public void onSyncNodeStart() {
+
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onSyncNodeStart();
+
+                }
+
+            }
+
+        });
+    }
+
+    /**
+     * Allow to publish the onSyncNodeEnd event.
+     */
+    public void onSyncNodeEnd() {
+
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onSyncNodeEnd();
+
+                }
+
+            }
+
+        });
+    }
+
+    /**
+     * Allow to publish the onSyncStarted event.
+     *
+     * @param blocks the parameter to pass to subscribers.
+     */
+    public void onSyncStarted(final int blocks) {
+
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onSyncStarted(blocks);
+
+                }
+
+            }
+
+        });
+    }
+
+    /**
+     * Allow to publish the onSyncProgress event.
+     * @param pct the percentage of chain downloaded, estimated
+     * @param blocksSoFar blocks to download
+     * @param date the date of the last block downloaded
+     */
+    public void onSyncProgress(final double pct, final int blocksSoFar, final Date date) {
+
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onSyncProgress(pct, blocksSoFar, date);
+
+                }
+
+            }
+
+        });
+    }
+
+    /**
+     * Allow to publish the onSyncEnded event.
+     */
+    public void onSyncEnded() {
+
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onSyncEnded();
+
+                }
+
+            }
+
+        });
+    }
+
+    /**
+     * Allow to publish the onNodeStateChange event.
+     *
+     * @param newState the parameter to pass to subscribers.
+     */
+    public void onNodeStateChange(final UniquidNodeState newState) {
+
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onNodeStateChange(newState);
+
+                }
+
+            }
+
+        });
+    }
+
+    public void onPeerConnected(final Peer peer, final int peerCount) {
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onPeerConnected(peer, peerCount);
+
+                }
+
+            }
+
+        });
+    }
+
+
+    public void onPeerDisconnected(final Peer peer, final int peerCount) {
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onPeerDisconnected(peer, peerCount);
+
+                }
+
+            }
+
+        });
+    }
+
+    public void onPeersDiscovered(final Set<PeerAddress> peerAddresses) {
+        executorService.submit(new Runnable() {
+
+            @Override
+            public void run() {
+
+                for (UniquidNodeEventListener listener : observers) {
+
+                    listener.onPeersDiscovered(peerAddresses);
+
+                }
+
+            }
+
+        });
+
+    }
 
 }

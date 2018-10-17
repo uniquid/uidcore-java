@@ -5,9 +5,9 @@ package com.uniquid.core.provider.exception;
  */
 public class FunctionException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
+    /**
      * Constructs a new exception with the specified detail message.  The
      * cause is not initialized, and may subsequently be initialized by
      * a call to {@link #initCause}.

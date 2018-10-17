@@ -16,160 +16,160 @@ import org.slf4j.LoggerFactory;
  */
 public class ReadyState<T extends UniquidNodeConfiguration> implements UniquidNodeState {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ReadyState.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReadyState.class);
 
-	protected UniquidNodeStateContext<T> uniquidNodeStateContext;
+    protected UniquidNodeStateContext<T> uniquidNodeStateContext;
 
-	public ReadyState(final UniquidNodeStateContext<T> uniquidNodeStateContext) {
+    public ReadyState(final UniquidNodeStateContext<T> uniquidNodeStateContext) {
 
-		this.uniquidNodeStateContext = uniquidNodeStateContext;
+        this.uniquidNodeStateContext = uniquidNodeStateContext;
 
-	}
+    }
 
-	@Override
-	public void onCoinsSent(final Wallet wallet, final Transaction tx) {
+    @Override
+    public void onCoinsSent(final Wallet wallet, final Transaction tx) {
 
-		// We sent some coins. Probably we created a contract as Provider
-		if (wallet.equals(uniquidNodeStateContext.getProviderWallet()) || "provider".equalsIgnoreCase(wallet.getDescription())) {
+        // We sent some coins. Probably we created a contract as Provider
+        if (wallet.equals(uniquidNodeStateContext.getProviderWallet()) || "provider".equalsIgnoreCase(wallet.getDescription())) {
 
-			LOGGER.info("Sent coins from provider wallet");
+            LOGGER.info("Sent coins from provider wallet");
 
-			try {
+            try {
 
-				LOGGER.info("Creating provider contract!");
-				ContractStrategy contractStrategy = createProviderContract();
-				
-				contractStrategy.manageContractCreation(tx);
+                LOGGER.info("Creating provider contract!");
+                ContractStrategy contractStrategy = createProviderContract();
 
-			} catch (Exception ex) {
+                contractStrategy.manageContractCreation(tx);
 
-				LOGGER.error("Exception while creating provider contract", ex);
+            } catch (Exception ex) {
 
-			}
+                LOGGER.error("Exception while creating provider contract", ex);
 
-		} else if (wallet.equals(uniquidNodeStateContext.getUserWallet()) || "user".equalsIgnoreCase(wallet.getDescription())) {
+            }
 
-			LOGGER.info("Sent coins from user wallet");
+        } else if (wallet.equals(uniquidNodeStateContext.getUserWallet()) || "user".equalsIgnoreCase(wallet.getDescription())) {
 
-			// if (UniquidNodeStateUtils.isValidRevokeContract(tx,
-			// nodeStateContext)) {
+            LOGGER.info("Sent coins from user wallet");
 
-			try {
-				LOGGER.info("Revoking contract!");
-				ContractStrategy contractStrategy = createProviderContract();
-				
-				contractStrategy.manageContractRevocation(tx);
+            // if (UniquidNodeStateUtils.isValidRevokeContract(tx,
+            // nodeStateContext)) {
 
-			} catch (Exception ex) {
+            try {
+                LOGGER.info("Revoking contract!");
+                ContractStrategy contractStrategy = createProviderContract();
 
-				LOGGER.error("Exception while revoking provider contract", ex);
+                contractStrategy.manageContractRevocation(tx);
 
-			}
+            } catch (Exception ex) {
 
-		} else {
+                LOGGER.error("Exception while revoking provider contract", ex);
 
-			LOGGER.info("We sent coins from a wallet that we don't expect!");
+            }
 
-		}
+        } else {
 
-	}
+            LOGGER.info("We sent coins from a wallet that we don't expect!");
 
-	@Override
-	public void onCoinsReceived(final Wallet wallet, final Transaction tx) {
+        }
 
-		// Received a contract!!!
-		if (wallet.equals(uniquidNodeStateContext.getProviderWallet()) || "provider".equalsIgnoreCase(wallet.getDescription())) {
+    }
 
-			LOGGER.info("Received coins on provider wallet");
-			
-			// If is imprinting transaction...
-			if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getImprintingAddress())) {
+    @Override
+    public void onCoinsReceived(final Wallet wallet, final Transaction tx) {
 
-				// imprint!
-				LOGGER.warn("Attention! Another machine tried to imprint US! Skip request!");
+        // Received a contract!!!
+        if (wallet.equals(uniquidNodeStateContext.getProviderWallet()) || "provider".equalsIgnoreCase(wallet.getDescription())) {
 
-			} else if (UniquidNodeStateUtils.isValidRevokeContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
+            LOGGER.info("Received coins on provider wallet");
 
-				try {
-					// Revoking a contract will move coins from provider wallet to another provider address
-					LOGGER.info("Revoking contract!");
+            // If is imprinting transaction...
+            if (UniquidNodeStateUtils.isValidImprintingTransaction(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getImprintingAddress())) {
 
-					ContractStrategy contractStrategy = createProviderContract();
-					
-					contractStrategy.manageContractRevocation(tx);
+                // imprint!
+                LOGGER.warn("Attention! Another machine tried to imprint US! Skip request!");
 
-				} catch (Exception ex) {
+            } else if (UniquidNodeStateUtils.isValidRevokeContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
 
-					LOGGER.error("Exception", ex);
-				}
+                try {
+                    // Revoking a contract will move coins from provider wallet to another provider address
+                    LOGGER.info("Revoking contract!");
 
-			} else {
+                    ContractStrategy contractStrategy = createProviderContract();
 
-				LOGGER.info("Unknown contract");
+                    contractStrategy.manageContractRevocation(tx);
 
-			}
+                } catch (Exception ex) {
 
-		} else if (wallet.equals(uniquidNodeStateContext.getUserWallet()) || "user".equalsIgnoreCase(wallet.getDescription())) {
+                    LOGGER.error("Exception", ex);
+                }
 
-			LOGGER.info("Received coins on user wallet");
+            } else {
 
-			if (UniquidNodeStateUtils.isValidRevokeUserContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
+                LOGGER.info("Unknown contract");
 
-				try {
+            }
 
-					LOGGER.info("Revoking user contract!");
+        } else if (wallet.equals(uniquidNodeStateContext.getUserWallet()) || "user".equalsIgnoreCase(wallet.getDescription())) {
 
-					ContractStrategy contractStrategy = createUserContract();
+            LOGGER.info("Received coins on user wallet");
 
-					contractStrategy.manageContractRevocation(tx);
+            if (UniquidNodeStateUtils.isValidRevokeUserContract(tx, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(), uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory())) {
 
-				} catch (Exception ex) {
+                try {
 
-					LOGGER.error("Exception", ex);
-				}
+                    LOGGER.info("Revoking user contract!");
 
-			} else {
+                    ContractStrategy contractStrategy = createUserContract();
 
-				try {
+                    contractStrategy.manageContractRevocation(tx);
 
-					LOGGER.info("Creating user contract!");
-					ContractStrategy contractStrategy = createUserContract();
+                } catch (Exception ex) {
 
-					contractStrategy.manageContractCreation(tx);
+                    LOGGER.error("Exception", ex);
+                }
 
-				} catch (Exception ex) {
+            } else {
 
-					LOGGER.error("Exception while creating provider contract", ex);
+                try {
 
-				}
+                    LOGGER.info("Creating user contract!");
+                    ContractStrategy contractStrategy = createUserContract();
 
-			}
+                    contractStrategy.manageContractCreation(tx);
 
-		} else {
+                } catch (Exception ex) {
 
-			LOGGER.warn("We received coins on a wallet that we don't expect!");
+                    LOGGER.error("Exception while creating provider contract", ex);
 
-		}
+                }
 
-	}
+            }
 
-	@Override
-	public com.uniquid.node.UniquidNodeState getNodeState() {
+        } else {
 
-		return com.uniquid.node.UniquidNodeState.READY;
+            LOGGER.warn("We received coins on a wallet that we don't expect!");
 
-	}
+        }
 
-	protected ContractStrategy createProviderContract() {
-		
-		return new ProviderContract(uniquidNodeStateContext);
+    }
 
-	}
-	
-	protected ContractStrategy createUserContract() {
-		
-		return new UserContract(uniquidNodeStateContext);
-	
-	}
-	
+    @Override
+    public com.uniquid.node.UniquidNodeState getNodeState() {
+
+        return com.uniquid.node.UniquidNodeState.READY;
+
+    }
+
+    protected ContractStrategy createProviderContract() {
+
+        return new ProviderContract(uniquidNodeStateContext);
+
+    }
+
+    protected ContractStrategy createUserContract() {
+
+        return new UserContract(uniquidNodeStateContext);
+
+    }
+
 }

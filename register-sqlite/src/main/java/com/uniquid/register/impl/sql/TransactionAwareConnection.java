@@ -13,341 +13,341 @@ import java.util.concurrent.Executor;
  * if we are in the middle of a transaction
  */
 public class TransactionAwareConnection implements Connection {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionAwareConnection.class.getName());
-	
-	private final Object sync;
-	
-	private Connection wrapped;
-	private volatile boolean inTransaction;
-	private long threadId;
-	private String threadName;
-	
-	public TransactionAwareConnection(Connection wrapped, Thread runnerThread) {
-		this.sync = new Object();
-		this.wrapped = wrapped;
-		this.inTransaction = true;
-		this.threadId = runnerThread.getId();
-		this.threadName = runnerThread.getName();
-	}
 
-	public <T> T unwrap(Class<T> iface) throws SQLException {
-		
-		return wrapped.unwrap(iface);
-	}
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionAwareConnection.class.getName());
 
-	public boolean isWrapperFor(Class<?> iface) throws SQLException {
-		
-		return wrapped.isWrapperFor(iface);
-	}
+    private final Object sync;
 
-	public Statement createStatement() throws SQLException {
-		
-		return wrapped.createStatement();
-	}
+    private Connection wrapped;
+    private volatile boolean inTransaction;
+    private long threadId;
+    private String threadName;
 
-	public PreparedStatement prepareStatement(String sql) throws SQLException {
-		
-		return wrapped.prepareStatement(sql);
-	}
+    public TransactionAwareConnection(Connection wrapped, Thread runnerThread) {
+        this.sync = new Object();
+        this.wrapped = wrapped;
+        this.inTransaction = true;
+        this.threadId = runnerThread.getId();
+        this.threadName = runnerThread.getName();
+    }
 
-	public CallableStatement prepareCall(String sql) throws SQLException {
-		
-		return wrapped.prepareCall(sql);
-	}
+    public <T> T unwrap(Class<T> iface) throws SQLException {
 
-	public String nativeSQL(String sql) throws SQLException {
-		
-		return wrapped.nativeSQL(sql);
-	}
+        return wrapped.unwrap(iface);
+    }
 
-	public void setAutoCommit(boolean autoCommit) throws SQLException {
-		
-		wrapped.setAutoCommit(autoCommit);
-	}
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
 
-	public boolean getAutoCommit() throws SQLException {
-		
-		return wrapped.getAutoCommit();
-	}
+        return wrapped.isWrapperFor(iface);
+    }
 
-	public void commit() throws SQLException {
-		
-		synchronized (sync) {
-			
-			try {
-				//checkCurrentThread();
-				wrapped.commit();
-			} finally {
-				inTransaction = false;
-			}
+    public Statement createStatement() throws SQLException {
 
-		}
-		
-	}
+        return wrapped.createStatement();
+    }
 
-	public void rollback() throws SQLException {
-		
-		synchronized (sync) {
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
 
-			try {
-				//checkCurrentThread();
-				wrapped.rollback();
-			} finally {
-				inTransaction = false;
-			}
-			
-		}
-		
-	}
+        return wrapped.prepareStatement(sql);
+    }
 
-	public void close() throws SQLException {
-		
-		wrapped.close();
-		
-	}
+    public CallableStatement prepareCall(String sql) throws SQLException {
 
-	public boolean isClosed() throws SQLException {
-		
-		return wrapped.isClosed();
-	}
+        return wrapped.prepareCall(sql);
+    }
 
-	public DatabaseMetaData getMetaData() throws SQLException {
-		
-		return wrapped.getMetaData();
-	}
+    public String nativeSQL(String sql) throws SQLException {
 
-	public void setReadOnly(boolean readOnly) throws SQLException {
-		
-		wrapped.setReadOnly(readOnly);
-	}
+        return wrapped.nativeSQL(sql);
+    }
 
-	public boolean isReadOnly() throws SQLException {
-		
-		return wrapped.isReadOnly();
-	}
+    public void setAutoCommit(boolean autoCommit) throws SQLException {
 
-	public void setCatalog(String catalog) throws SQLException {
-		
-		wrapped.setCatalog(catalog);
-	}
+        wrapped.setAutoCommit(autoCommit);
+    }
 
-	public String getCatalog() throws SQLException {
+    public boolean getAutoCommit() throws SQLException {
 
-		return wrapped.getCatalog();
-	}
+        return wrapped.getAutoCommit();
+    }
 
-	public void setTransactionIsolation(int level) throws SQLException {
-		
-		wrapped.setTransactionIsolation(level);
-	}
+    public void commit() throws SQLException {
 
-	public int getTransactionIsolation() throws SQLException {
-		
-		return wrapped.getTransactionIsolation();
-	}
+        synchronized (sync) {
 
-	public SQLWarning getWarnings() throws SQLException {
-		
-		return wrapped.getWarnings();
-	}
+            try {
+                //checkCurrentThread();
+                wrapped.commit();
+            } finally {
+                inTransaction = false;
+            }
 
-	public void clearWarnings() throws SQLException {
-		
-		wrapped.clearWarnings();
-	}
+        }
 
-	public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
-		
-		return wrapped.createStatement(resultSetType, resultSetConcurrency);
-	}
+    }
 
-	public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency)
-			throws SQLException {
-		
-		return wrapped.prepareStatement(sql, resultSetType, resultSetConcurrency);
-	}
+    public void rollback() throws SQLException {
 
-	public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-		
-		return wrapped.prepareCall(sql, resultSetType, resultSetConcurrency);
-	}
+        synchronized (sync) {
 
-	public Map<String, Class<?>> getTypeMap() throws SQLException {
-		
-		return wrapped.getTypeMap();
-	}
+            try {
+                //checkCurrentThread();
+                wrapped.rollback();
+            } finally {
+                inTransaction = false;
+            }
 
-	public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
-		
-		wrapped.setTypeMap(map);
-	}
+        }
 
-	public void setHoldability(int holdability) throws SQLException {
-		
-		wrapped.setHoldability(holdability);
-	}
+    }
 
-	public int getHoldability() throws SQLException {
-		
-		return wrapped.getHoldability();
-	}
+    public void close() throws SQLException {
 
-	public Savepoint setSavepoint() throws SQLException {
-		
-		return wrapped.setSavepoint();
-	}
+        wrapped.close();
 
-	public Savepoint setSavepoint(String name) throws SQLException {
-		
-		return wrapped.setSavepoint(name);
-	}
+    }
 
-	public void rollback(Savepoint savepoint) throws SQLException {
-		
-		wrapped.rollback(savepoint);
-	}
+    public boolean isClosed() throws SQLException {
 
-	public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-		
-		wrapped.releaseSavepoint(savepoint);
-	}
+        return wrapped.isClosed();
+    }
 
-	public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
-			throws SQLException {
-		
-		return wrapped.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
-	}
+    public DatabaseMetaData getMetaData() throws SQLException {
 
-	public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
-			int resultSetHoldability) throws SQLException {
-		
-		return wrapped.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
-	}
+        return wrapped.getMetaData();
+    }
 
-	public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
-			int resultSetHoldability) throws SQLException {
-		
-		return wrapped.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
-	}
+    public void setReadOnly(boolean readOnly) throws SQLException {
 
-	public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
-		
-		return wrapped.prepareStatement(sql, autoGeneratedKeys);
-	}
+        wrapped.setReadOnly(readOnly);
+    }
 
-	public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
-		
-		return wrapped.prepareStatement(sql, columnIndexes);
-	}
+    public boolean isReadOnly() throws SQLException {
 
-	public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
-		
-		return wrapped.prepareStatement(sql, columnNames);
-	}
+        return wrapped.isReadOnly();
+    }
 
-	public Clob createClob() throws SQLException {
-		
-		return wrapped.createClob();
-	}
+    public void setCatalog(String catalog) throws SQLException {
 
-	public Blob createBlob() throws SQLException {
-		
-		return wrapped.createBlob();
-	}
+        wrapped.setCatalog(catalog);
+    }
 
-	public NClob createNClob() throws SQLException {
-		
-		return wrapped.createNClob();
-	}
+    public String getCatalog() throws SQLException {
 
-	public SQLXML createSQLXML() throws SQLException {
-		
-		return wrapped.createSQLXML();
-	}
+        return wrapped.getCatalog();
+    }
 
-	public boolean isValid(int timeout) throws SQLException {
-		
-		return wrapped.isValid(timeout);
-	}
+    public void setTransactionIsolation(int level) throws SQLException {
 
-	public void setClientInfo(String name, String value) throws SQLClientInfoException {
-		
-		wrapped.setClientInfo(name, value);
-	}
+        wrapped.setTransactionIsolation(level);
+    }
 
-	public void setClientInfo(Properties properties) throws SQLClientInfoException {
-		
-		wrapped.setClientInfo(properties);
-	}
+    public int getTransactionIsolation() throws SQLException {
 
-	public String getClientInfo(String name) throws SQLException {
-		
-		return wrapped.getClientInfo(name);
-	}
+        return wrapped.getTransactionIsolation();
+    }
 
-	public Properties getClientInfo() throws SQLException {
-		
-		return wrapped.getClientInfo();
-	}
+    public SQLWarning getWarnings() throws SQLException {
 
-	public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
-		
-		return wrapped.createArrayOf(typeName, elements);
-	}
+        return wrapped.getWarnings();
+    }
 
-	public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
-		
-		return wrapped.createStruct(typeName, attributes);
-	}
+    public void clearWarnings() throws SQLException {
 
-	public void setSchema(String schema) throws SQLException {
-		
-		wrapped.setSchema(schema);
-	}
+        wrapped.clearWarnings();
+    }
 
-	public String getSchema() throws SQLException {
-		
-		return wrapped.getSchema();
-	}
+    public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
 
-	public void abort(Executor executor) throws SQLException {
-		
-		wrapped.abort(executor);
-	}
+        return wrapped.createStatement(resultSetType, resultSetConcurrency);
+    }
 
-	public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-		
-		wrapped.setNetworkTimeout(executor, milliseconds);
-	}
+    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency)
+            throws SQLException {
 
-	public int getNetworkTimeout() throws SQLException {
-		
-		return wrapped.getNetworkTimeout();
-	}
-	
-	public boolean inTransaction() {
-		
-		synchronized (sync) {
-			
-			return inTransaction;
-			
-		}
-		
-	}
-	
-	private void checkCurrentThread() {
-		
-		Thread runner = Thread.currentThread();
-		
-		if (runner.getId() != threadId ||
-				!runner.getName().equals(threadName)) {
-			
-			LOGGER.error("The thread executing transaction is different");
-			
-			throw new IllegalStateException("The thread executing transaction is different");
-			
-		}
-		
-	}
+        return wrapped.prepareStatement(sql, resultSetType, resultSetConcurrency);
+    }
+
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+
+        return wrapped.prepareCall(sql, resultSetType, resultSetConcurrency);
+    }
+
+    public Map<String, Class<?>> getTypeMap() throws SQLException {
+
+        return wrapped.getTypeMap();
+    }
+
+    public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
+
+        wrapped.setTypeMap(map);
+    }
+
+    public void setHoldability(int holdability) throws SQLException {
+
+        wrapped.setHoldability(holdability);
+    }
+
+    public int getHoldability() throws SQLException {
+
+        return wrapped.getHoldability();
+    }
+
+    public Savepoint setSavepoint() throws SQLException {
+
+        return wrapped.setSavepoint();
+    }
+
+    public Savepoint setSavepoint(String name) throws SQLException {
+
+        return wrapped.setSavepoint(name);
+    }
+
+    public void rollback(Savepoint savepoint) throws SQLException {
+
+        wrapped.rollback(savepoint);
+    }
+
+    public void releaseSavepoint(Savepoint savepoint) throws SQLException {
+
+        wrapped.releaseSavepoint(savepoint);
+    }
+
+    public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability)
+            throws SQLException {
+
+        return wrapped.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+    }
+
+    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
+                                              int resultSetHoldability) throws SQLException {
+
+        return wrapped.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+    }
+
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
+                                         int resultSetHoldability) throws SQLException {
+
+        return wrapped.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+    }
+
+    public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
+
+        return wrapped.prepareStatement(sql, autoGeneratedKeys);
+    }
+
+    public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
+
+        return wrapped.prepareStatement(sql, columnIndexes);
+    }
+
+    public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
+
+        return wrapped.prepareStatement(sql, columnNames);
+    }
+
+    public Clob createClob() throws SQLException {
+
+        return wrapped.createClob();
+    }
+
+    public Blob createBlob() throws SQLException {
+
+        return wrapped.createBlob();
+    }
+
+    public NClob createNClob() throws SQLException {
+
+        return wrapped.createNClob();
+    }
+
+    public SQLXML createSQLXML() throws SQLException {
+
+        return wrapped.createSQLXML();
+    }
+
+    public boolean isValid(int timeout) throws SQLException {
+
+        return wrapped.isValid(timeout);
+    }
+
+    public void setClientInfo(String name, String value) throws SQLClientInfoException {
+
+        wrapped.setClientInfo(name, value);
+    }
+
+    public void setClientInfo(Properties properties) throws SQLClientInfoException {
+
+        wrapped.setClientInfo(properties);
+    }
+
+    public String getClientInfo(String name) throws SQLException {
+
+        return wrapped.getClientInfo(name);
+    }
+
+    public Properties getClientInfo() throws SQLException {
+
+        return wrapped.getClientInfo();
+    }
+
+    public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
+
+        return wrapped.createArrayOf(typeName, elements);
+    }
+
+    public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
+
+        return wrapped.createStruct(typeName, attributes);
+    }
+
+    public void setSchema(String schema) throws SQLException {
+
+        wrapped.setSchema(schema);
+    }
+
+    public String getSchema() throws SQLException {
+
+        return wrapped.getSchema();
+    }
+
+    public void abort(Executor executor) throws SQLException {
+
+        wrapped.abort(executor);
+    }
+
+    public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+
+        wrapped.setNetworkTimeout(executor, milliseconds);
+    }
+
+    public int getNetworkTimeout() throws SQLException {
+
+        return wrapped.getNetworkTimeout();
+    }
+
+    public boolean inTransaction() {
+
+        synchronized (sync) {
+
+            return inTransaction;
+
+        }
+
+    }
+
+    private void checkCurrentThread() {
+
+        Thread runner = Thread.currentThread();
+
+        if (runner.getId() != threadId ||
+                !runner.getName().equals(threadName)) {
+
+            LOGGER.error("The thread executing transaction is different");
+
+            throw new IllegalStateException("The thread executing transaction is different");
+
+        }
+
+    }
 }

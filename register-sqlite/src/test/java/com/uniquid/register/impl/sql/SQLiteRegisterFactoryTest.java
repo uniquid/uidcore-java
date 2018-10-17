@@ -11,43 +11,43 @@ import org.junit.BeforeClass;
 
 public class SQLiteRegisterFactoryTest extends RegisterFactoryTest {
 
-	private static SQLiteRegisterFactory factory;
+    private static SQLiteRegisterFactory factory;
 
-	@BeforeClass
-	public static void createNewDatabase() throws Exception {
+    @BeforeClass
+    public static void createNewDatabase() throws Exception {
 
-		factory = UniquidNodeDBUtils.initDB();
+        factory = UniquidNodeDBUtils.initDB();
 
-	}
+    }
 
-	@AfterClass
-	public static void testClose() throws Exception {
+    @AfterClass
+    public static void testClose() throws Exception {
 
-		factory.close();
+        factory.close();
 
-		try {
-			ProviderRegister providerRegister = factory.getProviderRegister();
-		} catch (RegisterException ex) {
-			Assert.assertEquals("Datasource is null", ex.getLocalizedMessage());
-		}
+        try {
+            ProviderRegister providerRegister = factory.getProviderRegister();
+        } catch (RegisterException ex) {
+            Assert.assertEquals("Datasource is null", ex.getLocalizedMessage());
+        }
 
-		try {
-			UserRegister userRegister = factory.getUserRegister();
-		} catch (RegisterException ex) {
-			Assert.assertEquals("Datasource is null", ex.getLocalizedMessage());
-		}
+        try {
+            UserRegister userRegister = factory.getUserRegister();
+        } catch (RegisterException ex) {
+            Assert.assertEquals("Datasource is null", ex.getLocalizedMessage());
+        }
 
-		try {
-			factory.close();
-		} catch (RegisterException ex) {
-			Assert.assertEquals("Exception while closing dataSource", ex.getLocalizedMessage());
-		}
+        try {
+            factory.close();
+        } catch (RegisterException ex) {
+            Assert.assertEquals("Exception while closing dataSource", ex.getLocalizedMessage());
+        }
 
-	}
+    }
 
-	@Override
-	public RegisterFactory getRegisterFactory() {
-		return factory;
-	}
+    @Override
+    public RegisterFactory getRegisterFactory() {
+        return factory;
+    }
 
 }

@@ -7,20 +7,20 @@ import org.junit.BeforeClass;
 
 public class SqliteTransactionManagerTest extends TransactionManagerTest {
 
-	private static SQLiteRegisterFactory factory;
+    private static SQLiteRegisterFactory factory;
 
-	@BeforeClass
-	public static void createNewDatabase() throws Exception {
+    @BeforeClass
+    public static void createNewDatabase() throws Exception {
 
-		factory = UniquidNodeDBUtils.initDB();
+        factory = UniquidNodeDBUtils.initDB();
 
-	}
-	
-	@Override
-	public RegisterFactory getRegisterFactory() throws RegisterException {
-		
-		return factory;
-		
-	}
-	
+    }
+
+    @Override
+    public RegisterFactory getRegisterFactory() throws RegisterException {
+
+        return factory;
+
+    }
+
 }

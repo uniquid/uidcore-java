@@ -14,69 +14,69 @@ import java.util.Set;
  */
 public class EmptyUniquidNodeEventListener implements UniquidNodeEventListener {
 
-	@Override
-	public void onProviderContractCreated(ProviderChannel providerChannel) {
-		// NOTHING TO DO
-	}
+    @Override
+    public void onProviderContractCreated(ProviderChannel providerChannel) {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onProviderContractRevoked(ProviderChannel providerChannel) {
-		// NOTHING TO DO
-	}
+    @Override
+    public void onProviderContractRevoked(ProviderChannel providerChannel) {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onUserContractCreated(UserChannel userChannel) {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onUserContractCreated(UserChannel userChannel) {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onUserContractRevoked(UserChannel userChannel) {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onUserContractRevoked(UserChannel userChannel) {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onSyncNodeStart() {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onSyncNodeStart() {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onSyncNodeEnd() {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onSyncNodeEnd() {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onSyncStarted(int blocks) {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onSyncStarted(int blocks) {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onSyncProgress(double pct, int blocksSoFar, Date date) {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onSyncProgress(double pct, int blocksSoFar, Date date) {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onSyncEnded() {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onSyncEnded() {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onNodeStateChange(UniquidNodeState newState) {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onNodeStateChange(UniquidNodeState newState) {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onPeerConnected(Peer peer, int peerCount) {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onPeerConnected(Peer peer, int peerCount) {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onPeerDisconnected(Peer peer, int peerCount) {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onPeerDisconnected(Peer peer, int peerCount) {
+        // NOTHING TO DO
+    }
 
-	@Override
-	public void onPeersDiscovered(Set<PeerAddress> peerAddresses) {
-		// NOTHING TO DO		
-	}
+    @Override
+    public void onPeersDiscovered(Set<PeerAddress> peerAddresses) {
+        // NOTHING TO DO
+    }
 
 }

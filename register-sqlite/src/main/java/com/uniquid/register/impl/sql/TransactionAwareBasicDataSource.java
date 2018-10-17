@@ -12,167 +12,167 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class TransactionAwareBasicDataSource extends BasicDataSource implements TransactionManager {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(TransactionAwareBasicDataSource.class);
-	
-	private static final ThreadLocal<TransactionAwareConnection> context = new ThreadLocal<>();
-	
-	// This will prevent multiple writer to be active
-	private final Lock writerLock;
-	
-	public TransactionAwareBasicDataSource() {
-		super();
-		
-		this.writerLock = new ReentrantLock();
-	}
 
-	@Override
-	public void startTransaction() throws TransactionException {
-		
-		LOGGER.debug("Starting transaction " + Thread.currentThread().getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionAwareBasicDataSource.class);
 
-		try {
-			
-			writerLock.lock();
+    private static final ThreadLocal<TransactionAwareConnection> context = new ThreadLocal<>();
 
-			Connection connection = context.get();
-			
-			if (connection != null) {
-				
-				LOGGER.error("A transaction is already in progress for " + Thread.currentThread().getName());
-				
-				throw new TransactionException("Transaction already in progress");
-				
-			}
+    // This will prevent multiple writer to be active
+    private final Lock writerLock;
 
-			connection = super.getConnection();
-			connection.setAutoCommit(false);
+    public TransactionAwareBasicDataSource() {
+        super();
 
-			context.set(new TransactionAwareConnection(connection, Thread.currentThread()));
+        this.writerLock = new ReentrantLock();
+    }
 
-		} catch (Exception ex) {
-			
-			writerLock.unlock();
+    @Override
+    public void startTransaction() throws TransactionException {
 
-			throw new TransactionException("Exception", ex);
+        LOGGER.debug("Starting transaction " + Thread.currentThread().getName());
 
-		}
-		
-	}
+        try {
 
-	@Override
-	public void commitTransaction() throws TransactionException {
+            writerLock.lock();
 
-		LOGGER.debug("Committing transaction " + Thread.currentThread().getName());
+            Connection connection = context.get();
 
-		TransactionAwareConnection connection = context.get();
-		
-		if (connection == null) {
-			
-			LOGGER.error("No transaction found for " + Thread.currentThread().getName());
-			
-			throw new TransactionException("Connection is null!");
-			
-		}
+            if (connection != null) {
 
-		try {
-			
-			connection.commit();
+                LOGGER.error("A transaction is already in progress for " + Thread.currentThread().getName());
 
-			connection.setAutoCommit(true);
+                throw new TransactionException("Transaction already in progress");
 
-		} catch (Exception ex) {
+            }
 
-			throw new TransactionException("Exception", ex);
+            connection = super.getConnection();
+            connection.setAutoCommit(false);
 
-		} finally {
-			
-			try {
-				
-				connection.close();
-			
-			} catch (SQLException e) {
-				
-				LOGGER.error("Exception closing connection", e);
-				
-			}
-			
-			writerLock.unlock();
-		
-			// remove wrapper!
-			context.remove();
+            context.set(new TransactionAwareConnection(connection, Thread.currentThread()));
 
-		}
-		
-	}
+        } catch (Exception ex) {
 
-	@Override
-	public void rollbackTransaction() throws TransactionException {
-		
-		LOGGER.debug("Rollbacking transaction " + Thread.currentThread().getName());
+            writerLock.unlock();
 
-		TransactionAwareConnection connection = context.get();
-		
-		if (connection == null) {
-			
-			LOGGER.error("No transaction found for " + Thread.currentThread().getName());
-			
-			throw new TransactionException("Connection is null!");
-			
-		}
+            throw new TransactionException("Exception", ex);
 
-		try {
-			
-			connection.rollback();
+        }
 
-			connection.setAutoCommit(true);
+    }
 
-		} catch (Exception ex) {
+    @Override
+    public void commitTransaction() throws TransactionException {
 
-			throw new TransactionException("Exception", ex);
+        LOGGER.debug("Committing transaction " + Thread.currentThread().getName());
 
-		} finally {
-			
-			try {
-				
-				connection.close();
-			
-			} catch (SQLException e) {
-				
-				LOGGER.error("Exception closing connection", e);
-				
-			}
-			
-			writerLock.unlock();
-		
-			// remove wrapper!
-			context.remove();
+        TransactionAwareConnection connection = context.get();
 
-		}
-		
-	}
+        if (connection == null) {
 
-	@Override
-	public boolean insideTransaction() {
+            LOGGER.error("No transaction found for " + Thread.currentThread().getName());
 
-		return (context.get() != null);
+            throw new TransactionException("Connection is null!");
 
-	}
+        }
 
-	@Override
-	public Connection getConnection() throws SQLException {
+        try {
 
-		Connection connection = context.get();
+            connection.commit();
 
-		if (connection == null) {
+            connection.setAutoCommit(true);
 
-			connection = super.getConnection();
+        } catch (Exception ex) {
 
-		}
+            throw new TransactionException("Exception", ex);
 
-		return connection;
+        } finally {
 
-	}
+            try {
 
-	
+                connection.close();
+
+            } catch (SQLException e) {
+
+                LOGGER.error("Exception closing connection", e);
+
+            }
+
+            writerLock.unlock();
+
+            // remove wrapper!
+            context.remove();
+
+        }
+
+    }
+
+    @Override
+    public void rollbackTransaction() throws TransactionException {
+
+        LOGGER.debug("Rollbacking transaction " + Thread.currentThread().getName());
+
+        TransactionAwareConnection connection = context.get();
+
+        if (connection == null) {
+
+            LOGGER.error("No transaction found for " + Thread.currentThread().getName());
+
+            throw new TransactionException("Connection is null!");
+
+        }
+
+        try {
+
+            connection.rollback();
+
+            connection.setAutoCommit(true);
+
+        } catch (Exception ex) {
+
+            throw new TransactionException("Exception", ex);
+
+        } finally {
+
+            try {
+
+                connection.close();
+
+            } catch (SQLException e) {
+
+                LOGGER.error("Exception closing connection", e);
+
+            }
+
+            writerLock.unlock();
+
+            // remove wrapper!
+            context.remove();
+
+        }
+
+    }
+
+    @Override
+    public boolean insideTransaction() {
+
+        return (context.get() != null);
+
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+
+        Connection connection = context.get();
+
+        if (connection == null) {
+
+            connection = super.getConnection();
+
+        }
+
+        return connection;
+
+    }
+
+
 }

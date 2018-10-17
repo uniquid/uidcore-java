@@ -5,9 +5,9 @@ package com.uniquid.register.exception;
  */
 public class RegisterException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/**
+    /**
      * Constructs a new register exception with the specified detail message.  The
      * cause is not initialized, and may subsequently be initialized by
      * a call to {@link #initCause}.
@@ -15,11 +15,11 @@ public class RegisterException extends Exception {
      * @param   message   the detail message. The detail message is saved for
      *          later retrieval by the {@link #getMessage()} method.
      */
-	public RegisterException(String message) {
+    public RegisterException(String message) {
         super(message);
     }
 
-	/**
+    /**
      * Constructs a new register exception with the specified detail message and
      * cause.  <p>Note that the detail message associated with
      * {@code cause} is <i>not</i> automatically incorporated in

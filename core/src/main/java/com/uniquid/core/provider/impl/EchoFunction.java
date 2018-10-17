@@ -12,12 +12,12 @@ import java.io.IOException;
  */
 public class EchoFunction extends GenericFunction {
 
-	@Override
-	public void service(FunctionRequestMessage inputMessage, FunctionResponseMessage outputMessage, byte[] payload)
-			throws FunctionException, IOException {
-		
-		outputMessage.setResult("UID_echo: " + inputMessage.getParameters());
-		
-	}
-	
+    @Override
+    public void service(FunctionRequestMessage inputMessage, FunctionResponseMessage outputMessage, byte[] payload)
+            throws FunctionException, IOException {
+
+        outputMessage.setResult("UID_echo: " + inputMessage.getParameters());
+
+    }
+
 }

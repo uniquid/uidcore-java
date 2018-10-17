@@ -16,98 +16,98 @@ import static com.uniquid.node.impl.utils.NodeUtils.getAddressFromTransactionOut
 
 /**
  * Class that manage imprinting contracts
- * 
+ *
  * @author giuseppe
  *
  */
 @SuppressWarnings("rawtypes")
 public class ImprintingContract extends AbstractContract {
-	
-	public static final String CONTRACT_FUNCTION = "00000000400000000000000000000000000000";
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ImprintingContract.class);
+    public static final String CONTRACT_FUNCTION = "00000000400000000000000000000000000000";
 
-	@SuppressWarnings("unchecked")
-	public ImprintingContract(UniquidNodeStateContext uniquidNodeStateContext) {
-		super(uniquidNodeStateContext);
-	}
-	
-	@Override
-	public void doRealContract(final Transaction tx) throws Exception {
-		
-		LOGGER.info("Making imprint contract from TX {}", tx.getHashAsString());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImprintingContract.class);
 
-		LegacyAddress legacyAddress = LegacyAddress.fromPubKeyHash(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
-				org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
+    @SuppressWarnings("unchecked")
+    public ImprintingContract(UniquidNodeStateContext uniquidNodeStateContext) {
+        super(uniquidNodeStateContext);
+    }
 
-		// Retrieve sender
-		String sender = legacyAddress.toBase58();
-		
-		// Check output
-		List<TransactionOutput> transactionOutputs = tx.getOutputs();
-		for (TransactionOutput to : transactionOutputs) {
+    @Override
+    public void doRealContract(final Transaction tx) throws Exception {
 
-			Address address = getAddressFromTransactionOutput(to, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
-			if (address != null && address.equals(uniquidNodeStateContext.getImprintingAddress())) {
+        LOGGER.info("Making imprint contract from TX {}", tx.getHashAsString());
 
-				// This is our imprinter!!!
-				
-				LOGGER.info("Received imprint contract from {}!", sender);
+        LegacyAddress legacyAddress = LegacyAddress.fromPubKeyHash(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
+                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
 
-				ProviderRegister providerRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getProviderRegister();
+        // Retrieve sender
+        String sender = legacyAddress.toBase58();
 
-				ECKey key = uniquidNodeStateContext.getProviderWallet().findKeyFromPubHash(uniquidNodeStateContext.getImprintingAddress().getHash());
-				String path = null;
-				if (key != null) {
-					path = ((DeterministicKey) key).getPathAsString();
-				}
-				
-				// Create provider channel
-				final ProviderChannel providerChannel = new ProviderChannel();
-				providerChannel.setUserAddress(sender);
-				providerChannel.setProviderAddress(uniquidNodeStateContext.getImprintingAddress().toBase58());
-				providerChannel.setBitmask(CONTRACT_FUNCTION);
-				providerChannel.setRevokeAddress("IMPRINTING");
-				providerChannel.setRevokeTxId(tx.getHashAsString());
-				providerChannel.setCreationTime(tx.getUpdateTime().getTime()/1000);
-				providerChannel.setSince(0);
-				providerChannel.setUntil(Long.MAX_VALUE);
-				providerChannel.setPath(path);
+        // Check output
+        List<TransactionOutput> transactionOutputs = tx.getOutputs();
+        for (TransactionOutput to : transactionOutputs) {
 
-				uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().startTransaction();
-				
-				try {
-					
-					// persist channel
-					providerRegister.insertChannel(providerChannel);
-					
-					uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().commitTransaction();
-				
-				} catch (RegisterException ex) {
-					
-					LOGGER.error("Error while inserting channel", ex);
-					
-					uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().rollbackTransaction();
-					
-					// ReThrow
-					throw ex;
-					
-				}
+            Address address = getAddressFromTransactionOutput(to, uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
+            if (address != null && address.equals(uniquidNodeStateContext.getImprintingAddress())) {
 
-				// send event
-				uniquidNodeStateContext.getUniquidNodeEventService().onProviderContractCreated(providerChannel);
-				
-				break;
+                // This is our imprinter!!!
 
-			}
+                LOGGER.info("Received imprint contract from {}!", sender);
 
-		}
+                ProviderRegister providerRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getProviderRegister();
 
-	}
+                ECKey key = uniquidNodeStateContext.getProviderWallet().findKeyFromPubHash(uniquidNodeStateContext.getImprintingAddress().getHash());
+                String path = null;
+                if (key != null) {
+                    path = ((DeterministicKey) key).getPathAsString();
+                }
 
-	@Override
-	public void revokeRealContract(final Transaction tx) throws Exception {
-		// DO NOTHING
-	}
-	
+                // Create provider channel
+                final ProviderChannel providerChannel = new ProviderChannel();
+                providerChannel.setUserAddress(sender);
+                providerChannel.setProviderAddress(uniquidNodeStateContext.getImprintingAddress().toBase58());
+                providerChannel.setBitmask(CONTRACT_FUNCTION);
+                providerChannel.setRevokeAddress("IMPRINTING");
+                providerChannel.setRevokeTxId(tx.getHashAsString());
+                providerChannel.setCreationTime(tx.getUpdateTime().getTime()/1000);
+                providerChannel.setSince(0);
+                providerChannel.setUntil(Long.MAX_VALUE);
+                providerChannel.setPath(path);
+
+                uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().startTransaction();
+
+                try {
+
+                    // persist channel
+                    providerRegister.insertChannel(providerChannel);
+
+                    uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().commitTransaction();
+
+                } catch (RegisterException ex) {
+
+                    LOGGER.error("Error while inserting channel", ex);
+
+                    uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getTransactionManager().rollbackTransaction();
+
+                    // ReThrow
+                    throw ex;
+
+                }
+
+                // send event
+                uniquidNodeStateContext.getUniquidNodeEventService().onProviderContractCreated(providerChannel);
+
+                break;
+
+            }
+
+        }
+
+    }
+
+    @Override
+    public void revokeRealContract(final Transaction tx) throws Exception {
+        // DO NOTHING
+    }
+
 }

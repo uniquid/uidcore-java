@@ -6,64 +6,64 @@ import org.junit.Test;
 
 public class ApplicationContextTest {
 
-	@Test
-	public void testConstructor() {
-		
-		ApplicationContext context = new ApplicationContext();
-		
-		Assert.assertNotNull(context);
-		Assert.assertEquals("Uniquid Library", context.getServerInfo());
-		Assert.assertNull(context.getAttribute(null));
-		Assert.assertNotNull(context.getAttributeNames());
-		
-	}
-	
-	@Test
-	public void testAttribute() {
-		
-		ApplicationContext context = new ApplicationContext();
-		
-		try {
-			
-			context.setAttribute(null, null);
-			Assert.fail();
-			
-		} catch (IllegalArgumentException ex) {
+    @Test
+    public void testConstructor() {
 
-			Assert.assertEquals("name attribute is null", ex.getMessage());
-			
-		}
+        ApplicationContext context = new ApplicationContext();
 
-		Object o = new Object();
+        Assert.assertNotNull(context);
+        Assert.assertEquals("Uniquid Library", context.getServerInfo());
+        Assert.assertNull(context.getAttribute(null));
+        Assert.assertNotNull(context.getAttributeNames());
 
-		context.setAttribute("test", o);
-		
-		Assert.assertEquals(o, context.getAttribute("test"));
-		
-		context.setAttribute("test", null);
-		
-		Assert.assertNull(context.getAttribute("test"));
-		
-		context.setAttribute("test", o);
-		
-		Assert.assertEquals(o, context.getAttribute("test"));
-		
-		context.removeAttribute("test");
-		
-		Assert.assertNull(context.getAttribute("test"));
-		
-		context.setAttribute("test", o);
-		
-		Assert.assertEquals(o, context.getAttribute("test"));
-		
-		context.setAttributeReadOnly("test");
-		
-		Assert.assertEquals(o, context.getAttribute("test"));
-		
-		context.removeAttribute("test");
-		
-		Assert.assertEquals(o, context.getAttribute("test"));
-		
-	}
-	
+    }
+
+    @Test
+    public void testAttribute() {
+
+        ApplicationContext context = new ApplicationContext();
+
+        try {
+
+            context.setAttribute(null, null);
+            Assert.fail();
+
+        } catch (IllegalArgumentException ex) {
+
+            Assert.assertEquals("name attribute is null", ex.getMessage());
+
+        }
+
+        Object o = new Object();
+
+        context.setAttribute("test", o);
+
+        Assert.assertEquals(o, context.getAttribute("test"));
+
+        context.setAttribute("test", null);
+
+        Assert.assertNull(context.getAttribute("test"));
+
+        context.setAttribute("test", o);
+
+        Assert.assertEquals(o, context.getAttribute("test"));
+
+        context.removeAttribute("test");
+
+        Assert.assertNull(context.getAttribute("test"));
+
+        context.setAttribute("test", o);
+
+        Assert.assertEquals(o, context.getAttribute("test"));
+
+        context.setAttributeReadOnly("test");
+
+        Assert.assertEquals(o, context.getAttribute("test"));
+
+        context.removeAttribute("test");
+
+        Assert.assertEquals(o, context.getAttribute("test"));
+
+    }
+
 }

@@ -8,19 +8,19 @@ import org.bitcoinj.wallet.Wallet;
  */
 public class CreatedState implements UniquidNodeState {
 
-	@Override
-	public void onCoinsSent(Wallet wallet, Transaction tx) {
-		throw new IllegalStateException();
-	}
+    @Override
+    public void onCoinsSent(Wallet wallet, Transaction tx) {
+        throw new IllegalStateException();
+    }
 
-	@Override
-	public void onCoinsReceived(Wallet wallet, Transaction tx) {
-		throw new IllegalStateException();
-	}
+    @Override
+    public void onCoinsReceived(Wallet wallet, Transaction tx) {
+        throw new IllegalStateException();
+    }
 
-	@Override
-	public com.uniquid.node.UniquidNodeState getNodeState() {
-		return com.uniquid.node.UniquidNodeState.CREATED;
-	}
+    @Override
+    public com.uniquid.node.UniquidNodeState getNodeState() {
+        return com.uniquid.node.UniquidNodeState.CREATED;
+    }
 
 }
