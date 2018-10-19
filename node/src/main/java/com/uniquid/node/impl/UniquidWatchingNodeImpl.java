@@ -9,6 +9,7 @@ import com.uniquid.node.impl.state.ImprintingState;
 import com.uniquid.node.impl.state.ReadyState;
 import com.uniquid.node.impl.state.UniquidNodeState;
 import com.uniquid.node.impl.utils.NodeUtils;
+import com.uniquid.node.listeners.EmptyUniquidNodeEventListener;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
@@ -51,6 +52,9 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
     protected final UniquidNodeEventService uniquidNodeEventService;
 
+    private boolean isNodeReady = false;
+
+
     /**
      * Creates a new instance
      *
@@ -63,7 +67,6 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
         this.uniquidNodeEventService = new UniquidNodeEventService();
 
         setUniquidNodeState(getCreatedState());
-
     }
 
     /*
@@ -106,6 +109,16 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
         try {
 
             LOGGER.info("Initializing node");
+
+            isNodeReady = false;
+            addUniquidNodeEventListener(new EmptyUniquidNodeEventListener() {
+                @Override
+                public void onSyncNodeEnd() {
+                    if(!isNodeReady) {
+                        isNodeReady = true;
+                    }
+                }
+            });
 
             if (uniquidNodeConfiguration.getProviderFile().exists()
                     && !uniquidNodeConfiguration.getProviderFile().isDirectory()
@@ -410,6 +423,11 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
             throw new NodeException("Problem while inserting capability", ex);
         }
 
+    }
+
+    @Override
+    public boolean isNodeReady() {
+        return isNodeReady;
     }
 
     @Override

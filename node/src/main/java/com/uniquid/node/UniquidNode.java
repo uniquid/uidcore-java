@@ -147,4 +147,5 @@ public interface UniquidNode {
      */
     void receiveUserCapability(UniquidCapability uniquidCapability, String providerName, String path) throws NodeException;
 
+    boolean isNodeReady();
 }

@@ -107,6 +107,11 @@ public class DummyExceptionNode implements UniquidNode {
     }
 
     @Override
+    public boolean isNodeReady() {
+        return true;
+    }
+
+    @Override
     public String getAddressAtPath(String path) throws NodeException {
         throw new NodeException("Exception");
     }
