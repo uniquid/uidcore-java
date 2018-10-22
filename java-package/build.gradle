@@ -1,8 +1,15 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
 
 description = ''
 dependencies {
-  compile project(':core')
-  compile project(':register-spi')
-  compile project(':register-sqlite')
-  compile project(':node')
+    compile project(':uidcore-java:core')
+    compile project(':uidcore-java:register-spi')
+    compile project(':uidcore-java:register-sqlite')
+    compile project(':uidcore-java:node')
 }
