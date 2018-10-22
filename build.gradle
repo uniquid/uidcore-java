@@ -3,6 +3,11 @@ allprojects  {
 
     group = 'com.uniquid'
     version = '0.1-RC1-SNAPSHOT'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
 }
 
 subprojects {
@@ -11,10 +16,5 @@ subprojects {
     targetCompatibility = 1.8
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
-    }
-
-    repositories {
-        mavenLocal()
-        maven { url "http://repo.maven.apache.org/maven2" }
     }
 }
