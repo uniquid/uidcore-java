@@ -1,108 +1,99 @@
 package com.uniquid.node.impl.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.script.Script;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Utility class that contains useful methods for managing wallets
  */
 public abstract class WalletUtils {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(WalletUtils.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(WalletUtils.class.getName());
 
-	private static final int OP_RETURN_INDEX = 1;
+    private static final int OP_RETURN_INDEX = 1;
 
-	/**
-	 * Check if a Transaction has a valid (Uniquid) OP_RETURN
-	 */
-	public static boolean isValidOpReturn(Transaction tx) {
+    /**
+     * Check if a Transaction has a valid (Uniquid) OP_RETURN
+     */
+    public static boolean isValidOpReturn(Transaction tx) {
 
-		byte[] opreturn = getOpReturnAsByteArray(tx);
+        byte[] opreturn = getOpReturnAsByteArray(tx);
 
-		if (opreturn != null && opreturn.length == 80) {
+        return (opreturn != null && opreturn.length == 80);
+    }
 
-			return true;
+    /**
+     * Retrieve OP_RETURN from a Transaction as Hex String
+     */
+    public static String getOpReturn(Transaction tx) {
 
-		} else {
+        byte[] opreturn = getOpReturnAsByteArray(tx);
 
-			return false;
+        if (opreturn != null) {
 
-		}
-	}
+            return org.bitcoinj.core.Utils.HEX.encode(opreturn);
 
-	/**
-	 * Retrieve OP_RETURN from a Transaction as Hex String
-	 */
-	public static String getOpReturn(Transaction tx) {
+        }
 
-		byte[] opreturn = getOpReturnAsByteArray(tx);
+        return null;
 
-		if (opreturn != null) {
+    }
 
-			return org.bitcoinj.core.Utils.HEX.encode(opreturn);
+    /**
+     * Retrieve OP_RETURN from a Transaction as byte array
+     * @param tx the transaction
+     * @return the OP_RETURN
+     */
+    public static byte[] getOpReturnAsByteArray(Transaction tx) {
 
-		}
+        List<TransactionOutput> to = tx.getOutputs();
 
-		return null;
+        if (to.size() == 4) {
 
-	}
+            Script script = to.get(OP_RETURN_INDEX).getScriptPubKey();
 
-	/**
-	 * Retrieve OP_RETURN from a Transaction as byte array
-	 * @param tx
-	 * @return
-	 * @throws Exception
-	 */
-	public static byte[] getOpReturnAsByteArray(Transaction tx) {
+            if (script.isOpReturn()) {
 
-		List<TransactionOutput> to = tx.getOutputs();
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-		if (to.size() == 4) {
+                try {
 
-			Script script = to.get(OP_RETURN_INDEX).getScriptPubKey();
+                    script.getChunks().get(1).write(byteArrayOutputStream);
 
-			if (script.isOpReturn()) {
+                } catch (IOException ex) {
 
-				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    LOGGER.error("Exception while writing to ByteArrayOutputStream", ex);
 
-				try {
-					
-					script.getChunks().get(1).write(byteArrayOutputStream);
-				
-				} catch (IOException ex) {
-					
-					LOGGER.error("Exception while writing to ByteArrayOutputStream", ex);
-					
-					return null;
-					
-				}
+                    return null;
 
-				// FIRST BYTE IS OPCODE
-				// SECOND BYTE IS TOTAL LENGHT OF OPRETURN
-				// THIRD BYTE IS FIRST ELEMENT OP OPRETURN
+                }
 
-				byte[] opreturn = byteArrayOutputStream.toByteArray();
+                // FIRST BYTE IS OPCODE
+                // SECOND BYTE IS TOTAL LENGHT OF OPRETURN
+                // THIRD BYTE IS FIRST ELEMENT OP OPRETURN
 
-				return Arrays.copyOfRange(opreturn, 2, opreturn[1] + 2);
+                byte[] opreturn = byteArrayOutputStream.toByteArray();
 
-			}
+                return Arrays.copyOfRange(opreturn, 2, opreturn[1] + 2);
 
-			return null;
+            }
 
-		} else {
+            return null;
 
-			return null;
+        } else {
 
-		}
-		
-	}
+            return null;
+
+        }
+
+    }
 
 }

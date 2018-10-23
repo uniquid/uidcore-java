@@ -3,3 +3,9 @@ bin
 .classpath
 .settings
 .project
+.gradle
+.idea
+*/build
+*.iml
+gradle
+gradlew*

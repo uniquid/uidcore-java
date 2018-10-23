@@ -1,9 +1,9 @@
 package com.uniquid.node;
 
-import java.util.List;
-
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
+
+import java.util.List;
 
 /**
  * Represents an entity that owns an ID-based cryptography that uses the BlockChain to manage trust relationship with
@@ -15,108 +15,137 @@ import com.uniquid.node.listeners.UniquidNodeEventListener;
  */
 public interface UniquidNode {
 
-	/**
-	 * Returns the imprinting address of this node
-	 * 
-	 * @return imprinting address of this node
-	 */
-	public String getImprintingAddress();
+    /**
+     * Returns the imprinting address of this node
+     *
+     * @return imprinting address of this node
+     */
+    String getImprintingAddress();
 
-	/**
-	 * Returns the public key of this node
-	 * 
-	 * @return public key of this node
-	 */
-	public String getPublicKey();
+    /**
+     * Returns the public key of this node
+     *
+     * @return public key of this node
+     */
+    String getPublicKey();
 
-	/**
-	 * Returns the node name
-	 * 
-	 * @return the name of this node
-	 */
-	public String getNodeName();
-	
-	/**
-	 * Returns the creation time of this node
-	 * 
-	 * @return creation time of this node
-	 */
-	public long getCreationTime();
-	
-	/**
-	 * Return the spendable balance of this node
-	 * 
-	 * @return the spendable balance of this node
-	 */
-	public String getSpendableBalance();
+    /**
+     * Returns the node name
+     *
+     * @return the name of this node
+     */
+    String getNodeName();
 
-	/**
-	 * Initialize this node
-	 */
-	public void initNode() throws NodeException;
-	
-	/**
-	 * Synchronize the node against the BlockChain.
-	 */
-	public void updateNode() throws NodeException;
+    /**
+     * Returns the creation time of this node
+     *
+     * @return creation time of this node
+     */
+    long getCreationTime();
 
-	/**
-	 * Returns the current state of this node.
-	 * 
-	 * @return the {@code UniquidNodeState} representing the current state of this node.
-	 */
-	public UniquidNodeState getNodeState();
+    /**
+     * Return the spendable balance of this node
+     *
+     * @return the spendable balance of this node
+     */
+    String getSpendableBalance();
 
-	/**
-	 * Register an event listener
-	 * 
-	 * @param uniquidNodeEventListener the event listener that will receive callbacks
-	 */
-	public void addUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener);
+    /**
+     * Initialize this node
+     */
+    void initNode() throws NodeException;
 
-	/**
-	 * Unregister an event listener
-	 * 
-	 * @param uniquidNodeEventListener the event listener that will be removed
-	 */
-	public void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener);
-	
-	/**
-	 * Allow to sign an unsigned serialized blockchain transaction.
-	 * 
-	 * @param serializedTx the unsigned serialized transaction to sign
-	 * @param path the bip32 path to use to sign
-	 * @return the serialized signed transaction
-	 * @throws NodeException in case a problem occurs.
-	 */
-	public String signTransaction(final String serializedTx, final List<String> paths) throws NodeException;
-	
-	/**
-	 * Sign the input message with the key derived from path specified
-	 * 
-	 * @param message the message to sign
-	 * @param path the path to use to derive HD key
-	 * @return the message signed with the derived HD key
-	 * @throws NodeException in case a problem occurs.
-	 */
-	public String signMessage(String message, String path) throws NodeException;
-	
-	/**
-	 * Sign the input message with the private key corresponding to the public key hash specified
-	 * 
-	 * @param message the message to sign
-	 * @param pubKeyHash the hash of the corresponding public key 
-	 * @return the message signed with the derived HD key
-	 * @throws NodeException in case a problem occurs.
-	 */
-	public String signMessage(String message, byte[] pubKeyHash) throws NodeException;
-	
-	/**
-	 * Allow to propagate a serialized Tx on the peer2peer network
-	 * @param serializedTx
-	 * @return
-	 * @throws NodeException
-	 */
-	public String broadCastTransaction(final String serializedTx) throws NodeException;
-	
+    /**
+     * Synchronize the node against the BlockChain.
+     */
+    void updateNode() throws NodeException;
+
+    /**
+     * Returns the current state of this node.
+     *
+     * @return the {@code UniquidNodeState} representing the current state of this node.
+     */
+    UniquidNodeState getNodeState();
+
+    /**
+     * Register an event listener
+     *
+     * @param uniquidNodeEventListener the event listener that will receive callbacks
+     */
+    void addUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener);
+
+    /**
+     * Unregister an event listener
+     *
+     * @param uniquidNodeEventListener the event listener that will be removed
+     */
+    void removeUniquidNodeEventListener(final UniquidNodeEventListener uniquidNodeEventListener);
+
+    /**
+     * Allow to sign an unsigned serialized blockchain transaction.
+     *
+     * @param serializedTx the unsigned serialized transaction to sign
+     * @param paths the bip32 path to use to sign
+     * @return the serialized signed transaction
+     * @throws NodeException in case a problem occurs.
+     */
+    String signTransaction(final String serializedTx, final List<String> paths) throws NodeException;
+
+    void recoverUnspent(final String s_tx, final List<String> paths) throws NodeException;
+
+    /**
+     * Sign the input message with the key derived from path specified
+     *
+     * @param message the message to sign
+     * @param path the path to use to derive HD key
+     * @return the message signed with the derived HD key
+     * @throws NodeException in case a problem occurs.
+     */
+    String signMessage(String message, String path) throws NodeException;
+
+    /**
+     * Generates a new address representing the derived key from the requested path
+     *
+     * @param path the path to use to derive the HD key
+     * @return the address representing the derived key from the requested path
+     */
+    String getAddressAtPath(String path) throws NodeException;
+
+    /**
+     * Allow to propagate a serialized Tx on the peer2peer network
+     * @param serializedTx transaction serialized
+     * @return result of the broadcast
+     * @throws NodeException in case a problem occurs
+     */
+    String broadCastTransaction(final String serializedTx) throws NodeException;
+
+    /**
+     * Create a new UniquidCapability
+     * @param providerName name of the device
+     * @param userPublicKey public key of the user
+     * @param rights permissions to grant
+     * @param since timestamp to start
+     * @param until expiration timestamp
+     * @return the capability
+     * @throws NodeException in case a problem occurs
+     */
+    UniquidCapability createCapability(String providerName, String userPublicKey, byte[] rights,
+                                       long since, long until)	throws NodeException;
+
+    /**
+     * Allow a node to receive a Capability generated by one of its owners
+     * @param uniquidCapability capability to manage
+     * @throws NodeException in case a problem occurs
+     */
+    void receiveProviderCapability(UniquidCapability uniquidCapability) throws NodeException;
+
+    /**
+     * Allow a user node to insert the Capability generated by an owner
+     *
+     * @param uniquidCapability capability to manage
+     * @throws NodeException in case a problem occurs
+     */
+    void receiveUserCapability(UniquidCapability uniquidCapability, String providerName, String path) throws NodeException;
+
+    boolean isNodeReady();
 }

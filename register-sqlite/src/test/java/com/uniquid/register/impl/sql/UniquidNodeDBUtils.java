@@ -4,14 +4,14 @@ import java.io.File;
 
 public class UniquidNodeDBUtils {
 
-public static SQLiteRegisterFactory initDB() throws Exception {
-		
-		Class.forName("org.sqlite.JDBC");
+    public static SQLiteRegisterFactory initDB() throws Exception {
 
-		String url = "jdbc:sqlite:" + File.createTempFile("node", ".db");
+        Class.forName("org.sqlite.JDBC");
 
-		return new SQLiteRegisterFactory(url);
-		
-	}
-	
+        String url = "jdbc:sqlite:" + File.createTempFile("node", ".db");
+
+        return new SQLiteRegisterFactory(url);
+
+    }
+
 }

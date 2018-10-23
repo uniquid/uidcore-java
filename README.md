@@ -8,7 +8,7 @@ It allows to create an Uniquid node and manage smart contracts among nodes.
 ### Technologies
 
 * Java 7
-* [Maven 3+](http://maven.apache.org) - for building the project
+* [Gradle 3.4+](https://gradle.org/) - for building the project
 
 ### Getting started
 
@@ -18,9 +18,14 @@ To get started, it is best to have the latest JDK and Maven installed. The HEAD 
 
 To perform a full build use
 ```
-mvn clean package
+gradle clean build
 ```
-The outputs are under the `target` directory.
+The outputs are under the `build` directory.
+
+To move jar package in your /m2/repository
+```
+gradle install
+```
 
 #### Usage Example
 

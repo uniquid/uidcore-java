@@ -1,12 +1,5 @@
 package com.uniquid.core;
 
-import java.util.Arrays;
-import java.util.BitSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
-
 import com.uniquid.connector.Connector;
 import com.uniquid.core.provider.Function;
 import com.uniquid.core.provider.FunctionContext;
@@ -17,6 +10,12 @@ import com.uniquid.node.UniquidNode;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
+
+import java.util.Arrays;
+import java.util.BitSet;
 
 /**
  * This is the core of Uniquid library. It contains a collection of functionalities
@@ -24,204 +23,195 @@ import com.uniquid.register.provider.ProviderRegister;
  */
 public abstract class Core {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(Core.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(Core.class.getName());
 
-	public static final String NODE_ATTRIBUTE = com.uniquid.node.UniquidNode.class.getName();
-	public static final String REGISTER_FACTORY_ATTRIBUTE = com.uniquid.register.RegisterFactory.class.getName();
-	public static final String CONNECTOR_ATTRIBUTE = com.uniquid.connector.Connector.class.getName();
+    public static final String NODE_ATTRIBUTE = com.uniquid.node.UniquidNode.class.getName();
+    public static final String REGISTER_FACTORY_ATTRIBUTE = com.uniquid.register.RegisterFactory.class.getName();
 
-	private RegisterFactory registerFactory;
-	private Connector connector;
-	private ApplicationContext applicationContext;
-	private UniquidNode uniquidNode;
+    private RegisterFactory registerFactory;
+    private ApplicationContext applicationContext;
+    private UniquidNode uniquidNode;
 
-	/**
-	 * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
-	 * @param registerFactory the {@link RegisterFactory} to use
-	 * @param connector the {@link Connector} to use
-	 * @param node the {@link UniquidNode} to use
-	 * @throws Exception in case an error occurs
-	 */
-	public Core(RegisterFactory registerFactory, Connector connector, UniquidNode node)
-			throws Exception {
+    /**
+     * Creates an instance from {@link RegisterFactory}, {@link Connector} and {@link UniquidNode}
+     * @param registerFactory the {@link RegisterFactory} to use
+     * @param node the {@link UniquidNode} to use
+     */
+    public Core(RegisterFactory registerFactory, UniquidNode node) {
 
-		this.registerFactory = registerFactory;
-		this.connector = connector;
-		this.uniquidNode = node;
+        this.registerFactory = registerFactory;
+        this.uniquidNode = node;
 
-		applicationContext = new ApplicationContext();
-		applicationContext.setAttribute(NODE_ATTRIBUTE, node);
-		applicationContext.setAttributeReadOnly(NODE_ATTRIBUTE);
-		applicationContext.setAttribute(REGISTER_FACTORY_ATTRIBUTE, registerFactory);
-		applicationContext.setAttributeReadOnly(REGISTER_FACTORY_ATTRIBUTE);
-		applicationContext.setAttribute(CONNECTOR_ATTRIBUTE, connector);
-		applicationContext.setAttributeReadOnly(CONNECTOR_ATTRIBUTE);
+        applicationContext = new ApplicationContext();
+        applicationContext.setAttribute(NODE_ATTRIBUTE, node);
+        applicationContext.setAttributeReadOnly(NODE_ATTRIBUTE);
+        applicationContext.setAttribute(REGISTER_FACTORY_ATTRIBUTE, registerFactory);
+        applicationContext.setAttributeReadOnly(REGISTER_FACTORY_ATTRIBUTE);
 
-	}
-	
-	/**
-	 * Retrieve the {@link UniquidNode} instance in use.
-	 * @return the {@link UniquidNode} instance in use.
-	 */
-	public UniquidNode getNode() {
-		return uniquidNode;
-	}
-	
-	/**
-	 * Retrieve the {@link RegisterFactory} instance in use.
-	 * @return the {@link RegisterFactory} instance in use.
-	 */
-	public RegisterFactory getRegisterFactory() {
-		return registerFactory;
-	}
-	
-	/**
-	 * Retrieve the {@link Connector} instance in use.
-	 * @return the {@link Connector} instance in use.
-	 */
-	public Connector getConnector() {
-		return connector;
-	}
-	
-	/**
-	 * Retrieve the {@link FunctionContext} instance in use.
-	 * @return the {@link FunctionContext} instance in use.
-	 */
-	public FunctionContext getFunctionContext() {
-		return applicationContext;
-	}
+    }
 
-	/**
-	 * Retrieve the {@link Function} related to the {@link ProviderRequest} parameter.
-	 * @param providerRequest the {@link ProviderRequest} to fetch the function number from.
-	 * @return the {@link Function} related to the {@link ProviderRequest} parameter.
-	 */
-	protected abstract Function getFunction(FunctionRequestMessage providerRequest);
+    /**
+     * Retrieve the {@link UniquidNode} instance in use.
+     * @return the {@link UniquidNode} instance in use.
+     */
+    public UniquidNode getNode() {
+        return uniquidNode;
+    }
 
-	/**
-	 * Perform the execution of a {@link Function} related to the {@link ProviderRequest} received.
-	 * 
-	 * @param providerRequest the {@link ProviderRequest} received from the User
-	 * @param providerResponse the {@link ProviderResponse} the response to provide to the User
-	 * 
-	 * @throws Exception in case a problem occurs.
-	 */
-	protected final void performProviderRequest(final FunctionRequestMessage providerRequest, final FunctionResponseMessage providerResponse, final byte[] payload) throws Exception {
+    /**
+     * Retrieve the {@link RegisterFactory} instance in use.
+     * @return the {@link RegisterFactory} instance in use.
+     */
+    public RegisterFactory getRegisterFactory() {
+        return registerFactory;
+    }
 
-		Function function = getFunction(providerRequest);
+    /**
+     * Retrieve the {@link FunctionContext} instance in use.
+     * @return the {@link FunctionContext} instance in use.
+     */
+    public FunctionContext getFunctionContext() {
+        return applicationContext;
+    }
 
-		try {
+    /**
+     * Retrieve the {@link Function} related to the {@link FunctionRequestMessage} parameter.
+     * @param providerRequest the {@link FunctionRequestMessage} to fetch the function number from.
+     * @return the {@link Function} related to the {@link FunctionRequestMessage} parameter.
+     */
+    protected abstract Function getFunction(FunctionRequestMessage providerRequest);
 
-			if (function != null) {
+    /**
+     * Perform the execution of a {@link Function} related to the {@link FunctionRequestMessage} received.
+     *
+     * @param providerRequest the {@link FunctionRequestMessage} received from the User
+     * @param payload the payload from the contract
+     *
+     * @throws Exception in case a problem occurs.
+     */
+    public final FunctionResponseMessage performProviderRequest(final FunctionRequestMessage providerRequest, final byte[] payload) throws Exception {
 
-				try {
+        FunctionResponseMessage providerResponse = new FunctionResponseMessage();
+        Function function = getFunction(providerRequest);
 
-					function.service(providerRequest, providerResponse, payload);
-					providerResponse.setError(FunctionResponseMessage.RESULT_OK);
+        try {
 
-				} catch (Exception ex) {
+            if (function != null) {
 
-					LOGGER.error("Error while executing function", ex);
-					providerResponse.setError(FunctionResponseMessage.RESULT_ERROR);
+                try {
 
-					providerResponse.setResult("Error while executing function: " + ex.getMessage());
-				}
+                    function.service(providerRequest, providerResponse, payload);
+                    providerResponse.setError(FunctionResponseMessage.RESULT_OK);
 
-			} else {
+                } catch (Exception ex) {
 
-				providerResponse.setError(FunctionResponseMessage.RESULT_FUNCTION_NOT_AVAILABLE);
-				
-				providerResponse.setResult("Function not available");
+                    LOGGER.error("Error while executing function", ex);
+                    providerResponse.setError(FunctionResponseMessage.RESULT_ERROR);
 
-			}
+                    providerResponse.setResult("Error while executing function: " + ex.getMessage());
+                }
 
-		} finally {
+            } else {
 
-			// Populate all missing parameters...
-			String sender = providerRequest.getUser();
+                providerResponse.setError(FunctionResponseMessage.RESULT_FUNCTION_NOT_AVAILABLE);
 
-			ProviderRegister providerRegister = registerFactory.getProviderRegister();
+                providerResponse.setResult("Function not available");
 
-			ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
-			
-			providerResponse.setProvider(providerChannel.getProviderAddress());
+            }
 
-		}
+        } finally {
 
-	}
+            // Populate all missing parameters...
+            String sender = providerRequest.getUser();
 
-	/**
-	 * Check if sender is authorized and return the byte array present in the Smart Contract
-	 * 
-	 * @param providerRequest coming from User.
-	 * @return byte array containing the Smart Contract.
-	 * 
-	 * @throws Exception in case an error occurs.
-	 */
-	protected final byte[] checkSender(FunctionRequestMessage providerRequest) throws Exception {
+            ProviderRegister providerRegister = registerFactory.getProviderRegister();
 
-		// Retrieve sender
-		String sender = providerRequest.getUser();
+            ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
 
-		ProviderRegister providerRegister = registerFactory.getProviderRegister();
+            providerResponse.setProvider(providerChannel.getProviderAddress());
 
-		ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
+        }
+        return providerResponse;
+    }
 
-		// Check if there is a channel available
-		if (providerChannel != null) {
+    /**
+     * Check if sender is authorized and return the byte array present in the Smart Contract
+     *
+     * @param providerRequest coming from User.
+     * @return byte array containing the Smart Contract.
+     *
+     * @throws Exception in case an error occurs.
+     */
+    public final byte[] checkSender(FunctionRequestMessage providerRequest) throws Exception {
 
-			String bitmask = providerChannel.getBitmask();
+        // Retrieve sender
+        String sender = providerRequest.getUser();
 
-			// decode
-			byte[] b = Hex.decode(bitmask);
-			
-			// Check first byte:
-			if (b[0] == 0) {
-				
-				// first byte at 0 means original contract with bitmask
-				BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
+        ProviderRegister providerRegister = registerFactory.getProviderRegister();
 
-				int method = providerRequest.getFunction();
+        ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
 
-				if (bitset.get(method) /*&& 
+        // Check if there is a channel available and dates are valid
+        if (providerChannel != null) {
+
+            if (!providerChannel.isValid()) {
+
+                throw new Exception("Sender found in Provider register, but contract is expired/not yet valid!");
+
+            }
+
+            String bitmask = providerChannel.getBitmask();
+
+            // decode
+            byte[] b = Hex.decode(bitmask);
+
+            // Check first byte:
+            if (b[0] == 0) {
+
+                // first byte at 0 means original contract with bitmask
+                BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
+
+                int method = providerRequest.getFunction();
+
+                if (bitset.get(method) /*&&
 						WalletUtils.isUnspent(providerChannel.getRevokeTxId(), providerChannel.getRevokeAddress())*/) {
 
-					return b;
+                    return b;
 
-				} else {
+                } else {
 
-					throw new Exception("Sender not authorized!");
+                    throw new Exception("Sender not authorized!");
 
-				}
-				
-			} else if (b[0] == 1) {
-				
-				// first byte at 1 means new contract
-				
-				int method = providerRequest.getFunction();
-				
-				if (method == b[1]) {
-					
-					return b;
-					
-				} else {
+                }
 
-					throw new Exception("Sender not authorized!");
+            } else if (b[0] == 1) {
 
-				}
-				
-			} else {
-				
-				throw new Exception("Invalid contract version!");
-				
-			}
+                // first byte at 1 means new contract
 
-		} else {
+                int method = providerRequest.getFunction();
 
-			throw new Exception("Sender not found in Provider register!");
+                if (method == b[1]) {
 
-		}
-		
-	}
-	
+                    return b;
+
+                } else {
+
+                    throw new Exception("Sender not authorized!");
+
+                }
+
+            } else {
+
+                throw new Exception("Invalid contract version!");
+
+            }
+
+        } else {
+
+            throw new Exception("Sender not found in Provider register!");
+
+        }
+
+    }
+
 }

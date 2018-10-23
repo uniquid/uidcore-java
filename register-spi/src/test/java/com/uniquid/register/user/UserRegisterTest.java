@@ -1,185 +1,195 @@
 package com.uniquid.register.user;
 
-import java.util.List;
-
+import com.uniquid.register.exception.RegisterException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.uniquid.register.exception.RegisterException;
+import java.util.List;
 
 public abstract class UserRegisterTest {
-	
-	protected abstract UserRegister getUserRegister() throws Exception;
 
-	@Test
-	public void testUser() throws Exception {
+    protected abstract UserRegister getUserRegister() throws Exception;
 
-		List<UserChannel> channels = getUserRegister().getAllUserChannels();
+    @Test
+    public void testUser() throws Exception {
 
-		Assert.assertNotNull(channels);
-		Assert.assertEquals(channels.size(), 0);
+        List<UserChannel> channels = getUserRegister().getAllUserChannels();
 
-		UserChannel userChannel = new UserChannel();
-		userChannel.setProviderAddress("mfuta5iXJNe7yzCaPtmm4W2saiqTbTfxNG");
-		userChannel.setUserAddress("mkw5u34vDegrah5GasD5gKCJQ1NhNGG8tJ");
-		userChannel.setRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
-		userChannel.setRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
-		userChannel.setBitmask("00000");
-		userChannel.setProviderName("Test");
+        Assert.assertNotNull(channels);
+        Assert.assertEquals(channels.size(), 0);
 
-		try {
+        UserChannel userChannel = new UserChannel();
+        userChannel.setProviderAddress("mfuta5iXJNe7yzCaPtmm4W2saiqTbTfxNG");
+        userChannel.setUserAddress("mkw5u34vDegrah5GasD5gKCJQ1NhNGG8tJ");
+        userChannel.setRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
+        userChannel.setRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
+        userChannel.setBitmask("00000");
+        userChannel.setProviderName("Test");
+        userChannel.setSince(1528200741000L);		// 06/05/2018 @ 12:12pm (UTC)
+        userChannel.setUntil(1591367400000L);		// 06/05/2020 @ 2:30pm (UTC)
+        userChannel.setPath("");
 
-			getUserRegister().insertChannel(null);
-			Assert.fail();
+        try {
 
-		} catch (RegisterException ex) {
+            getUserRegister().insertChannel(null);
+            Assert.fail();
 
-			Assert.assertEquals("userchannel is null!", ex.getLocalizedMessage());
+        } catch (RegisterException ex) {
 
-		}
+            Assert.assertEquals("userchannel is null!", ex.getLocalizedMessage());
 
-		getUserRegister().insertChannel(userChannel);
-		
-		try {
-			getUserRegister().insertChannel(userChannel);
-		} catch (Exception ex) {
-			Assert.assertTrue(ex instanceof RegisterException);
-		}
+        }
 
-		channels = getUserRegister().getAllUserChannels();
+        getUserRegister().insertChannel(userChannel);
 
-		Assert.assertEquals(channels.size(), 1);
+        try {
+            getUserRegister().insertChannel(userChannel);
+        } catch (Exception ex) {
+            Assert.assertTrue(ex instanceof RegisterException);
+        }
 
-		Assert.assertEquals(true, userChannel.equals(channels.get(0)));
+        channels = getUserRegister().getAllUserChannels();
 
-		try {
+        Assert.assertEquals(channels.size(), 1);
 
-			getUserRegister().getChannelByName(null);
-			Assert.fail();
+        Assert.assertEquals(userChannel, channels.get(0));
 
-		} catch (RegisterException ex) {
+        try {
 
-			Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
-		}
+            getUserRegister().getChannelByName(null);
+            Assert.fail();
 
-		try {
+        } catch (RegisterException ex) {
 
-			getUserRegister().getChannelByName("");
-			Assert.fail();
+            Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
+        }
 
-		} catch (RegisterException ex) {
+        try {
 
-			Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
-		}
+            getUserRegister().getChannelByName("");
+            Assert.fail();
 
-		Assert.assertNull(getUserRegister().getChannelByName("aaa"));
+        } catch (RegisterException ex) {
 
-		UserChannel provider2 = getUserRegister().getChannelByName("Test");
+            Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
+        }
 
-		Assert.assertEquals(true, userChannel.equals(provider2));
+        Assert.assertNull(getUserRegister().getChannelByName("aaa"));
 
-		try {
+        UserChannel provider2 = getUserRegister().getChannelByName("Test");
 
-			getUserRegister().getChannelByProviderAddress(null);
-			Assert.fail();
+        Assert.assertEquals(userChannel,  provider2);
 
-		} catch (RegisterException ex) {
+        try {
 
-			Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
-		}
+            getUserRegister().getChannelByProviderAddress(null);
+            Assert.fail();
 
-		try {
+        } catch (RegisterException ex) {
 
-			getUserRegister().getChannelByProviderAddress("");
-			Assert.fail();
+            Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
+        }
 
-		} catch (RegisterException ex) {
+        try {
 
-			Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
-		}
+            getUserRegister().getChannelByProviderAddress("");
+            Assert.fail();
 
-		Assert.assertNull(getUserRegister().getChannelByProviderAddress("aaa"));
+        } catch (RegisterException ex) {
 
-		provider2 = getUserRegister().getChannelByProviderAddress("mfuta5iXJNe7yzCaPtmm4W2saiqTbTfxNG");
+            Assert.assertEquals("name is not valid", ex.getLocalizedMessage());
+        }
 
-		Assert.assertEquals(true, userChannel.equals(provider2));
+        Assert.assertNull(getUserRegister().getChannelByProviderAddress("aaa"));
 
-		try {
+        provider2 = getUserRegister().getChannelByProviderAddress("mfuta5iXJNe7yzCaPtmm4W2saiqTbTfxNG");
 
-			getUserRegister().getUserChannelByRevokeTxId(null);
-			Assert.fail();
+        Assert.assertEquals(userChannel, provider2);
 
-		} catch (RegisterException ex) {
+        try {
 
-			Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
-		}
+            getUserRegister().getUserChannelByRevokeTxId(null);
+            Assert.fail();
 
-		try {
+        } catch (RegisterException ex) {
 
-			getUserRegister().getUserChannelByRevokeTxId("");
-			Assert.fail();
+            Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
+        }
 
-		} catch (RegisterException ex) {
+        try {
 
-			Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
-		}
+            getUserRegister().getUserChannelByRevokeTxId("");
+            Assert.fail();
 
-		Assert.assertNull(getUserRegister().getUserChannelByRevokeTxId("aaa"));
+        } catch (RegisterException ex) {
 
-		provider2 = getUserRegister()
-				.getUserChannelByRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
+            Assert.assertEquals("revokeTxId is not valid", ex.getLocalizedMessage());
+        }
 
-		Assert.assertEquals(true, userChannel.equals(provider2));
+        Assert.assertNull(getUserRegister().getUserChannelByRevokeTxId("aaa"));
 
-		try {
+        provider2 = getUserRegister()
+                .getUserChannelByRevokeTxId("97ab3c1a7bbca566712ab843a65d2e1bf94594b26b2ffe9d3348e4403065c1db");
 
-			getUserRegister().getUserChannelByRevokeAddress(null);
-			Assert.fail();
+        Assert.assertEquals(userChannel, provider2);
 
-		} catch (RegisterException ex) {
+        try {
 
-			Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
-		}
+            getUserRegister().getUserChannelByRevokeAddress(null);
+            Assert.fail();
 
-		try {
+        } catch (RegisterException ex) {
 
-			getUserRegister().getUserChannelByRevokeAddress("");
-			Assert.fail();
+            Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
+        }
 
-		} catch (RegisterException ex) {
+        try {
 
-			Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
-		}
+            getUserRegister().getUserChannelByRevokeAddress("");
+            Assert.fail();
 
-		Assert.assertNull(getUserRegister().getUserChannelByRevokeAddress("aaa"));
+        } catch (RegisterException ex) {
 
-		provider2 = getUserRegister().getUserChannelByRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
+            Assert.assertEquals("revokeAddress is not valid", ex.getLocalizedMessage());
+        }
 
-		Assert.assertEquals(true, userChannel.equals(provider2));
+        Assert.assertNull(getUserRegister().getUserChannelByRevokeAddress("aaa"));
 
-		try {
+        provider2 = getUserRegister().getUserChannelByRevokeAddress("mjgWHUCV86eLp7B8mhHUuBAyCS136hz7SH");
 
-			getUserRegister().deleteChannel(null);
-			Assert.fail();
+        Assert.assertEquals(userChannel, provider2);
 
-		} catch (RegisterException ex) {
+        try {
 
-			Assert.assertEquals("userchannel is null!", ex.getLocalizedMessage());
+            getUserRegister().deleteChannel(null);
+            Assert.fail();
 
-		}
+        } catch (RegisterException ex) {
 
-		getUserRegister().deleteChannel(userChannel);
-		
-		try {
-			getUserRegister().deleteChannel(userChannel);
-		} catch (Exception ex) {
-			Assert.assertTrue(ex instanceof RegisterException);
-		}
+            Assert.assertEquals("userchannel is null!", ex.getLocalizedMessage());
 
-		channels = getUserRegister().getAllUserChannels();
+        }
 
-		Assert.assertEquals(channels.size(), 0);
+        getUserRegister().deleteChannel(userChannel);
 
-	}
-	
+        try {
+            getUserRegister().deleteChannel(userChannel);
+        } catch (Exception ex) {
+            Assert.assertTrue(ex instanceof RegisterException);
+        }
+
+        channels = getUserRegister().getAllUserChannels();
+
+        Assert.assertEquals(channels.size(), 0);
+
+        userChannel.setUntil(1528194600000L);
+        getUserRegister().insertChannel(userChannel);
+
+        channels = getUserRegister().getAllUserChannels();
+        Assert.assertEquals(0, channels.size());
+
+        getUserRegister().deleteChannel(userChannel);
+
+    }
+
 }
