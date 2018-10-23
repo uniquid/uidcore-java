@@ -9,7 +9,6 @@ repositories {
 description = ''
 dependencies {
     compile project(':utils')
-    compile project(':uidcore-java:core')
     compile project(':uidcore-java:node')
     compile project(':uidcore-java:register-spi')
     compile group: 'org.fusesource.mqtt-client', name: 'mqtt-client', version:'1.12'
