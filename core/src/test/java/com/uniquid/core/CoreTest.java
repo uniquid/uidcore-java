@@ -596,24 +596,4 @@ public class CoreTest {
 
     }
 
-    public Connector createDummyConnector() {
-
-        return new Connector() {
-
-            @Override
-            public void stop() throws ConnectorException {
-            }
-
-            @Override
-            public void start() throws ConnectorException {
-            }
-
-            @Override
-            public EndPoint accept() throws ConnectorException {
-                return null;
-            }
-        };
-
-    }
-
 }
