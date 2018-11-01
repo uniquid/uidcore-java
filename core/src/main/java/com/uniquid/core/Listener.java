@@ -51,10 +51,10 @@ public class Listener implements Runnable {
                     FunctionResponseMessage response = handler.handleMessage(parentSimplifier, request);
                     if (response != null) {
                         endPoint.setResponse(response);
+                        endPoint.flush();
                     }
                 }
 
-                endPoint.flush();
             }
 
         } catch (InterruptedException e) {
