@@ -61,7 +61,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
      * @param uniquidNodeConfiguration the {@link UniquidNodeConfiguration} of the Node
      * @throws NodeException in case a problem occurs
      */
-    protected UniquidWatchingNodeImpl(T uniquidNodeConfiguration) throws NodeException {
+    protected UniquidWatchingNodeImpl(T uniquidNodeConfiguration) {
 
         this.uniquidNodeConfiguration = uniquidNodeConfiguration;
         this.uniquidNodeEventService = new UniquidNodeEventService();
@@ -265,14 +265,22 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
     }
 
     @Override
-    public synchronized String signTransaction(final String s_tx, final List<String> paths) throws NodeException {
+    public synchronized Transaction createTransaction(final String s_tx) throws NodeException {
 
         throw new NodeException("This node can't sign transactions");
 
     }
 
     @Override
-    public synchronized void recoverUnspent(final String s_tx, final List<String> paths) throws NodeException {
+    public synchronized Transaction signTransaction(final Transaction tx, final List<String> paths) throws NodeException {
+
+        throw new NodeException("This node can't sign transactions");
+
+    }
+
+
+    @Override
+    public synchronized void recoverUnspent(final Transaction tx, final List<String> paths) throws NodeException {
         throw new NodeException("This node can't recover transactions");
     }
 

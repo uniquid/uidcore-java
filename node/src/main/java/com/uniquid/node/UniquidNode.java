@@ -2,6 +2,7 @@ package com.uniquid.node;
 
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
+import org.bitcoinj.core.Transaction;
 
 import java.util.List;
 
@@ -84,14 +85,23 @@ public interface UniquidNode {
     /**
      * Allow to sign an unsigned serialized blockchain transaction.
      *
-     * @param serializedTx the unsigned serialized transaction to sign
+     * @param tx the unsigned transaction to sign
      * @param paths the bip32 path to use to sign
      * @return the serialized signed transaction
      * @throws NodeException in case a problem occurs.
      */
-    String signTransaction(final String serializedTx, final List<String> paths) throws NodeException;
+    Transaction signTransaction(final Transaction tx, final List<String> paths) throws NodeException;
 
-    void recoverUnspent(final String s_tx, final List<String> paths) throws NodeException;
+    /**
+     * Create transaction for current node
+     *
+     * @param serializedTx transaction in binary format
+     * @return
+     * @throws NodeException in case a problem occurs
+     */
+    Transaction createTransaction(final String serializedTx) throws NodeException;
+
+    void recoverUnspent(final Transaction tx, final List<String> paths) throws NodeException;
 
     /**
      * Sign the input message with the key derived from path specified

@@ -14,7 +14,6 @@ import org.bitcoinj.signers.MissingSigResolutionSigner;
 import org.bitcoinj.signers.TransactionSigner;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.RedeemData;
-import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +61,13 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
      */
 
     @Override
-    public synchronized String signTransaction(final String s_tx, final List<String> paths) throws NodeException {
+    public Transaction createTransaction(final String serializedTx) throws NodeException {
+        return uniquidNodeConfiguration.getNetworkParameters().getDefaultSerializer()
+                .makeTransaction(Hex.decode(serializedTx));
+    }
+
+    @Override
+    public synchronized Transaction signTransaction(final Transaction tx, final List<String> paths) throws NodeException {
 
         try {
 
@@ -88,33 +93,25 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 
             }
 
-            Transaction originalTransaction = uniquidNodeConfiguration.getNetworkParameters().getDefaultSerializer()
-                    .makeTransaction(Hex.decode(s_tx));
-
-            SendRequest req = SendRequest.forTx(originalTransaction);
-
-            Transaction tx = req.tx;
-
             int numInputs = tx.getInputs().size();
             for (int i = 0; i < numInputs; i++) {
                 TransactionInput txIn = tx.getInput(i);
 
-                // Fetch input tx from proper wallet
-                Transaction inputTransaction = wallet.getTransaction(txIn.getOutpoint().getHash());
+                // No connected output - try to fetch input tx from proper wallet
+                if (txIn.getConnectedOutput() == null) {
+                    Transaction inputTransaction = wallet.getTransaction(txIn.getOutpoint().getHash());
 
-                if (inputTransaction == null) {
+                    if (inputTransaction == null) {
+                        throw new NodeException("Input TX not found in any wallet!");
+                    }
 
-                    throw new NodeException("Input TX not found in any wallet!");
-
+                    TransactionOutput outputToUse = inputTransaction.getOutput(txIn.getOutpoint().getIndex());
+                    tx.getInput(i).connect(outputToUse);
                 }
 
-                TransactionOutput outputToUse = inputTransaction.getOutput(txIn.getOutpoint().getIndex());
-
-                originalTransaction.getInput(i).connect(outputToUse);
                 Script scriptPubKey = txIn.getConnectedOutput().getScriptPubKey();
                 RedeemData redeemData = txIn.getConnectedRedeemData(keyBag);
                 txIn.setScriptSig(scriptPubKey.createEmptyInputScript(redeemData.keys.get(0), redeemData.redeemScript));
-
             }
 
             TransactionSigner.ProposedTransaction proposal = new TransactionSigner.ProposedTransaction(tx);
@@ -126,13 +123,13 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
             }
 
             // resolve missing sigs if any
-            new MissingSigResolutionSigner(req.missingSigsMode).signInputs(proposal, keyBag);
+            new MissingSigResolutionSigner(Wallet.MissingSigsMode.THROW).signInputs(proposal, keyBag);
 
             // commit tx in wallet!
             // This is not necessary! Kept here to remember
 //			wallet.commitTx(originalTransaction);
 
-            return Hex.toHexString(originalTransaction.bitcoinSerialize());
+            return tx;
 
         } catch (Exception ex) {
 
@@ -142,7 +139,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
     }
 
     @Override
-    public synchronized void recoverUnspent(final String s_tx, final List<String> paths) throws NodeException {
+    public synchronized void recoverUnspent(final Transaction tx, final List<String> paths) throws NodeException {
 
         try {
 
@@ -155,14 +152,6 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
             } else {
                 throw new NodeException("Unknown paths!");
             }
-
-
-            Transaction originalTransaction = uniquidNodeConfiguration.getNetworkParameters().getDefaultSerializer()
-                    .makeTransaction(Hex.decode(s_tx));
-
-            SendRequest req = SendRequest.forTx(originalTransaction);
-
-            Transaction tx = req.tx;
 
             int numInputs = tx.getInputs().size();
             for (int i = 0; i < numInputs; i++) {
