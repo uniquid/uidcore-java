@@ -13,11 +13,13 @@ import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.messages.FunctionRequestMessage;
 import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.node.UniquidNode;
+import org.bitcoinj.core.Transaction;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public class ContractFunction extends GenericFunction {
             throws FunctionException, IOException {
 
         String params = inputMessage.getParameters();
-        String tx;
+        String serializedTx;
 
         List<String> path = new ArrayList<>();
 
@@ -45,7 +47,7 @@ public class ContractFunction extends GenericFunction {
 
             JSONObject jsonMessage = new JSONObject(params);
 
-            tx = jsonMessage.getString("tx");
+            serializedTx = jsonMessage.getString("tx");
 
             JSONArray paths = jsonMessage.getJSONArray("paths");
 
@@ -68,11 +70,15 @@ public class ContractFunction extends GenericFunction {
 
             UniquidNode spvNode = (UniquidNode) getFunctionContext().getAttribute(Core.NODE_ATTRIBUTE);
 
-            String signedTx = spvNode.signTransaction(tx, path);
+            Transaction tx = spvNode.createTransaction(serializedTx);
+
+            Transaction signedTx = spvNode.signTransaction(tx, path);
+
+            serializedTx = Hex.toHexString(signedTx.bitcoinSerialize());
 
             LOGGER.info("Broadcasting TX");
 
-            String txid = spvNode.broadCastTransaction(signedTx);
+            String txid = spvNode.broadCastTransaction(serializedTx);
 
             outputMessage.setResult("0 - " + txid);
 

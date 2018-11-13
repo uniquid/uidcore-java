@@ -12,6 +12,7 @@ import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
+import org.bitcoinj.core.Transaction;
 
 import java.util.List;
 
@@ -78,10 +79,13 @@ public class DummyExceptionNode implements UniquidNode {
     }
 
     @Override
-    public String signTransaction(String s_tx, List<String> path) throws NodeException {
-
+    public Transaction createTransaction(final String serializedTx) throws NodeException {
         throw new NodeException("Exception");
+    }
 
+    @Override
+    public Transaction signTransaction(Transaction tx, List<String> paths) throws NodeException {
+        throw new NodeException("Exception");
     }
 
     @Override
@@ -124,7 +128,7 @@ public class DummyExceptionNode implements UniquidNode {
     }
 
     @Override
-    public void recoverUnspent(String s_tx, List<String> paths) throws NodeException {
+    public void recoverUnspent(Transaction tx, List<String> paths) throws NodeException {
         // TODO Auto-generated method stub
 
     }
