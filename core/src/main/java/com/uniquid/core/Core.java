@@ -104,118 +104,95 @@ public abstract class Core {
         try {
 
             if (function != null) {
-
                 try {
-
                     function.service(providerRequest, providerResponse, payload);
                     providerResponse.setError(FunctionResponseMessage.RESULT_OK);
 
                 } catch (Exception ex) {
-
                     LOGGER.error("Error while executing function", ex);
                     providerResponse.setError(FunctionResponseMessage.RESULT_ERROR);
-
                     providerResponse.setResult("Error while executing function: " + ex.getMessage());
+
                 }
-
             } else {
-
                 providerResponse.setError(FunctionResponseMessage.RESULT_FUNCTION_NOT_AVAILABLE);
-
                 providerResponse.setResult("Function not available");
 
             }
-
         } finally {
-
             // Populate all missing parameters...
-            String sender = providerRequest.getUser();
-
-            ProviderRegister providerRegister = registerFactory.getProviderRegister();
-
-            ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
-
+            ProviderChannel providerChannel = getProvider(providerRequest);
             providerResponse.setProvider(providerChannel.getProviderAddress());
-
         }
+
         return providerResponse;
     }
 
-    /**
-     * Check if sender is authorized and return the byte array present in the Smart Contract
-     *
-     * @param providerRequest coming from User.
-     * @return byte array containing the Smart Contract.
-     *
-     * @throws Exception in case an error occurs.
-     */
-    public final byte[] checkSender(FunctionRequestMessage providerRequest) throws Exception {
+    public ProviderChannel getProvider(FunctionRequestMessage providerRequest) throws Exception {
 
         // Retrieve sender
         String sender = providerRequest.getUser();
 
         ProviderRegister providerRegister = registerFactory.getProviderRegister();
 
-        ProviderChannel providerChannel = providerRegister.getChannelByUserAddress(sender);
+        return providerRegister.getChannelByUserAddress(sender);
+    }
+
+    /**
+     * Check if sender is authorized and return the byte array present in the Smart Contract
+     *
+     * @param providerChannel coming from {@link ProviderChannel}.
+     * @return byte array containing the Smart Contract.
+     *
+     * @throws Exception in case an error occurs.
+     */
+    public final byte[] getBitmask(ProviderChannel providerChannel, int function) throws Exception {
 
         // Check if there is a channel available and dates are valid
-        if (providerChannel != null) {
+        if (!providerChannel.isValid()) {
 
-            if (!providerChannel.isValid()) {
+            throw new Exception("Sender found in Provider register, but contract is expired/not yet valid!");
 
-                throw new Exception("Sender found in Provider register, but contract is expired/not yet valid!");
+        }
 
-            }
+        String bitmask = providerChannel.getBitmask();
 
-            String bitmask = providerChannel.getBitmask();
+        // decode
+        byte[] b = Hex.decode(bitmask);
 
-            // decode
-            byte[] b = Hex.decode(bitmask);
+        // Check first byte:
+        if (b[0] == 0) {
 
-            // Check first byte:
-            if (b[0] == 0) {
+            // first byte at 0 means original contract with bitmask
+            BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
 
-                // first byte at 0 means original contract with bitmask
-                BitSet bitset = BitSet.valueOf(Arrays.copyOfRange(b, 1, b.length));
+            if (bitset.get(function) /*&&
+                    WalletUtils.isUnspent(providerChannel.getRevokeTxId(), providerChannel.getRevokeAddress())*/) {
 
-                int method = providerRequest.getFunction();
-
-                if (bitset.get(method) /*&&
-						WalletUtils.isUnspent(providerChannel.getRevokeTxId(), providerChannel.getRevokeAddress())*/) {
-
-                    return b;
-
-                } else {
-
-                    throw new Exception("Sender not authorized!");
-
-                }
-
-            } else if (b[0] == 1) {
-
-                // first byte at 1 means new contract
-
-                int method = providerRequest.getFunction();
-
-                if (method == b[1]) {
-
-                    return b;
-
-                } else {
-
-                    throw new Exception("Sender not authorized!");
-
-                }
+                return b;
 
             } else {
 
-                throw new Exception("Invalid contract version!");
+                throw new Exception("Sender not authorized!");
+
+            }
+
+        } else if (b[0] == 1) {
+
+            // first byte at 1 means new contract
+            if (function == b[1]) {
+
+                return b;
+
+            } else {
+
+                throw new Exception("Sender not authorized!");
 
             }
 
         } else {
 
-            throw new Exception("Sender not found in Provider register!");
+            throw new Exception("Invalid contract version!");
 
         }
 
