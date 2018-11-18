@@ -76,11 +76,7 @@ public class ContractFunction extends GenericFunction {
 
             serializedTx = Hex.toHexString(signedTx.bitcoinSerialize());
 
-            LOGGER.info("Broadcasting TX");
-
-            String txid = spvNode.broadCastTransaction(serializedTx);
-
-            outputMessage.setResult("0 - " + txid);
+            outputMessage.setResult("0 - " + serializedTx);
 
         } catch (Exception ex) {
 
