@@ -114,11 +114,20 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 
                     TransactionOutput outputToUse = inputTransaction.getOutput(txIn.getOutpoint().getIndex());
                     tx.getInput(i).connect(outputToUse);
-                }
 
-                Script scriptPubKey = txIn.getConnectedOutput().getScriptPubKey();
-                RedeemData redeemData = txIn.getConnectedRedeemData(keyBag);
-                txIn.setScriptSig(scriptPubKey.createEmptyInputScript(redeemData.keys.get(0), redeemData.redeemScript));
+                    Script scriptPubKey = txIn.getConnectedOutput().getScriptPubKey();
+                    RedeemData redeemData = txIn.getConnectedRedeemData(keyBag);
+                    txIn.setScriptSig(scriptPubKey.createEmptyInputScript(redeemData.keys.get(0), redeemData.redeemScript));
+
+                    // Since we are not sure that singed transaction confirmed we have to mark output as unspent,
+                    // to use in next attempt to sign transaction
+                    outputToUse.markAsUnspent();
+                } else {
+
+                    Script scriptPubKey = txIn.getConnectedOutput().getScriptPubKey();
+                    RedeemData redeemData = txIn.getConnectedRedeemData(keyBag);
+                    txIn.setScriptSig(scriptPubKey.createEmptyInputScript(redeemData.keys.get(0), redeemData.redeemScript));
+                }
             }
 
             TransactionSigner.ProposedTransaction proposal = new TransactionSigner.ProposedTransaction(tx);

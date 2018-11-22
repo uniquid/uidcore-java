@@ -14,6 +14,7 @@ import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
+import com.uniquid.register.provider.ProviderChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -28,10 +29,25 @@ public class DefaultRequestHandler extends RequestMessageHandler {
 
         try {
             // Check if sender is authorized or throw exception
-            byte[] payload = simplifier.checkSender(message);
+            ProviderChannel providerChannel = simplifier.getProvider(message);
 
-            LOGGER.info("Performing function...");
-            return simplifier.performProviderRequest(message, payload);
+            if (providerChannel != null) {
+                // Get bytes from Smart Contract
+                byte[] payload = simplifier.getBitmask(providerChannel, message.getFunction());
+
+                LOGGER.info("Performing function...");
+                return simplifier.performProviderRequest(message, payload);
+
+            } else {
+                String providerAddress = simplifier.getNode().getImprintingAddress();
+
+                FunctionResponseMessage responseMessage = new FunctionResponseMessage();
+                responseMessage.setError(FunctionResponseMessage.RESULT_NO_PERMISSION);
+                responseMessage.setResult("Sender not found in Provider register!");
+                responseMessage.setProvider(providerAddress);
+
+                return responseMessage;
+            }
 
         } catch (Exception e) {
             LOGGER.error("Error performing function: ", e);
