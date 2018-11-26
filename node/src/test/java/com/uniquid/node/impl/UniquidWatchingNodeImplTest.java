@@ -11,6 +11,7 @@ import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import com.uniquid.register.user.UserRegister;
 import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -65,7 +66,7 @@ public class UniquidWatchingNodeImplTest {
         }
 
         try {
-            uniquidNode.signTransaction("NOTHING", new ArrayList<>());
+            uniquidNode.signTransaction(new Transaction(null, null), new ArrayList<>());
             Assert.fail();
         } catch (Exception e) {
             // NOTHING TO DO

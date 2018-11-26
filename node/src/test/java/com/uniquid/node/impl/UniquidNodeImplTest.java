@@ -16,6 +16,7 @@ import com.uniquid.register.user.UserRegister;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.core.NetworkParameters;
+import org.bitcoinj.core.Transaction;
 import org.junit.Assert;
 import org.junit.Test;
 import org.spongycastle.util.encoders.Hex;
@@ -276,7 +277,9 @@ public class UniquidNodeImplTest {
 
         String signed_tx = "010000000247a327c7f5d626a7159c5c0fccf90732ba733ab6e9eea53db24c4829b3cc46a4000000006a473044022014fac39447707341f16cac6fcd9a7258dcc636767016e225c5bb2a2ed4462f4c02202867a07f0695109b47cd9de86d06393c9f3f1f0ebbde5f3f7914f5296edf1be4012102461fb3538ffec054fd4ee1e9087e7debf8442028f941bda308c24b508cbf69f7ffffffffced72f216e191ebc3be3b7b8c5d8fc0a7ac52fa934e395f837a28f96df2d8f90010000006a473044022061e3c20622dcbe8ea3a62c66ba56da91c4f1083b11bbd6e912df81bc92826ac50220631d302f309a1c5212933830f910ba2931ff32a5b41a2c9aaa808b926aa99363012102ece5ce70796b6893283aa0c8f30273c7dc0ff0b82a75017285387ecd2d767110ffffffff0140420f00000000001976a91457c9afb8bc5e4fa738f5b46afcb51b43a48b270988ac00000000";
 
-        Assert.assertEquals(signed_tx, uniquidNode.signTransaction(unsigned_tx, paths));
+        Transaction tx = uniquidNode.createTransaction(unsigned_tx);
+        uniquidNode.signTransaction(tx, paths);
+        Assert.assertEquals(signed_tx, Hex.toHexString(tx.bitcoinSerialize()));
 
 
         List<String> paths2 = new ArrayList<>();
@@ -286,11 +289,14 @@ public class UniquidNodeImplTest {
 
         String signed_tx2 = "010000000144106042786d7b5f3bb24777ce51024e8de51a8845dfd05f59f04fcb78331f6a010000006a47304402201f7f991baf62b800e49348ddd4de2f6d1cb589d6e1344a89f0e2bfdac852d6e602203cb054754a82029f75af8e445eb5c5ce8cd4a669dac5f29ae3cdb12c4d97ce13012102d42246dbf36fd5c73d318e3db60c172ddaa9debe7d7908ac1b36efa46d818b4bffffffff010084d717000000001976a9141686d60b9db2bd5646b493ce17dd7bb0731cb50788ac00000000";
 
-        Assert.assertEquals(signed_tx2, uniquidNode.signTransaction(unsigned_tx2, paths2));
+        Transaction tx2 = uniquidNode.createTransaction(unsigned_tx2);
+        uniquidNode.signTransaction(tx2, paths2);
+        Assert.assertEquals(signed_tx2, Hex.toHexString(tx.bitcoinSerialize()));
 
         try {
 
-            uniquidNode.signTransaction(unsigned_tx, paths2);
+            Transaction tx3 = uniquidNode.createTransaction(unsigned_tx);
+            uniquidNode.signTransaction(tx3, paths2);
             Assert.fail();
 
         } catch (NodeException ex) {
@@ -302,7 +308,8 @@ public class UniquidNodeImplTest {
 
         try {
 
-            uniquidNode.signTransaction(unsigned_tx2, paths3);
+            Transaction tx4 = uniquidNode.createTransaction(unsigned_tx);
+            uniquidNode.signTransaction(tx4, paths3);
             Assert.fail();
 
         } catch (NodeException ex) {
@@ -419,7 +426,8 @@ public class UniquidNodeImplTest {
         try {
             List<String> invalid = new ArrayList<>();
             invalid.add("2/0/0");
-            uniquidNode.signTransaction(unsigned_tx, invalid);
+            Transaction tx5 = uniquidNode.createTransaction(unsigned_tx);
+            uniquidNode.signTransaction(tx5, invalid);
             Assert.fail();
         } catch (Exception ex) {
             // NOTHING TO DO

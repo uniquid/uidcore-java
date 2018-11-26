@@ -1,8 +1,12 @@
+/*
+ * Copyright (c) 2016-2018. Uniquid Inc. or its affiliates. All Rights Reserved.
+ *
+ * License is in the "LICENSE" file accompanying this file.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.uniquid.core;
 
-import com.uniquid.connector.Connector;
-import com.uniquid.connector.ConnectorException;
-import com.uniquid.connector.EndPoint;
 import com.uniquid.core.impl.test.DummyNode;
 import com.uniquid.core.impl.test.DummyProviderRegister;
 import com.uniquid.core.impl.test.DummyUserRegister;
@@ -279,7 +283,8 @@ public class CoreTest {
 
         try {
 
-            core.checkSender(providerRequest);
+            ProviderChannel providerChannel = core.getProvider(providerRequest);
+            core.getBitmask(providerChannel, providerRequest.getFunction());
             Assert.fail();
 
         } catch (Exception ex) {
@@ -342,7 +347,8 @@ public class CoreTest {
 
         try {
 
-            core.checkSender(providerRequest);
+            ProviderChannel channel = core.getProvider(providerRequest);
+            core.getBitmask(channel, providerRequest.getFunction());
             Assert.fail();
 
         } catch (Exception ex) {
@@ -405,7 +411,8 @@ public class CoreTest {
 
         try {
 
-            core.checkSender(providerRequest);
+            ProviderChannel channel = core.getProvider(providerRequest);
+            core.getBitmask(channel, providerRequest.getFunction());
             Assert.fail();
 
         } catch (Exception ex) {
@@ -466,8 +473,9 @@ public class CoreTest {
         providerRequest.setFunction(30);
         providerRequest.setParameters("params");
 
-        Assert.assertNotNull(core.checkSender(providerRequest));
-        Assert.assertTrue(Arrays.equals(b2, core.checkSender(providerRequest)));
+        ProviderChannel channel = core.getProvider(providerRequest);
+        Assert.assertNotNull(core.getBitmask(channel, providerRequest.getFunction()));
+        Assert.assertTrue(Arrays.equals(b2, core.getBitmask(channel, providerRequest.getFunction())));
 
     }
 
@@ -523,7 +531,8 @@ public class CoreTest {
 
         try {
 
-            Assert.assertTrue(Arrays.equals(b, core.checkSender(providerRequest)));
+            ProviderChannel channel = core.getProvider(providerRequest);
+            Assert.assertTrue(Arrays.equals(b, core.getBitmask(channel, providerRequest.getFunction())));
 
         } catch (Exception ex) {
 
@@ -585,7 +594,8 @@ public class CoreTest {
 
         try {
 
-            core.checkSender(providerRequest);
+            ProviderChannel channel = core.getProvider(providerRequest);
+            core.getBitmask(channel, providerRequest.getFunction());
             Assert.fail();
 
         } catch (Exception ex) {

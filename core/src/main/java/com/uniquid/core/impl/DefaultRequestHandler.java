@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2016-2018. Uniquid Inc. or its affiliates. All Rights Reserved.
+ *
+ * License is in the "LICENSE" file accompanying this file.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.uniquid.core.impl;
 
 import com.uniquid.messages.CapabilityMessage;
@@ -7,6 +14,7 @@ import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
+import com.uniquid.register.provider.ProviderChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -21,10 +29,16 @@ public class DefaultRequestHandler extends RequestMessageHandler {
 
         try {
             // Check if sender is authorized or throw exception
-            byte[] payload = simplifier.checkSender(message);
+            ProviderChannel providerChannel = simplifier.getProvider(message);
 
-            LOGGER.info("Performing function...");
-            return simplifier.performProviderRequest(message, payload);
+            if (providerChannel != null) {
+                // Get bytes from Smart Contract
+                byte[] payload = simplifier.getBitmask(providerChannel, message.getFunction());
+
+                LOGGER.info("Performing function...");
+                return simplifier.performProviderRequest(message, payload);
+
+            }
 
         } catch (Exception e) {
             LOGGER.error("Error performing function: ", e);

@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2016-2018. Uniquid Inc. or its affiliates. All Rights Reserved.
+ *
+ * License is in the "LICENSE" file accompanying this file.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.uniquid.core.provider.impl;
 
 import com.uniquid.core.Core;
@@ -6,11 +13,13 @@ import com.uniquid.core.provider.exception.FunctionException;
 import com.uniquid.messages.FunctionRequestMessage;
 import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.node.UniquidNode;
+import org.bitcoinj.core.Transaction;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Hex;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +37,7 @@ public class ContractFunction extends GenericFunction {
             throws FunctionException, IOException {
 
         String params = inputMessage.getParameters();
-        String tx;
+        String serializedTx;
 
         List<String> path = new ArrayList<>();
 
@@ -38,7 +47,7 @@ public class ContractFunction extends GenericFunction {
 
             JSONObject jsonMessage = new JSONObject(params);
 
-            tx = jsonMessage.getString("tx");
+            serializedTx = jsonMessage.getString("tx");
 
             JSONArray paths = jsonMessage.getJSONArray("paths");
 
@@ -61,13 +70,13 @@ public class ContractFunction extends GenericFunction {
 
             UniquidNode spvNode = (UniquidNode) getFunctionContext().getAttribute(Core.NODE_ATTRIBUTE);
 
-            String signedTx = spvNode.signTransaction(tx, path);
+            Transaction tx = spvNode.createTransaction(serializedTx);
 
-            LOGGER.info("Broadcasting TX");
+            Transaction signedTx = spvNode.signTransaction(tx, path);
 
-            String txid = spvNode.broadCastTransaction(signedTx);
+            serializedTx = Hex.toHexString(signedTx.bitcoinSerialize());
 
-            outputMessage.setResult("0 - " + txid);
+            outputMessage.setResult("0 - " + serializedTx);
 
         } catch (Exception ex) {
 

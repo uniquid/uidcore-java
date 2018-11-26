@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2016-2018. Uniquid Inc. or its affiliates. All Rights Reserved.
+ *
+ * License is in the "LICENSE" file accompanying this file.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.uniquid.core;
 
 import com.uniquid.connector.Connector;
@@ -51,10 +58,10 @@ public class Listener implements Runnable {
                     FunctionResponseMessage response = handler.handleMessage(parentSimplifier, request);
                     if (response != null) {
                         endPoint.setResponse(response);
+                        endPoint.flush();
                     }
                 }
 
-                endPoint.flush();
             }
 
         } catch (InterruptedException e) {
