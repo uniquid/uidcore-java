@@ -38,15 +38,6 @@ public class DefaultRequestHandler extends RequestMessageHandler {
                 LOGGER.info("Performing function...");
                 return simplifier.performProviderRequest(message, payload);
 
-            } else {
-                String providerAddress = simplifier.getNode().getImprintingAddress();
-
-                FunctionResponseMessage responseMessage = new FunctionResponseMessage();
-                responseMessage.setError(FunctionResponseMessage.RESULT_NO_PERMISSION);
-                responseMessage.setResult("Sender not found in Provider register!");
-                responseMessage.setProvider(providerAddress);
-
-                return responseMessage;
             }
 
         } catch (Exception e) {
