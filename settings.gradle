@@ -1,13 +1,13 @@
 rootProject.name = 'uidcore-java'
 
-include ':utils'
+include ':uidutils-java'
 include ':uidcore-java:core'
 include ':uidcore-java:node'
 include ':uidcore-java:java-package'
 include ':uidcore-java:register-spi'
 include ':uidcore-java:register-sqlite'
 
-project(':utils').projectDir = "$rootDir/../uniquid-utils" as File
+project(':uidutils-java').projectDir = "$rootDir/../uidutils-java" as File
 project(':uidcore-java:core').projectDir = "$rootDir/core" as File
 project(':uidcore-java:node').projectDir = "$rootDir/node" as File
 project(':uidcore-java:java-package').projectDir = "$rootDir/java-package" as File
