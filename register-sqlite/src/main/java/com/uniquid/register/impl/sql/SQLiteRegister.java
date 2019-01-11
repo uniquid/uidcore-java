@@ -16,8 +16,6 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,10 +27,6 @@ import java.util.List;
  * SQLite as data store.
  */
 public class SQLiteRegister implements ProviderRegister, UserRegister {
-
-    public static final String CREATE_PROVIDER_TABLE = "create table provider_channel (provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, creation_time integer not null, since integer, until integer, path text not null, primary key (provider_address, user_address));";
-
-    public static final String CREATE_USER_TABLE = "create table user_channel (provider_name text not null, provider_address text not null, user_address text not null, bitmask text not null, revoke_address text not null, revoke_tx_id text not null, since integer, until integer, path text not null, primary key (provider_name, provider_address, user_address));";
 
     private static final String PROVIDER_CHANNEL_BY_USER = "select provider_address, user_address, bitmask, revoke_address, revoke_tx_id, creation_time, since, until, path from provider_channel where user_address = ?";
 
@@ -60,8 +54,6 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
     private static final String INSERT_USER_CHANNEL = "insert into user_channel (provider_name, provider_address, user_address, bitmask, revoke_address, revoke_tx_id, since, until, path) values (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
     private static final String USER_CHANNEL_DELETE = "delete from user_channel where provider_name = ? and provider_address = ? and user_address = ?";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SQLiteRegister.class.getName());
 
     protected BasicDataSource dataSource;
 
