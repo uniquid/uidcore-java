@@ -10,7 +10,7 @@ description = ''
 dependencies {
     compile group: 'org.bitcoinj', name: 'bitcoinj-core-uniquid', version:'0.15-SNAPSHOT'
     compile project(':uidcore-java:register-spi')
-    compile project(':utils')
+    compile project(':uidutils-java')
     testCompile group: 'junit', name: 'junit', version:'4.12'
     testCompile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.22'
     testCompile group: 'org.slf4j', name: 'slf4j-nop', version:'1.7.22'
