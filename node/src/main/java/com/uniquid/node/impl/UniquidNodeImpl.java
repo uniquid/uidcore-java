@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.impl.utils.NodeUtils;
+import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.user.UserChannel;
 import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.ChildNumber;
@@ -266,6 +267,21 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
         }
 
     }
+
+    private ChannelKey getChannelKeysAtPath(String path) {
+        ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, path);
+        DeterministicKey key = deterministicHierarchy.get(list, true, true);
+        return new ChannelKey(key, uniquidNodeConfiguration.getNetworkParameters());
+    }
+
+    public ChannelKey getChannelKey(ProviderChannel providerChannel) {
+        return getChannelKeysAtPath(providerChannel.getPath());
+    }
+
+    public ChannelKey getChannelKey(UserChannel userChannel) {
+        return getChannelKeysAtPath(userChannel.getPath());
+    }
+
 
     @Override
     public String getAddressAtPath(String path) throws NodeException {
