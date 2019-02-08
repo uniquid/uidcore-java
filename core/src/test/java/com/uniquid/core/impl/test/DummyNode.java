@@ -12,6 +12,7 @@ import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
+import com.uniquid.params.UniquidRegTest;
 import org.bitcoinj.core.Transaction;
 
 import java.util.List;
@@ -80,7 +81,7 @@ public class DummyNode implements UniquidNode {
 
     @Override
     public Transaction createTransaction(final String serializedTx) throws NodeException {
-        throw new NodeException("Exception");
+        return new Transaction(UniquidRegTest.testNet());
     }
 
     @Override

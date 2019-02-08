@@ -204,7 +204,9 @@ public class UniquidWatchingNodeImplTest {
 
     }
 
-    @Test
+    // This test is disabled because it's related to old REG_TEST network which is wiped
+    // TODO: rework this test for current TEST_NET
+    /*@Test
     public void testUpdateNode() throws Exception {
 
         UniquidWatchingNodeImpl.WatchingNodeBuilder builder = new UniquidWatchingNodeImpl.WatchingNodeBuilder();
@@ -274,6 +276,6 @@ public class UniquidWatchingNodeImplTest {
         Assert.assertEquals(UniquidNodeState.READY, uniquidNodeReloaded.getNodeState());
 
         Assert.assertEquals("0.00605 BTC", uniquidNodeReloaded.getSpendableBalance());
-    }
+    }*/
 
 }

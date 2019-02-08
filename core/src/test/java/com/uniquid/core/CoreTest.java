@@ -245,6 +245,13 @@ public class CoreTest {
 
         final ProviderRegister dummyProvider = new DummyProviderRegister();
 
+        ProviderChannel pChannel = new ProviderChannel();
+        pChannel.setUserAddress("userAddress");
+        pChannel.setSince(0);
+        pChannel.setUntil(Long.MAX_VALUE);
+        pChannel.setBitmask("00000040000000000000000000000000000000");
+        dummyProvider.insertChannel(pChannel);
+
         final UserRegister dummyUser = new DummyUserRegister();
 
         RegisterFactory dummyFactory = new RegisterFactory() {
@@ -289,7 +296,7 @@ public class CoreTest {
 
         } catch (Exception ex) {
 
-            Assert.assertEquals("Sender not found in Provider register!", ex.getMessage());
+            Assert.assertEquals("Sender not authorized!", ex.getMessage());
 
         }
 

@@ -197,7 +197,9 @@ public class UniquidNodeImplTest {
 
     }
 
-    @Test
+    // This test is disabled because it's related to old REG_TEST network which is wiped
+    // TODO: rework this test for current TEST_NET
+    /*@Test
     public void testUpdateNode() throws Exception {
 
         @SuppressWarnings("rawtypes")
@@ -435,6 +437,6 @@ public class UniquidNodeImplTest {
 
 
 
-    }
+    }*/
 
 }
