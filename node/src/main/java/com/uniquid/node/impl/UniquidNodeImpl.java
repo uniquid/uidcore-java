@@ -271,7 +271,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
     private ChannelKey getChannelKeysAtPath(String path) {
         ImmutableList<ChildNumber> list = NodeUtils.listFromPath(NodeUtils.M_BASE_PATH, path);
         DeterministicKey key = deterministicHierarchy.get(list, true, true);
-        return new ChannelKey(key, uniquidNodeConfiguration.getNetworkParameters());
+        return new ChannelKey(key);
     }
 
     public ChannelKey getChannelKey(ProviderChannel providerChannel) {
