@@ -29,15 +29,15 @@ public class DefaultRequestHandler extends RequestMessageHandler {
 
         try {
             // Check if sender is authorized or throw exception
-            ProviderChannel providerChannel = simplifier.getProvider(message);
+            ProviderChannel providerChannel = simplifier.getNode().getProviderChannel(message);
 
             if (providerChannel != null) {
                 // Get bytes from Smart Contract
-                byte[] payload = simplifier.getBitmask(providerChannel, message.getFunction());
+                byte[] payload = simplifier.getBitmask(providerChannel, message.getMethod());
 
                 LOGGER.info("Performing function...");
-                return simplifier.performProviderRequest(message, payload);
-
+                message.setSender(providerChannel.getUserAddress());
+                return simplifier.performProviderRequest(message, payload, providerChannel.getPath());
             }
 
         } catch (Exception e) {
