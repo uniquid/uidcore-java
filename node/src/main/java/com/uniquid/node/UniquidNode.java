@@ -170,7 +170,17 @@ public interface UniquidNode {
 
     boolean isNodeReady();
 
-    ProviderChannel getProviderChannel(FunctionRequestMessage requestMessage);
+    /**
+     * Return the ProviderChannel from the received {@code FunctionRequestMessage}
+     * @param requestMessage the {@code FunctionRequestMessage} received
+     * @return the {@code ProviderChannel} using the message sender
+     * */
+    ProviderChannel getProviderChannel(FunctionRequestMessage requestMessage) throws Exception;
 
-    UserChannel getUserChannel(FunctionResponseMessage responseMessage);
+    /**
+     * Return the UserChannel from the received response message
+     * @param responseMessage the {@code FunctionResponseMessage} received
+     * @return the {@code UserChannel} using the the message sender
+     * */
+    UserChannel getUserChannel(FunctionResponseMessage responseMessage) throws Exception;
 }
