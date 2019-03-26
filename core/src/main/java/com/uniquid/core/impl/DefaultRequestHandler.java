@@ -31,7 +31,7 @@ public class DefaultRequestHandler extends RequestMessageHandler {
             // Check if sender is authorized or throw exception
             ProviderChannel providerChannel = simplifier.getNode().getProviderChannel(message);
 
-            if (providerChannel != null) {
+            if (providerChannel != null && isValidMessage(message.getId())) {
                 // Get bytes from Smart Contract
                 byte[] payload = simplifier.getBitmask(providerChannel, message.getMethod());
 
