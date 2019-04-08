@@ -404,11 +404,11 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
      * {@inheritDoc}
      */
     @Override
-    public UserChannel getChannelByProviderAddress(String name) throws RegisterException {
+    public UserChannel getChannelByProviderAddress(String address) throws RegisterException {
 
-        if (!StringUtils.isNotBlank(name)) {
+        if (!StringUtils.isNotBlank(address)) {
 
-            throw new RegisterException("name is not valid");
+            throw new RegisterException("address is not valid");
 
         }
 
@@ -418,7 +418,7 @@ public class SQLiteRegister implements ProviderRegister, UserRegister {
 
         try {
 
-            return run.query(USER_CHANNEL_BY_ADDRESS, handler, name);
+            return run.query(USER_CHANNEL_BY_ADDRESS, handler, address);
 
         } catch (SQLException ex) {
 

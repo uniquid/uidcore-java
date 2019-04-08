@@ -70,7 +70,7 @@ public class UniquidSimplifier extends Core {
     @Override
     protected Function getFunction(FunctionRequestMessage inputMessage) {
 
-        int rpcMethod = inputMessage.getFunction();
+        int rpcMethod = inputMessage.getMethod();
 
         return functionsMap.get(rpcMethod);
 

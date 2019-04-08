@@ -8,6 +8,8 @@
 package com.uniquid.node.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.exception.NodeException;
@@ -19,6 +21,7 @@ import com.uniquid.node.impl.utils.NodeUtils;
 import com.uniquid.node.listeners.EmptyUniquidNodeEventListener;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.register.RegisterFactory;
+import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.userclient.UserClientFactory;
@@ -38,6 +41,7 @@ import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.SignatureException;
 import java.util.*;
 
 /**
@@ -317,6 +321,28 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
 
         }
 
+    }
+
+    @Override
+    public ProviderChannel getProviderChannel(FunctionRequestMessage requestMessage) throws Exception {
+        // Verify signature and extract public key used to sign the message
+        ECKey signingKey = ECKey.signedMessageToKey(requestMessage.prepareToSign(), requestMessage.getSignature());
+
+        // retrieve the address from the public key
+        LegacyAddress sender = LegacyAddress.fromKey(uniquidNodeConfiguration.getNetworkParameters(), signingKey);
+
+        return uniquidNodeConfiguration.getRegisterFactory().getProviderRegister().getChannelByUserAddress(sender.toBase58());
+    }
+
+    @Override
+    public UserChannel getUserChannel(FunctionResponseMessage responseMessage) throws Exception {
+        // Verify signature and extract public key used to sign the message
+        ECKey signingKey = ECKey.signedMessageToKey(responseMessage.prepareToSign(), responseMessage.getSignature());
+
+        // retrieve the address from the public key
+        LegacyAddress sender = LegacyAddress.fromKey(uniquidNodeConfiguration.getNetworkParameters(), signingKey);
+
+        return uniquidNodeConfiguration.getRegisterFactory().getUserRegister().getChannelByProviderAddress(sender.toBase58());
     }
 
     @Override

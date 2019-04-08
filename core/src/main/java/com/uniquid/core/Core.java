@@ -16,7 +16,6 @@ import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.register.RegisterFactory;
 import com.uniquid.register.provider.ProviderChannel;
-import com.uniquid.register.provider.ProviderRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -96,46 +95,31 @@ public abstract class Core {
      *
      * @throws Exception in case a problem occurs.
      */
-    public final FunctionResponseMessage performProviderRequest(final FunctionRequestMessage providerRequest, final byte[] payload) throws Exception {
+    public final FunctionResponseMessage performProviderRequest(final FunctionRequestMessage providerRequest, final byte[] payload, String path) throws Exception {
 
         FunctionResponseMessage providerResponse = new FunctionResponseMessage();
+        providerResponse.setId(providerRequest.getId());
+
         Function function = getFunction(providerRequest);
 
-        try {
-
-            if (function != null) {
-                try {
-                    function.service(providerRequest, providerResponse, payload);
-                    providerResponse.setError(FunctionResponseMessage.RESULT_OK);
-
-                } catch (Exception ex) {
-                    LOGGER.error("Error while executing function", ex);
-                    providerResponse.setError(FunctionResponseMessage.RESULT_ERROR);
-                    providerResponse.setResult("Error while executing function: " + ex.getMessage());
-
-                }
-            } else {
-                providerResponse.setError(FunctionResponseMessage.RESULT_FUNCTION_NOT_AVAILABLE);
-                providerResponse.setResult("Function not available");
-
+        if (function != null) {
+            try {
+                function.service(providerRequest, providerResponse, payload);
+                providerResponse.setError(FunctionResponseMessage.RESULT_OK);
+            } catch (Exception ex) {
+                LOGGER.error("Error while executing function", ex);
+                providerResponse.setError(FunctionResponseMessage.RESULT_ERROR);
+                providerResponse.setResult("Error while executing function: " + ex.getMessage());
             }
-        } finally {
-            // Populate all missing parameters...
-            ProviderChannel providerChannel = getProvider(providerRequest);
-            providerResponse.setProvider(providerChannel.getProviderAddress());
+        } else {
+            providerResponse.setError(FunctionResponseMessage.RESULT_FUNCTION_NOT_AVAILABLE);
+            providerResponse.setResult("Function not available");
         }
 
+        String signature = uniquidNode.signMessage(providerResponse.prepareToSign(), path);
+        providerResponse.setSignature(signature);
+
         return providerResponse;
-    }
-
-    public ProviderChannel getProvider(FunctionRequestMessage providerRequest) throws Exception {
-
-        // Retrieve sender
-        String sender = providerRequest.getUser();
-
-        ProviderRegister providerRegister = registerFactory.getProviderRegister();
-
-        return providerRegister.getChannelByUserAddress(sender);
     }
 
     /**
