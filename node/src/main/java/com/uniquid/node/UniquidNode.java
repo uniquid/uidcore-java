@@ -7,8 +7,12 @@
 
 package com.uniquid.node;
 
+import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
+import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.user.UserChannel;
 import org.bitcoinj.core.Transaction;
 
 import java.util.List;
@@ -165,4 +169,18 @@ public interface UniquidNode {
     void receiveUserCapability(UniquidCapability uniquidCapability, String providerName, String path) throws NodeException;
 
     boolean isNodeReady();
+
+    /**
+     * Return the ProviderChannel from the received {@code FunctionRequestMessage}
+     * @param requestMessage the {@code FunctionRequestMessage} received
+     * @return the {@code ProviderChannel} using the message sender
+     * */
+    ProviderChannel getProviderChannel(FunctionRequestMessage requestMessage) throws Exception;
+
+    /**
+     * Return the UserChannel from the received response message
+     * @param responseMessage the {@code FunctionResponseMessage} received
+     * @return the {@code UserChannel} using the the message sender
+     * */
+    UserChannel getUserChannel(FunctionResponseMessage responseMessage) throws Exception;
 }

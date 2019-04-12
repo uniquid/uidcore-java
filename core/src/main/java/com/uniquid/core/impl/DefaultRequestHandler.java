@@ -29,15 +29,15 @@ public class DefaultRequestHandler extends RequestMessageHandler {
 
         try {
             // Check if sender is authorized or throw exception
-            ProviderChannel providerChannel = simplifier.getProvider(message);
+            ProviderChannel providerChannel = simplifier.getNode().getProviderChannel(message);
 
-            if (providerChannel != null) {
+            if (providerChannel != null && isValidMessage(message.getId())) {
                 // Get bytes from Smart Contract
-                byte[] payload = simplifier.getBitmask(providerChannel, message.getFunction());
+                byte[] payload = simplifier.getBitmask(providerChannel, message.getMethod());
 
                 LOGGER.info("Performing function...");
-                return simplifier.performProviderRequest(message, payload);
-
+                message.setSender(providerChannel.getUserAddress());
+                return simplifier.performProviderRequest(message, payload, providerChannel.getPath());
             }
 
         } catch (Exception e) {
@@ -79,5 +79,19 @@ public class DefaultRequestHandler extends RequestMessageHandler {
         } catch (NodeException e) {
             LOGGER.error("Error receiving provider capability: ", e);
         }
+    }
+
+    /**
+     * Check if message is still valid
+     * @param id is the id of the received message
+     * @return true if message id is less then current time in milliseconds + 60 seconds
+     * and greater then current time - 60 seconds, false otherwise
+     * */
+    private boolean isValidMessage(long id) {
+        long now = System.currentTimeMillis();
+        long minLimit = now - (60 * 1000);
+        long maxLimit = now + (60 * 1000);
+
+        return (id > minLimit && id < maxLimit);
     }
 }
