@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -205,6 +207,15 @@ public class NodeUtils {
     }
 
     private static InputStream openStream(NetworkParameters params) {
+        try {
+            String path = params.getId() + ".uniquidcheckpoints.txt";
+            File checkpoint = new File(path);
+            if(checkpoint.exists() && !checkpoint.isDirectory()) {
+                return new FileInputStream(checkpoint);
+            }
+        } catch (FileNotFoundException e) {
+            return NodeUtils.class.getResourceAsStream("/" + params.getId() + ".uniquidcheckpoints.txt");
+        }
         return NodeUtils.class.getResourceAsStream("/" + params.getId() + ".uniquidcheckpoints.txt");
     }
 
