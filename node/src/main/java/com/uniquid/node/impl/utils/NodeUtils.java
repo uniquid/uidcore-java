@@ -189,7 +189,7 @@ public class NodeUtils {
 
             Transaction t = peerGroup.broadcastTransaction(sendRequest.tx, 2).future().get(2, TimeUnit.MINUTES);
 
-            return t.getHashAsString();
+            return t.getTxId().toString();
 
         } catch (Throwable t) {
 
