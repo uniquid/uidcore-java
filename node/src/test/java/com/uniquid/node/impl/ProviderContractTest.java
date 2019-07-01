@@ -14,10 +14,11 @@ import org.bitcoinj.core.Context;
 import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.Wallet;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.junit.Test;
-import org.spongycastle.util.encoders.Hex;
 
 public class ProviderContractTest {
 
@@ -102,7 +103,7 @@ class DummyWallet extends Wallet {
     }
 
     @Override
-    public boolean isPubKeyHashMine(byte[] pubkeyHash) {
+    public boolean isPubKeyHashMine(byte[] pubkeyHash, Script.ScriptType scriptType) {
         return true;
     }
 

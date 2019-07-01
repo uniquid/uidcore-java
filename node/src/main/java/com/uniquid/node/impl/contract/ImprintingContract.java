@@ -13,6 +13,7 @@ import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.provider.ProviderRegister;
 import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.script.Script;
 import org.bitcoinj.script.ScriptPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +43,10 @@ public class ImprintingContract extends AbstractContract {
     @Override
     public void doRealContract(final Transaction tx) throws Exception {
 
-        LOGGER.info("Making imprint contract from TX {}", tx.getHashAsString());
+        LOGGER.info("Making imprint contract from TX {}", tx.getTxId().toString());
 
         LegacyAddress legacyAddress = LegacyAddress.fromPubKeyHash(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
-                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
+                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromP2SH(tx.getInput(0).getScriptSig())));
 
         // Retrieve sender
         String sender = legacyAddress.toBase58();
@@ -63,7 +64,7 @@ public class ImprintingContract extends AbstractContract {
 
                 ProviderRegister providerRegister = uniquidNodeStateContext.getUniquidNodeConfiguration().getRegisterFactory().getProviderRegister();
 
-                ECKey key = uniquidNodeStateContext.getProviderWallet().findKeyFromPubHash(uniquidNodeStateContext.getImprintingAddress().getHash());
+                ECKey key = uniquidNodeStateContext.getProviderWallet().findKeyFromPubKeyHash(uniquidNodeStateContext.getImprintingAddress().getHash(), Script.ScriptType.P2PKH);
                 String path = null;
                 if (key != null) {
                     path = ((DeterministicKey) key).getPathAsString();
@@ -75,7 +76,7 @@ public class ImprintingContract extends AbstractContract {
                 providerChannel.setProviderAddress(uniquidNodeStateContext.getImprintingAddress().toBase58());
                 providerChannel.setBitmask(CONTRACT_FUNCTION);
                 providerChannel.setRevokeAddress("IMPRINTING");
-                providerChannel.setRevokeTxId(tx.getHashAsString());
+                providerChannel.setRevokeTxId(tx.getTxId().toString());
                 providerChannel.setCreationTime(tx.getUpdateTime().getTime()/1000);
                 providerChannel.setSince(0);
                 providerChannel.setUntil(Long.MAX_VALUE);

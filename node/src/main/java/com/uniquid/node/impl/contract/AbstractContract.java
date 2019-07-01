@@ -35,7 +35,7 @@ public abstract class AbstractContract<T extends UniquidNodeConfiguration> imple
         // Transaction already confirmed
         if (tx.getConfidence().getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)) {
 
-            LOGGER.info("TX {} was included in a block. Checking for a contract", tx.getHashAsString());
+            LOGGER.info("TX {} was included in a block. Checking for a contract", tx.getTxId().toString());
 
             doRealContract(tx);
 
@@ -53,7 +53,7 @@ public abstract class AbstractContract<T extends UniquidNodeConfiguration> imple
                         if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.BUILDING)
                                 && reason.equals(ChangeReason.TYPE)) {
 
-                            LOGGER.info("TX {} was included in a block. Checking for a contract", tx.getHashAsString());
+                            LOGGER.info("TX {} was included in a block. Checking for a contract", tx.getTxId().toString());
 
                             doRealContract(tx);
 
@@ -64,7 +64,7 @@ public abstract class AbstractContract<T extends UniquidNodeConfiguration> imple
                         } else if (confidence.getConfidenceType().equals(TransactionConfidence.ConfidenceType.DEAD)
                                 && reason.equals(ChangeReason.TYPE)) {
 
-                            LOGGER.warn("Something bad happened! TX {} is DEAD!", tx.getHashAsString());
+                            LOGGER.warn("Something bad happened! TX {} is DEAD!", tx.getTxId().toString());
 
                             tx.getConfidence().removeEventListener(this);
 

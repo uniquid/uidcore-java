@@ -9,13 +9,13 @@ package com.uniquid.node.impl.utils;
 
 import com.google.common.collect.ImmutableList;
 import com.uniquid.node.impl.UniquidNodeConfiguration;
+import com.uniquid.node.listeners.UniquidPeerEventListener;
 import org.bitcoinj.core.*;
 import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.crypto.HDKeyDerivation;
-import org.bitcoinj.jni.NativePeerEventListener;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.net.discovery.SeedPeers;
 import org.bitcoinj.script.ScriptPattern;
@@ -24,9 +24,9 @@ import org.bitcoinj.store.SPVBlockStore;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -69,7 +69,7 @@ public class NodeUtils {
      * @param listener the listener to inform for status changes
      */
     public static void syncBlockChain(UniquidNodeConfiguration configuration, final List<Wallet> wallets, final File chainFile,
-                                      final DownloadProgressTracker listener, final NativePeerEventListener peerListener) {
+                                      final DownloadProgressTracker listener, final UniquidPeerEventListener peerListener) {
 
         try {
             NetworkParameters params = configuration.getNetworkParameters();
@@ -147,7 +147,7 @@ public class NodeUtils {
      * @param listener the listener to inform for status changes
      */
     public static void syncBlockChain(UniquidNodeConfiguration configuration, final Wallet wallet, final File chainFile,
-                                      final DownloadProgressTracker listener, final NativePeerEventListener peerListener) {
+                                      final DownloadProgressTracker listener, final UniquidPeerEventListener peerListener) {
 
         syncBlockChain(configuration, Arrays.asList(new Wallet[] { wallet }), chainFile, listener, peerListener);
 
@@ -310,9 +310,9 @@ public class NodeUtils {
     }
 
     public static LegacyAddress getAddressFromTransactionOutput(TransactionOutput transactionOutput, NetworkParameters params) {
-        if (ScriptPattern.isPayToPubKeyHash(transactionOutput.getScriptPubKey()))
+        if (ScriptPattern.isP2PKH(transactionOutput.getScriptPubKey()))
             return LegacyAddress.fromPubKeyHash(params,
-                    ScriptPattern.extractHashFromPayToPubKeyHash(transactionOutput.getScriptPubKey()));
+                    ScriptPattern.extractHashFromP2PKH(transactionOutput.getScriptPubKey()));
         return null;
     }
 

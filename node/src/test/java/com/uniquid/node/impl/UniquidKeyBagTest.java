@@ -5,6 +5,7 @@ import com.uniquid.node.impl.utils.NodeUtils;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,13 +39,13 @@ public class UniquidKeyBagTest {
 
         uniquidKeyBag.addDeterministicKey(signingKey2);
 
-        Assert.assertEquals(signingKey1, uniquidKeyBag.findKeyFromPubHash(signingKey1.getPubKeyHash()));
+        Assert.assertEquals(signingKey1, uniquidKeyBag.findKeyFromPubKeyHash(signingKey1.getPubKeyHash(), Script.ScriptType.P2PKH));
 
         Assert.assertEquals(signingKey1, uniquidKeyBag.findKeyFromPubKey(signingKey1.getPubKey()));
 
         Assert.assertNull(uniquidKeyBag.findRedeemDataFromScriptHash(signingKey1.getPubKey()));
 
-        Assert.assertEquals(signingKey2, uniquidKeyBag.findKeyFromPubHash(signingKey2.getPubKeyHash()));
+        Assert.assertEquals(signingKey2, uniquidKeyBag.findKeyFromPubKeyHash(signingKey2.getPubKeyHash(), Script.ScriptType.P2PKH));
 
         Assert.assertEquals(signingKey2, uniquidKeyBag.findKeyFromPubKey(signingKey2.getPubKey()));
 

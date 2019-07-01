@@ -2,9 +2,9 @@ package com.uniquid.node.impl.utils;
 
 import com.uniquid.params.UniquidRegTest;
 import org.bitcoinj.core.Transaction;
+import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.junit.Test;
-import org.spongycastle.util.encoders.Hex;
 
 public class WalletUtilsTest {
 

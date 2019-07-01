@@ -10,6 +10,7 @@ package com.uniquid.node.impl.utils;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.script.Script;
+import org.bitcoinj.script.ScriptPattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +68,7 @@ public abstract class WalletUtils {
 
             Script script = to.get(OP_RETURN_INDEX).getScriptPubKey();
 
-            if (script.isOpReturn()) {
+            if (ScriptPattern.isOpReturn(script)) {
 
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 

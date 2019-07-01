@@ -9,9 +9,11 @@ package com.uniquid.node.impl;
 
         import org.bitcoinj.core.ECKey;
         import org.bitcoinj.crypto.DeterministicKey;
+        import org.bitcoinj.script.Script;
         import org.bitcoinj.wallet.KeyBag;
         import org.bitcoinj.wallet.RedeemData;
 
+        import javax.annotation.Nullable;
         import java.nio.ByteBuffer;
         import java.util.HashMap;
 
@@ -25,9 +27,10 @@ public class UniquidKeyBag implements KeyBag {
         pubKeyhashes.put(ByteBuffer.wrap(deterministicKey.getPubKeyHash()), deterministicKey);
     }
 
+    @Nullable
     @Override
-    public ECKey findKeyFromPubHash(byte[] pubkeyHash) {
-        return pubKeyhashes.get(ByteBuffer.wrap(pubkeyHash));
+    public ECKey findKeyFromPubKeyHash(byte[] pubKeyHash, @Nullable Script.ScriptType scriptType) {
+        return pubKeyhashes.get(ByteBuffer.wrap(pubKeyHash));
     }
 
     @Override

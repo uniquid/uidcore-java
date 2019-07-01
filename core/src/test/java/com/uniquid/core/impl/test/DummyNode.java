@@ -8,12 +8,14 @@
 package com.uniquid.core.impl.test;
 
 import com.uniquid.messages.FunctionRequestMessage;
+import com.uniquid.messages.FunctionResponseMessage;
 import com.uniquid.node.UniquidCapability;
 import com.uniquid.node.UniquidNode;
 import com.uniquid.node.UniquidNodeState;
 import com.uniquid.node.exception.NodeException;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
 import com.uniquid.register.provider.ProviderChannel;
+import com.uniquid.register.user.UserChannel;
 import org.bitcoinj.core.Transaction;
 
 import java.util.List;
@@ -124,6 +126,11 @@ public class DummyNode implements UniquidNode {
 
     @Override
     public ProviderChannel getProviderChannel(FunctionRequestMessage requestMessage) {
+        return null;
+    }
+
+    @Override
+    public UserChannel getUserChannel(FunctionResponseMessage responseMessage) throws Exception {
         return null;
     }
 

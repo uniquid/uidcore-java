@@ -59,7 +59,7 @@ public class UniquidNodeStateUtils {
     public static boolean isValidRevokeContract(Transaction tx, NetworkParameters parameters, RegisterFactory registerFactory) {
 
         LegacyAddress address = LegacyAddress.fromPubKeyHash(parameters,
-                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
+                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromP2PKH(tx.getInput(0).getScriptSig())));
 
         // Retrieve sender
         String sender = address.toBase58();
@@ -92,7 +92,7 @@ public class UniquidNodeStateUtils {
     public static boolean isValidRevokeUserContract(Transaction tx, NetworkParameters parameters, RegisterFactory registerFactory) {
 
         LegacyAddress address = LegacyAddress.fromPubKeyHash(parameters,
-                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
+                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromP2PKH(tx.getInput(0).getScriptSig())));
 
         // Retrieve sender
         String sender = address.toBase58();

@@ -22,9 +22,9 @@ import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.script.ScriptPattern;
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +45,7 @@ public class UserContract extends AbstractContract {
     @Override
     public void doRealContract(final Transaction tx) throws Exception {
 
-        LOGGER.info("Making user contract from TX {}", tx.getHashAsString());
+        LOGGER.info("Making user contract from TX {}", tx.getTxId().toString());
 
         List<TransactionOutput> transactionOutputs = tx.getOutputs();
 
@@ -57,12 +57,12 @@ public class UserContract extends AbstractContract {
         Script script = tx.getInput(0).getScriptSig();
 
         LegacyAddress providerAddress = LegacyAddress.fromPubKeyHash(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
-                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(script)));
+                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromP2SH(script)));
 
         List<TransactionOutput> ts = new ArrayList<>(transactionOutputs);
 
         LegacyAddress userAddress = getAddressFromTransactionOutput(ts.get(0), uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters());
-        if (userAddress == null || !uniquidNodeStateContext.getUserWallet().isPubKeyHashMine(userAddress.getHash())) {
+        if (userAddress == null || !uniquidNodeStateContext.getUserWallet().isPubKeyHashMine(userAddress.getHash(), Script.ScriptType.P2PKH)) {
             LOGGER.error("Contract not valid! User address is null or we are not the user");
             return;
         }
@@ -84,7 +84,7 @@ public class UserContract extends AbstractContract {
             return;
         }
 
-        ECKey key = uniquidNodeStateContext.getUserWallet().findKeyFromPubHash(userAddress.getHash());
+        ECKey key = uniquidNodeStateContext.getUserWallet().findKeyFromPubKeyHash(userAddress.getHash(), Script.ScriptType.P2PKH);
         String path = null;
         if (key != null) {
             path = ((DeterministicKey) key).getPathAsString();
@@ -98,7 +98,7 @@ public class UserContract extends AbstractContract {
         userChannel.setUserAddress(userAddress.toBase58());
         userChannel.setProviderName(providerName);
         userChannel.setRevokeAddress(revoke.toBase58());
-        userChannel.setRevokeTxId(tx.getHashAsString());
+        userChannel.setRevokeTxId(tx.getTxId().toString());
         userChannel.setSince(0);
         userChannel.setUntil(Long.MAX_VALUE);
         userChannel.setPath(path);
@@ -146,7 +146,7 @@ public class UserContract extends AbstractContract {
     public void revokeRealContract(final Transaction tx) throws Exception {
 
         LegacyAddress address = LegacyAddress.fromPubKeyHash(uniquidNodeStateContext.getUniquidNodeConfiguration().getNetworkParameters(),
-                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromPayToScriptHash(tx.getInput(0).getScriptSig())));
+                org.bitcoinj.core.Utils.sha256hash160(ScriptPattern.extractHashFromP2SH(tx.getInput(0).getScriptSig())));
 
         // Retrieve sender
         String sender = address.toBase58();

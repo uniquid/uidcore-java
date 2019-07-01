@@ -20,8 +20,8 @@ import com.uniquid.node.impl.state.UniquidNodeState;
 import com.uniquid.node.impl.utils.NodeUtils;
 import com.uniquid.node.listeners.EmptyUniquidNodeEventListener;
 import com.uniquid.node.listeners.UniquidNodeEventListener;
+import com.uniquid.node.listeners.UniquidPeerEventListener;
 import com.uniquid.register.RegisterFactory;
-import com.uniquid.register.exception.RegisterException;
 import com.uniquid.register.provider.ProviderChannel;
 import com.uniquid.register.user.UserChannel;
 import com.uniquid.userclient.UserClientFactory;
@@ -30,18 +30,16 @@ import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
-import org.bitcoinj.jni.NativePeerEventListener;
 import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
 import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.bitcoinj.wallet.listeners.WalletCoinsSentEventListener;
+import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.SignatureException;
 import java.util.*;
 
 /**
@@ -678,7 +676,7 @@ public class UniquidWatchingNodeImpl<T extends UniquidNodeConfiguration> impleme
     /**
      * Default implementation of BitcoinJ callback to receive events regarding peer connection
      */
-    protected class UniquidPeerConnectionListener extends NativePeerEventListener {
+    protected class UniquidPeerConnectionListener extends UniquidPeerEventListener {
 
         public UniquidPeerConnectionListener() {
             // protected class have default constructor protected.
