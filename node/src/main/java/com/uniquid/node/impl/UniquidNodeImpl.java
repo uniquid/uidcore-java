@@ -261,7 +261,7 @@ public class UniquidNodeImpl<T extends UniquidNodeConfiguration> extends Uniquid
 
         } catch (Exception ex) {
 
-            throw new NodeException("Exception while creating capability", ex);
+            throw new NodeException(ex.getMessage(), ex);
 
         }
 
